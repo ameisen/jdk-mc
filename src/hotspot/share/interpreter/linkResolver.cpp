@@ -582,6 +582,26 @@ void LinkResolver::check_method_accessability(Klass* ref_klass,
   // Any existing exceptions that may have been thrown, for example LinkageErrors
   // from nest-host resolution, have been allowed to propagate.
   if (!can_access) {
+    const char * const method_external_name = sel_method->external_name();
+
+    // DC-MC HACK
+    // This is an override for a Google Guava function that is deprecated and was unmarked as private,
+    // but is still used by some Minecraft mods despite the Guava version having been upgraded.
+    // Effectively, we want to ignore the inability to access these methods in this case.
+    // I'd rather perform dynamic rewriting of the method calls, but that's more difficult.
+
+    static constexpr const char * const force_allowed_methods[] = {
+      "com.google.common.collect.TreeTraverser com.google.common.io.Files.fileTreeTraverser()"
+    };
+
+    for (auto *name : force_allowed_methods) {
+      if (strcmp(name, method_external_name) == 0) {
+        return;
+      }
+    }
+
+    // ~DC-MC HACK
+
     ResourceMark rm(THREAD);
     bool same_module = (sel_klass->module() == ref_klass->module());
     Exceptions::fthrow(
@@ -592,7 +612,7 @@ void LinkResolver::check_method_accessability(Klass* ref_klass,
       sel_method->is_abstract()  ? "abstract "  : "",
       sel_method->is_protected() ? "protected " : "",
       sel_method->is_private()   ? "private "   : "",
-      sel_method->external_name(),
+      method_external_name,
       (same_module) ? ref_klass->joint_in_module_of_loader(sel_klass) : ref_klass->class_in_module_of_loader(),
       (same_module) ? "" : "; ",
       (same_module) ? "" : sel_klass->class_in_module_of_loader()

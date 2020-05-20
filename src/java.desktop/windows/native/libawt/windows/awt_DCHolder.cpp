@@ -23,7 +23,6 @@
  * questions.
  */
 
-#include "awt.h"
 #include "awt_ole.h"
 #include "awt_DCHolder.h"       // main symbols
 

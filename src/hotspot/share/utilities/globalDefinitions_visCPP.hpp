@@ -62,15 +62,15 @@
 //
 // Solution: For 64-bit architectures, redefine NULL as 64-bit constant 0.
 #ifdef _LP64
-#undef NULL
+# undef NULL
 // 64-bit Windows uses a P64 data model (not LP64, although we define _LP64)
 // Since longs are 32-bit we cannot use 0L here.  Use the Visual C++ specific
 // 64-bit integer-suffix (LL) instead.
-#define NULL 0LL
+# define NULL 0LL
 #else
-#ifndef NULL
-#define NULL 0
-#endif
+# ifndef NULL
+#   define NULL 0
+# endif
 #endif
 
 // NULL vs NULL_WORD:
@@ -112,22 +112,22 @@ inline int g_isfinite(jdouble f)                 { return _finite(f); }
 
 // Visual Studio 2005 deprecates POSIX names - use ISO C++ names instead
 #if _MSC_VER >= 1400
-#define open _open
-#define close _close
-#define read  _read
-#define write _write
-#define lseek _lseek
-#define unlink _unlink
-#define strdup _strdup
+# define open _open
+# define close _close
+# define read  _read
+# define write _write
+# define lseek _lseek
+# define unlink _unlink
+# define strdup _strdup
 #endif
 
 #if _MSC_VER < 1800
 // Visual Studio 2013 introduced strtoull(); before, one has to use _strtoui64() instead.
-#define strtoull _strtoui64
+# define strtoull _strtoui64
 // Visual Studio prior to 2013 had no va_copy, but could safely copy va_list by assignement
-#define va_copy(dest, src) dest = src
+# define va_copy(dest, src) dest = src
 // Fixes some wrong warnings about 'this' : used in base member initializer list
-#pragma warning( disable : 4355 )
+# pragma warning( disable : 4355 )
 #endif
 
 
@@ -160,9 +160,22 @@ inline int g_isfinite(jdouble f)                 { return _finite(f); }
 // it only applies to member functions. There are reports though which pretend
 // that it also works for freestanding functions.
 #define NOINLINE     __declspec(noinline)
-#define ALWAYSINLINE __forceinline
+#define ALWAYSINLINE inline __forceinline
 
 // Alignment
 #define ATTRIBUTE_ALIGNED(x) __declspec(align(x))
+
+#define UNREACHABLE() __assume(0)
+
+#define ASSUME(expr) __assume(expr)
+
+#define EXPECT(expr, value) (expr)
+#define LIKELY(expr) (expr)
+#define UNLIKELY(expr) (expr)
+
+#define NORETURN __declspec(noreturn)
+
+#define PUREF __declspec(noalias)
+#define CONSTF __declspec(noalias)
 
 #endif // SHARE_UTILITIES_GLOBALDEFINITIONS_VISCPP_HPP

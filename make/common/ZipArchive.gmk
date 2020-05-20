@@ -158,7 +158,7 @@ define SetupZipArchiveBody
 	)
 	$$(foreach s,$$($1_SRC_SLASH), $$(call ExecuteWithLog, \
 	    $$(SUPPORT_OUTPUTDIR)/zip/$$(patsubst $$(OUTPUTDIR)/%,%, $$@), \
-	    (cd $$s && $(ZIPEXE) -qru $$($1_ZIP_OPTIONS) $$@ . \
+	    (cd $$s && $(ZIPEXE) -9 -qru $$($1_ZIP_OPTIONS) $$@ . \
 	        $$($1_ZIP_INCLUDES) $$($1_ZIP_EXCLUDES) -x \*_the.\* \
 	        $$($1_ZIP_EXCLUDES_$$s) \
 	        || test "$$$$?" = "12" \

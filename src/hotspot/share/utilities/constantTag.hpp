@@ -33,7 +33,7 @@ class outputStream;
 
 // constant tags in Java .class files
 
-enum {
+enum : jbyte {
   // See jvm.h for shared JVM_CONSTANT_XXX tags
   // NOTE: replicated in SA in vm/agent/sun/jvm/hotspot/utilities/ConstantTag.java
   // Hotspot specific tags
@@ -52,7 +52,7 @@ enum {
 
 class constantTag {
  private:
-  jbyte _tag;
+  jbyte _tag = JVM_CONSTANT_Invalid;
  public:
   bool is_klass() const             { return _tag == JVM_CONSTANT_Class; }
   bool is_field () const            { return _tag == JVM_CONSTANT_Fieldref; }
@@ -112,14 +112,12 @@ class constantTag {
             is_unresolved_klass());
   }
 
-  constantTag() {
-    _tag = JVM_CONSTANT_Invalid;
-  }
-  constantTag(jbyte tag) {
+  constantTag() = default;
+  constantTag(jbyte tag) : _tag(tag)
+  {
     assert((tag >= 0 && tag <= JVM_CONSTANT_NameAndType) ||
            (tag >= JVM_CONSTANT_MethodHandle && tag <= JVM_CONSTANT_InvokeDynamic) ||
            (tag >= JVM_CONSTANT_InternalMin && tag <= JVM_CONSTANT_InternalMax), "Invalid constant tag");
-    _tag = tag;
   }
 
   static constantTag ofBasicType(BasicType bt) {

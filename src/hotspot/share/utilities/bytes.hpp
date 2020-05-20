@@ -43,7 +43,7 @@ public:
 
   // Returns true, if the byte ordering used by Java is different from
   // the native byte ordering of the underlying machine.
-  static inline bool is_Java_byte_ordering_different() {
+  static constexpr inline bool is_Java_byte_ordering_different() {
     return NATIVE != JAVA;
   }
 };

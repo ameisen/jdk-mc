@@ -162,7 +162,7 @@ if [ ! -e $BUNDLE ]; then
     GZIP="gzip"
   fi
   echo "Creating $BUNDLE from $DEVKIT_ROOT"
-  (cd $DEVKIT_ROOT && tar cf - . | $GZIP - > "$BUNDLE")
+  (cd $DEVKIT_ROOT && tar cf - . | $GZIP -9 - > "$BUNDLE")
 else
   echo "Skipping creation of $BUNDLE"
 fi

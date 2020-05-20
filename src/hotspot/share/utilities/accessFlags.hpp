@@ -33,7 +33,7 @@
 
 class outputStream;
 
-enum {
+enum : jint {
   // See jvm.h for shared JVM_ACC_XXX access flags
 
   // HotSpot-specific access flags
@@ -101,10 +101,10 @@ enum {
 class AccessFlags {
   friend class VMStructs;
  private:
-  jint _flags;
+  jint _flags = 0;
 
  public:
-  AccessFlags() : _flags(0) {}
+  AccessFlags() = default;
   explicit AccessFlags(jint flags) : _flags(flags) {}
 
   // Java access flags

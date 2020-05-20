@@ -26,10 +26,10 @@
 #ifndef AWT_OLE_H
 #define AWT_OLE_H
 
-#include "awt.h"
 #include <ole2.h>
 #include <comdef.h>
 #include <comutil.h>
+#include "awt.h"
 
 #ifdef _DEBUG
     #define _SUN_DEBUG

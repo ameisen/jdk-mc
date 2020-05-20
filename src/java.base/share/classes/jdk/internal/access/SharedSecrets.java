@@ -49,33 +49,33 @@ import jdk.internal.misc.Unsafe;
     for this purpose, namely the loss of compile-time checking. */
 
 public class SharedSecrets {
-    private static final Unsafe unsafe = Unsafe.getUnsafe();
-    private static JavaAWTAccess javaAWTAccess;
-    private static JavaAWTFontAccess javaAWTFontAccess;
-    private static JavaBeansAccess javaBeansAccess;
-    private static JavaLangAccess javaLangAccess;
-    private static JavaLangInvokeAccess javaLangInvokeAccess;
-    private static JavaLangModuleAccess javaLangModuleAccess;
-    private static JavaLangRefAccess javaLangRefAccess;
-    private static JavaLangReflectAccess javaLangReflectAccess;
-    private static JavaIOAccess javaIOAccess;
-    private static JavaIOFileDescriptorAccess javaIOFileDescriptorAccess;
-    private static JavaIOFilePermissionAccess javaIOFilePermissionAccess;
-    private static JavaIORandomAccessFileAccess javaIORandomAccessFileAccess;
-    private static JavaObjectInputStreamReadString javaObjectInputStreamReadString;
-    private static JavaObjectInputStreamAccess javaObjectInputStreamAccess;
-    private static JavaObjectInputFilterAccess javaObjectInputFilterAccess;
-    private static JavaNetInetAddressAccess javaNetInetAddressAccess;
-    private static JavaNetHttpCookieAccess javaNetHttpCookieAccess;
-    private static JavaNetUriAccess javaNetUriAccess;
-    private static JavaNetURLAccess javaNetURLAccess;
-    private static JavaNioAccess javaNioAccess;
-    private static JavaUtilJarAccess javaUtilJarAccess;
-    private static JavaUtilZipFileAccess javaUtilZipFileAccess;
-    private static JavaUtilResourceBundleAccess javaUtilResourceBundleAccess;
-    private static JavaSecurityAccess javaSecurityAccess;
-    private static JavaSecuritySignatureAccess javaSecuritySignatureAccess;
-    private static JavaxCryptoSealedObjectAccess javaxCryptoSealedObjectAccess;
+    public static final Unsafe unsafe = Unsafe.getUnsafe();
+    protected static JavaAWTAccess javaAWTAccess;
+    protected static JavaAWTFontAccess javaAWTFontAccess;
+    protected static JavaBeansAccess javaBeansAccess;
+    protected static JavaLangAccess javaLangAccess;
+    protected static JavaLangInvokeAccess javaLangInvokeAccess;
+    protected static JavaLangModuleAccess javaLangModuleAccess;
+    protected static JavaLangRefAccess javaLangRefAccess;
+    protected static JavaLangReflectAccess javaLangReflectAccess;
+    protected static JavaIOAccess javaIOAccess;
+    protected static JavaIOFileDescriptorAccess javaIOFileDescriptorAccess;
+    protected static JavaIOFilePermissionAccess javaIOFilePermissionAccess;
+    protected static JavaIORandomAccessFileAccess javaIORandomAccessFileAccess;
+    protected static JavaObjectInputStreamReadString javaObjectInputStreamReadString;
+    protected static JavaObjectInputStreamAccess javaObjectInputStreamAccess;
+    protected static JavaObjectInputFilterAccess javaObjectInputFilterAccess;
+    protected static JavaNetInetAddressAccess javaNetInetAddressAccess;
+    protected static JavaNetHttpCookieAccess javaNetHttpCookieAccess;
+    protected static JavaNetUriAccess javaNetUriAccess;
+    protected static JavaNetURLAccess javaNetURLAccess;
+    protected static JavaNioAccess javaNioAccess;
+    protected static JavaUtilJarAccess javaUtilJarAccess;
+    protected static JavaUtilZipFileAccess javaUtilZipFileAccess;
+    protected static JavaUtilResourceBundleAccess javaUtilResourceBundleAccess;
+    protected static JavaSecurityAccess javaSecurityAccess;
+    protected static JavaSecuritySignatureAccess javaSecuritySignatureAccess;
+    protected static JavaxCryptoSealedObjectAccess javaxCryptoSealedObjectAccess;
 
     public static JavaUtilJarAccess javaUtilJarAccess() {
         if (javaUtilJarAccess == null) {

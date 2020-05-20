@@ -26,20 +26,19 @@
 #define SHARE_UTILITIES_CLASSPATHSTREAM_HPP
 
 class ClasspathStream : public StackObj {
-  const char* _class_path;
-  int _len;
-  int _start;
-  int _end;
+  const char* const _class_path;
+  const int _len;
+  int _start = 0;
+  int _end = 0;
 
 public:
-  ClasspathStream(const char* class_path) {
-    _class_path = class_path;
-    _len = (int)strlen(class_path);
-    _start = 0;
-    _end = 0;
+  ClasspathStream(const char* class_path) :
+    _class_path(class_path),
+    _len(int(strlen(class_path)))
+  {
   }
 
-  bool has_next() {
+  bool has_next() const {
     return _start < _len;
   }
 

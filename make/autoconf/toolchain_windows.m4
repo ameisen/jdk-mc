@@ -25,7 +25,7 @@
 
 ################################################################################
 # The order of these defines the priority by which we try to find them.
-VALID_VS_VERSIONS="2017 2019 2013 2015 2012 2010"
+VALID_VS_VERSIONS="2019 2017 2013 2015 2012 2010"
 
 VS_DESCRIPTION_2010="Microsoft Visual Studio 2010"
 VS_VERSION_INTERNAL_2010=100
@@ -90,7 +90,7 @@ VS_SUPPORTED_2017=true
 VS_TOOLSET_SUPPORTED_2017=true
 
 VS_DESCRIPTION_2019="Microsoft Visual Studio 2019"
-VS_VERSION_INTERNAL_2019=141
+VS_VERSION_INTERNAL_2019=142
 VS_MSVCR_2019=vcruntime140.dll
 VS_MSVCP_2019=msvcp140.dll
 VS_ENVVAR_2019="VS160COMNTOOLS"
@@ -100,8 +100,8 @@ VS_EDITIONS_2019="BuildTools Community Professional Enterprise"
 VS_SDK_INSTALLDIR_2019=
 VS_VS_PLATFORM_NAME_2019="v142"
 VS_SDK_PLATFORM_NAME_2019=
-VS_SUPPORTED_2019=false
-VS_TOOLSET_SUPPORTED_2019=false
+VS_SUPPORTED_2019=true
+VS_TOOLSET_SUPPORTED_2019=true
 
 ################################################################################
 
@@ -130,7 +130,7 @@ AC_DEFUN([TOOLCHAIN_CHECK_POSSIBLE_VISUAL_STUDIO_ROOT],
         VCVARSFILES="vc/bin/vcvars32.bat vc/auxiliary/build/vcvars32.bat"
       else
         VCVARSFILES="vc/bin/amd64/vcvars64.bat vc/bin/x86_amd64/vcvarsx86_amd64.bat \
-            VC/Auxiliary/Build/vcvarsx86_amd64.bat VC/Auxiliary/Build/vcvars64.bat"
+            VC/Auxiliary/Build/vcvars64.bat VC/Auxiliary/Build/vcvarsx86_amd64.bat"
       fi
 
       for VCVARSFILE in $VCVARSFILES; do
@@ -209,8 +209,8 @@ AC_DEFUN([TOOLCHAIN_FIND_VISUAL_STUDIO_BAT_FILE],
   eval SDK_INSTALL_DIR="\${VS_SDK_INSTALLDIR_${VS_VERSION}}"
   eval VS_ENV_ARGS="\${VS_ENV_ARGS_${VS_VERSION}}"
   eval VS_TOOLSET_SUPPORTED="\${VS_TOOLSET_SUPPORTED_${VS_VERSION}}"
-    
-  VS_ENV_CMD="" 
+
+  VS_ENV_CMD=""
 
   # When using --with-tools-dir, assume it points to the correct and default
   # version of Visual Studio or that --with-toolchain-version was also set.
@@ -579,7 +579,7 @@ AC_DEFUN([TOOLCHAIN_SETUP_VISUAL_STUDIO_ENV],
           BASIC_WINDOWS_REWRITE_AS_UNIX_PATH([testpath])
           if test -d "$testpath"; then
             BASIC_FIXUP_PATH([ipath])
-            SYSROOT_CFLAGS="$SYSROOT_CFLAGS -I$ipath"
+            SYSROOT_CFLAGS="$SYSROOT_CFLAGS /I \"$ipath\""
           fi
           IFS=";"
         fi
@@ -595,7 +595,7 @@ AC_DEFUN([TOOLCHAIN_SETUP_VISUAL_STUDIO_ENV],
           BASIC_WINDOWS_REWRITE_AS_UNIX_PATH([testpath])
           if test -d "$testpath"; then
             BASIC_FIXUP_PATH([libpath])
-            SYSROOT_LDFLAGS="$SYSROOT_LDFLAGS -libpath:$libpath"
+            SYSROOT_LDFLAGS="$SYSROOT_LDFLAGS -libpath:\"$libpath\""
           fi
           IFS=";"
         fi

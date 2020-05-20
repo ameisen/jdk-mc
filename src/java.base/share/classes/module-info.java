@@ -128,6 +128,9 @@ module java.base {
     exports javax.security.auth.spi;
     exports javax.security.auth.x500;
     exports javax.security.cert;
+		
+		opens jdk.internal.access;
+		opens jdk.internal.misc;
 
 
     // additional qualified exports may be inserted at build time

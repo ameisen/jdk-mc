@@ -328,7 +328,7 @@ demos-jdk:
 test-image-demos-jdk:
 	+($(CD) $(TOPDIR)/make && $(MAKE) $(MAKE_ARGS) -f CompileDemos.gmk images)
 
-ALL_TARGETS += demos-jdk test-image-demos-jdk
+# ALL_TARGETS += demos-jdk test-image-demos-jdk
 
 ################################################################################
 # Jigsaw specific data and analysis targets.
@@ -880,7 +880,7 @@ else
 
   release-file: create-source-revision-tracker
 
-  jdk-image: jmods zip-source demos release-file
+  jdk-image: jmods zip-source release-file
   legacy-jre-image: jmods release-file
   symbols-image: $(LIBS_TARGETS) $(LAUNCHER_TARGETS)
 
@@ -1130,11 +1130,11 @@ all-bundles: product-bundles test-bundles docs-bundles static-libs-bundles
 
 ALL_TARGETS += buildtools hotspot hotspot-libs hotspot-gensrc gensrc gendata \
     copy java rmic libs static-libs launchers jmods \
-    jdk.jdwp.agent-gensrc $(ALL_MODULES) demos \
+    jdk.jdwp.agent-gensrc $(ALL_MODULES) \
     exploded-image-base exploded-image \
     create-buildjdk docs-jdk-api docs-javase-api docs-reference-api docs-jdk \
     docs-javase docs-reference docs-javadoc mac-bundles product-images legacy-images \
-    docs-image test-image all-images \
+    docs-image all-images \
     all-bundles
 
 ################################################################################
@@ -1169,9 +1169,9 @@ test-hotspot-jtreg-native: test-hotspot_native_sanity
 test-hotspot-gtest: exploded-test-gtest
 test-jdk-jtreg-native: test-jdk_native_sanity
 
-ALL_TARGETS += $(RUN_TEST_TARGETS) run-test exploded-run-test check \
-    test-hotspot-jtreg test-hotspot-jtreg-native test-hotspot-gtest \
-    test-jdk-jtreg-native
+# ALL_TARGETS += $(RUN_TEST_TARGETS) run-test exploded-run-test check \
+#     test-hotspot-jtreg test-hotspot-jtreg-native test-hotspot-gtest \
+#     test-jdk-jtreg-native
 
 ################################################################################
 ################################################################################

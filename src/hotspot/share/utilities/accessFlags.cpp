@@ -27,24 +27,22 @@
 #include "runtime/atomic.hpp"
 #include "utilities/accessFlags.hpp"
 
+#include <atomic>
+
 void AccessFlags::atomic_set_bits(jint bits) {
   // Atomically update the flags with the bits given
-  jint old_flags, new_flags, f;
-  do {
-    old_flags = _flags;
-    new_flags = old_flags | bits;
-    f = Atomic::cmpxchg(&_flags, old_flags, new_flags);
-  } while(f != old_flags);
+  // C++20 has atomic_ref but we do not have that presently.
+  using atomic_t = std::atomic<decltype(bits)>;
+  atomic_t &flags = (atomic_t &)_flags;
+  flags |= bits;
 }
 
 void AccessFlags::atomic_clear_bits(jint bits) {
   // Atomically update the flags with the bits given
-  jint old_flags, new_flags, f;
-  do {
-    old_flags = _flags;
-    new_flags = old_flags & ~bits;
-    f = Atomic::cmpxchg(&_flags, old_flags, new_flags);
-  } while(f != old_flags);
+  // C++20 has atomic_ref but we do not have that presently.
+  using atomic_t = std::atomic<decltype(bits)>;
+  atomic_t &flags = (atomic_t &)_flags;
+  flags &= ~bits;
 }
 
 

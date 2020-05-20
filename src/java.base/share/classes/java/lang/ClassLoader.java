@@ -716,7 +716,10 @@ public abstract class ClassLoader {
      * @since  1.2
      */
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        throw new ClassNotFoundException(name);
+				if (getClass().getName().contains("TransformingClassLoader")) {
+					return getPlatformClassLoader().loadClass(name);
+				}
+				throw new ClassNotFoundException(name);
     }
 
     /**

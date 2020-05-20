@@ -139,9 +139,9 @@ public final class NashornScriptEngine extends AbstractScriptEngine implements C
             }
         }, CREATE_CONTEXT_ACC_CTXT);
 
-        if (!nashornContext.getEnv()._no_deprecation_warning) {
-            System.err.println("Warning: Nashorn engine is planned to be removed from a future JDK release");
-        }
+        //if (!nashornContext.getEnv()._no_deprecation_warning) {
+        //    System.err.println("Warning: Nashorn engine is planned to be removed from a future JDK release");
+        //}
 
         // cache this option that is used often
         this._global_per_engine = nashornContext.getEnv()._global_per_engine;

@@ -212,7 +212,7 @@ inline int g_isnan(double f) { return isnan(f); }
 
 // GCC 4.3 does not allow 0.0/0.0 to produce a NAN value
 #if (__GNUC__ == 4) && (__GNUC_MINOR__ > 2)
-#define CAN_USE_NAN_DEFINE 1
+# define CAN_USE_NAN_DEFINE 1
 #endif
 
 
@@ -272,5 +272,22 @@ inline int wcslen(const jchar* x) { return wcslen((const wchar_t*)x); }
 // cast to __typeof__(x) to work around the similar bug.
 //
 #define ATTRIBUTE_ALIGNED(x) __attribute__((aligned((__typeof__(x))x+0)))
+
+#define UNREACHABLE() __builtin_unreachable()
+
+#if __clang__
+# define ASSUME(expr) __builtin_assume(expr)
+#else
+# define ASSUME(expr) do { if (!(expr)) __builtin_unreachable(); } while(0)
+#endif
+
+#define EXPECT(expr, value) (__builtin_expect(expr, value))
+#define LIKELY(expr) EXPECT(!!(expr), true)
+#define UNLIKELY(expr) EXPECT(!!(expr), false)
+
+#define NORETURN __attribute__ ((noreturn))
+
+#define PUREF __attribute__ ((pure))
+#define CONSTF __attribute__ ((const))
 
 #endif // SHARE_UTILITIES_GLOBALDEFINITIONS_GCC_HPP

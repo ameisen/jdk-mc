@@ -695,18 +695,23 @@ struct BEInt<Type, 2>
   }
   operator Type () const
   {
-#if ((defined(__GNUC__) && __GNUC__ >= 5) || defined(__clang__)) && \
-    defined(__BYTE_ORDER) && \
-    (__BYTE_ORDER == __LITTLE_ENDIAN || __BYTE_ORDER == __BIG_ENDIAN)
     /* Spoon-feed the compiler a big-endian integer with alignment 1.
      * https://github.com/harfbuzz/harfbuzz/pull/1398 */
+#if defined(__BYTE_ORDER) && (__BYTE_ORDER == __LITTLE_ENDIAN || __BYTE_ORDER == __BIG_ENDIAN)
+# if (defined(__GNUC__) && __GNUC__ >= 5) || defined(__clang__)
     struct __attribute__((packed)) packed_uint16_t { uint16_t v; };
-#if __BYTE_ORDER == __LITTLE_ENDIAN
+#   if __BYTE_ORDER == __LITTLE_ENDIAN
     return __builtin_bswap16 (((packed_uint16_t *) this)->v);
-#else /* __BYTE_ORDER == __BIG_ENDIAN */
-    return ((packed_uint16_t *) this)->v;
+#   else
+    return ((packed_uint16_t *)this)->v;
+#   endif
+# elif defined(_MSC_VER)
+#   if __BYTE_ORDER == __LITTLE_ENDIAN
+    return _byteswap_ushort(v);
+#   endif
+# endif
 #endif
-#endif
+
     return (v[0] <<  8)
          + (v[1]      );
   }

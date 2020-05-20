@@ -36,7 +36,7 @@
 // We implement and support variants for 8, 16, 32 and 64 bit integral types.
 template <typename T, size_t n> struct CountLeadingZerosImpl;
 
-template <typename T> unsigned count_leading_zeros(T v) {
+template <typename T> ALWAYSINLINE unsigned count_leading_zeros(T v) {
   assert(v != 0, "precondition");
   return CountLeadingZerosImpl<T, sizeof(T)>::doit(v);
 }
@@ -47,25 +47,25 @@ template <typename T> unsigned count_leading_zeros(T v) {
 #if defined(TARGET_COMPILER_gcc)
 
 template <typename T> struct CountLeadingZerosImpl<T, 1> {
-  static unsigned doit(T v) {
+  static ALWAYSINLINE CONSTF unsigned doit(T v) {
     return __builtin_clz((uint32_t)v & 0xFF) - 24u;
   }
 };
 
 template <typename T> struct CountLeadingZerosImpl<T, 2> {
-  static unsigned doit(T v) {
+  static ALWAYSINLINE CONSTF unsigned doit(T v) {
     return __builtin_clz((uint32_t)v & 0xFFFF) - 16u;
   }
 };
 
 template <typename T> struct CountLeadingZerosImpl<T, 4> {
-  static unsigned doit(T v) {
+  static ALWAYSINLINE CONSTF unsigned doit(T v) {
     return __builtin_clz(v);
   }
 };
 
 template <typename T> struct CountLeadingZerosImpl<T, 8> {
-  static unsigned doit(T v) {
+  static ALWAYSINLINE CONSTF unsigned doit(T v) {
     return __builtin_clzll(v);
   }
 };
@@ -83,23 +83,23 @@ template <typename T> struct CountLeadingZerosImpl<T, 8> {
 #endif
 
 template <typename T> struct CountLeadingZerosImpl<T, 1> {
-  static unsigned doit(T v) {
+  static ALWAYSINLINE CONSTF unsigned doit(T v) {
     unsigned long index;
-    _BitScanReverse(&index, (uint32_t)v & 0xFF);
+    _BitScanReverse(&index, (uint32_t)v & 0xFFU);
     return 7u - index;
   }
 };
 
 template <typename T> struct CountLeadingZerosImpl<T, 2> {
-  static unsigned doit(T v) {
+  static ALWAYSINLINE CONSTF unsigned doit(T v) {
     unsigned long index;
-    _BitScanReverse(&index, (uint32_t)v & 0xFFFF);
+    _BitScanReverse(&index, (uint32_t)v & 0xFFFFU);
     return 15u - index;
   }
 };
 
 template <typename T> struct CountLeadingZerosImpl<T, 4> {
-  static unsigned doit(T v) {
+  static ALWAYSINLINE CONSTF unsigned doit(T v) {
     unsigned long index;
     _BitScanReverse(&index, v);
     return 31u - index;
@@ -107,7 +107,7 @@ template <typename T> struct CountLeadingZerosImpl<T, 4> {
 };
 
 template <typename T> struct CountLeadingZerosImpl<T, 8> {
-  static unsigned doit(T v) {
+  static ALWAYSINLINE CONSTF unsigned doit(T v) {
 #ifdef _LP64
     unsigned long index;
     _BitScanReverse64(&index, v);
@@ -166,7 +166,7 @@ inline uint32_t count_leading_zeros_32(uint32_t x) {
   // http://graphics.stanford.edu/~seander/bithacks.html#IntegerLogDeBruijn
   // - with positions xor'd by 31 to get number of leading zeros
   // rather than position of highest bit.
-  static const uint32_t MultiplyDeBruijnBitPosition[32] = {
+  static constexpr const uint32_t MultiplyDeBruijnBitPosition[32] = {
       31, 22, 30, 21, 18, 10, 29,  2, 20, 17, 15, 13, 9,  6, 28,  1,
       23, 19, 11,  3, 16, 14,  7, 24, 12,  4,  8, 25, 5, 26, 27,  0
   };

@@ -141,4 +141,4 @@ GZIP=$(command -v pigz)
 if [ -z "$GZIP" ]; then
     GZIP="gzip"
 fi
-(cd $DEVKIT_ROOT && tar c - . | $GZIP - > "$DEVKIT_BUNDLE")
+(cd $DEVKIT_ROOT && tar c - . | $GZIP -9 - > "$DEVKIT_BUNDLE")

@@ -52,7 +52,7 @@ tstring unsafe_format(tstring::const_pointer format, ...) {
 #ifdef _MSC_VER
         ret = _vsntprintf_s(&*fmtout.begin(), fmtout.size(), _TRUNCATE, format, args);
 #else
-        // With g++ this compiles only with '-std=gnu++0x' option
+        // With g++ this compiles only with '-std=gnu++11' option
         ret = vsnprintf(&*fmtout.begin(), fmtout.size(), format, args);
 #endif
     } while(-1 == ret);

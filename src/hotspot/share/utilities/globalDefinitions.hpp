@@ -152,57 +152,57 @@
 //----------------------------------------------------------------------------------------------------
 // Constants
 
-const int LogBytesPerShort   = 1;
-const int LogBytesPerInt     = 2;
+static constexpr const int LogBytesPerShort   = 1;
+static constexpr const int LogBytesPerInt     = 2;
 #ifdef _LP64
-const int LogBytesPerWord    = 3;
+static constexpr const int LogBytesPerWord    = 3;
 #else
-const int LogBytesPerWord    = 2;
+static constexpr const int LogBytesPerWord    = 2;
 #endif
-const int LogBytesPerLong    = 3;
+static constexpr const int LogBytesPerLong    = 3;
 
-const int BytesPerShort      = 1 << LogBytesPerShort;
-const int BytesPerInt        = 1 << LogBytesPerInt;
-const int BytesPerWord       = 1 << LogBytesPerWord;
-const int BytesPerLong       = 1 << LogBytesPerLong;
+static constexpr const int BytesPerShort      = 1 << LogBytesPerShort;
+static constexpr const int BytesPerInt        = 1 << LogBytesPerInt;
+static constexpr const int BytesPerWord       = 1 << LogBytesPerWord;
+static constexpr const int BytesPerLong       = 1 << LogBytesPerLong;
 
-const int LogBitsPerByte     = 3;
-const int LogBitsPerShort    = LogBitsPerByte + LogBytesPerShort;
-const int LogBitsPerInt      = LogBitsPerByte + LogBytesPerInt;
-const int LogBitsPerWord     = LogBitsPerByte + LogBytesPerWord;
-const int LogBitsPerLong     = LogBitsPerByte + LogBytesPerLong;
+static constexpr const int LogBitsPerByte     = 3;
+static constexpr const int LogBitsPerShort    = LogBitsPerByte + LogBytesPerShort;
+static constexpr const int LogBitsPerInt      = LogBitsPerByte + LogBytesPerInt;
+static constexpr const int LogBitsPerWord     = LogBitsPerByte + LogBytesPerWord;
+static constexpr const int LogBitsPerLong     = LogBitsPerByte + LogBytesPerLong;
 
-const int BitsPerByte        = 1 << LogBitsPerByte;
-const int BitsPerShort       = 1 << LogBitsPerShort;
-const int BitsPerInt         = 1 << LogBitsPerInt;
-const int BitsPerWord        = 1 << LogBitsPerWord;
-const int BitsPerLong        = 1 << LogBitsPerLong;
+static constexpr const int BitsPerByte        = 1 << LogBitsPerByte;
+static constexpr const int BitsPerShort       = 1 << LogBitsPerShort;
+static constexpr const int BitsPerInt         = 1 << LogBitsPerInt;
+static constexpr const int BitsPerWord        = 1 << LogBitsPerWord;
+static constexpr const int BitsPerLong        = 1 << LogBitsPerLong;
 
-const int WordAlignmentMask  = (1 << LogBytesPerWord) - 1;
-const int LongAlignmentMask  = (1 << LogBytesPerLong) - 1;
+static constexpr const int WordAlignmentMask  = (1 << LogBytesPerWord) - 1;
+static constexpr const int LongAlignmentMask  = (1 << LogBytesPerLong) - 1;
 
-const int WordsPerLong       = 2;       // Number of stack entries for longs
+static constexpr const int WordsPerLong       = 2;       // Number of stack entries for longs
 
-const int oopSize            = sizeof(char*); // Full-width oop
+static constexpr const int oopSize            = sizeof(char*); // Full-width oop
 extern int heapOopSize;                       // Oop within a java object
-const int wordSize           = sizeof(char*);
-const int longSize           = sizeof(jlong);
-const int jintSize           = sizeof(jint);
-const int size_tSize         = sizeof(size_t);
+static constexpr const int wordSize           = sizeof(char*);
+static constexpr const int longSize           = sizeof(jlong);
+static constexpr const int jintSize           = sizeof(jint);
+static constexpr const int size_tSize         = sizeof(size_t);
 
-const int BytesPerOop        = BytesPerWord;  // Full-width oop
+static constexpr const int BytesPerOop        = BytesPerWord;  // Full-width oop
 
 extern int LogBytesPerHeapOop;                // Oop within a java object
 extern int LogBitsPerHeapOop;
 extern int BytesPerHeapOop;
 extern int BitsPerHeapOop;
 
-const int BitsPerJavaInteger = 32;
-const int BitsPerJavaLong    = 64;
-const int BitsPerSize_t      = size_tSize * BitsPerByte;
+static constexpr const int BitsPerJavaInteger = 32;
+static constexpr const int BitsPerJavaLong    = 64;
+static constexpr const int BitsPerSize_t      = size_tSize * BitsPerByte;
 
 // Size of a char[] needed to represent a jint as a string in decimal.
-const int jintAsStringSize = 12;
+static constexpr const int jintAsStringSize = 12;
 
 // An opaque type, so that HeapWord* can be a generic pointer into the heap.
 // We require that object sizes be measured in units of heap words (e.g.
@@ -218,18 +218,18 @@ class MetaWordImpl;             // Opaque, never defined.
 typedef MetaWordImpl* MetaWord;
 
 // HeapWordSize must be 2^LogHeapWordSize.
-const int HeapWordSize        = sizeof(HeapWord);
+static constexpr const int HeapWordSize        = sizeof(HeapWord);
 #ifdef _LP64
-const int LogHeapWordSize     = 3;
+static constexpr const int LogHeapWordSize     = 3;
 #else
-const int LogHeapWordSize     = 2;
+static constexpr const int LogHeapWordSize     = 2;
 #endif
-const int HeapWordsPerLong    = BytesPerLong / HeapWordSize;
-const int LogHeapWordsPerLong = LogBytesPerLong - LogHeapWordSize;
+static constexpr const int HeapWordsPerLong    = BytesPerLong / HeapWordSize;
+static constexpr const int LogHeapWordsPerLong = LogBytesPerLong - LogHeapWordSize;
 
 // The minimum number of native machine words necessary to contain "byte_size"
 // bytes.
-inline size_t heap_word_size(size_t byte_size) {
+static constexpr inline size_t heap_word_size(size_t byte_size) {
   return (byte_size + (HeapWordSize-1)) >> LogHeapWordSize;
 }
 
@@ -240,23 +240,23 @@ inline size_t heap_word_size(size_t byte_size) {
 #define CONST64(x)  (x ## LL)
 #define UCONST64(x) (x ## ULL)
 
-const jlong min_jlong = CONST64(0x8000000000000000);
-const jlong max_jlong = CONST64(0x7fffffffffffffff);
+static constexpr const jlong min_jlong = CONST64(0x8000000000000000);
+static constexpr const jlong max_jlong = CONST64(0x7fffffffffffffff);
 
-const size_t K                  = 1024;
-const size_t M                  = K*K;
-const size_t G                  = M*K;
-const size_t HWperKB            = K / sizeof(HeapWord);
+static constexpr const size_t K                  = 1024;
+static constexpr const size_t M                  = K*K;
+static constexpr const size_t G                  = M*K;
+static constexpr const size_t HWperKB            = K / sizeof(HeapWord);
 
 // Constants for converting from a base unit to milli-base units.  For
 // example from seconds to milliseconds and microseconds
 
-const int MILLIUNITS    = 1000;         // milli units per base unit
-const int MICROUNITS    = 1000000;      // micro units per base unit
-const int NANOUNITS     = 1000000000;   // nano units per base unit
+static constexpr const int MILLIUNITS    = 1'000;           // milli units per base unit
+static constexpr const int MICROUNITS    = 1'000'000;       // micro units per base unit
+static constexpr const int NANOUNITS     = 1'000'000'000;   // nano units per base unit
 
-const jlong NANOSECS_PER_SEC      = CONST64(1000000000);
-const jint  NANOSECS_PER_MILLISEC = 1000000;
+static constexpr const jlong NANOSECS_PER_SEC      = CONST64(1000000000);
+static constexpr const jint  NANOSECS_PER_MILLISEC = 1000000;
 
 // Proper units routines try to maintain at least three significant digits.
 // In worst case, it would print five significant digits with lower prefix.
@@ -279,7 +279,7 @@ inline const char* proper_unit_for_byte_size(size_t s) {
 }
 
 template <class T>
-inline T byte_size_in_proper_unit(T s) {
+static constexpr inline T byte_size_in_proper_unit(T s) {
 #ifdef _LP64
   if (s >= 100*G) {
     return (T)(s/G);
@@ -309,7 +309,7 @@ inline const char* exact_unit_for_byte_size(size_t s) {
   return "B";
 }
 
-inline size_t byte_size_in_exact_unit(size_t s) {
+static constexpr inline size_t byte_size_in_exact_unit(size_t s) {
 #ifdef _LP64
   if (s >= G && (s % G) == 0) {
     return s / G;
@@ -340,9 +340,9 @@ inline size_t byte_size_in_exact_unit(size_t s) {
 typedef intptr_t  intx;
 typedef uintptr_t uintx;
 
-const intx  min_intx  = (intx)1 << (sizeof(intx)*BitsPerByte-1);
-const intx  max_intx  = (uintx)min_intx - 1;
-const uintx max_uintx = (uintx)-1;
+static constexpr const intx  min_intx  = (intx)1 << (sizeof(intx)*BitsPerByte-1);
+static constexpr const intx  max_intx  = (uintx)min_intx - 1;
+static constexpr const uintx max_uintx = (uintx)-1;
 
 // Table of values:
 //      sizeof intx         4               8
@@ -430,28 +430,28 @@ typedef jushort u2;
 typedef juint   u4;
 typedef julong  u8;
 
-const jubyte  max_jubyte  = (jubyte)-1;  // 0xFF       largest jubyte
-const jushort max_jushort = (jushort)-1; // 0xFFFF     largest jushort
-const juint   max_juint   = (juint)-1;   // 0xFFFFFFFF largest juint
-const julong  max_julong  = (julong)-1;  // 0xFF....FF largest julong
+static constexpr const jubyte  max_jubyte  = (jubyte)-1;  // 0xFF       largest jubyte
+static constexpr const jushort max_jushort = (jushort)-1; // 0xFFFF     largest jushort
+static constexpr const juint   max_juint   = (juint)-1;   // 0xFFFFFFFF largest juint
+static constexpr const julong  max_julong  = (julong)-1;  // 0xFF....FF largest julong
 
 typedef jbyte  s1;
 typedef jshort s2;
 typedef jint   s4;
 typedef jlong  s8;
 
-const jbyte min_jbyte = -(1 << 7);       // smallest jbyte
-const jbyte max_jbyte = (1 << 7) - 1;    // largest jbyte
-const jshort min_jshort = -(1 << 15);    // smallest jshort
-const jshort max_jshort = (1 << 15) - 1; // largest jshort
+static constexpr const jbyte min_jbyte = -(1 << 7);       // smallest jbyte
+static constexpr const jbyte max_jbyte = (1 << 7) - 1;    // largest jbyte
+static constexpr const jshort min_jshort = -(1 << 15);    // smallest jshort
+static constexpr const jshort max_jshort = (1 << 15) - 1; // largest jshort
 
-const jint min_jint = (jint)1 << (sizeof(jint)*BitsPerByte-1); // 0x80000000 == smallest jint
-const jint max_jint = (juint)min_jint - 1;                     // 0x7FFFFFFF == largest jint
+static constexpr const jint min_jint = (jint)1 << (sizeof(jint)*BitsPerByte-1); // 0x80000000 == smallest jint
+static constexpr const jint max_jint = (juint)min_jint - 1;                     // 0x7FFFFFFF == largest jint
 
 //----------------------------------------------------------------------------------------------------
 // JVM spec restrictions
 
-const int max_method_code_size = 64*K - 1;  // JVM spec, 2nd ed. section 4.8.1 (p.134)
+static constexpr const int max_method_code_size = 64*K - 1;  // JVM spec, 2nd ed. section 4.8.1 (p.134)
 
 //----------------------------------------------------------------------------------------------------
 // Object alignment, in units of HeapWords.
@@ -466,14 +466,14 @@ extern int MinObjAlignmentInBytesMask;
 extern int LogMinObjAlignment;
 extern int LogMinObjAlignmentInBytes;
 
-const int LogKlassAlignmentInBytes = 3;
-const int LogKlassAlignment        = LogKlassAlignmentInBytes - LogHeapWordSize;
-const int KlassAlignmentInBytes    = 1 << LogKlassAlignmentInBytes;
-const int KlassAlignment           = KlassAlignmentInBytes / HeapWordSize;
+static constexpr const int LogKlassAlignmentInBytes = 3;
+static constexpr const int LogKlassAlignment        = LogKlassAlignmentInBytes - LogHeapWordSize;
+static constexpr const int KlassAlignmentInBytes    = 1 << LogKlassAlignmentInBytes;
+static constexpr const int KlassAlignment           = KlassAlignmentInBytes / HeapWordSize;
 
 // Maximal size of heap where unscaled compression can be used. Also upper bound
 // for heap placement: 4GB.
-const  uint64_t UnscaledOopHeapMax = (uint64_t(max_juint) + 1);
+static constexpr const  uint64_t UnscaledOopHeapMax = (uint64_t(max_juint) + 1);
 // Maximal size of heap where compressed oops can be used. Also upper bound for heap
 // placement for zero based compression algorithm: UnscaledOopHeapMax << LogMinObjAlignmentInBytes.
 extern uint64_t OopEncodingHeapMax;
@@ -481,7 +481,7 @@ extern uint64_t OopEncodingHeapMax;
 // Maximal size of compressed class space. Above this limit compression is not possible.
 // Also upper bound for placement of zero based class space. (Class space is further limited
 // to be < 3G, see arguments.cpp.)
-const  uint64_t KlassEncodingMetaspaceMax = (uint64_t(max_juint) + 1) << LogKlassAlignmentInBytes;
+static constexpr const  uint64_t KlassEncodingMetaspaceMax = (uint64_t(max_juint) + 1) << LogKlassAlignmentInBytes;
 
 // Machine dependent stuff
 
@@ -499,11 +499,11 @@ const  uint64_t KlassEncodingMetaspaceMax = (uint64_t(max_juint) + 1) << LogKlas
 // by Luc Maranget, Susmit Sarkar and Peter Sewell, INRIA/Cambridge)
 #ifdef CPU_MULTI_COPY_ATOMIC
 // Not needed.
-const bool support_IRIW_for_not_multiple_copy_atomic_cpu = false;
+static constexpr const bool support_IRIW_for_not_multiple_copy_atomic_cpu = false;
 #else
 // From all non-multi-copy-atomic architectures, only PPC64 supports IRIW at the moment.
 // Final decision is subject to JEP 188: Java Memory Model Update.
-const bool support_IRIW_for_not_multiple_copy_atomic_cpu = PPC64_ONLY(true) NOT_PPC64(false);
+static constexpr const bool support_IRIW_for_not_multiple_copy_atomic_cpu = PPC64_ONLY(true) NOT_PPC64(false);
 #endif
 
 // The expected size in bytes of a cache line, used to pad data structures.
@@ -526,14 +526,14 @@ const bool support_IRIW_for_not_multiple_copy_atomic_cpu = PPC64_ONLY(true) NOT_
 // All fabs() callers should call this function instead, which will implicitly
 // convert the operand to double, avoiding a dependency on __fabsf which
 // doesn't exist in early versions of Solaris 8.
-inline double fabsd(double value) {
+ALWAYSINLINE double fabsd(double value) {
   return fabs(value);
 }
 
 // Returns numerator/denominator as percentage value from 0 to 100. If denominator
 // is zero, return 0.0.
 template<typename T>
-inline double percent_of(T numerator, T denominator) {
+ALWAYSINLINE double percent_of(T numerator, T denominator) {
   return denominator != 0 ? (double)numerator / denominator * 100.0 : 0.0;
 }
 
@@ -558,8 +558,8 @@ inline jlong   jlong_cast   (jdouble x)  { return ((DoubleLongConv*)&x)->l;  }
 inline julong  julong_cast  (jdouble x)  { return ((DoubleLongConv*)&x)->ul; }
 inline jdouble jdouble_cast (jlong   x)  { return ((DoubleLongConv*)&x)->d;  }
 
-inline jint low (jlong value)                    { return jint(value); }
-inline jint high(jlong value)                    { return jint(value >> 32); }
+static constexpr inline jint low (jlong value)                    { return jint(value); }
+static constexpr inline jint high(jlong value)                    { return jint(value >> 32); }
 
 // the fancy casts are a hopefully portable way
 // to do unsigned 32 to 64 bit type conversion
@@ -613,29 +613,37 @@ enum BasicType {
   T_ILLEGAL     = 99
 };
 
-inline bool is_java_primitive(BasicType t) {
-  return T_BOOLEAN <= t && t <= T_LONG;
+static constexpr inline bool is_java_primitive(BasicType t) {
+  return (T_BOOLEAN <= t) & (t <= T_LONG);
 }
 
-inline bool is_subword_type(BasicType t) {
+static constexpr inline bool is_subword_type(BasicType t) {
   // these guys are processed exactly like T_INT in calling sequences:
-  return (t == T_BOOLEAN || t == T_CHAR || t == T_BYTE || t == T_SHORT);
+  switch (t) {
+    case T_BOOLEAN:
+    case T_CHAR:
+    case T_BYTE:
+    case T_SHORT:
+      return true;
+    default:
+      return false;
+  }
 }
 
-inline bool is_signed_subword_type(BasicType t) {
-  return (t == T_BYTE || t == T_SHORT);
+static constexpr inline bool is_signed_subword_type(BasicType t) {
+  return (t == T_BYTE) | (t == T_SHORT);
 }
 
-inline bool is_double_word_type(BasicType t) {
-  return (t == T_DOUBLE || t == T_LONG);
+static constexpr inline bool is_double_word_type(BasicType t) {
+  return (t == T_DOUBLE) | (t == T_LONG);
 }
 
-inline bool is_reference_type(BasicType t) {
-  return (t == T_OBJECT || t == T_ARRAY);
+static constexpr inline bool is_reference_type(BasicType t) {
+  return (t == T_OBJECT) | (t == T_ARRAY);
 }
 
 // Convert a char from a classfile signature to a BasicType
-inline BasicType char2type(char c) {
+static constexpr inline BasicType char2type(char c) {
   switch( c ) {
   case JVM_SIGNATURE_BYTE:    return T_BYTE;
   case JVM_SIGNATURE_CHAR:    return T_CHAR;
@@ -805,7 +813,7 @@ enum TosState {         // describes the tos cache contents
 };
 
 
-inline TosState as_TosState(BasicType type) {
+static constexpr inline TosState as_TosState(BasicType type) {
   switch (type) {
     case T_BYTE   : return btos;
     case T_BOOLEAN: return ztos;
@@ -822,7 +830,7 @@ inline TosState as_TosState(BasicType type) {
   }
 }
 
-inline BasicType as_BasicType(TosState state) {
+static constexpr inline BasicType as_BasicType(TosState state) {
   switch (state) {
     case btos : return T_BYTE;
     case ztos : return T_BOOLEAN;
@@ -837,12 +845,6 @@ inline BasicType as_BasicType(TosState state) {
     default   : return T_ILLEGAL;
   }
 }
-
-
-// Helper function to convert BasicType info into TosState
-// Note: Cannot define here as it uses global constant at the time being.
-TosState as_TosState(BasicType type);
-
 
 // JavaThreadState keeps track of which part of the code a thread is executing in. This
 // information is needed by the safepoint code.
@@ -878,20 +880,20 @@ enum JavaThreadState {
 //----------------------------------------------------------------------------------------------------
 // Special constants for debugging
 
-const jint     badInt           = -3;                       // generic "bad int" value
-const intptr_t badAddressVal    = -2;                       // generic "bad address" value
-const intptr_t badOopVal        = -1;                       // generic "bad oop" value
-const intptr_t badHeapOopVal    = (intptr_t) CONST64(0x2BAD4B0BBAADBABE); // value used to zap heap after GC
-const int      badStackSegVal   = 0xCA;                     // value used to zap stack segments
-const int      badHandleValue   = 0xBC;                     // value used to zap vm handle area
-const int      badResourceValue = 0xAB;                     // value used to zap resource area
-const int      freeBlockPad     = 0xBA;                     // value used to pad freed blocks.
-const int      uninitBlockPad   = 0xF1;                     // value used to zap newly malloc'd blocks.
-const juint    uninitMetaWordVal= 0xf7f7f7f7;               // value used to zap newly allocated metachunk
-const juint    badHeapWordVal   = 0xBAADBABE;               // value used to zap heap after GC
-const juint    badMetaWordVal   = 0xBAADFADE;               // value used to zap metadata heap after GC
-const int      badCodeHeapNewVal= 0xCC;                     // value used to zap Code heap at allocation
-const int      badCodeHeapFreeVal = 0xDD;                   // value used to zap Code heap at deallocation
+static constexpr const jint     badInt           = -3;                       // generic "bad int" value
+static constexpr const intptr_t badAddressVal    = -2;                       // generic "bad address" value
+static constexpr const intptr_t badOopVal        = -1;                       // generic "bad oop" value
+static constexpr const intptr_t badHeapOopVal    = (intptr_t) CONST64(0x2BAD4B0BBAADBABE); // value used to zap heap after GC
+static constexpr const int      badStackSegVal   = 0xCA;                     // value used to zap stack segments
+static constexpr const int      badHandleValue   = 0xBC;                     // value used to zap vm handle area
+static constexpr const int      badResourceValue = 0xAB;                     // value used to zap resource area
+static constexpr const int      freeBlockPad     = 0xBA;                     // value used to pad freed blocks.
+static constexpr const int      uninitBlockPad   = 0xF1;                     // value used to zap newly malloc'd blocks.
+static constexpr const juint    uninitMetaWordVal= 0xf7f7f7f7;               // value used to zap newly allocated metachunk
+static constexpr const juint    badHeapWordVal   = 0xBAADBABE;               // value used to zap heap after GC
+static constexpr const juint    badMetaWordVal   = 0xBAADFADE;               // value used to zap metadata heap after GC
+static constexpr const int      badCodeHeapNewVal= 0xCC;                     // value used to zap Code heap at allocation
+static constexpr const int      badCodeHeapFreeVal = 0xDD;                   // value used to zap Code heap at deallocation
 
 
 // (These must be implemented as #defines because C++ compilers are
@@ -906,10 +908,10 @@ const int      badCodeHeapFreeVal = 0xDD;                   // value used to zap
 //----------------------------------------------------------------------------------------------------
 // Utility functions for bitfield manipulations
 
-const intptr_t AllBits    = ~0; // all bits set in a word
-const intptr_t NoBits     =  0; // no bits set in a word
-const jlong    NoLongBits =  0; // no bits set in a long
-const intptr_t OneBit     =  1; // only right_most bit set in a word
+static constexpr const intptr_t AllBits    = ~0; // all bits set in a word
+static constexpr const intptr_t NoBits     =  0; // no bits set in a word
+static constexpr const jlong    NoLongBits =  0; // no bits set in a long
+static constexpr const intptr_t OneBit     =  1; // only right_most bit set in a word
 
 // get a word with the n.th or the right-most or left-most n bits set
 // (note: #define used only so that they can be used in enum constant definitions)
@@ -920,17 +922,17 @@ const intptr_t OneBit     =  1; // only right_most bit set in a word
 // bit-operations using a mask m
 inline void   set_bits    (intptr_t& x, intptr_t m) { x |= m; }
 inline void clear_bits    (intptr_t& x, intptr_t m) { x &= ~m; }
-inline intptr_t mask_bits      (intptr_t  x, intptr_t m) { return x & m; }
-inline jlong    mask_long_bits (jlong     x, jlong    m) { return x & m; }
-inline bool mask_bits_are_true (intptr_t flags, intptr_t mask) { return (flags & mask) == mask; }
+static constexpr inline intptr_t mask_bits      (intptr_t  x, intptr_t m) { return x & m; }
+static constexpr inline jlong    mask_long_bits (jlong     x, jlong    m) { return x & m; }
+static constexpr inline bool mask_bits_are_true (intptr_t flags, intptr_t mask) { return (flags & mask) == mask; }
 
 // bit-operations using the n.th bit
 inline void    set_nth_bit(intptr_t& x, int n) { set_bits  (x, nth_bit(n)); }
 inline void  clear_nth_bit(intptr_t& x, int n) { clear_bits(x, nth_bit(n)); }
-inline bool is_set_nth_bit(intptr_t  x, int n) { return mask_bits (x, nth_bit(n)) != NoBits; }
+static constexpr inline bool is_set_nth_bit(intptr_t  x, int n) { return mask_bits (x, nth_bit(n)) != NoBits; }
 
 // returns the bitfield of x starting at start_bit_no with length field_length (no sign-extension!)
-inline intptr_t bitfield(intptr_t x, int start_bit_no, int field_length) {
+static constexpr inline intptr_t bitfield(intptr_t x, int start_bit_no, int field_length) {
   return mask_bits(x >> start_bit_no, right_n_bits(field_length));
 }
 
@@ -953,35 +955,35 @@ inline intptr_t bitfield(intptr_t x, int start_bit_no, int field_length) {
 // and 64-bit overloaded functions, which does not work, and having
 // explicitly-typed versions of these routines (i.e., MAX2I, MAX2L)
 // will be even more error-prone than macros.
-template<class T> inline T MAX2(T a, T b)           { return (a > b) ? a : b; }
-template<class T> inline T MIN2(T a, T b)           { return (a < b) ? a : b; }
-template<class T> inline T MAX3(T a, T b, T c)      { return MAX2(MAX2(a, b), c); }
-template<class T> inline T MIN3(T a, T b, T c)      { return MIN2(MIN2(a, b), c); }
-template<class T> inline T MAX4(T a, T b, T c, T d) { return MAX2(MAX3(a, b, c), d); }
-template<class T> inline T MIN4(T a, T b, T c, T d) { return MIN2(MIN3(a, b, c), d); }
+template<class T> static constexpr inline T MAX2(T a, T b)           { return (a > b) ? a : b; }
+template<class T> static constexpr inline T MIN2(T a, T b)           { return (a < b) ? a : b; }
+template<class T> static constexpr inline T MAX3(T a, T b, T c)      { return MAX2(MAX2(a, b), c); }
+template<class T> static constexpr inline T MIN3(T a, T b, T c)      { return MIN2(MIN2(a, b), c); }
+template<class T> static constexpr inline T MAX4(T a, T b, T c, T d) { return MAX2(MAX3(a, b, c), d); }
+template<class T> static constexpr inline T MIN4(T a, T b, T c, T d) { return MIN2(MIN3(a, b, c), d); }
 
-template<class T> inline T ABS(T x)                 { return (x > 0) ? x : -x; }
+template<class T> static constexpr inline T ABS(T x)                 { return (x > 0) ? x : -x; }
 
 // Return the given value clamped to the range [min ... max]
 template<typename T>
-inline T clamp(T value, T min, T max) {
+static constexpr inline T clamp(T value, T min, T max) {
   assert(min <= max, "must be");
   return MIN2(MAX2(value, min), max);
 }
 
 // true if x is a power of 2, false otherwise
-inline bool is_power_of_2(intptr_t x) {
+static constexpr inline bool is_power_of_2(intptr_t x) {
   return ((x != NoBits) && (mask_bits(x, x - 1) == NoBits));
 }
 
 // long version of is_power_of_2
-inline bool is_power_of_2_long(jlong x) {
+static constexpr inline bool is_power_of_2_long(jlong x) {
   return ((x != NoLongBits) && (mask_long_bits(x, x - 1) == NoLongBits));
 }
 
 // Returns largest i such that 2^i <= x.
 // If x == 0, the function returns -1.
-inline int log2_intptr(uintptr_t x) {
+static constexpr inline int log2_intptr(uintptr_t x) {
   int i = -1;
   uintptr_t p = 1;
   while (p != 0 && p <= x) {
@@ -994,7 +996,7 @@ inline int log2_intptr(uintptr_t x) {
 }
 
 //* largest i such that 2^i <= x
-inline int log2_long(julong x) {
+static constexpr inline int log2_long(julong x) {
   int i = -1;
   julong p =  1;
   while (p != 0 && p <= x) {
@@ -1007,45 +1009,45 @@ inline int log2_long(julong x) {
 }
 
 // If x < 0, the function returns 31 on a 32-bit machine and 63 on a 64-bit machine.
-inline int log2_intptr(intptr_t x) {
+static constexpr inline int log2_intptr(intptr_t x) {
   return log2_intptr((uintptr_t)x);
 }
 
-inline int log2_int(int x) {
+static constexpr inline int log2_int(int x) {
   STATIC_ASSERT(sizeof(int) <= sizeof(uintptr_t));
   return log2_intptr((uintptr_t)x);
 }
 
-inline int log2_jint(jint x) {
+static constexpr inline int log2_jint(jint x) {
   STATIC_ASSERT(sizeof(jint) <= sizeof(uintptr_t));
   return log2_intptr((uintptr_t)x);
 }
 
-inline int log2_uint(uint x) {
+static constexpr inline int log2_uint(uint x) {
   STATIC_ASSERT(sizeof(uint) <= sizeof(uintptr_t));
   return log2_intptr((uintptr_t)x);
 }
 
 //  A negative value of 'x' will return '63'
-inline int log2_jlong(jlong x) {
+static constexpr inline int log2_jlong(jlong x) {
   STATIC_ASSERT(sizeof(jlong) <= sizeof(julong));
   return log2_long((julong)x);
 }
 
 //* the argument must be exactly a power of 2
-inline int exact_log2(intptr_t x) {
+static constexpr inline int exact_log2(intptr_t x) {
   assert(is_power_of_2(x), "x must be a power of 2: " INTPTR_FORMAT, x);
   return log2_intptr(x);
 }
 
 //* the argument must be exactly a power of 2
-inline int exact_log2_long(jlong x) {
+static constexpr inline int exact_log2_long(jlong x) {
   assert(is_power_of_2_long(x), "x must be a power of 2: " JLONG_FORMAT, x);
   return log2_long(x);
 }
 
-inline bool is_odd (intx x) { return x & 1;      }
-inline bool is_even(intx x) { return !is_odd(x); }
+static constexpr inline bool is_odd (intx x) { return x & 1;      }
+static constexpr inline bool is_even(intx x) { return !is_odd(x); }
 
 // abs methods which cannot overflow and so are well-defined across
 // the entire domain of integer types.
@@ -1078,15 +1080,15 @@ inline intx byte_size(void* from, void* to) {
 
 // Pack and extract shorts to/from ints:
 
-inline int extract_low_short_from_int(jint x) {
+static constexpr inline int extract_low_short_from_int(jint x) {
   return x & 0xffff;
 }
 
-inline int extract_high_short_from_int(jint x) {
+static constexpr inline int extract_high_short_from_int(jint x) {
   return (x >> 16) & 0xffff;
 }
 
-inline int build_int_from_shorts( jushort low, jushort high ) {
+static constexpr inline int build_int_from_shorts( jushort low, jushort high ) {
   return ((int)((unsigned int)high << 16) | (unsigned int)low);
 }
 
@@ -1097,9 +1099,9 @@ inline intptr_t p2i(const void * p) {
 
 // swap a & b
 template<class T> static void swap(T& a, T& b) {
-  T tmp = a;
-  a = b;
-  b = tmp;
+  T tmp = std::move(a);
+  a = std::move(b);
+  b = std::move(tmp);
 }
 
 #define ARRAY_SIZE(array) (sizeof(array)/sizeof((array)[0]))
@@ -1161,7 +1163,7 @@ JAVA_INTEGER_SHIFT_OP(>>, java_shift_right_unsigned, jlong, julong)
 // The goal of this code is to provide saturating operations for int/uint.
 // Checks overflow conditions and saturates the result to min_jint/max_jint.
 #define SATURATED_INTEGER_OP(OP, NAME, TYPE1, TYPE2) \
-inline int NAME (TYPE1 in1, TYPE2 in2) {             \
+static constexpr inline int NAME (TYPE1 in1, TYPE2 in2) {             \
   jlong res = static_cast<jlong>(in1);               \
   res OP ## = static_cast<jlong>(in2);               \
   if (res > max_jint) {                              \
