@@ -32,7 +32,7 @@ VALID_JVM_FEATURES="compiler1 compiler2 zero minimal dtrace jvmti jvmci \
 DEPRECATED_JVM_FEATURES="trace cmsgc"
 
 # All valid JVM variants
-VALID_JVM_VARIANTS="server client minimal core zero custom"
+VALID_JVM_VARIANTS="server client mc minimal core zero custom"
 
 ###############################################################################
 # Check if the specified JVM variant should be built. To be used in shell if
@@ -84,7 +84,7 @@ AC_DEFUN([HOTSPOT_IS_JVM_FEATURE_DISABLED],
 AC_DEFUN_ONCE([HOTSPOT_SETUP_JVM_VARIANTS],
 [
   AC_ARG_WITH([jvm-variants], [AS_HELP_STRING([--with-jvm-variants],
-      [JVM variants (separated by commas) to build (server,client,minimal,core,zero,custom) @<:@server@:>@])])
+      [JVM variants (separated by commas) to build (server,client,mc,minimal,core,zero,custom,mc) @<:@server@:>@])])
 
   if test "x$with_jvm_variants" = x; then
     with_jvm_variants="server"
@@ -505,7 +505,7 @@ AC_DEFUN_ONCE([HOTSPOT_SETUP_JVM_FEATURES],
   fi
 
   # All variants but minimal (and custom) get these features
-  NON_MINIMAL_FEATURES="$NON_MINIMAL_FEATURES g1gc parallelgc serialgc shenandoahgc jni-check jvmti management nmt services vm-structs"
+  NON_MINIMAL_FEATURES="$NON_MINIMAL_FEATURES parallelgc serialgc shenandoahgc jni-check jvmti management nmt services vm-structs"
 
   # Disable CDS on AIX.
   if test "x$OPENJDK_TARGET_OS" = "xaix"; then
@@ -557,6 +557,7 @@ AC_DEFUN_ONCE([HOTSPOT_SETUP_JVM_FEATURES],
   JVM_FEATURES_minimal="compiler1 minimal serialgc $JVM_FEATURES $JVM_FEATURES_link_time_opt"
   JVM_FEATURES_zero="zero $NON_MINIMAL_FEATURES $JVM_FEATURES"
   JVM_FEATURES_custom="$JVM_FEATURES"
+  JVM_FEATURES_mc="cds compiler1 compiler2 jvmti link-time-opt services shenandoahgc vm-structs nmt management" # aot graal jvmci
 
   AC_SUBST(JVM_FEATURES_server)
   AC_SUBST(JVM_FEATURES_client)
@@ -564,6 +565,7 @@ AC_DEFUN_ONCE([HOTSPOT_SETUP_JVM_FEATURES],
   AC_SUBST(JVM_FEATURES_minimal)
   AC_SUBST(JVM_FEATURES_zero)
   AC_SUBST(JVM_FEATURES_custom)
+  AC_SUBST(JVM_FEATURES_mc)
 
   # Used for verification of Makefiles by check-jvm-feature
   AC_SUBST(VALID_JVM_FEATURES)

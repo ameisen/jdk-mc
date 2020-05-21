@@ -57,10 +57,11 @@ endif
 
 ifeq ($(call check-jvm-feature, minimal), true)
   JVM_CFLAGS_FEATURES += -DMINIMAL_JVM -DVMTYPE=\"Minimal\"
-  ifeq ($(call isTargetOs, linux), true)
-    # Override the default -g with a more liberal strip policy for the minimal JVM
-    JVM_STRIPFLAGS := --strip-unneeded
-  endif
+endif
+
+ifeq ($(call isTargetOs, linux), true)
+  # Override the default -g with a more liberal strip policy for the minimal JVM
+  JVM_STRIPFLAGS := --strip-unneeded
 endif
 
 ifeq ($(call check-jvm-feature, dtrace), true)

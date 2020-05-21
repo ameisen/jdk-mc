@@ -96,9 +96,9 @@ class markWord {
   uintptr_t _value;
 
  public:
-  explicit markWord(uintptr_t value) : _value(value) {}
+  explicit constexpr markWord(uintptr_t value) : _value(value) {}
 
-  markWord() { /* uninitialized */}
+  markWord() = default;
 
   // It is critical for performance that this class be trivially
   // destructable, copyable, and assignable.
@@ -121,55 +121,55 @@ class markWord {
   uintptr_t value() const { return _value; }
 
   // Constants
-  static const int age_bits                       = 4;
-  static const int lock_bits                      = 2;
-  static const int biased_lock_bits               = 1;
-  static const int max_hash_bits                  = BitsPerWord - age_bits - lock_bits - biased_lock_bits;
-  static const int hash_bits                      = max_hash_bits > 31 ? 31 : max_hash_bits;
-  static const int unused_gap_bits                = LP64_ONLY(1) NOT_LP64(0);
-  static const int epoch_bits                     = 2;
+  static constexpr const int age_bits                       = 4;
+  static constexpr const int lock_bits                      = 2;
+  static constexpr const int biased_lock_bits               = 1;
+  static constexpr const int max_hash_bits                  = BitsPerWord - age_bits - lock_bits - biased_lock_bits;
+  static constexpr const int hash_bits                      = max_hash_bits > 31 ? 31 : max_hash_bits;
+  static constexpr const int unused_gap_bits                = LP64_ONLY(1) NOT_LP64(0);
+  static constexpr const int epoch_bits                     = 2;
 
   // The biased locking code currently requires that the age bits be
   // contiguous to the lock bits.
-  static const int lock_shift                     = 0;
-  static const int biased_lock_shift              = lock_bits;
-  static const int age_shift                      = lock_bits + biased_lock_bits;
-  static const int unused_gap_shift               = age_shift + age_bits;
-  static const int hash_shift                     = unused_gap_shift + unused_gap_bits;
-  static const int epoch_shift                    = hash_shift;
+  static constexpr const int lock_shift                     = 0;
+  static constexpr const int biased_lock_shift              = lock_bits;
+  static constexpr const int age_shift                      = lock_bits + biased_lock_bits;
+  static constexpr const int unused_gap_shift               = age_shift + age_bits;
+  static constexpr const int hash_shift                     = unused_gap_shift + unused_gap_bits;
+  static constexpr const int epoch_shift                    = hash_shift;
 
-  static const uintptr_t lock_mask                = right_n_bits(lock_bits);
-  static const uintptr_t lock_mask_in_place       = lock_mask << lock_shift;
-  static const uintptr_t biased_lock_mask         = right_n_bits(lock_bits + biased_lock_bits);
-  static const uintptr_t biased_lock_mask_in_place= biased_lock_mask << lock_shift;
-  static const uintptr_t biased_lock_bit_in_place = 1 << biased_lock_shift;
-  static const uintptr_t age_mask                 = right_n_bits(age_bits);
-  static const uintptr_t age_mask_in_place        = age_mask << age_shift;
-  static const uintptr_t epoch_mask               = right_n_bits(epoch_bits);
-  static const uintptr_t epoch_mask_in_place      = epoch_mask << epoch_shift;
+  static constexpr const uintptr_t lock_mask                = right_n_bits(lock_bits);
+  static constexpr const uintptr_t lock_mask_in_place       = lock_mask << lock_shift;
+  static constexpr const uintptr_t biased_lock_mask         = right_n_bits(lock_bits + biased_lock_bits);
+  static constexpr const uintptr_t biased_lock_mask_in_place= biased_lock_mask << lock_shift;
+  static constexpr const uintptr_t biased_lock_bit_in_place = 1 << biased_lock_shift;
+  static constexpr const uintptr_t age_mask                 = right_n_bits(age_bits);
+  static constexpr const uintptr_t age_mask_in_place        = age_mask << age_shift;
+  static constexpr const uintptr_t epoch_mask               = right_n_bits(epoch_bits);
+  static constexpr const uintptr_t epoch_mask_in_place      = epoch_mask << epoch_shift;
 
-  static const uintptr_t hash_mask                = right_n_bits(hash_bits);
-  static const uintptr_t hash_mask_in_place       = hash_mask << hash_shift;
+  static constexpr const uintptr_t hash_mask                = right_n_bits(hash_bits);
+  static constexpr const uintptr_t hash_mask_in_place       = hash_mask << hash_shift;
 
   // Alignment of JavaThread pointers encoded in object header required by biased locking
-  static const size_t biased_lock_alignment       = 2 << (epoch_shift + epoch_bits);
+  static constexpr const size_t biased_lock_alignment       = 2 << (epoch_shift + epoch_bits);
 
-  static const uintptr_t locked_value             = 0;
-  static const uintptr_t unlocked_value           = 1;
-  static const uintptr_t monitor_value            = 2;
-  static const uintptr_t marked_value             = 3;
-  static const uintptr_t biased_lock_pattern      = 5;
+  static constexpr const uintptr_t locked_value             = 0;
+  static constexpr const uintptr_t unlocked_value           = 1;
+  static constexpr const uintptr_t monitor_value            = 2;
+  static constexpr const uintptr_t marked_value             = 3;
+  static constexpr const uintptr_t biased_lock_pattern      = 5;
 
-  static const uintptr_t no_hash                  = 0 ;  // no hash value assigned
-  static const uintptr_t no_hash_in_place         = (address_word)no_hash << hash_shift;
-  static const uintptr_t no_lock_in_place         = unlocked_value;
+  static constexpr const uintptr_t no_hash                  = 0 ;  // no hash value assigned
+  static constexpr const uintptr_t no_hash_in_place         = (address_word)no_hash << hash_shift;
+  static constexpr const uintptr_t no_lock_in_place         = unlocked_value;
 
-  static const uint max_age                       = age_mask;
+  static constexpr const uint max_age                       = age_mask;
 
-  static const int max_bias_epoch                 = epoch_mask;
+  static constexpr const int max_bias_epoch                 = epoch_mask;
 
   // Creates a markWord with all bits set to zero.
-  static markWord zero() { return markWord(uintptr_t(0)); }
+  static constexpr markWord zero() { return markWord(uintptr_t(0)); }
 
   // Biased Locking accessors.
   // These must be checked by all code which calls into the

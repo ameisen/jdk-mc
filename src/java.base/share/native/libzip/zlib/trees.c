@@ -1015,7 +1015,9 @@ void ZLIB_INTERNAL _tr_flush_block(s, buf, stored_len, last)
         s->compressed_len += 3 + s->opt_len;
 #endif
     }
+#ifdef ZLIB_DEBUG
     Assert (s->compressed_len == s->bits_sent, "bad compressed size");
+#endif
     /* The above check is made mod 2^32, for files larger than 512 MB
      * and uLong implemented on 32 bits.
      */

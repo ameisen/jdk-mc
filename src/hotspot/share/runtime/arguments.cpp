@@ -2021,7 +2021,7 @@ jint Arguments::set_aggressive_heap_flags() {
   }
 
   // Enable parallel GC and adaptive generation sizing
-  if (FLAG_SET_CMDLINE(UseParallelGC, true) != JVMFlag::SUCCESS) {
+  if (FLAG_SET_CMDLINE(UseShenandoahGC, true) != JVMFlag::SUCCESS) {
     return JNI_EINVAL;
   }
 

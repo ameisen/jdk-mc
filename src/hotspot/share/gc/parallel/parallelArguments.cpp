@@ -49,7 +49,7 @@ void ParallelArguments::initialize() {
   if (FLAG_IS_DEFAULT(UseParallelOldGC)) {
     FLAG_SET_DEFAULT(UseParallelOldGC, true);
   }
-  FLAG_SET_DEFAULT(UseParallelGC, true);
+  // FLAG_SET_DEFAULT(UseParallelGC, true);
 
   // If no heap maximum was requested explicitly, use some reasonable fraction
   // of the physical memory, up to a maximum of 1GB.

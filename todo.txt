@@ -1,0 +1,39 @@
+Add a real explicit GC that is forced
+
+UseCompressedOops (true)
+UseCompressedClassPointers (true)
+CheckCompressedOops (false)
+ObjectAlignmentInBytes (16)
+
+
+dangerous:
+AlwaysSafeConstructors
+
+
+handle:
+UseLargePages
+UseLargePagesIndividualAllocation
+UseLargePagesInMetaspace
+
+
+ForceTimeHighResolution
+
+diagnostic
+notproduct
+
+check the locking primitives to see if they're optimal
+
+LogEvents?
+
+
+ScavengeBeforeFullGC false?
+ThresholdTolerance 100?
+StackTraceInThrowable false would be faster but less useful
+
+hashCode // choose better implementation?
+
+use vectorcall by default
+
+UseRTMLocking
+UseRTMForStackLocks
+UseRTMDeopt
