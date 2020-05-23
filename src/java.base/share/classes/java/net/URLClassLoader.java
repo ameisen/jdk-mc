@@ -57,6 +57,8 @@ import jdk.internal.perf.PerfCounter;
 import sun.net.www.ParseUtil;
 import sun.security.util.SecurityConstants;
 
+import jdk.internal.loader.ClassLoaders;
+
 /**
  * This class loader is used to load classes and resources from a search
  * path of URLs referring to both JAR files and directories. Any {@code jar:}
@@ -81,7 +83,7 @@ import sun.security.util.SecurityConstants;
  */
 public class URLClassLoader extends SecureClassLoader implements Closeable {
     /* The search path for classes and resources */
-    private final URLClassPath ucp;
+    protected final URLClassPath ucp;
 
     /* The context to be used when loading classes and resources */
     private final AccessControlContext acc;
@@ -119,6 +121,13 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
         super(name, parent);
         this.acc = acc;
         this.ucp = new URLClassPath(urls, acc);
+    }
+
+    protected URLClassLoader(String name, URLClassPath urls, ClassLoader parent,
+                   AccessControlContext acc) {
+        super(name, parent == null || parent == ClassLoaders.bootLoader() ? null : parent);
+        this.acc = acc;
+        this.ucp = (urls == null) ? URLClassPath.EMPTY : urls;
     }
 
     /**
@@ -214,6 +223,14 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
         super(name, parent);
         this.acc = AccessController.getContext();
         this.ucp = new URLClassPath(urls, acc);
+    }
+
+    protected URLClassLoader(String name,
+                          URLClassPath urls,
+                          ClassLoader parent) {
+        super(name, parent == null || parent == ClassLoaders.bootLoader() ? null : parent);
+        this.acc = AccessController.getContext();
+        this.ucp = (urls == null) ? URLClassPath.EMPTY : urls;
     }
 
     /**
@@ -437,12 +454,38 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
         return result;
     }
 
+    // finds the class or returns null
+    protected Class<?> findClassOrNull(final String name) {
+        final Class<?> result;
+        try {
+            result = AccessController.doPrivileged(
+                new PrivilegedExceptionAction<>() {
+                    public Class<?> run() throws ClassNotFoundException {
+                        String path = name.replace('.', '/').concat(".class");
+                        Resource res = ucp.getResource(path, false);
+                        if (res != null) {
+                            try {
+                                return defineClass(name, res);
+                            } catch (IOException e) {
+                                return null;
+                            }
+                        } else {
+                            return null;
+                        }
+                    }
+                }, acc);
+        } catch (java.security.PrivilegedActionException pae) {
+            return null;
+        }
+        return result;
+    }
+
     /*
      * Retrieve the package using the specified package name.
      * If non-null, verify the package using the specified code
      * source and manifest.
      */
-    private Package getAndVerifyPackage(String pkgname,
+    protected Package getAndVerifyPackage(String pkgname,
                                         Manifest man, URL url) {
         Package pkg = getDefinedPackage(pkgname);
         if (pkg != null) {
@@ -466,12 +509,40 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
         return pkg;
     }
 
+    /**
+     * Defines a package in this ClassLoader. If the package is already defined
+     * then its sealing needs to be checked if sealed by the legacy sealing
+     * mechanism.
+     *
+     * @throws SecurityException if there is a sealing violation (JAR spec)
+     */
+    public Package defineOrCheckPackage(String pn, Manifest man, URL url) {
+        Package pkg = getAndVerifyPackage(pn, man, url);
+        if (pkg == null) {
+            try {
+                if (man != null) {
+                    pkg = definePackage(pn, man, url);
+                }
+                else {
+                    pkg = definePackage(pn, null, null, null, null, null, null, null);
+                }
+            } catch (IllegalArgumentException iae) {
+                // defined by another thread so need to re-verify
+                pkg = getAndVerifyPackage(pn, man, url);
+                if (pkg == null) {
+                    throw new InternalError("Cannot find package: " + pn);
+                }
+            }
+        }
+        return pkg;
+    }
+
     /*
      * Defines a Class using the class bytes obtained from the specified
      * Resource. The resulting Class must be resolved before it can be
      * used.
      */
-    private Class<?> defineClass(String name, Resource res) throws IOException {
+    protected Class<?> defineClass(String name, Resource res) throws IOException {
         long t0 = System.nanoTime();
         int i = name.lastIndexOf('.');
         URL url = res.getCodeSourceURL();
@@ -479,23 +550,7 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
             String pkgname = name.substring(0, i);
             // Check if package already loaded.
             Manifest man = res.getManifest();
-            if (getAndVerifyPackage(pkgname, man, url) == null) {
-                try {
-                    if (man != null) {
-                        definePackage(pkgname, man, url);
-                    } else {
-                        definePackage(pkgname, null, null, null, null, null, null, null);
-                    }
-                } catch (IllegalArgumentException iae) {
-                    // parallel-capable class loaders: re-verify in case of a
-                    // race condition
-                    if (getAndVerifyPackage(pkgname, man, url) == null) {
-                        // Should never happen
-                        throw new AssertionError("Cannot find package " +
-                                                 pkgname);
-                    }
-                }
-            }
+            defineOrCheckPackage(pkgname, man, url);
         }
         // Now read the class bytes and define the class
         java.nio.ByteBuffer bb = res.getByteBuffer();
@@ -539,43 +594,45 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
         String sealed = null;
         URL sealBase = null;
 
-        Attributes attr = SharedSecrets.javaUtilJarAccess()
-                .getTrustedAttributes(man, name.replace('.', '/').concat("/"));
-        if (attr != null) {
-            specTitle   = attr.getValue(Name.SPECIFICATION_TITLE);
-            specVersion = attr.getValue(Name.SPECIFICATION_VERSION);
-            specVendor  = attr.getValue(Name.SPECIFICATION_VENDOR);
-            implTitle   = attr.getValue(Name.IMPLEMENTATION_TITLE);
-            implVersion = attr.getValue(Name.IMPLEMENTATION_VERSION);
-            implVendor  = attr.getValue(Name.IMPLEMENTATION_VENDOR);
-            sealed      = attr.getValue(Name.SEALED);
-        }
-        attr = man.getMainAttributes();
-        if (attr != null) {
-            if (specTitle == null) {
-                specTitle = attr.getValue(Name.SPECIFICATION_TITLE);
-            }
-            if (specVersion == null) {
+        if (man != null) {
+            Attributes attr = SharedSecrets.javaUtilJarAccess()
+                    .getTrustedAttributes(man, name.replace('.', '/').concat("/"));
+            if (attr != null) {
+                specTitle   = attr.getValue(Name.SPECIFICATION_TITLE);
                 specVersion = attr.getValue(Name.SPECIFICATION_VERSION);
-            }
-            if (specVendor == null) {
-                specVendor = attr.getValue(Name.SPECIFICATION_VENDOR);
-            }
-            if (implTitle == null) {
-                implTitle = attr.getValue(Name.IMPLEMENTATION_TITLE);
-            }
-            if (implVersion == null) {
+                specVendor  = attr.getValue(Name.SPECIFICATION_VENDOR);
+                implTitle   = attr.getValue(Name.IMPLEMENTATION_TITLE);
                 implVersion = attr.getValue(Name.IMPLEMENTATION_VERSION);
+                implVendor  = attr.getValue(Name.IMPLEMENTATION_VENDOR);
+                sealed      = attr.getValue(Name.SEALED);
             }
-            if (implVendor == null) {
-                implVendor = attr.getValue(Name.IMPLEMENTATION_VENDOR);
+            attr = man.getMainAttributes();
+            if (attr != null) {
+                if (specTitle == null) {
+                    specTitle = attr.getValue(Name.SPECIFICATION_TITLE);
+                }
+                if (specVersion == null) {
+                    specVersion = attr.getValue(Name.SPECIFICATION_VERSION);
+                }
+                if (specVendor == null) {
+                    specVendor = attr.getValue(Name.SPECIFICATION_VENDOR);
+                }
+                if (implTitle == null) {
+                    implTitle = attr.getValue(Name.IMPLEMENTATION_TITLE);
+                }
+                if (implVersion == null) {
+                    implVersion = attr.getValue(Name.IMPLEMENTATION_VERSION);
+                }
+                if (implVendor == null) {
+                    implVendor = attr.getValue(Name.IMPLEMENTATION_VENDOR);
+                }
+                if (sealed == null) {
+                    sealed = attr.getValue(Name.SEALED);
+                }
             }
-            if (sealed == null) {
-                sealed = attr.getValue(Name.SEALED);
+            if ("true".equalsIgnoreCase(sealed)) {
+                sealBase = url;
             }
-        }
-        if ("true".equalsIgnoreCase(sealed)) {
-            sealBase = url;
         }
         return definePackage(name, specTitle, specVersion, specVendor,
                              implTitle, implVersion, implVendor, sealBase);
@@ -587,7 +644,7 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
      *
      * @throws SecurityException if the package name is untrusted in the manifest
      */
-    private boolean isSealed(String name, Manifest man) {
+    protected boolean isSealed(String name, Manifest man) {
         Attributes attr = SharedSecrets.javaUtilJarAccess()
                 .getTrustedAttributes(man, name.replace('.', '/').concat("/"));
         String sealed = null;

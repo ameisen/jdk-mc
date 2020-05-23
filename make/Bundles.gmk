@@ -94,7 +94,7 @@ define SetupBundleFileBody
           # If no subdir is specified, zip can be done directly from BASE_DIRS.
 	  $$(foreach d, $$($1_BASE_DIRS), \
 	    ( $(CD) $$d \
-	    && $(ZIPEXE) -qru $$@ . -i@$$($1_$$d_LIST_FILE) \
+	    && $(ZIPEXE) -9 -qru $$@ . -i@$$($1_$$d_LIST_FILE) \
 	    || test "$$$$?" = "12" )$$(NEWLINE))
         else ifeq ($$($1_SUBDIR)-$$($1_TYPE)-$$($1_UNZIP_DEBUGINFO)-$$(words $$($1_BASE_DIRS)), \
             .-tar.gz-false-1)
@@ -104,7 +104,7 @@ define SetupBundleFileBody
 	      && ( $(TAR) cf - $(TAR_CREATE_EXTRA_PARAM) \
 	          -$(TAR_INCLUDE_PARAM) $$($1_$$($1_BASE_DIRS)_LIST_FILE) \
 	          $(TAR_IGNORE_EXIT_VALUE) ) \
-	      | $(GZIP) > $$@
+	      | $(GZIP) -11 > $$@
         else ifeq ($$($1_TYPE)-$(TAR_SUPPORTS_TRANSFORM)-$$($1_UNZIP_DEBUGINFO)-$$(words $$($1_BASE_DIRS)), \
             tar.gz-true-false-1)
           # If only one BASE_DIR, but with a SUBDIR set, tar.gz can use the
@@ -114,7 +114,7 @@ define SetupBundleFileBody
 	          -$(TAR_INCLUDE_PARAM) $$($1_$$($1_BASE_DIRS)_LIST_FILE) \
 	          $$(if $$($1_SUBDIR), --transform 's|^|$$($1_SUBDIR)/|S') \
 	          $(TAR_IGNORE_EXIT_VALUE) ) \
-	      | $(GZIP) > $$@
+	      | $(GZIP) -11 > $$@
         else
           # In all other cases, need to copy all files into a temporary location
           # before creation bundle.
@@ -135,9 +135,9 @@ define SetupBundleFileBody
 	    $(CD) $(SUPPORT_OUTPUTDIR)/bundles/$1 && \
 	    ( $(TAR) cf - $(TAR_CREATE_EXTRA_PARAM) \
 	        $$(if $$($1_SUBDIR), $$($1_SUBDIR), .) $(TAR_IGNORE_EXIT_VALUE) ) \
-	    | $(GZIP) > $$@
+	    | $(GZIP) -11 > $$@
           else ifeq ($$($1_TYPE), zip)
-	    $(CD) $(SUPPORT_OUTPUTDIR)/bundles/$1 && $(ZIPEXE) -qr $$@ .
+	    $(CD) $(SUPPORT_OUTPUTDIR)/bundles/$1 && $(ZIPEXE) -9 -qr $$@ .
           endif
         endif
 

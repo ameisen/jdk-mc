@@ -847,7 +847,10 @@ InstanceKlass* SystemDictionary::resolve_instance_class_or_null(Symbol* name,
       if (!HAS_PENDING_EXCEPTION && k != NULL &&
         k->class_loader() != class_loader()) {
 
-        check_constraints(d_hash, k, class_loader, false, THREAD);
+        bool constraint_result = check_constraints(d_hash, k, class_loader, false, true, THREAD);
+
+        // (constraints()->check_or_update(k, class_loader, name) == false)
+        // TODO : Copy over the class definition from the other class loader.
 
         // Need to check for a PENDING_EXCEPTION again; check_constraints
         // can throw but we may have to remove entry from the placeholder table below.
@@ -1562,7 +1565,10 @@ void SystemDictionary::define_instance_class(InstanceKlass* k, TRAPS) {
   Symbol*  name_h = k->name();
   Dictionary* dictionary = loader_data->dictionary();
   unsigned int d_hash = dictionary->compute_hash(name_h);
-  check_constraints(d_hash, k, class_loader_h, true, CHECK);
+  bool result = check_constraints(d_hash, k, class_loader_h, true, true, CHECK);
+  if (!result) {
+    return;
+  }
 
   // Register class just loaded with class loader (placed in Vector)
   // Note we do this before updating the dictionary, as this can
@@ -2053,10 +2059,11 @@ BasicType SystemDictionary::box_klass_type(Klass* k) {
 // if defining is true, then LinkageError if already in dictionary
 // if initiating loader, then ok if InstanceKlass matches existing entry
 
-void SystemDictionary::check_constraints(unsigned int d_hash,
+bool SystemDictionary::check_constraints(unsigned int d_hash,
                                          InstanceKlass* k,
                                          Handle class_loader,
                                          bool defining,
+                                         bool throws,
                                          TRAPS) {
   ResourceMark rm(THREAD);
   stringStream ss;
@@ -2078,12 +2085,15 @@ void SystemDictionary::check_constraints(unsigned int d_hash,
 
       assert(check->is_instance_klass(), "noninstance in systemdictionary");
       if ((defining == true) || (k != check)) {
+        if (!throws) {
+          return false;
+        }
         throwException = true;
         ss.print("loader %s", loader_data->loader_name_and_id());
         ss.print(" attempted duplicate %s definition for %s. (%s)",
                  k->external_kind(), k->external_name(), k->class_in_module_of_loader(false, true));
       } else {
-        return;
+        return true;
       }
     }
 
@@ -2094,6 +2104,9 @@ void SystemDictionary::check_constraints(unsigned int d_hash,
 
     if (throwException == false) {
       if (constraints()->check_or_update(k, class_loader, name) == false) {
+        if (!throws) {
+          return false;
+        }
         throwException = true;
         ss.print("loader constraint violation: loader %s", loader_data->loader_name_and_id());
         ss.print(" wants to load %s %s.",
@@ -2114,8 +2127,10 @@ void SystemDictionary::check_constraints(unsigned int d_hash,
   // Throw error now if needed (cannot throw while holding
   // SystemDictionary_lock because of rank ordering)
   if (throwException == true) {
-    THROW_MSG(vmSymbols::java_lang_LinkageError(), ss.as_string());
+    THROW_MSG_(vmSymbols::java_lang_LinkageError(), ss.as_string(), throws);
   }
+
+  return true;
 }
 
 // Update class loader data dictionary - done after check_constraint and add_to_hierachy

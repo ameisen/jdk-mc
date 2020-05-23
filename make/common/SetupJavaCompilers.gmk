@@ -38,7 +38,7 @@ JDK_SOURCE_TARGET_FLAGS := -source $(JDK_SOURCE_TARGET_VERSION) \
 
 # If warnings needs to be non-fatal for testing purposes use a command like:
 # make JAVAC_WARNINGS="-Xlint:all -Xmaxwarns 10000"
-JAVAC_WARNINGS ?= -Xlint:all -Werror
+JAVAC_WARNINGS ?= -Xlint:all -Xdoclint:-missing -Werror
 
 # The BOOT_JAVAC setup uses the boot jdk compiler to compile the tools
 # and the interim javac, to be run by the boot jdk.
@@ -48,7 +48,7 @@ $(eval $(call SetupJavaCompiler,BOOT_JAVAC, \
         $(JAVA_TOOL_FLAGS_SMALL) \
         $(BOOT_JDK_SOURCETARGET) \
         -XDignore.symbol.file=true -g \
-        -Xlint:all$(COMMA)-deprecation$(COMMA)-options -Werror, \
+        -Xlint:all$(COMMA)-deprecation$(COMMA)-options -Xdoclint:-missing -Werror, \
     DISABLE_SJAVAC := true, \
 ))
 
@@ -108,7 +108,7 @@ $(eval $(call SetupJavaCompiler,GENERATE_8_BYTECODE, \
         $(JAVA_TOOL_FLAGS_SMALL) \
         --release 8 \
         -XDignore.symbol.file=true -g \
-        -Xlint:all -Werror, \
+        -Xlint:all -Xdoclint:-missing -Werror, \
     DISABLE_SJAVAC := true, \
 ))
 

@@ -601,6 +601,45 @@ public abstract class ClassLoader {
         }
     }
 
+    // And one that returns null
+    protected Class<?> loadClassOrNull(String name, boolean resolve)
+    {
+        synchronized (getClassLoadingLock(name)) {
+            try {
+                // First, check if the class has already been loaded
+                Class<?> c = findLoadedClass(name);
+                if (c == null) {
+                    long t0 = System.nanoTime();
+                    if (parent != null) {
+                        c = parent.loadClassOrNull(name, false);
+                    }
+                    else {
+                        c = findBootstrapClassOrNull(name);
+                    }
+
+                    if (c == null) {
+                        // If still not found, then invoke findClass in order
+                        // to find the class.
+                        long t1 = System.nanoTime();
+                        c = findClass(name);
+
+                        // this is the defining class loader; record the stats
+                        PerfCounter.getParentDelegationTime().addTime(t1 - t0);
+                        PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);
+                        PerfCounter.getFindClasses().increment();
+                    }
+                }
+                if (resolve && c != null) {
+                    resolveClass(c);
+                }
+                return c;
+            }
+            catch (ClassNotFoundException e) {
+                return null;
+            }
+        }
+    }
+
     /**
      * Loads the class with the specified <a href="#binary-name">binary name</a>
      * in a module defined to this class loader.  This method returns {@code null}

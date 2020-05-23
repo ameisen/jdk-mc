@@ -34,6 +34,7 @@ import java.lang.ref.SoftReference;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.CodeSigner;
@@ -93,7 +94,7 @@ import sun.security.util.LazyCodeSourcePermissionCollection;
  */
 
 public class BuiltinClassLoader
-    extends SecureClassLoader
+    extends URLClassLoader
 {
     static {
         if (!ClassLoader.registerAsParallelCapable())
@@ -103,9 +104,9 @@ public class BuiltinClassLoader
     // parent ClassLoader
     private final BuiltinClassLoader parent;
 
-    // the URL class path, or null if there is no class path
-    private final URLClassPath ucp;
-
+    // cache of resource name -> list of URLs.
+    // used only for resources that are not in module packages
+    protected volatile SoftReference<ConcurrentHashMap<String, List<URL>>> resourceCache;
 
     /**
      * A module defined/loaded by a built-in class loader.
@@ -117,7 +118,7 @@ public class BuiltinClassLoader
         private final BuiltinClassLoader loader;
         private final ModuleReference mref;
         private final URI uri;                      // may be null
-        private @Stable URL codeSourceURL;          // may be null
+        final URL codeSourceURL;            // may be null
 
         LoadedModule(BuiltinClassLoader loader, ModuleReference mref) {
             URL url = null;
@@ -126,7 +127,7 @@ public class BuiltinClassLoader
             // for non-jrt schemes we need to resolve the codeSourceURL
             // eagerly during bootstrap since the handler might be
             // overridden
-            if (uri != null && !"jrt".equals(uri.getScheme())) {
+            if (uri != null /* && !"jrt".equals(uri.getScheme()) */ ) {
                 url = createURL(uri);
             }
             this.loader = loader;
@@ -137,16 +138,9 @@ public class BuiltinClassLoader
         BuiltinClassLoader loader() { return loader; }
         ModuleReference mref() { return mref; }
         String name() { return mref.descriptor().name(); }
+        URL codeSourceURL() { return codeSourceURL; }
 
-        URL codeSourceURL() {
-            URL url = codeSourceURL;
-            if (url == null && uri != null) {
-                codeSourceURL = url = createURL(uri);
-            }
-            return url;
-        }
-
-        private URL createURL(URI uri) {
+        private static URL createURL(URI uri) {
             URL url = null;
             try {
                 url = uri.toURL();
@@ -156,32 +150,33 @@ public class BuiltinClassLoader
         }
     }
 
+    private static final int PACKAGE_TO_MODULE_PREALLOC = 1024;
+    private static final int NAME_TO_MODULE_PRAELLOC = 32;
 
     // maps package name to loaded module for modules in the boot layer
-    private static final Map<String, LoadedModule> packageToModule
-        = new ConcurrentHashMap<>(1024);
+    private static final ConcurrentHashMap<String, LoadedModule> packageToModule
+        = new ConcurrentHashMap<>(PACKAGE_TO_MODULE_PREALLOC);
 
     // maps a module name to a module reference
-    private final Map<String, ModuleReference> nameToModule;
+    private final ConcurrentHashMap<String, ModuleReference> nameToModule;
 
     // maps a module reference to a module reader
-    private final Map<ModuleReference, ModuleReader> moduleToReader;
-
-    // cache of resource name -> list of URLs.
-    // used only for resources that are not in module packages
-    private volatile SoftReference<Map<String, List<URL>>> resourceCache;
+    private final ConcurrentHashMap<ModuleReference, ModuleReader> moduleToReader;
 
     /**
      * Create a new instance.
      */
     BuiltinClassLoader(String name, BuiltinClassLoader parent, URLClassPath ucp) {
         // ensure getParent() returns null when the parent is the boot loader
-        super(name, parent == null || parent == ClassLoaders.bootLoader() ? null : parent);
+        super(
+            name,
+            ucp,
+            parent
+        );
 
         this.parent = parent;
-        this.ucp = ucp;
 
-        this.nameToModule = new ConcurrentHashMap<>(32);
+        this.nameToModule = new ConcurrentHashMap<>(NAME_TO_MODULE_PRAELLOC);
         this.moduleToReader = new ConcurrentHashMap<>();
     }
 
@@ -213,7 +208,7 @@ public class BuiltinClassLoader
         }
 
         // clear resources cache if VM is already initialized
-        if (VM.isModuleSystemInited() && resourceCache != null) {
+        if (resourceCache != null && VM.isModuleSystemInited()) {
             resourceCache = null;
         }
     }
@@ -228,7 +223,6 @@ public class BuiltinClassLoader
         return nameToModule.get(name);
     }
 
-
     // -- finding resources
 
     /**
@@ -237,20 +231,14 @@ public class BuiltinClassLoader
      */
     @Override
     public URL findResource(String mn, String name) throws IOException {
-        URL url = null;
-
         if (mn != null) {
             // find in module
             ModuleReference mref = nameToModule.get(mn);
             if (mref != null) {
-                url = findResource(mref, name);
+                return URLClassPath.checkURL(findResource(mref, name));
             }
-        } else {
-            // find on class path
-            url = findResourceOnClassPath(name);
         }
-
-        return checkURL(url);  // check access before returning
+        return super.findResource(mn, name);
     }
 
     /**
@@ -262,7 +250,7 @@ public class BuiltinClassLoader
     {
         // Need URL to resource when running with a security manager so that
         // the right permission check is done.
-        if (System.getSecurityManager() != null || mn == null) {
+        if (mn == null || System.getSecurityManager() != null) {
             URL url = findResource(mn, name);
             return (url != null) ? url.openStream() : null;
         }
@@ -271,10 +259,21 @@ public class BuiltinClassLoader
         ModuleReference mref = nameToModule.get(mn);
         if (mref != null) {
             return moduleReaderFor(mref).open(name).orElse(null);
-        } else {
-            return null;
         }
+
+        return null;
     }
+
+    // checks if it's a class name?
+    private static boolean isValidClassPath(String name, URL url) {
+        return name.endsWith(".class") || url.toString().endsWith("/");
+    }
+
+    // checks if it's a class name?
+    private boolean isValidClassPath(String name, URL url, LoadedModule module, String pn) {
+        return isValidClassPath(name, url) || isOpen(module.mref(), pn);
+    }
+
 
     /**
      * Finds a resource with the given name in the modules defined to this
@@ -285,7 +284,6 @@ public class BuiltinClassLoader
         String pn = Resources.toPackageName(name);
         LoadedModule module = packageToModule.get(pn);
         if (module != null) {
-
             // resource is in a package of a module defined to this loader
             if (module.loader() == this) {
                 URL url;
@@ -294,23 +292,20 @@ public class BuiltinClassLoader
                 } catch (IOException ioe) {
                     return null;
                 }
-                if (url != null
-                    && (name.endsWith(".class")
-                        || url.toString().endsWith("/")
-                        || isOpen(module.mref(), pn))) {
+                if (url != null && isValidClassPath(name, url, module, pn)) {
                     return url;
                 }
             }
 
-        } else {
-
+        }
+        else {
             // not in a module package but may be in module defined to this loader
             try {
-                List<URL> urls = findMiscResource(name);
+                var urls = findMiscResource(name);
                 if (!urls.isEmpty()) {
                     URL url = urls.get(0);
                     if (url != null) {
-                        return checkURL(url); // check access before returning
+                        return URLClassPath.checkURL(url); // check access before returning
                     }
                 }
             } catch (IOException ioe) {
@@ -319,9 +314,7 @@ public class BuiltinClassLoader
 
         }
 
-        // search class path
-        URL url = findResourceOnClassPath(name);
-        return checkURL(url);
+        return super.findResource(name);
     }
 
     /**
@@ -331,27 +324,24 @@ public class BuiltinClassLoader
      */
     @Override
     public Enumeration<URL> findResources(String name) throws IOException {
-        List<URL> checked = new ArrayList<>();  // list of checked URLs
+        var checked = new ArrayList<URL>();  // list of checked URLs
 
         String pn = Resources.toPackageName(name);
         LoadedModule module = packageToModule.get(pn);
-        if (module != null) {
 
+        if (module != null) {
             // resource is in a package of a module defined to this loader
             if (module.loader() == this) {
                 URL url = findResource(module.name(), name); // checks URL
-                if (url != null
-                    && (name.endsWith(".class")
-                        || url.toString().endsWith("/")
-                        || isOpen(module.mref(), pn))) {
+                if (url != null && isValidClassPath(name, url, module, pn)) {
                     checked.add(url);
                 }
             }
-
-        } else {
+        }
+        else {
             // not in a package of a module defined to this loader
             for (URL url : findMiscResource(name)) {
-                url = checkURL(url);
+                url = URLClassPath.checkURL(url);
                 if (url != null) {
                     checked.add(url);
                 }
@@ -359,12 +349,12 @@ public class BuiltinClassLoader
         }
 
         // class path (not checked)
-        Enumeration<URL> e = findResourcesOnClassPath(name);
+        var e = findResourcesOnClassPath(name); // TODO super.findResources(name)
 
         // concat the checked URLs and the (not checked) class path
         return new Enumeration<>() {
             final Iterator<URL> iterator = checked.iterator();
-            URL next;
+            URL next = null;
             private boolean hasNext() {
                 if (next != null) {
                     return true;
@@ -374,7 +364,7 @@ public class BuiltinClassLoader
                 } else {
                     // need to check each URL
                     while (e.hasMoreElements() && next == null) {
-                        next = checkURL(e.nextElement());
+                        next = URLClassPath.checkURL(e.nextElement());
                     }
                     return next != null;
                 }
@@ -405,15 +395,17 @@ public class BuiltinClassLoader
      * The cache used by this method avoids repeated searching of all modules.
      */
     private List<URL> findMiscResource(String name) throws IOException {
-        SoftReference<Map<String, List<URL>>> ref = this.resourceCache;
-        Map<String, List<URL>> map = (ref != null) ? ref.get() : null;
+        SoftReference<ConcurrentHashMap<String, List<URL>>> ref = this.resourceCache;
+        ConcurrentHashMap<String, List<URL>> map = (ref != null) ? ref.get() : null;
         if (map == null) {
             map = new ConcurrentHashMap<>();
             this.resourceCache = new SoftReference<>(map);
-        } else {
+        }
+        else {
             List<URL> urls = map.get(name);
-            if (urls != null)
+            if (urls != null) {
                 return urls;
+            }
         }
 
         // search all modules for the resource
@@ -428,11 +420,11 @@ public class BuiltinClassLoader
                             URI u = moduleReaderFor(mref).find(name).orElse(null);
                             if (u != null) {
                                 try {
-                                    if (result == null)
+                                    if (result == null) {
                                         result = new ArrayList<>();
+                                    }
                                     result.add(u.toURL());
-                                } catch (MalformedURLException |
-                                         IllegalArgumentException e) {
+                                } catch (MalformedURLException | IllegalArgumentException e) {
                                 }
                             }
                         }
@@ -458,7 +450,8 @@ public class BuiltinClassLoader
         URI u;
         if (System.getSecurityManager() == null) {
             u = moduleReaderFor(mref).find(name).orElse(null);
-        } else {
+        }
+        else {
             try {
                 u = AccessController.doPrivileged(new PrivilegedExceptionAction<> () {
                     @Override
@@ -491,23 +484,6 @@ public class BuiltinClassLoader
     }
 
     /**
-     * Returns a URL to a resource on the class path.
-     */
-    private URL findResourceOnClassPath(String name) {
-        if (hasClassPath()) {
-            if (System.getSecurityManager() == null) {
-                return ucp.findResource(name, false);
-            } else {
-                PrivilegedAction<URL> pa = () -> ucp.findResource(name, false);
-                return AccessController.doPrivileged(pa);
-            }
-        } else {
-            // no class path
-            return null;
-        }
-    }
-
-    /**
      * Returns the URLs of all resources of the given name on the class path.
      */
     private Enumeration<URL> findResourcesOnClassPath(String name) {
@@ -533,34 +509,25 @@ public class BuiltinClassLoader
     @Override
     protected Class<?> findClass(String cn) throws ClassNotFoundException {
         // no class loading until VM is fully initialized
-        if (!VM.isModuleSystemInited())
+        if (!VM.isModuleSystemInited()) {
             throw new ClassNotFoundException(cn);
+        }
 
         // find the candidate module for this class
         LoadedModule loadedModule = findLoadedModule(cn);
 
-        Class<?> c = null;
         if (loadedModule != null) {
-
             // attempt to load class in module defined to this loader
             if (loadedModule.loader() == this) {
-                c = findClassInModuleOrNull(loadedModule, cn);
+                var c = findClassInModuleOrNull(loadedModule, cn);
+                if (c == null) {
+                    throw new ClassNotFoundException(cn);
+                }
+                return c;
             }
-
-        } else {
-
-            // search class path
-            if (hasClassPath()) {
-                c = findClassOnClassPathOrNull(cn);
-            }
-
         }
 
-        // not found
-        if (c == null)
-            throw new ClassNotFoundException(cn);
-
-        return c;
+        return super.findClass(cn);
     }
 
     /**
@@ -583,11 +550,7 @@ public class BuiltinClassLoader
         }
 
         // search class path
-        if (hasClassPath()) {
-            return findClassOnClassPathOrNull(cn);
-        }
-
-        return null;
+        return findClassOrNull(cn);
     }
 
     /**
@@ -598,8 +561,9 @@ public class BuiltinClassLoader
         throws ClassNotFoundException
     {
         Class<?> c = loadClassOrNull(cn, resolve);
-        if (c == null)
+        if (c == null) {
             throw new ClassNotFoundException(cn);
+        }
         return c;
     }
 
@@ -608,13 +572,15 @@ public class BuiltinClassLoader
      * binary name. This method returns {@code null} when the class is not
      * found.
      */
+    @Override
     protected Class<?> loadClassOrNull(String cn, boolean resolve) {
+        Class<?> c = null;
+
         synchronized (getClassLoadingLock(cn)) {
             // check if already loaded
-            Class<?> c = findLoadedClass(cn);
+            c = findLoadedClass(cn);
 
             if (c == null) {
-
                 // find the candidate module for this class
                 LoadedModule loadedModule = findLoadedModule(cn);
                 if (loadedModule != null) {
@@ -631,7 +597,6 @@ public class BuiltinClassLoader
                     }
 
                 } else {
-
                     // check parent
                     if (parent != null) {
                         c = parent.loadClassOrNull(cn);
@@ -639,7 +604,11 @@ public class BuiltinClassLoader
 
                     // check class path
                     if (c == null && hasClassPath() && VM.isModuleSystemInited()) {
-                        c = findClassOnClassPathOrNull(cn);
+                        c = findClassOrNull(cn);
+                    }
+
+                    if (c == null) {
+                        c = super.loadClassOrNull(cn, resolve);
                     }
                 }
 
@@ -706,42 +675,6 @@ public class BuiltinClassLoader
     }
 
     /**
-     * Finds the class with the specified binary name on the class path.
-     *
-     * @return the resulting Class or {@code null} if not found
-     */
-    private Class<?> findClassOnClassPathOrNull(String cn) {
-        String path = cn.replace('.', '/').concat(".class");
-        if (System.getSecurityManager() == null) {
-            Resource res = ucp.getResource(path, false);
-            if (res != null) {
-                try {
-                    return defineClass(cn, res);
-                } catch (IOException ioe) {
-                    // TBD on how I/O errors should be propagated
-                }
-            }
-            return null;
-        } else {
-            // avoid use of lambda here
-            PrivilegedAction<Class<?>> pa = new PrivilegedAction<>() {
-                public Class<?> run() {
-                    Resource res = ucp.getResource(path, false);
-                    if (res != null) {
-                        try {
-                            return defineClass(cn, res);
-                        } catch (IOException ioe) {
-                            // TBD on how I/O errors should be propagated
-                        }
-                    }
-                    return null;
-                }
-            };
-            return AccessController.doPrivileged(pa);
-        }
-    }
-
-    /**
      * Defines the given binary class name to the VM, loading the class
      * bytes from the given module.
      *
@@ -789,173 +722,7 @@ public class BuiltinClassLoader
         }
     }
 
-    /**
-     * Defines the given binary class name to the VM, loading the class
-     * bytes via the given Resource object.
-     *
-     * @return the resulting Class
-     * @throws IOException if reading the resource fails
-     * @throws SecurityException if there is a sealing violation (JAR spec)
-     */
-    private Class<?> defineClass(String cn, Resource res) throws IOException {
-        URL url = res.getCodeSourceURL();
-
-        // if class is in a named package then ensure that the package is defined
-        int pos = cn.lastIndexOf('.');
-        if (pos != -1) {
-            String pn = cn.substring(0, pos);
-            Manifest man = res.getManifest();
-            defineOrCheckPackage(pn, man, url);
-        }
-
-        // defines the class to the runtime
-        ByteBuffer bb = res.getByteBuffer();
-        if (bb != null) {
-            CodeSigner[] signers = res.getCodeSigners();
-            CodeSource cs = new CodeSource(url, signers);
-            return defineClass(cn, bb, cs);
-        } else {
-            byte[] b = res.getBytes();
-            CodeSigner[] signers = res.getCodeSigners();
-            CodeSource cs = new CodeSource(url, signers);
-            return defineClass(cn, b, 0, b.length, cs);
-        }
-    }
-
-
     // -- packages
-
-    /**
-     * Defines a package in this ClassLoader. If the package is already defined
-     * then its sealing needs to be checked if sealed by the legacy sealing
-     * mechanism.
-     *
-     * @throws SecurityException if there is a sealing violation (JAR spec)
-     */
-    protected Package defineOrCheckPackage(String pn, Manifest man, URL url) {
-        Package pkg = getAndVerifyPackage(pn, man, url);
-        if (pkg == null) {
-            try {
-                if (man != null) {
-                    pkg = definePackage(pn, man, url);
-                } else {
-                    pkg = definePackage(pn, null, null, null, null, null, null, null);
-                }
-            } catch (IllegalArgumentException iae) {
-                // defined by another thread so need to re-verify
-                pkg = getAndVerifyPackage(pn, man, url);
-                if (pkg == null)
-                    throw new InternalError("Cannot find package: " + pn);
-            }
-        }
-        return pkg;
-    }
-
-    /**
-     * Gets the Package with the specified package name. If defined
-     * then verifies it against the manifest and code source.
-     *
-     * @throws SecurityException if there is a sealing violation (JAR spec)
-     */
-    private Package getAndVerifyPackage(String pn, Manifest man, URL url) {
-        Package pkg = getDefinedPackage(pn);
-        if (pkg != null) {
-            if (pkg.isSealed()) {
-                if (!pkg.isSealed(url)) {
-                    throw new SecurityException(
-                        "sealing violation: package " + pn + " is sealed");
-                }
-            } else {
-                // can't seal package if already defined without sealing
-                if ((man != null) && isSealed(pn, man)) {
-                    throw new SecurityException(
-                        "sealing violation: can't seal package " + pn +
-                        ": already defined");
-                }
-            }
-        }
-        return pkg;
-    }
-
-    /**
-     * Defines a new package in this ClassLoader. The attributes in the specified
-     * Manifest are used to get the package version and sealing information.
-     *
-     * @throws IllegalArgumentException if the package name duplicates an
-     *      existing package either in this class loader or one of its ancestors
-     * @throws SecurityException if the package name is untrusted in the manifest
-     */
-    private Package definePackage(String pn, Manifest man, URL url) {
-        String specTitle = null;
-        String specVersion = null;
-        String specVendor = null;
-        String implTitle = null;
-        String implVersion = null;
-        String implVendor = null;
-        String sealed = null;
-        URL sealBase = null;
-
-        if (man != null) {
-            Attributes attr = SharedSecrets.javaUtilJarAccess()
-                    .getTrustedAttributes(man, pn.replace('.', '/').concat("/"));
-            if (attr != null) {
-                specTitle = attr.getValue(Attributes.Name.SPECIFICATION_TITLE);
-                specVersion = attr.getValue(Attributes.Name.SPECIFICATION_VERSION);
-                specVendor = attr.getValue(Attributes.Name.SPECIFICATION_VENDOR);
-                implTitle = attr.getValue(Attributes.Name.IMPLEMENTATION_TITLE);
-                implVersion = attr.getValue(Attributes.Name.IMPLEMENTATION_VERSION);
-                implVendor = attr.getValue(Attributes.Name.IMPLEMENTATION_VENDOR);
-                sealed = attr.getValue(Attributes.Name.SEALED);
-            }
-
-            attr = man.getMainAttributes();
-            if (attr != null) {
-                if (specTitle == null)
-                    specTitle = attr.getValue(Attributes.Name.SPECIFICATION_TITLE);
-                if (specVersion == null)
-                    specVersion = attr.getValue(Attributes.Name.SPECIFICATION_VERSION);
-                if (specVendor == null)
-                    specVendor = attr.getValue(Attributes.Name.SPECIFICATION_VENDOR);
-                if (implTitle == null)
-                    implTitle = attr.getValue(Attributes.Name.IMPLEMENTATION_TITLE);
-                if (implVersion == null)
-                    implVersion = attr.getValue(Attributes.Name.IMPLEMENTATION_VERSION);
-                if (implVendor == null)
-                    implVendor = attr.getValue(Attributes.Name.IMPLEMENTATION_VENDOR);
-                if (sealed == null)
-                    sealed = attr.getValue(Attributes.Name.SEALED);
-            }
-
-            // package is sealed
-            if ("true".equalsIgnoreCase(sealed))
-                sealBase = url;
-        }
-        return definePackage(pn,
-                specTitle,
-                specVersion,
-                specVendor,
-                implTitle,
-                implVersion,
-                implVendor,
-                sealBase);
-    }
-
-    /**
-     * Returns {@code true} if the specified package name is sealed according to
-     * the given manifest.
-     *
-     * @throws SecurityException if the package name is untrusted in the manifest
-     */
-    private boolean isSealed(String pn, Manifest man) {
-        Attributes attr = SharedSecrets.javaUtilJarAccess()
-                .getTrustedAttributes(man, pn.replace('.', '/').concat("/"));
-        String sealed = null;
-        if (attr != null)
-            sealed = attr.getValue(Attributes.Name.SEALED);
-        if (sealed == null && (attr = man.getMainAttributes()) != null)
-            sealed = attr.getValue(Attributes.Name.SEALED);
-        return "true".equalsIgnoreCase(sealed);
-    }
 
     // -- permissions
 
@@ -1029,13 +796,5 @@ public class BuiltinClassLoader
             }
         }
         return false;
-    }
-
-    /**
-     * Checks access to the given URL. We use URLClassPath for consistent
-     * checking with java.net.URLClassLoader.
-     */
-    private static URL checkURL(URL url) {
-        return URLClassPath.checkURL(url);
     }
 }

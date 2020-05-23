@@ -86,7 +86,7 @@ public class ClassLoaders {
      * the BootLoader class that provides a restricted API to this class
      * loader.
      */
-    static BuiltinClassLoader bootLoader() {
+    public static BuiltinClassLoader bootLoader() {
         return BOOT_LOADER;
     }
 
@@ -207,7 +207,7 @@ public class ClassLoaders {
         /**
          * Called by the VM to support define package for AppCDS
          */
-        protected Package defineOrCheckPackage(String pn, Manifest man, URL url) {
+        public Package defineOrCheckPackage(String pn, Manifest man, URL url) {
             return super.defineOrCheckPackage(pn, man, url);
         }
     }
