@@ -29,7 +29,7 @@
 #include "gc/shared/cardTable.hpp"
 #include "gc/shared/modRefBarrierSetAssembler.hpp"
 
-class CardTableBarrierSetAssembler: public ModRefBarrierSetAssembler {
+class CardTableBarrierSetAssembler final : public ModRefBarrierSetAssembler {
 protected:
   virtual void gen_write_ref_array_post_barrier(MacroAssembler* masm, DecoratorSet decorators,
                                                 Register addr, Register count, Register tmp);

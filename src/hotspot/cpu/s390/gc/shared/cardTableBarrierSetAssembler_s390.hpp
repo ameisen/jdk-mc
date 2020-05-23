@@ -29,7 +29,7 @@
 #include "asm/macroAssembler.hpp"
 #include "gc/shared/modRefBarrierSetAssembler.hpp"
 
-class CardTableBarrierSetAssembler: public ModRefBarrierSetAssembler {
+class CardTableBarrierSetAssembler final : public ModRefBarrierSetAssembler {
 protected:
   void store_check(MacroAssembler* masm, Register store_addr, Register tmp);
 

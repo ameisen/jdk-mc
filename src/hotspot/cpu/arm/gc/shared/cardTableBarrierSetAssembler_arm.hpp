@@ -28,7 +28,7 @@
 #include "asm/macroAssembler.hpp"
 #include "gc/shared/modRefBarrierSetAssembler.hpp"
 
-class CardTableBarrierSetAssembler: public ModRefBarrierSetAssembler {
+class CardTableBarrierSetAssembler final : public ModRefBarrierSetAssembler {
 private:
   void store_check(MacroAssembler* masm, Register obj, Address dst);
   void store_check_part1(MacroAssembler* masm, Register card_table_base);

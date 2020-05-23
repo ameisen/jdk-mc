@@ -2098,7 +2098,7 @@ void ArchDesc::defineStateClass(FILE *fp) {
 // that indicate cost and a successfull rule match.
 
 // Information needed to generate the ReduceOp mapping for the DFA
-class OutputMachOperands : public OutputMap {
+class OutputMachOperands final : public OutputMap {
 public:
   OutputMachOperands(FILE *hpp, FILE *cpp, FormDict &globals, ArchDesc &AD)
     : OutputMap(hpp, cpp, globals, AD, "MachOperands") {};
@@ -2140,7 +2140,7 @@ void ArchDesc::buildMachOperEnum(FILE *fp_hpp) {
 // Build enumeration for all MachOpers and all MachNodes
 
 // Information needed to generate the ReduceOp mapping for the DFA
-class OutputMachOpcodes : public OutputMap {
+class OutputMachOpcodes final : public OutputMap {
   int begin_inst_chain_rule;
   int end_inst_chain_rule;
   int begin_rematerialize;

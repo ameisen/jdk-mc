@@ -31,7 +31,7 @@
 
 // native method calls
 
-class SignatureHandlerGenerator: public NativeSignatureIterator {
+class SignatureHandlerGenerator final : public NativeSignatureIterator {
  private:
   MacroAssembler* _masm;
   unsigned int _num_fp_args;

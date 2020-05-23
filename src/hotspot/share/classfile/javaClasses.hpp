@@ -196,6 +196,22 @@ class java_lang_String : AllStatic {
     return h;
   }
 
+  /*
+  static unsigned int hash_code(const jchar* s, int len) {
+    static constexpr const unsigned int offset_basis = 2166136261U;
+    static constexpr const unsigned int prime = 16777619U;
+
+    unsigned int h = offset_basis;
+
+    while (len-- > 0) {
+      h = h ^ (unsigned char)*s;
+      h = h * prime;
+    }
+
+    return h;
+  }
+  */
+
   static unsigned int hash_code(const jbyte* s, int len) {
     unsigned int h = 0;
     while (len-- > 0) {

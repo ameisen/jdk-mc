@@ -195,9 +195,9 @@ void select_compilation_mode_ergonomically() {
     FLAG_SET_ERGO(NeverActAsServerClassMachine, true);
   }
 #endif
-  if (NeverActAsServerClassMachine) {
-    set_client_compilation_mode();
-  }
+  //if (NeverActAsServerClassMachine) {
+  //  set_client_compilation_mode();
+  //}
 }
 
 

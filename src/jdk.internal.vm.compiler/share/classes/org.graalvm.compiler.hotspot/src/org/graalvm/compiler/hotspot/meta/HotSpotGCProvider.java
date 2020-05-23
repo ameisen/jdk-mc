@@ -30,6 +30,7 @@ import org.graalvm.compiler.hotspot.GraalHotSpotVMConfig;
 import org.graalvm.compiler.nodes.ValueNode;
 import org.graalvm.compiler.nodes.gc.BarrierSet;
 import org.graalvm.compiler.nodes.gc.CardTableBarrierSet;
+import org.graalvm.compiler.nodes.gc.ShenandoahBarrierSet;
 import org.graalvm.compiler.nodes.gc.G1BarrierSet;
 import org.graalvm.compiler.nodes.java.AbstractNewObjectNode;
 import org.graalvm.compiler.nodes.memory.FixedAccessNode;
@@ -61,7 +62,19 @@ public class HotSpotGCProvider implements GCProvider {
                     return !useDeferredInitBarriers || !isWriteToNewObject(initializingWrite);
                 }
             };
-        } else {
+        }
+        else if (config.useShenandoahGC) {
+            return new ShenandoahBarrierSet(metaAccess) {
+                @Override
+                protected boolean writeRequiresPostBarrier(FixedAccessNode initializingWrite, ValueNode writtenValue) {
+                    if (!super.writeRequiresPostBarrier(initializingWrite, writtenValue)) {
+                        return false;
+                    }
+                    return !useDeferredInitBarriers || !isWriteToNewObject(initializingWrite);
+                }
+            };
+        }
+        else {
             return new CardTableBarrierSet() {
                 @Override
                 protected boolean writeRequiresBarrier(FixedAccessNode initializingWrite, ValueNode writtenValue) {

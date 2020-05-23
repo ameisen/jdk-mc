@@ -32,7 +32,7 @@
 
 // This file specializes the assember with interpreter-specific macros
 
-class InterpreterMacroAssembler : public MacroAssembler {
+class InterpreterMacroAssembler final : public MacroAssembler {
  public:
   InterpreterMacroAssembler(CodeBuffer* code) : MacroAssembler(code) {}
 

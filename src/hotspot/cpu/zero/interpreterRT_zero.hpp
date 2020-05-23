@@ -93,7 +93,7 @@ class SignatureHandlerGeneratorBase : public NativeSignatureIterator {
   virtual void push(intptr_t value) = 0;
 };
 
-class SignatureHandlerGenerator : public SignatureHandlerGeneratorBase {
+class SignatureHandlerGenerator final : public SignatureHandlerGeneratorBase {
  private:
   CodeBuffer* _cb;
 
@@ -112,7 +112,7 @@ class SignatureHandlerGenerator : public SignatureHandlerGeneratorBase {
   }
 };
 
-class SlowSignatureHandlerGenerator : public SignatureHandlerGeneratorBase {
+class SlowSignatureHandlerGenerator final : public SignatureHandlerGeneratorBase {
  private:
   intptr_t *_dst;
 

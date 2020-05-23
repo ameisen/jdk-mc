@@ -206,8 +206,6 @@ public:
   void record_pin();
   void record_unpin();
   size_t pin_count() const;
-
-private:
   static size_t RegionCount;
   static size_t RegionSizeBytes;
   static size_t RegionSizeWords;
@@ -219,6 +217,7 @@ private:
   static size_t HumongousThresholdWords;
   static size_t MaxTLABSizeBytes;
   static size_t MaxTLABSizeWords;
+private:
 
   // Global allocation counter, increased for each allocation under Shenandoah heap lock.
   // Padded to avoid false sharing with the read-only fields above.

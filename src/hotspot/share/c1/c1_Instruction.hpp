@@ -615,9 +615,14 @@ class Instruction: public CompilationResourceObj {
    public:                                       \
     virtual class_name* as_##class_name()        { return this; }              \
 
+#define BASE_FINAL(class_name, super_class_name)       \
+  class class_name final : public super_class_name {    \
+   public:                                       \
+    virtual class_name* as_##class_name()        { return this; }              \
+
 
 #define LEAF(class_name, super_class_name)       \
-  BASE(class_name, super_class_name)             \
+  BASE_FINAL(class_name, super_class_name)       \
    public:                                       \
     virtual const char* name() const             { return #class_name; }       \
     virtual void visit(InstructionVisitor* v)    { v->do_##class_name(this); } \

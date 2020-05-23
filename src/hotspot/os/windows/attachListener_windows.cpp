@@ -67,7 +67,7 @@ class Win32AttachListener: AllStatic {
   };
 
   // protects the preallocated list and the operation list
-  static HANDLE _mutex;
+  static CRITICAL_SECTION _mutex;
 
   // head of preallocated operations list
   static Win32AttachOperation* _avail;
@@ -100,7 +100,7 @@ class Win32AttachListener: AllStatic {
   };
 
   static int init();
-  static HANDLE mutex()                                     { return _mutex; }
+  static CRITICAL_SECTION & mutex()                                     { return _mutex; }
 
   static Win32AttachOperation* available()                  { return _avail; }
   static void set_available(Win32AttachOperation* avail)    { _avail = avail; }
@@ -113,7 +113,7 @@ class Win32AttachListener: AllStatic {
 };
 
 // statics
-HANDLE Win32AttachListener::_mutex;
+CRITICAL_SECTION Win32AttachListener::_mutex;
 HANDLE Win32AttachListener::_enqueued_ops_semaphore;
 Win32AttachOperation* Win32AttachListener::_avail;
 Win32AttachOperation* Win32AttachListener::_head;
@@ -161,8 +161,7 @@ class Win32AttachOperation: public AttachOperation {
 
 // Preallocate the maximum number of operations that can be enqueued.
 int Win32AttachListener::init() {
-  _mutex = (void*)::CreateMutex(NULL, FALSE, NULL);
-  guarantee(_mutex != (HANDLE)NULL, "mutex creation failed");
+  ::InitializeCriticalSection(&_mutex);
 
   _enqueued_ops_semaphore = ::CreateSemaphore(NULL, 0, max_enqueued_operations, NULL);
   guarantee(_enqueued_ops_semaphore != (HANDLE)NULL, "semaphore creation failed");
@@ -205,10 +204,7 @@ int Win32AttachListener::enqueue(char* cmd, char* arg0, char* arg1, char* arg2, 
   if (strstr(pipename, "\\\\.\\pipe\\") != pipename) return ATTACH_ERROR_ILLEGALARG;
 
   // grab the lock for the list
-  DWORD res = ::WaitForSingleObject(mutex(), INFINITE);
-  if (res != WAIT_OBJECT_0) {
-    return ATTACH_ERROR_INTERNAL;
-  }
+  ::EnterCriticalSection(&mutex());
 
   // try to get an operation from the available list
   Win32AttachOperation* op = available();
@@ -237,7 +233,7 @@ int Win32AttachListener::enqueue(char* cmd, char* arg0, char* arg1, char* arg2, 
       ::ReleaseSemaphore(enqueued_ops_semaphore(), 1, NULL);
     guarantee(not_exceeding_semaphore_maximum_count, "invariant");
   }
-  ::ReleaseMutex(mutex());
+  ::LeaveCriticalSection(&mutex());
 
   return (op != NULL) ? 0 : ATTACH_ERROR_RESOURCE;
 }
@@ -251,8 +247,7 @@ Win32AttachOperation* Win32AttachListener::dequeue() {
     // the current count of the semaphore by 1.
     guarantee(res == WAIT_OBJECT_0, "wait failed");
 
-    res = ::WaitForSingleObject(mutex(), INFINITE);
-    guarantee(res == WAIT_OBJECT_0, "wait failed");
+    ::EnterCriticalSection(&mutex());
 
     Win32AttachOperation* op = head();
     if (op != NULL) {
@@ -261,7 +256,7 @@ Win32AttachOperation* Win32AttachListener::dequeue() {
         set_tail(NULL);
       }
     }
-    ::ReleaseMutex(mutex());
+    ::LeaveCriticalSection(&mutex());
 
     if (op != NULL) {
       return op;
@@ -342,15 +337,13 @@ void Win32AttachOperation::complete(jint result, bufferedStream* result_stream) 
     log_error(attach)("could not open (%d) pipe %s to send result of operation %s", lastError, pipe(), name());
   }
 
-  DWORD res = ::WaitForSingleObject(Win32AttachListener::mutex(), INFINITE);
-  if (res == WAIT_OBJECT_0) {
+  ::EnterCriticalSection(&Win32AttachListener::mutex());
 
-    // put the operation back on the available list
-    set_next(Win32AttachListener::available());
-    Win32AttachListener::set_available(this);
+  // put the operation back on the available list
+  set_next(Win32AttachListener::available());
+  Win32AttachListener::set_available(this);
 
-    ::ReleaseMutex(Win32AttachListener::mutex());
-  }
+  ::LeaveCriticalSection(&Win32AttachListener::mutex());
 
   // were we externally suspended while we were waiting?
   thread->check_and_wait_while_suspended();

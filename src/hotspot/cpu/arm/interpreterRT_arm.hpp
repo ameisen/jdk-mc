@@ -27,7 +27,7 @@
 
 // native method calls
 
-class SignatureHandlerGenerator: public NativeSignatureIterator {
+class SignatureHandlerGenerator final : public NativeSignatureIterator {
  private:
   MacroAssembler* _masm;
   int _abi_offset;

@@ -308,7 +308,7 @@ void SignatureHandlerLibrary::pd_set_handler(address handler) {}
 
 
 #ifdef _WIN64
-class SlowSignatureHandler
+class SlowSignatureHandler final
   : public NativeSignatureIterator {
  private:
   address   _from;
@@ -400,7 +400,7 @@ class SlowSignatureHandler
   }
 };
 #else
-class SlowSignatureHandler
+class SlowSignatureHandler final
   : public NativeSignatureIterator {
  private:
   address   _from;

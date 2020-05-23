@@ -4832,7 +4832,7 @@ class StubGenerator: public StubCodeGenerator {
     return stub->entry_point();
   }
 
-  class MontgomeryMultiplyGenerator : public MacroAssembler {
+  class MontgomeryMultiplyGenerator final : public MacroAssembler {
 
     Register Pa_base, Pb_base, Pn_base, Pm_base, inv, Rlen, Ra, Rb, Rm, Rn,
       Pa, Pb, Pn, Pm, Rhi_ab, Rlo_ab, Rhi_mn, Rlo_mn, t0, t1, t2, Ri, Rj;

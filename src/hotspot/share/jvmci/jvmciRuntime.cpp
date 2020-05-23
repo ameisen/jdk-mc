@@ -514,6 +514,16 @@ JRT_LEAF(void, JVMCIRuntime::write_barrier_post(JavaThread* thread, void* card_a
   G1ThreadLocalData::dirty_card_queue(thread).enqueue(card_addr);
 JRT_END
 
+#elif INCLUDE_SHENANDOAHGC
+
+JRT_LEAF(void, JVMCIRuntime::write_barrier_pre(JavaThread* thread, oopDesc* obj))
+  ShenandoahThreadLocalData::satb_mark_queue(thread).enqueue(obj);
+JRT_END
+
+JRT_LEAF(void, JVMCIRuntime::write_barrier_post(JavaThread* thread, void* card_addr))
+  /*ShenandoahThreadLocalData::dirty_card_queue(thread).enqueue(card_addr);*/
+JRT_END
+
 #endif // INCLUDE_G1GC
 
 JRT_LEAF(jboolean, JVMCIRuntime::validate_object(JavaThread* thread, oopDesc* parent, oopDesc* child))

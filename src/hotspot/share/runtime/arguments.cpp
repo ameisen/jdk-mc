@@ -87,7 +87,7 @@ intx   Arguments::_Tier3InvokeNotifyFreqLog     = Tier3InvokeNotifyFreqLog;
 intx   Arguments::_Tier4InvocationThreshold     = Tier4InvocationThreshold;
 size_t Arguments::_SharedBaseAddress            = SharedBaseAddress;
 
-bool   Arguments::_enable_preview               = false;
+bool   Arguments::_enable_preview               = true;
 
 char*  Arguments::SharedArchivePath             = NULL;
 char*  Arguments::SharedDynamicArchivePath      = NULL;
@@ -1296,6 +1296,11 @@ void Arguments::print_jvm_args_on(outputStream* st) {
 bool Arguments::process_argument(const char* arg,
                                  jboolean ignore_unrecognized,
                                  JVMFlag::Flags origin) {
+   bool commented = (arg[0] == '#');
+   if (commented) {
+     return true;
+   }
+
   JDK_Version since = JDK_Version();
 
   if (parse_argument(arg, origin)) {
@@ -1366,11 +1371,11 @@ bool Arguments::process_argument(const char* arg,
       jio_fprintf(defaultStream::error_stream(), "%s", locked_message_buf);
     }
   } else {
+    jio_fprintf(defaultStream::error_stream(),
+                "Unrecognized VM option '%s'\n", argname);
     if (ignore_unrecognized) {
       return true;
     }
-    jio_fprintf(defaultStream::error_stream(),
-                "Unrecognized VM option '%s'\n", argname);
     JVMFlag* fuzzy_matched = JVMFlag::fuzzy_match((const char*)argname, arg_len, true);
     if (fuzzy_matched != NULL) {
       jio_fprintf(defaultStream::error_stream(),
@@ -1381,8 +1386,18 @@ bool Arguments::process_argument(const char* arg,
     }
   }
 
+  // Check to see if the flag is redundant.
+  if (!commented && found_flag && found_flag->is_bool()) {
+    bool default_value = found_flag->get_bool();
+    bool requested_value = (arg[0] == '+');
+    if (default_value == requested_value) {
+        jio_fprintf(defaultStream::error_stream(),
+              "Requested flag value '%s' for argument '%s' is redundant\n", requested_value ? "+" : "-", argname);
+    }
+  }
+
   // allow for commandline "commenting out" options like -XX:#+Verbose
-  return arg[0] == '#';
+  return commented;
 }
 
 bool Arguments::process_settings_file(const char* file_name, bool should_exist, jboolean ignore_unrecognized) {

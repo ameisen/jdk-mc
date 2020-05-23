@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,18 +21,24 @@
  * questions.
  */
 
-#ifndef SHARE_GC_Z_ZBARRIERSETASSEMBLER_HPP
-#define SHARE_GC_Z_ZBARRIERSETASSEMBLER_HPP
 
-#include "gc/shared/barrierSetAssembler.hpp"
-#include "utilities/macros.hpp"
 
-class ZBarrierSetAssemblerBase final : public BarrierSetAssembler {
-public:
-  static Address address_bad_mask_from_thread(Register thread);
-  static Address address_bad_mask_from_jni_env(Register env);
-};
+package org.graalvm.compiler.nodes.gc;
 
-#include CPU_HEADER(gc/z/zBarrierSetAssembler)
+import static org.graalvm.compiler.nodeinfo.NodeCycles.CYCLES_64;
+import static org.graalvm.compiler.nodeinfo.NodeSize.SIZE_64;
 
-#endif // SHARE_GC_Z_ZBARRIERSETASSEMBLER_HPP
+import org.graalvm.compiler.graph.NodeClass;
+import org.graalvm.compiler.nodeinfo.NodeInfo;
+import org.graalvm.compiler.nodes.ValueNode;
+import org.graalvm.compiler.nodes.memory.address.AddressNode;
+
+@NodeInfo(cycles = CYCLES_64, size = SIZE_64)
+public class ShenandoahArrayRangePostWriteBarrier extends ArrayRangeWriteBarrier {
+    public static final NodeClass<ShenandoahArrayRangePostWriteBarrier> TYPE = NodeClass.create(ShenandoahArrayRangePostWriteBarrier.class);
+
+    public ShenandoahArrayRangePostWriteBarrier(AddressNode address, ValueNode length, int elementStride) {
+        super(TYPE, address, length, elementStride);
+    }
+
+}

@@ -34,7 +34,7 @@
 
 typedef ByteSize (*OffsetFunction)(uint);
 
-class InterpreterMacroAssembler: public MacroAssembler {
+class InterpreterMacroAssembler final : public MacroAssembler {
  protected:
 
  protected:

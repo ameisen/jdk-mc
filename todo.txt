@@ -37,3 +37,100 @@ use vectorcall by default
 UseRTMLocking
 UseRTMForStackLocks
 UseRTMDeopt
+
+#define JNI_VERSION_1_1 0x00010001
+#define JNI_VERSION_1_2 0x00010002
+#define JNI_VERSION_1_4 0x00010004
+#define JNI_VERSION_1_6 0x00010006
+#define JNI_VERSION_1_8 0x00010008
+#define JNI_VERSION_9   0x00090000
+#define JNI_VERSION_10  0x000a0000
+
+WaitForSingleObject in AWT... wtf?
+
+WindowsSemaphore with value of 1 is just a critsec...
+
+lock_event in threadCritical_windows
+
+BarrierSetAssembler is virtual
+
+ModRefBarrierSetAssembler
+
+NativeSignatureIterator is virtual
+SlowSignatureHandler
+SignatureHandlerGenerator
+
+InterpreterRuntime
+MacroAssembler
+AbstractDecoder
+OutputMap
+
+Form
+RegClass
+InstructForm
+
+AOTCompiledMethod
+CompiledPltStaticCall
+
+CodeBuffer
+
+Canonicalizer
+CodeStub
+Compiler
+
+ValueVisitor
+BlockList
+BlockPair
+BlockPrinter
+PredecessorValidator
+VerifyBlockBeginField
+SubstitutionResolver
+IntervalWalker
+LIR_Const
+LIR_Address
+LIR_OpCall
+LIR_OpJavaCall
+LIR_OpLabel
+LIR_OpUpdateCRC32
+LIR_OpRTCall
+LIR_OpBranch
+LIR_OpConvert
+LIR_OpAllocObj
+LIR_OpRoundFP
+LIR_OpAllocArray
+LIR_OpLock
+LIR_OpDelay
+LIR_OpAssert
+LIR_OpCompareAndSwap
+LIR_OpProfileCall
+LIR_OpProfileType
+LIR_List
+LIR_OpVisitState
+
+SwitchRange
+ResolveNode
+PhiResolverState
+PhiResolver
+LIRGenerator
+LIRItem
+CE_Eliminator
+BlockMerger
+
+StubIDStubAssemblerCodeGenClosure
+StubAssemblerCodeGenClosure
+ValueNumberingVisitor
+
+VoidType
+IntConstant
+IntInterval
+LongConstant
+FloatConstant
+DoubleConstant
+ObjectConstant
+StableArrayConstant
+InstanceConstant
+ClassConstant
+MethodConstant
+MethodDataConstant
+AddressConstant
+IllegalType

@@ -166,6 +166,7 @@ public class GraalHotSpotVMConfig extends GraalHotSpotVMConfigBase {
     }
 
     public final boolean useG1GC = getFlag("UseG1GC", Boolean.class);
+    public final boolean useShenandoahGC = getFlag("UseShenandoahGC", Boolean.class);
     public final boolean useCMSGC = getFlag("UseConcMarkSweepGC", Boolean.class, false);
 
     public final int allocatePrefetchStyle = getFlag("AllocatePrefetchStyle", Integer.class);
@@ -519,7 +520,9 @@ public class GraalHotSpotVMConfig extends GraalHotSpotVMConfigBase {
     public final long verifyOopMask = getFieldValue("CompilerToVM::Data::Universe_verify_oop_mask", Long.class, "uintptr_t");
     public final long verifyOopBits = getFieldValue("CompilerToVM::Data::Universe_verify_oop_bits", Long.class, "uintptr_t");
 
-    public final int logOfHRGrainBytes = getFieldValue("HeapRegion::LogOfHRGrainBytes", Integer.class, "int");
+    public final int logOfHRGrainBytes = getFieldValue("HeapRegion::LogOfHRGrainBytes", Integer.class, "int",
+        getFieldValue("ShenandoahHeapRegion::RegionSizeBytesShift", Integer.class, "int")
+    );
 
     public final long cardtableStartAddress = getFieldValue("CompilerToVM::Data::cardtable_start_address", Long.class, "jbyte*");
     public final int cardtableShift = getFieldValue("CompilerToVM::Data::cardtable_shift", Integer.class, "int");
@@ -542,6 +545,10 @@ public class GraalHotSpotVMConfig extends GraalHotSpotVMConfigBase {
     public final int g1SATBQueueBufferOffset = versioned.g1SATBQueueBufferOffset;
     public final int g1CardQueueIndexOffset = versioned.g1CardQueueIndexOffset;
     public final int g1CardQueueBufferOffset = versioned.g1CardQueueBufferOffset;
+
+    public final int shenandoahSATBQueueMarkingOffset = versioned.shenandoahSATBQueueMarkingOffset;
+    public final int shenandoahSATBQueueIndexOffset = versioned.shenandoahSATBQueueIndexOffset;
+    public final int shenandoahSATBQueueBufferOffset = versioned.shenandoahSATBQueueBufferOffset;
 
     public final int klassOffset = getFieldValue("java_lang_Class::_klass_offset", Integer.class, "int");
     public final int arrayKlassOffset = getFieldValue("java_lang_Class::_array_klass_offset", Integer.class, "int");

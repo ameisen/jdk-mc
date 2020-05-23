@@ -35,6 +35,32 @@
 // See threadCritical.hpp for details of this class.
 //
 
+#if 1
+
+namespace {
+  struct CriticalSection final {
+    CRITICAL_SECTION m_csec;
+    CriticalSection() noexcept {
+      ::InitializeCriticalSection(&m_csec);
+    }
+    ~CriticalSection() noexcept {
+      ::DeleteCriticalSection(&m_csec);
+    }
+  };
+}
+
+static CriticalSection lock_csec;
+
+ThreadCritical::ThreadCritical() {
+  ::EnterCriticalSection(&lock_csec.m_csec);
+}
+
+ThreadCritical::~ThreadCritical() {
+  ::LeaveCriticalSection(&lock_csec.m_csec);
+}
+
+#else
+
 static bool initialized = false;
 static volatile int lock_count = -1;
 static HANDLE lock_event;
@@ -96,3 +122,5 @@ ThreadCritical::~ThreadCritical() {
     lock_count--;
   }
 }
+
+#endif

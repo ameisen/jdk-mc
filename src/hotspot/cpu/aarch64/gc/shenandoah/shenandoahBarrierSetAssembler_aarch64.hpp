@@ -34,7 +34,7 @@ class StubAssembler;
 #endif
 class StubCodeGenerator;
 
-class ShenandoahBarrierSetAssembler: public BarrierSetAssembler {
+class ShenandoahBarrierSetAssembler final : public BarrierSetAssembler {
 private:
 
   static address _shenandoah_lrb;

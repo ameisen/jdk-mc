@@ -39,7 +39,7 @@ static address iinc  (JavaThread* thread);
 
 // native method calls
 
-class SignatureHandlerGenerator: public NativeSignatureIterator {
+class SignatureHandlerGenerator final : public NativeSignatureIterator {
  private:
   MacroAssembler* _masm;
   int _fp_arg_nr;

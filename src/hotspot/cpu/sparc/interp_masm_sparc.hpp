@@ -41,7 +41,7 @@ REGISTER_DECLARATION(FloatRegister, Ftos_d , F0); // for doubles
 REGISTER_DECLARATION(FloatRegister, Ftos_d1, F0); // for 1st part of double
 REGISTER_DECLARATION(FloatRegister, Ftos_d2, F1); // for 2nd part of double
 
-class InterpreterMacroAssembler: public MacroAssembler {
+class InterpreterMacroAssembler final : public MacroAssembler {
  protected:
   // Interpreter specific version of call_VM_base
     virtual void call_VM_leaf_base(

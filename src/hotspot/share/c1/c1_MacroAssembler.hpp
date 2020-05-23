@@ -57,7 +57,7 @@ class C1_MacroAssembler: public MacroAssembler {
 // may be set automatically or can be asserted when using specialised
 // StubAssembler functions.
 
-class StubAssembler: public C1_MacroAssembler {
+class StubAssembler final : public C1_MacroAssembler {
  private:
   const char* _name;
   bool        _must_gc_arguments;

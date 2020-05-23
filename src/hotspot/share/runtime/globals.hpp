@@ -172,7 +172,7 @@ const size_t minimumSymbolTableSize = 1024;
   diagnostic(bool, UnlockDiagnosticVMOptions, trueInDebug,                  \
           "Enable normal processing of flags relating to field diagnostics")\
                                                                             \
-  experimental(bool, UnlockExperimentalVMOptions, false,                    \
+  experimental(bool, UnlockExperimentalVMOptions, true,                     \
           "Enable normal processing of flags relating to experimental "     \
           "features")                                                       \
                                                                             \
@@ -427,7 +427,7 @@ const size_t minimumSymbolTableSize = 1024;
   product(bool, MaxFDLimit, true,                                           \
           "Bump the number of file descriptors to maximum in Solaris")      \
                                                                             \
-  diagnostic(bool, LogEvents, true,                                         \
+  diagnostic(bool, LogEvents, false,                                         \
           "Enable the various ring buffer event logs")                      \
                                                                             \
   diagnostic(uintx, LogEventsBufferEntries, 20,                             \
@@ -1016,7 +1016,7 @@ const size_t minimumSymbolTableSize = 1024;
           "proper StackOverflow handling; disable only to measure cost "    \
           "of stackbanging)")                                               \
                                                                             \
-  develop(bool, UseStrictFP, false,                                         \
+  develop(bool, UseStrictFP, true,                                          \
           "use strict fp if modifier strictfp is set")                      \
                                                                             \
   develop(bool, GenerateSynchronizationCode, true,                          \

@@ -31,7 +31,7 @@
 
 // native method calls
 
-class SignatureHandlerGenerator: public NativeSignatureIterator {
+class SignatureHandlerGenerator final : public NativeSignatureIterator {
  private:
   MacroAssembler* _masm;
   // number of already used floating-point argument registers

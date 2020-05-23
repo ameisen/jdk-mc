@@ -124,7 +124,7 @@ void InterpreterRuntime::SignatureHandlerGenerator::generate(uint64_t fingerprin
 void SignatureHandlerLibrary::pd_set_handler(address handler) {}
 
 
-class SlowSignatureHandler: public NativeSignatureIterator {
+class SlowSignatureHandler final : public NativeSignatureIterator {
  private:
   address   _from;
   intptr_t* _to;

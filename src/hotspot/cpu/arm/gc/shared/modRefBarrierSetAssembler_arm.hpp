@@ -32,7 +32,7 @@
 // than T_OBJECT/T_ARRAY (oops). The oop accesses call one of the protected
 // accesses, which are overridden in the concrete BarrierSetAssembler.
 
-class ModRefBarrierSetAssembler: public BarrierSetAssembler {
+class ModRefBarrierSetAssembler : public BarrierSetAssembler {
 protected:
   virtual void gen_write_ref_array_pre_barrier(MacroAssembler* masm, DecoratorSet decorators,
                                                Register addr, Register count, int callee_saved_regs) {}

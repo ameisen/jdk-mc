@@ -66,14 +66,18 @@ final class GraalHotSpotVMConfigVersioned extends HotSpotVMConfigAccess {
 
     // JDK-8195142
     byte dirtyCardValue = getConstant("CardTable::dirty_card", Byte.class);
-    byte g1YoungCardValue = getConstant("G1CardTable::g1_young_gen", Byte.class);
+    byte g1YoungCardValue = getConstant("G1CardTable::g1_young_gen", Byte.class, (byte)-1);
 
     // JDK-8201318
-    int g1SATBQueueMarkingOffset = getConstant("G1ThreadLocalData::satb_mark_queue_active_offset", Integer.class);
-    int g1SATBQueueIndexOffset = getConstant("G1ThreadLocalData::satb_mark_queue_index_offset", Integer.class);
-    int g1SATBQueueBufferOffset = getConstant("G1ThreadLocalData::satb_mark_queue_buffer_offset", Integer.class);
-    int g1CardQueueIndexOffset = getConstant("G1ThreadLocalData::dirty_card_queue_index_offset", Integer.class);
-    int g1CardQueueBufferOffset = getConstant("G1ThreadLocalData::dirty_card_queue_buffer_offset", Integer.class);
+    int g1SATBQueueMarkingOffset = getConstant("G1ThreadLocalData::satb_mark_queue_active_offset", Integer.class, -1);
+    int g1SATBQueueIndexOffset = getConstant("G1ThreadLocalData::satb_mark_queue_index_offset", Integer.class, -1);
+    int g1SATBQueueBufferOffset = getConstant("G1ThreadLocalData::satb_mark_queue_buffer_offset", Integer.class, -1);
+    int g1CardQueueIndexOffset = getConstant("G1ThreadLocalData::dirty_card_queue_index_offset", Integer.class, -1);
+    int g1CardQueueBufferOffset = getConstant("G1ThreadLocalData::dirty_card_queue_buffer_offset", Integer.class, -1);
+
+    int shenandoahSATBQueueMarkingOffset = getConstant("ShenandoahThreadLocalData::satb_mark_queue_active_offset", Integer.class);
+    int shenandoahSATBQueueIndexOffset = getConstant("ShenandoahThreadLocalData::satb_mark_queue_index_offset", Integer.class);
+    int shenandoahSATBQueueBufferOffset = getConstant("ShenandoahThreadLocalData::satb_mark_queue_buffer_offset", Integer.class);
 
     // JDK-8033552
     long heapTopAddress = getFieldValue("CompilerToVM::Data::_heap_top_addr", Long.class, "HeapWord* volatile*");

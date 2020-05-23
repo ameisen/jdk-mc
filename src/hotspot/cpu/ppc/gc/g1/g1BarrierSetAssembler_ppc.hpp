@@ -35,7 +35,7 @@ class StubAssembler;
 class G1PreBarrierStub;
 class G1PostBarrierStub;
 
-class G1BarrierSetAssembler: public ModRefBarrierSetAssembler {
+class G1BarrierSetAssembler final : public ModRefBarrierSetAssembler {
 protected:
   virtual void gen_write_ref_array_pre_barrier(MacroAssembler* masm, DecoratorSet decorators, Register from, Register to, Register count,
                                                Register preserve1, Register preserve2);

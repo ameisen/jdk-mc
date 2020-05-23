@@ -3333,7 +3333,7 @@ void ArchDesc::defineClasses(FILE *fp) {
 // -------------------------------- maps ------------------------------------
 
 // Information needed to generate the ReduceOp mapping for the DFA
-class OutputReduceOp : public OutputMap {
+class OutputReduceOp final : public OutputMap {
 public:
   OutputReduceOp(FILE *hpp, FILE *cpp, FormDict &globals, ArchDesc &AD)
     : OutputMap(hpp, cpp, globals, AD, "reduceOp") {};
@@ -3368,7 +3368,7 @@ public:
 };
 
 // Information needed to generate the LeftOp mapping for the DFA
-class OutputLeftOp : public OutputMap {
+class OutputLeftOp final : public OutputMap {
 public:
   OutputLeftOp(FILE *hpp, FILE *cpp, FormDict &globals, ArchDesc &AD)
     : OutputMap(hpp, cpp, globals, AD, "leftOp") {};
@@ -3398,7 +3398,7 @@ public:
 
 
 // Information needed to generate the RightOp mapping for the DFA
-class OutputRightOp : public OutputMap {
+class OutputRightOp final : public OutputMap {
 public:
   OutputRightOp(FILE *hpp, FILE *cpp, FormDict &globals, ArchDesc &AD)
     : OutputMap(hpp, cpp, globals, AD, "rightOp") {};
@@ -3428,7 +3428,7 @@ public:
 
 
 // Information needed to generate the Rule names for the DFA
-class OutputRuleName : public OutputMap {
+class OutputRuleName final : public OutputMap {
 public:
   OutputRuleName(FILE *hpp, FILE *cpp, FormDict &globals, ArchDesc &AD)
     : OutputMap(hpp, cpp, globals, AD, "ruleName") {};
@@ -3446,7 +3446,7 @@ public:
 
 
 // Information needed to generate the swallowed mapping for the DFA
-class OutputSwallowed : public OutputMap {
+class OutputSwallowed final : public OutputMap {
 public:
   OutputSwallowed(FILE *hpp, FILE *cpp, FormDict &globals, ArchDesc &AD)
     : OutputMap(hpp, cpp, globals, AD, "swallowed") {};
@@ -3467,7 +3467,7 @@ public:
 
 
 // Information needed to generate the decision array for instruction chain rule
-class OutputInstChainRule : public OutputMap {
+class OutputInstChainRule final : public OutputMap {
 public:
   OutputInstChainRule(FILE *hpp, FILE *cpp, FormDict &globals, ArchDesc &AD)
     : OutputMap(hpp, cpp, globals, AD, "instruction_chain_rule") {};

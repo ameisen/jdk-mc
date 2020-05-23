@@ -116,7 +116,7 @@
   notproduct(bool, VerifyOptoOopOffsets, false,                             \
           "Check types of base addresses in field references")              \
                                                                             \
-  develop(bool, IdealizedNumerics, false,                                   \
+  develop(bool, IdealizedNumerics, true,                                   \
           "Check performance difference allowing FP "                       \
           "associativity and commutativity...")                             \
                                                                             \
@@ -144,7 +144,7 @@
   diagnostic(bool, PrintOptoAssembly, false,                                \
           "Print New compiler assembly output")                             \
                                                                             \
-  develop_pd(bool, OptoPeephole,                                            \
+  develop(bool, OptoPeephole, true,                                           \
           "Apply peephole optimizations after register allocation")         \
                                                                             \
   develop(bool, OptoRemoveUseless, true,                                    \
@@ -177,11 +177,11 @@
           "Maximum number of unrolls for main loop")                        \
           range(0, max_jint)                                                \
                                                                             \
-  product_pd(bool,  SuperWordLoopUnrollAnalysis,                            \
+  product(bool,  SuperWordLoopUnrollAnalysis, true,                           \
            "Map number of unrolls for main loop via "                       \
            "Superword Level Parallelism analysis")                          \
                                                                             \
-  experimental(bool, PostLoopMultiversioning, false,                        \
+  experimental(bool, PostLoopMultiversioning, true,                        \
            "Multi versioned post loops to eliminate range checks")          \
                                                                             \
   notproduct(bool, TraceSuperWordLoopUnrollAnalysis, false,                 \
@@ -195,7 +195,7 @@
   product(bool, UseSubwordForMaxVector, true,                               \
           "Use Subword Analysis to set maximum vector size")                \
                                                                             \
-  product(bool, UseVectorCmov, false,                                       \
+  product(bool, UseVectorCmov, true,                                       \
           "Use Vectorized Cmov")                                            \
                                                                             \
   develop(intx, UnrollLimitForProfileCheck, 1,                              \
@@ -260,7 +260,7 @@
   product(bool, ReduceBulkZeroing, true,                                    \
           "When bulk-initializing, try to avoid needless zeroing")          \
                                                                             \
-  product(bool, UseFPUForSpilling, false,                                   \
+  product(bool, UseFPUForSpilling, true,                                   \
           "Spill integer registers to FPU instead of stack when possible")  \
                                                                             \
   develop_pd(intx, RegisterCostAreaRatio,                                   \
@@ -330,7 +330,7 @@
   product(bool, UseSuperWord, true,                                         \
           "Transform scalar operations into superword operations")          \
                                                                             \
-  develop(bool, SuperWordRTDepCheck, false,                                 \
+  product(bool, SuperWordRTDepCheck, true,                                 \
           "Enable runtime dependency checks.")                              \
                                                                             \
   product(bool, SuperWordReductions, true,                                  \
@@ -506,7 +506,7 @@
   product(bool, EliminateAutoBox, true,                                     \
           "Control optimizations for autobox elimination")                  \
                                                                             \
-  product(intx, AutoBoxCacheMax, 128,                                       \
+  product(intx, AutoBoxCacheMax, 256,                                       \
           "Sets max value cached by the java.lang.Integer autobox cache")   \
           range(0, max_jint)                                                \
                                                                             \
@@ -535,7 +535,7 @@
   notproduct(bool, PrintEliminateAllocations, false,                        \
           "Print out when allocations are eliminated")                      \
                                                                             \
-  product(intx, EliminateAllocationArraySizeLimit, 64,                      \
+  product(intx, EliminateAllocationArraySizeLimit, 128,                      \
           "Array size (number of elements) limit for scalar replacement")   \
           range(0, max_jint)                                                \
                                                                             \
@@ -704,22 +704,22 @@
   diagnostic(bool, UseMathExactIntrinsics, true,                            \
           "Enables intrinsification of various java.lang.Math functions")   \
                                                                             \
-  diagnostic(bool, UseCharacterCompareIntrinsics, false,                    \
+  diagnostic(bool, UseCharacterCompareIntrinsics, true,                    \
           "Enables intrinsification of java.lang.Character functions")      \
                                                                             \
-  diagnostic(bool, UseMultiplyToLenIntrinsic, false,                        \
+  diagnostic(bool, UseMultiplyToLenIntrinsic, true,                        \
           "Enables intrinsification of BigInteger.multiplyToLen()")         \
                                                                             \
-  diagnostic(bool, UseSquareToLenIntrinsic, false,                          \
+  diagnostic(bool, UseSquareToLenIntrinsic, true,                          \
           "Enables intrinsification of BigInteger.squareToLen()")           \
                                                                             \
-  diagnostic(bool, UseMulAddIntrinsic, false,                               \
+  diagnostic(bool, UseMulAddIntrinsic, true,                               \
           "Enables intrinsification of BigInteger.mulAdd()")                \
                                                                             \
-  diagnostic(bool, UseMontgomeryMultiplyIntrinsic, false,                   \
+  diagnostic(bool, UseMontgomeryMultiplyIntrinsic, true,                   \
           "Enables intrinsification of BigInteger.montgomeryMultiply()")    \
                                                                             \
-  diagnostic(bool, UseMontgomerySquareIntrinsic, false,                     \
+  diagnostic(bool, UseMontgomerySquareIntrinsic, true,                     \
           "Enables intrinsification of BigInteger.montgomerySquare()")      \
                                                                             \
   product(bool, UseTypeSpeculation, true,                                   \

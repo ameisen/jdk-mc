@@ -80,6 +80,9 @@ import static org.graalvm.compiler.hotspot.HotSpotHostBackend.DEOPT_BLOB_UNPACK_
 import static org.graalvm.compiler.hotspot.HotSpotHostBackend.ENABLE_STACK_RESERVED_ZONE;
 import static org.graalvm.compiler.hotspot.HotSpotHostBackend.THROW_DELAYED_STACKOVERFLOW_ERROR;
 import static org.graalvm.compiler.hotspot.replacements.AssertionSnippets.ASSERTION_VM_MESSAGE_C;
+import static org.graalvm.compiler.hotspot.replacements.HotSpotShenandoahWriteBarrierSnippets.SHENANDOAHWBPOSTCALL;
+import static org.graalvm.compiler.hotspot.replacements.HotSpotShenandoahWriteBarrierSnippets.SHENANDOAHWBPRECALL;
+import static org.graalvm.compiler.hotspot.replacements.HotSpotShenandoahWriteBarrierSnippets.VALIDATE_OBJECT;
 import static org.graalvm.compiler.hotspot.replacements.HotSpotG1WriteBarrierSnippets.G1WBPOSTCALL;
 import static org.graalvm.compiler.hotspot.replacements.HotSpotG1WriteBarrierSnippets.G1WBPRECALL;
 import static org.graalvm.compiler.hotspot.replacements.HotSpotG1WriteBarrierSnippets.VALIDATE_OBJECT;
@@ -350,9 +353,11 @@ public abstract class HotSpotHostForeignCallsProvider extends HotSpotForeignCall
         linkForeignCall(options, providers, LOG_PRIMITIVE, c.logPrimitiveAddress, PREPEND_THREAD, LEAF, REEXECUTABLE, NO_LOCATIONS);
         linkForeignCall(options, providers, VM_ERROR, c.vmErrorAddress, PREPEND_THREAD, LEAF_NO_VZERO, REEXECUTABLE, NO_LOCATIONS);
         linkForeignCall(options, providers, OSR_MIGRATION_END, c.osrMigrationEndAddress, DONT_PREPEND_THREAD, LEAF_NO_VZERO, NOT_REEXECUTABLE, NO_LOCATIONS);
+        linkForeignCall(options, providers, SHENANDOAHWBPRECALL, c.writeBarrierPreAddress, PREPEND_THREAD, LEAF_NO_VZERO, REEXECUTABLE, NO_LOCATIONS);
+        linkForeignCall(options, providers, SHENANDOAHWBPOSTCALL, c.writeBarrierPostAddress, PREPEND_THREAD, LEAF_NO_VZERO, REEXECUTABLE, NO_LOCATIONS);
         linkForeignCall(options, providers, G1WBPRECALL, c.writeBarrierPreAddress, PREPEND_THREAD, LEAF_NO_VZERO, REEXECUTABLE, NO_LOCATIONS);
         linkForeignCall(options, providers, G1WBPOSTCALL, c.writeBarrierPostAddress, PREPEND_THREAD, LEAF_NO_VZERO, REEXECUTABLE, NO_LOCATIONS);
-        linkForeignCall(options, providers, VALIDATE_OBJECT, c.validateObject, PREPEND_THREAD, LEAF_NO_VZERO, REEXECUTABLE, NO_LOCATIONS);
+        linkForeignCall(options, providers, org.graalvm.compiler.hotspot.replacements.HotSpotShenandoahWriteBarrierSnippets.VALIDATE_OBJECT, c.validateObject, PREPEND_THREAD, LEAF_NO_VZERO, REEXECUTABLE, NO_LOCATIONS);
 
         if (GeneratePIC.getValue(options)) {
             registerForeignCall(WRONG_METHOD_HANDLER, c.handleWrongMethodStub, NativeCall, LEAF_NO_VZERO, REEXECUTABLE, NO_LOCATIONS);

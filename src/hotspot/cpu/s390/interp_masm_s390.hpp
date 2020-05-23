@@ -31,7 +31,7 @@
 
 // This file specializes the assember with interpreter-specific macros.
 
-class InterpreterMacroAssembler: public MacroAssembler {
+class InterpreterMacroAssembler final : public MacroAssembler {
 
  protected:
   // Interpreter specific version of call_VM_base().

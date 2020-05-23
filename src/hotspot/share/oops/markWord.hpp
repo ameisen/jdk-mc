@@ -91,7 +91,7 @@ class BasicLock;
 class ObjectMonitor;
 class JavaThread;
 
-class markWord {
+class markWord final {
  private:
   uintptr_t _value;
 
@@ -358,6 +358,10 @@ class markWord {
   // Recover address of oop from encoded form used in mark
   inline void* decode_pointer() { if (UseBiasedLocking && has_bias_pattern()) return NULL; return (void*)clear_lock_bits().value(); }
 };
+
+static_assert(std::is_trivially_destructible_v<markWord>);
+static_assert(std::is_trivially_copyable_v<markWord>);
+static_assert(std::is_trivially_assignable_v<markWord, markWord>);
 
 // Support atomic operations.
 template<>

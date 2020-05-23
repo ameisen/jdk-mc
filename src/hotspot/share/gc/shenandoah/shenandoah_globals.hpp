@@ -345,7 +345,7 @@
           "definitely alive references to avoid dealing with them during "  \
           "pause.")                                                         \
                                                                             \
-  experimental(bool, ShenandoahSuspendibleWorkers, false,                   \
+  experimental(bool, ShenandoahSuspendibleWorkers, true,                    \
           "Suspend concurrent GC worker threads at safepoints")             \
                                                                             \
   diagnostic(bool, ShenandoahSATBBarrier, true,                             \

@@ -662,12 +662,23 @@
   declare_function(JVMCIRuntime::log_printf) \
   declare_function(JVMCIRuntime::vm_error) \
   declare_function(JVMCIRuntime::load_and_clear_exception) \
-  G1GC_ONLY(declare_function(JVMCIRuntime::write_barrier_pre)) \
-  G1GC_ONLY(declare_function(JVMCIRuntime::write_barrier_post)) \
+  G1_SHENANDOAH_GC_ONLY(declare_function(JVMCIRuntime::write_barrier_pre)) \
+  G1_SHENANDOAH_GC_ONLY(declare_function(JVMCIRuntime::write_barrier_post)) \
   declare_function(JVMCIRuntime::validate_object) \
   \
   declare_function(JVMCIRuntime::test_deoptimize_call_int)
 
+#if INCLUDE_SHENANDOAHGC
+
+#define VM_STRUCTS_JVMCI_SHENANDOAHGC(nonstatic_field, static_field) \
+  static_field(ShenandoahHeapRegion, RegionSizeBytesShift, int)
+
+#define VM_INT_CONSTANTS_JVMCI_SHENANDOAHGC(declare_constant, declare_constant_with_value, declare_preprocessor_constant) \
+  declare_constant_with_value("ShenandoahThreadLocalData::satb_mark_queue_active_offset", in_bytes(ShenandoahThreadLocalData::satb_mark_queue_active_offset())) \
+  declare_constant_with_value("ShenandoahThreadLocalData::satb_mark_queue_index_offset", in_bytes(ShenandoahThreadLocalData::satb_mark_queue_index_offset())) \
+  declare_constant_with_value("ShenandoahThreadLocalData::satb_mark_queue_buffer_offset", in_bytes(ShenandoahThreadLocalData::satb_mark_queue_buffer_offset()))
+
+#endif // INCLUDE_SHENANDOAH
 
 #if INCLUDE_G1GC
 
@@ -898,6 +909,11 @@ VMStructEntry JVMCIVMStructs::localHotSpotVMStructs[] = {
                  GENERATE_C1_UNCHECKED_STATIC_VM_STRUCT_ENTRY,
                  GENERATE_C2_UNCHECKED_STATIC_VM_STRUCT_ENTRY)
 
+#if INCLUDE_SHENANDOAHGC
+  VM_STRUCTS_JVMCI_SHENANDOAHGC(GENERATE_NONSTATIC_VM_STRUCT_ENTRY,
+                                GENERATE_STATIC_VM_STRUCT_ENTRY)
+#endif
+
 #if INCLUDE_G1GC
   VM_STRUCTS_JVMCI_G1GC(GENERATE_NONSTATIC_VM_STRUCT_ENTRY,
                         GENERATE_STATIC_VM_STRUCT_ENTRY)
@@ -949,6 +965,13 @@ VMIntConstantEntry JVMCIVMStructs::localHotSpotVMIntConstants[] = {
                        GENERATE_C1_VM_INT_CONSTANT_ENTRY,
                        GENERATE_C2_VM_INT_CONSTANT_ENTRY,
                        GENERATE_C2_PREPROCESSOR_VM_INT_CONSTANT_ENTRY)
+
+
+#if INCLUDE_SHENANDOAHGC
+  VM_INT_CONSTANTS_JVMCI_SHENANDOAHGC(GENERATE_VM_INT_CONSTANT_ENTRY,
+                                      GENERATE_VM_INT_CONSTANT_WITH_VALUE_ENTRY,
+                                      GENERATE_PREPROCESSOR_VM_INT_CONSTANT_ENTRY)
+#endif
 
 #if INCLUDE_G1GC
   VM_INT_CONSTANTS_JVMCI_G1GC(GENERATE_VM_INT_CONSTANT_ENTRY,
