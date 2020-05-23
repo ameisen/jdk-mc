@@ -368,17 +368,17 @@
   product(bool, TLABStats, false,                                            \
           "Provide more detailed and expensive TLAB statistics.")           \
                                                                             \
-  product_pd(bool, NeverActAsServerClassMachine,                            \
+  product(bool, NeverActAsServerClassMachine, false,                        \
           "Never act like a server-class machine")                          \
                                                                             \
-  product(bool, AlwaysActAsServerClassMachine, true,                       \
+  product(bool, AlwaysActAsServerClassMachine, true,                        \
           "Always act like a server-class machine")                         \
                                                                             \
   product_pd(uint64_t, MaxRAM,                                              \
           "Real memory size (in bytes) used to set maximum heap size")      \
           range(0, 0XFFFFFFFFFFFFFFFF)                                      \
                                                                             \
-  product(bool, AggressiveHeap, false,                                      \
+  product(bool, AggressiveHeap, true,                                       \
           "Optimize heap options for long-running memory intensive apps")   \
                                                                             \
   product(size_t, ErgoHeapSizeLimit, 0,                                     \
@@ -562,12 +562,12 @@
           "Use policy to limit of proportion of time spent in GC "          \
           "before an OutOfMemory error is thrown")                          \
                                                                             \
-  product(uintx, GCTimeLimit, 98,                                           \
+  product(uintx, GCTimeLimit, 100,                                           \
           "Limit of the proportion of time spent in GC before "             \
           "an OutOfMemoryError is thrown (used with GCHeapFreeLimit)")      \
           range(0, 100)                                                     \
                                                                             \
-  product(uintx, GCHeapFreeLimit, 2,                                        \
+  product(uintx, GCHeapFreeLimit, 0,                                        \
           "Minimum percentage of free space after a full GC before an "     \
           "OutOfMemoryError is thrown (used with GCTimeLimit)")             \
           range(0, 100)                                                     \
@@ -629,7 +629,7 @@
   diagnostic(bool, VerifyRememberedSets, false,                             \
           "Verify GC remembered sets")                                      \
                                                                             \
-  diagnostic(bool, VerifyObjectStartArray, true,                            \
+  diagnostic(bool, VerifyObjectStartArray, false,                           \
           "Verify GC object start array if verify before/after")            \
                                                                             \
   product(bool, DisableExplicitGC, true,                                   \

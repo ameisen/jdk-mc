@@ -847,7 +847,7 @@ InstanceKlass* SystemDictionary::resolve_instance_class_or_null(Symbol* name,
       if (!HAS_PENDING_EXCEPTION && k != NULL &&
         k->class_loader() != class_loader()) {
 
-        bool constraint_result = check_constraints(d_hash, k, class_loader, false, true, THREAD);
+        bool constraint_result = check_constraints(d_hash, k, class_loader, false, false, THREAD);
 
         // (constraints()->check_or_update(k, class_loader, name) == false)
         // TODO : Copy over the class definition from the other class loader.

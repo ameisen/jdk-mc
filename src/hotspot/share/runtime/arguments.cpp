@@ -1969,8 +1969,16 @@ jint Arguments::set_aggressive_heap_flags() {
   // when using ISM).  This is the maximum; because adaptive sizing
   // is turned on below, the actual space used may be smaller.
 
-  initHeapSize = MIN2(total_memory / (julong) 2,
-          total_memory - (julong) 160 * M);
+  initHeapSize = total_memory;
+  if (initHeapSize < (julong)16 * G) {
+    initHeapSize = MAX2(
+      total_memory - (julong) 2,
+      total_memory - (julong) 160 * M
+    );
+  }
+  else {
+    initHeapSize = initHeapSize - ((julong)4 * G);
+  }
 
   initHeapSize = limit_by_allocatable_memory(initHeapSize);
 
@@ -2004,12 +2012,12 @@ jint Arguments::set_aggressive_heap_flags() {
   if (FLAG_SET_CMDLINE(BaseFootPrintEstimate, MaxHeapSize) != JVMFlag::SUCCESS) {
     return JNI_EINVAL;
   }
-  if (FLAG_SET_CMDLINE(ResizeTLAB, false) != JVMFlag::SUCCESS) {
-    return JNI_EINVAL;
-  }
-  if (FLAG_SET_CMDLINE(TLABSize, 256 * K) != JVMFlag::SUCCESS) {
-    return JNI_EINVAL;
-  }
+  //if (FLAG_SET_CMDLINE(ResizeTLAB, false) != JVMFlag::SUCCESS) {
+  //  return JNI_EINVAL;
+  //}
+  //if (FLAG_SET_CMDLINE(TLABSize, 256 * K) != JVMFlag::SUCCESS) {
+  //  return JNI_EINVAL;
+  //}
 
   // See the OldPLABSize comment below, but replace 'after promotion'
   // with 'after copying'.  YoungPLABSize is the size of the survivor
@@ -2041,14 +2049,14 @@ jint Arguments::set_aggressive_heap_flags() {
   }
 
   // Encourage steady state memory management
-  if (FLAG_SET_CMDLINE(ThresholdTolerance, 100) != JVMFlag::SUCCESS) {
-    return JNI_EINVAL;
-  }
+  //if (FLAG_SET_CMDLINE(ThresholdTolerance, 100) != JVMFlag::SUCCESS) {
+  //  return JNI_EINVAL;
+  //}
 
   // This appears to improve mutator locality
-  if (FLAG_SET_CMDLINE(ScavengeBeforeFullGC, false) != JVMFlag::SUCCESS) {
-    return JNI_EINVAL;
-  }
+  //if (FLAG_SET_CMDLINE(ScavengeBeforeFullGC, false) != JVMFlag::SUCCESS) {
+  //  return JNI_EINVAL;
+  //}
 
   return JNI_OK;
 }

@@ -2258,7 +2258,7 @@ const size_t minimumSymbolTableSize = 1024;
   product(bool, PerfAllowAtExitRegistration, false,                         \
           "Allow registration of atexit() methods")                         \
                                                                             \
-  product(bool, PerfBypassFileSystemCheck, false,                           \
+  product(bool, PerfBypassFileSystemCheck, true,                            \
           "Bypass Win32 file system criteria checks (Windows Only)")        \
                                                                             \
   product(intx, UnguardOnExecutionViolation, 0,                             \
@@ -2449,7 +2449,7 @@ const size_t minimumSymbolTableSize = 1024;
              "Use the FP register for holding the frame pointer "           \
              "and not as a general purpose register.")                      \
                                                                             \
-  diagnostic(bool, CheckIntrinsics, true,                                   \
+  diagnostic(bool, CheckIntrinsics, false,                                  \
              "When a class C is loaded, check that "                        \
              "(1) all intrinsics defined by the VM for class C are present "\
              "in the loaded class file and are marked with the "            \
