@@ -132,6 +132,7 @@ src/hotspot/os_cpu/solaris_sparc : hotspot/src/os_cpu/solaris_sparc/vm
 src/hotspot/os_cpu/solaris_x86 : hotspot/src/os_cpu/solaris_x86/vm
 src/hotspot/os_cpu/windows_x86 : hotspot/src/os_cpu/windows_x86/vm
 src/hotspot : hotspot/src
+src/support.base : jdk/src/support.base
 src/utils/IdealGraphVisualizer : hotspot/src/share/tools/IdealGraphVisualizer
 src/utils/LogCompilation : hotspot/src/share/tools/LogCompilation
 src/utils/hsdis : hotspot/src/share/tools/hsdis

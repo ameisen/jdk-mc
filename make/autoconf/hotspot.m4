@@ -557,7 +557,7 @@ AC_DEFUN_ONCE([HOTSPOT_SETUP_JVM_FEATURES],
   JVM_FEATURES_minimal="compiler1 minimal serialgc $JVM_FEATURES $JVM_FEATURES_link_time_opt"
   JVM_FEATURES_zero="zero $NON_MINIMAL_FEATURES $JVM_FEATURES"
   JVM_FEATURES_custom="$JVM_FEATURES"
-  JVM_FEATURES_mc="cds compiler1 compiler2 jvmti link-time-opt services shenandoahgc vm-structs nmt management" # aot graal jvmci
+  JVM_FEATURES_mc="cds compiler1 compiler2 jvmti link-time-opt services shenandoahgc zgc vm-structs nmt management" # aot graal jvmci
 
   AC_SUBST(JVM_FEATURES_server)
   AC_SUBST(JVM_FEATURES_client)

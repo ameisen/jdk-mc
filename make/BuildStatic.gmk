@@ -35,7 +35,7 @@ include MakeBase.gmk
 
 GLOBAL_SYMBOLS_FILE := $(SUPPORT_OUTPUTDIR)/build-static/exported.symbols
 
-EXPORTED_SYMBOLS_MODULES := java.base jdk.jdwp.agent
+EXPORTED_SYMBOLS_MODULES := java.base support.base jdk.jdwp.agent
 
 MODULES_SYMBOLS_FILES := $(foreach module, $(EXPORTED_SYMBOLS_MODULES), \
     $(SUPPORT_OUTPUTDIR)/modules_libs/$(module)/$(module).symbols)

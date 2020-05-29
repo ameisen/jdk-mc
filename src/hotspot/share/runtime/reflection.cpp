@@ -511,14 +511,16 @@ Reflection::VerifyClassAccessResults Reflection::verify_class_access(
     assert(package_to != NULL, "can not obtain new_class' package");
 
     {
-      MutexLocker m1(Module_lock);
+      //return ACCESS_OK;
+
+      //MutexLocker m1(Module_lock);
 
       // Once readability is established, if module_to exports T unqualifiedly,
       // (to all modules), than whether module_from is in the unnamed module
       // or not does not matter, access is allowed.
-      if (package_to->is_unqual_exported()) {
-        return ACCESS_OK;
-      }
+      //if (package_to->is_unqual_exported()) {
+      //  return ACCESS_OK;
+      //}
 
       // Access is allowed if both 1 & 2 hold:
       //   1. Readability, module_from can read module_to (established above).
@@ -527,9 +529,9 @@ Reflection::VerifyClassAccessResults Reflection::verify_class_access(
       //      module_to exports T to all unnamed modules and module_from is unnamed.
       //      or
       //      module_to exports T unqualifiedly to all modules (checked above).
-      if (!package_to->is_qexported_to(module_from)) {
-        return TYPE_NOT_EXPORTED;
-      }
+      //if (!package_to->is_qexported_to(module_from)) {
+      //  return TYPE_NOT_EXPORTED;
+      //}
     }
     return ACCESS_OK;
   }

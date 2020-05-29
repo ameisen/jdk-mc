@@ -68,6 +68,7 @@ BOOT_MODULES += \
     jdk.nio.mapmode \
     jdk.sctp \
     jdk.unsupported \
+    support.base \
     #
 
 # to be deprivileged
@@ -203,7 +204,7 @@ HOTSPOT_MODULES := \
 # The native dynamic libraries in these modules will also get built into static
 # libraries for consumption by downstream projects that need to statically link
 # the JDK libraries. Those static libraries are not part of the main JDK
-# distribution. 
+# distribution.
 STATIC_LIBS_MODULES := \
     java.base \
     jdk.crypto.ec \

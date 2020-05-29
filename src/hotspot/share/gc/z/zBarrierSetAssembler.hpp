@@ -27,7 +27,7 @@
 #include "gc/shared/barrierSetAssembler.hpp"
 #include "utilities/macros.hpp"
 
-class ZBarrierSetAssemblerBase final : public BarrierSetAssembler {
+class ZBarrierSetAssemblerBase : public BarrierSetAssembler {
 public:
   static Address address_bad_mask_from_thread(Register thread);
   static Address address_bad_mask_from_jni_env(Register env);

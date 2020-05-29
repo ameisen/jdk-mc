@@ -2299,7 +2299,7 @@ const size_t minimumSymbolTableSize = 1024;
           "shared spaces, and dumps the shared spaces to a file to be "     \
           "used in future JVM runs")                                        \
                                                                             \
-  product(bool, DynamicDumpSharedSpaces, false,                             \
+  product(bool, DynamicDumpSharedSpaces, true,                              \
           "Dynamic archive")                                                \
                                                                             \
   product(bool, PrintSharedArchiveAndExit, false,                           \

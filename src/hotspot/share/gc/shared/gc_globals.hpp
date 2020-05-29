@@ -378,7 +378,7 @@
           "Real memory size (in bytes) used to set maximum heap size")      \
           range(0, 0XFFFFFFFFFFFFFFFF)                                      \
                                                                             \
-  product(bool, AggressiveHeap, true,                                       \
+  product(bool, AggressiveHeap, false,                                       \
           "Optimize heap options for long-running memory intensive apps")   \
                                                                             \
   product(size_t, ErgoHeapSizeLimit, 0,                                     \
@@ -516,7 +516,7 @@
           "Decay factor to TenuredGenerationSizeIncrement")                 \
           range(1, max_uintx)                                               \
                                                                             \
-  product(uintx, MaxGCPauseMillis, max_uintx - 1,                           \
+  product(uintx, MaxGCPauseMillis, 10,                                      \
           "Adaptive size policy maximum GC pause time goal in millisecond, "\
           "or (G1 Only) the maximum GC time per MMU time slice")            \
           range(1, max_uintx - 1)                                           \

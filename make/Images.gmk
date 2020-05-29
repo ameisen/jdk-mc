@@ -68,6 +68,7 @@ JLINK_ORDER_RESOURCES += \
     /java.base/sun/** \
     /java.base/com/** \
     /jdk.localedata/** \
+    /support.base/org/** \
     #
 
 JLINK_TOOL := $(JLINK) -J-Djlink.debug=true \

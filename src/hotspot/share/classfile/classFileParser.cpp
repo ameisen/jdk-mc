@@ -322,6 +322,14 @@ void ClassFileParser::parse_constant_pool_entries(const ClassFileStream* const s
           utf8_length = (u2) strlen(str);
         }
 
+        if (strcmp(_class_name->as_C_string(), "net/minecraftforge/fml/loading/LibraryFinder") == 0) {
+          // Hack because Forge uses ow2.asm as a reference for finding a path, but we include it directly.
+          if (strstr((const char *)utf8_buffer, "org/objectweb/asm/Opcodes.class") != nullptr) {
+            utf8_buffer = (const u1*)"com/google/common/base/Strings.class";
+            utf8_length = u2(strlen((const char *)utf8_buffer));
+          }
+        }
+
         unsigned int hash;
         Symbol* const result = SymbolTable::lookup_only((const char*)utf8_buffer,
                                                         utf8_length,

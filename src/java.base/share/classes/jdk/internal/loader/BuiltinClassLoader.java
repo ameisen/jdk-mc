@@ -47,6 +47,7 @@ import java.security.SecureClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -97,8 +98,9 @@ public class BuiltinClassLoader
     extends URLClassLoader
 {
     static {
-        if (!ClassLoader.registerAsParallelCapable())
+        if (!ClassLoader.registerAsParallelCapable()) {
             throw new InternalError("Unable to register as parallel capable");
+        }
     }
 
     // parent ClassLoader
@@ -274,7 +276,6 @@ public class BuiltinClassLoader
         return isValidClassPath(name, url) || isOpen(module.mref(), pn);
     }
 
-
     /**
      * Finds a resource with the given name in the modules defined to this
      * class loader or its class path.
@@ -308,8 +309,9 @@ public class BuiltinClassLoader
                         return URLClassPath.checkURL(url); // check access before returning
                     }
                 }
-            } catch (IOException ioe) {
-                return null;
+            }
+            catch (IOException ioe) {
+                // Ignore an IO Exception, move to the superclass instead.
             }
 
         }
@@ -324,7 +326,7 @@ public class BuiltinClassLoader
      */
     @Override
     public Enumeration<URL> findResources(String name) throws IOException {
-        var checked = new ArrayList<URL>();  // list of checked URLs
+        var checked = new HashSet<URL>();  // list of checked URLs
 
         String pn = Resources.toPackageName(name);
         LoadedModule module = packageToModule.get(pn);
@@ -349,7 +351,9 @@ public class BuiltinClassLoader
         }
 
         // class path (not checked)
-        var e = findResourcesOnClassPath(name); // TODO super.findResources(name)
+        super.findResources(name).asIterator().forEachRemaining(res -> { checked.add(res); });
+
+        //addResourcesOnClassPath(name, checked); // TODO super.findResources(name)
 
         // concat the checked URLs and the (not checked) class path
         return new Enumeration<>() {
@@ -358,14 +362,13 @@ public class BuiltinClassLoader
             private boolean hasNext() {
                 if (next != null) {
                     return true;
-                } else if (iterator.hasNext()) {
+                }
+                else if (iterator.hasNext()) {
                     next = iterator.next();
                     return true;
-                } else {
+                }
+                else {
                     // need to check each URL
-                    while (e.hasMoreElements() && next == null) {
-                        next = URLClassPath.checkURL(e.nextElement());
-                    }
                     return next != null;
                 }
             }
@@ -384,7 +387,98 @@ public class BuiltinClassLoader
                 }
             }
         };
+    }
 
+    /*
+
+    @Override
+    public Enumeration<Resource> getResources(final String name, final boolean check) throws IOException {
+        return getResources(name);
+    }
+
+    @Override
+    public Enumeration<Resource> getResources(final String name) throws IOException {
+        var urls = findResources(name);
+
+        var resources = new ArrayList<Resource>();
+
+        for (URL url : urls) {
+            var resource = tryGetResource(url);
+            if (resource != null) {
+                resources.add(resource);
+            }
+        }
+
+        return new Enumeration<>() {
+            final Iterator<Resource> iterator = resources.iterator();
+            Resource next = null;
+            private boolean hasNext() {
+                if (next != null) {
+                    return true;
+                }
+                else if (iterator.hasNext()) {
+                    next = iterator.next();
+                    return true;
+                }
+                else {
+                    return next != null;
+                }
+            }
+            @Override
+            public boolean hasMoreElements() {
+                return hasNext();
+            }
+            @Override
+            public Resource nextElement() {
+                if (hasNext()) {
+                    Resource result = next;
+                    next = null;
+                    return result;
+                } else {
+                    throw new NoSuchElementException();
+                }
+            }
+        };
+    }
+
+    @Override
+    public Resource getResource(final String name, final boolean check) {
+        return tryGetResource(findResource(name, check));
+    }
+
+    @Override
+    public Resource getResource(final String name) {
+        return tryGetResource(findResource(name));
+    }
+
+    */
+
+    /**
+     * Returns the URL to a resource in a module or {@code null} if not found.
+     */
+    private URL findResource(ModuleReference mref, String name) throws IOException {
+        URI u;
+        if (System.getSecurityManager() == null) {
+            u = moduleReaderFor(mref).find(name).orElse(null);
+        }
+        else {
+            try {
+                u = AccessController.doPrivileged(new PrivilegedExceptionAction<> () {
+                    @Override
+                    public URI run() throws IOException {
+                        return moduleReaderFor(mref).find(name).orElse(null);
+                    }
+                });
+            } catch (PrivilegedActionException pae) {
+                throw (IOException) pae.getCause();
+            }
+        }
+        if (u != null) {
+            try {
+                return u.toURL();
+            } catch (MalformedURLException | IllegalArgumentException e) { }
+        }
+        return null;
     }
 
     /**
@@ -444,34 +538,6 @@ public class BuiltinClassLoader
     }
 
     /**
-     * Returns the URL to a resource in a module or {@code null} if not found.
-     */
-    private URL findResource(ModuleReference mref, String name) throws IOException {
-        URI u;
-        if (System.getSecurityManager() == null) {
-            u = moduleReaderFor(mref).find(name).orElse(null);
-        }
-        else {
-            try {
-                u = AccessController.doPrivileged(new PrivilegedExceptionAction<> () {
-                    @Override
-                    public URI run() throws IOException {
-                        return moduleReaderFor(mref).find(name).orElse(null);
-                    }
-                });
-            } catch (PrivilegedActionException pae) {
-                throw (IOException) pae.getCause();
-            }
-        }
-        if (u != null) {
-            try {
-                return u.toURL();
-            } catch (MalformedURLException | IllegalArgumentException e) { }
-        }
-        return null;
-    }
-
-    /**
      * Returns the URL to a resource in a module. Returns {@code null} if not found
      * or an I/O error occurs.
      */
@@ -486,19 +552,21 @@ public class BuiltinClassLoader
     /**
      * Returns the URLs of all resources of the given name on the class path.
      */
-    private Enumeration<URL> findResourcesOnClassPath(String name) {
+    private void addResourcesOnClassPath(String name, HashSet<URL> destination) {
+        Enumeration<URL> enumeration = Collections.emptyEnumeration();
+
         if (hasClassPath()) {
             if (System.getSecurityManager() == null) {
-                return ucp.findResources(name, false);
-            } else {
+                enumeration = ucp.findResources(name, false);
+            }
+            else {
                 PrivilegedAction<Enumeration<URL>> pa;
                 pa = () -> ucp.findResources(name, false);
-                return AccessController.doPrivileged(pa);
+                enumeration = AccessController.doPrivileged(pa);
             }
-        } else {
-            // no class path
-            return Collections.emptyEnumeration();
         }
+
+        enumeration.asIterator().forEachRemaining(res -> { destination.add(res); });
     }
 
     // -- finding/loading classes

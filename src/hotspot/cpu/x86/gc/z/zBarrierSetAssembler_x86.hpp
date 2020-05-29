@@ -45,7 +45,7 @@ class Node;
 class ZLoadBarrierStubC2;
 #endif // COMPILER2
 
-class ZBarrierSetAssembler : public ZBarrierSetAssemblerBase {
+class ZBarrierSetAssembler final : public ZBarrierSetAssemblerBase {
 public:
   virtual void load_at(MacroAssembler* masm,
                        DecoratorSet decorators,
