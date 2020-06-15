@@ -44,7 +44,7 @@ TOOL_GENGRAPHS := $(BUILD_JAVA) -esa -ea -cp $(TOOLS_CLASSES_DIR) \
 TOOL_MODULESUMMARY := $(BUILD_JAVA) -esa -ea -cp $(TOOLS_CLASSES_DIR) \
     build.tools.jigsaw.ModuleSummary
 
-TOOL_ADD_PACKAGES_ATTRIBUTE := $(BUILD_JAVA) $(JAVA_FLAGS_SMALL) \
+TOOL_ADD_PACKAGES_ATTRIBUTE := $(BUILD_JAVA) $(JAVA_FLAGS_BIG) \
     -cp $(TOOLS_CLASSES_DIR) \
     --add-exports java.base/jdk.internal.module=ALL-UNNAMED \
     build.tools.jigsaw.AddPackagesAttribute

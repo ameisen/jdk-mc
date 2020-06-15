@@ -482,7 +482,7 @@ static int perf_context_switch_rate(double* rate) {
   return res;
 }
 
-class CPUPerformanceInterface::CPUPerformance : public CHeapObj<mtInternal> {
+class CPUPerformanceInterface::CPUPerformance final : public CHeapObj<mtInternal> {
   friend class CPUPerformanceInterface;
  private:
   CPUPerfCounters _counters;
@@ -618,7 +618,7 @@ int CPUPerformanceInterface::context_switch_rate(double* rate) const {
   return _impl->context_switch_rate(rate);
 }
 
-class SystemProcessInterface::SystemProcesses : public CHeapObj<mtInternal> {
+class SystemProcessInterface::SystemProcesses final : public CHeapObj<mtInternal> {
   friend class SystemProcessInterface;
  private:
   class ProcessIterator : public CHeapObj<mtInternal> {

@@ -124,7 +124,7 @@ Win32AttachOperation* Win32AttachListener::_tail;
 // of a pipe which is used to send the operation reply/output to the client.
 // Win32AttachOperation can also be linked in a list.
 
-class Win32AttachOperation: public AttachOperation {
+class Win32AttachOperation final : public AttachOperation {
  private:
   friend class Win32AttachListener;
 

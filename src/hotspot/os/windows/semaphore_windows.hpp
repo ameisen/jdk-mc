@@ -30,7 +30,7 @@
 
 #include <windows.h>
 
-class WindowsSemaphore : public CHeapObj<mtInternal> {
+class WindowsSemaphore final : public CHeapObj<mtInternal> {
   HANDLE _semaphore;
 
   NONCOPYABLE(WindowsSemaphore);

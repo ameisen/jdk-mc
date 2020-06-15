@@ -60,6 +60,8 @@ static const char CREATE_EMPTY_OID_SET[]        = "gss_create_empty_oid_set";
 static const char RELEASE_OID_SET[]             = "gss_release_oid_set";
 static const char RELEASE_BUFFER[]              = "gss_release_buffer";
 
+GSS_FUNCTION_TABLE_PTR ftab;
+
 /**
  * Initialize native GSS function pointers
  */

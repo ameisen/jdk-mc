@@ -90,10 +90,10 @@ public final class ZipPlugin implements Plugin {
     }
 
     static byte[] compress(byte[] bytesIn) {
-        Deflater deflater = new Deflater();
+        Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION);
         deflater.setInput(bytesIn);
         ByteArrayOutputStream stream = new ByteArrayOutputStream(bytesIn.length);
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[0x1000];
 
         deflater.finish();
         while (!deflater.finished()) {

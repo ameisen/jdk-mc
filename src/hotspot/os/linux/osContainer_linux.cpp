@@ -136,7 +136,7 @@ class CgroupSubsystem: CHeapObj<mtInternal> {
     }
 };
 
-class CgroupMemorySubsystem: CgroupSubsystem {
+class CgroupMemorySubsystem final : CgroupSubsystem {
  friend class OSContainer;
 
  private:

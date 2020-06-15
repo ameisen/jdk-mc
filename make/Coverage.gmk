@@ -43,7 +43,7 @@ $(JCOV_IMAGE_DIR)/release: $(JCOV_INPUT_IMAGE_DIR)/release
 	$(call MakeDir, $(JCOV_TEMP) $(IMAGES_OUTPUTDIR))
 	$(RM) -r $(JCOV_IMAGE_DIR) $(JCOV_TEMP)/*
 	$(CP) -r $(JCOV_INPUT_IMAGE_DIR) $(JCOV_TEMP)/$(JCOV_IMAGE_SUBDIR)
-	$(JAVA) -Xmx3g -jar $(JCOV_HOME)/lib/jcov.jar JREInstr \
+	$(JAVA) -XX:-UseZGC -XX:-UseShenandoahGC -XX:+UseG1GC -XX:-UseLargePages -XX:-UseLargePagesIndividualAllocation -XX:-UseLargePagesInMetaspace -Xmx6g -jar $(JCOV_HOME)/lib/jcov.jar JREInstr \
 	    -t $(JCOV_TEMP)/$(JCOV_IMAGE_SUBDIR)/template.xml \
 	    -rt $(JCOV_HOME)/lib/jcov_network_saver.jar \
 	    -exclude 'java.lang.Object' \

@@ -27,7 +27,7 @@
 #include "gc/z/zArray.hpp"
 #include "memory/allocation.hpp"
 
-class ZBackingPath : public StackObj {
+class ZBackingPath final : public StackObj {
 private:
   char* _path;
 
@@ -47,6 +47,8 @@ public:
   ~ZBackingPath();
 
   const char* get() const;
+
+  operator bool () const { return _path != nullptr; }
 };
 
 #endif // OS_LINUX_GC_Z_ZBACKINGPATH_LINUX_HPP

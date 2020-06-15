@@ -29,7 +29,7 @@
 
 class ZPhysicalMemory;
 
-class ZPhysicalMemoryBacking {
+class ZPhysicalMemoryBacking final {
 private:
   ZBackingFile   _file;
   ZMemoryManager _committed;

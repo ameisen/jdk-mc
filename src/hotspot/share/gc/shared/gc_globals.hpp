@@ -175,10 +175,10 @@
   experimental(bool, UseEpsilonGC, false,                                   \
           "Use the Epsilon (no-op) garbage collector")                      \
                                                                             \
-  experimental(bool, UseZGC, false,                                         \
+  experimental(bool, UseZGC, true,                                         \
           "Use the Z garbage collector")                                    \
                                                                             \
-  experimental(bool, UseShenandoahGC, true,                                 \
+  experimental(bool, UseShenandoahGC, false,                                 \
           "Use the Shenandoah garbage collector")                           \
                                                                             \
   product(uint, ParallelGCThreads, 0,                                       \

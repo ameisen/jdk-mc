@@ -52,6 +52,9 @@ public class GZIPOutputStream extends DeflaterOutputStream {
      */
     private static final int TRAILER_SIZE = 8;
 
+    // Default Output Buffer Size
+    private static final int DEFAULT_BUFFER_SIZE = 0x1000; // originally 512
+
     /**
      * Creates a new output stream with the specified buffer size.
      *
@@ -65,6 +68,22 @@ public class GZIPOutputStream extends DeflaterOutputStream {
      */
     public GZIPOutputStream(OutputStream out, int size) throws IOException {
         this(out, size, false);
+    }
+
+    /**
+     * Creates a new output stream with the specified buffer size.
+     *
+     * <p>The new output stream instance is created as if by invoking
+     * the 3-argument constructor GZIPOutputStream(out, size, false).
+     *
+     * @param out the output stream
+     * @param size the output buffer size
+     * @param level compression level
+     * @throws    IOException If an I/O error has occurred.
+     * @throws    IllegalArgumentException if {@code size <= 0}
+     */
+    public GZIPOutputStream(OutputStream out, int size, int level) throws IOException {
+        this(out, size, false, level);
     }
 
     /**
@@ -87,7 +106,31 @@ public class GZIPOutputStream extends DeflaterOutputStream {
     public GZIPOutputStream(OutputStream out, int size, boolean syncFlush)
         throws IOException
     {
-        super(out, new Deflater(Deflater.DEFAULT_COMPRESSION, true),
+        this(out, size, syncFlush, Deflater.DEFAULT_COMPRESSION);
+    }
+
+    /**
+     * Creates a new output stream with the specified buffer size and
+     * flush mode.
+     *
+     * @param out the output stream
+     * @param size the output buffer size
+     * @param syncFlush
+     *        if {@code true} invocation of the inherited
+     *        {@link DeflaterOutputStream#flush() flush()} method of
+     *        this instance flushes the compressor with flush mode
+     *        {@link Deflater#SYNC_FLUSH} before flushing the output
+     *        stream, otherwise only flushes the output stream
+     * @param level compression level
+     * @throws    IOException If an I/O error has occurred.
+     * @throws    IllegalArgumentException if {@code size <= 0}
+     *
+     * @since 1.7
+     */
+    public GZIPOutputStream(OutputStream out, int size, boolean syncFlush, int level)
+        throws IOException
+    {
+        super(out, new Deflater(level, true),
               size,
               syncFlush);
         usesDefaultDeflater = true;
@@ -106,7 +149,7 @@ public class GZIPOutputStream extends DeflaterOutputStream {
      * @throws    IOException If an I/O error has occurred.
      */
     public GZIPOutputStream(OutputStream out) throws IOException {
-        this(out, 512, false);
+        this(out, DEFAULT_BUFFER_SIZE, false);
     }
 
     /**
@@ -128,7 +171,30 @@ public class GZIPOutputStream extends DeflaterOutputStream {
     public GZIPOutputStream(OutputStream out, boolean syncFlush)
         throws IOException
     {
-        this(out, 512, syncFlush);
+        this(out, DEFAULT_BUFFER_SIZE, syncFlush);
+    }
+
+    /**
+     * Creates a new output stream with a default buffer size and
+     * the specified flush mode.
+     *
+     * @param out the output stream
+     * @param syncFlush
+     *        if {@code true} invocation of the inherited
+     *        {@link DeflaterOutputStream#flush() flush()} method of
+     *        this instance flushes the compressor with flush mode
+     *        {@link Deflater#SYNC_FLUSH} before flushing the output
+     *        stream, otherwise only flushes the output stream
+     * @param level compression level
+     *
+     * @throws    IOException If an I/O error has occurred.
+     *
+     * @since 1.7
+     */
+    public GZIPOutputStream(OutputStream out, boolean syncFlush, int level)
+        throws IOException
+    {
+        this(out, DEFAULT_BUFFER_SIZE, syncFlush, level);
     }
 
     /**
@@ -175,22 +241,24 @@ public class GZIPOutputStream extends DeflaterOutputStream {
         }
     }
 
+    private static final byte[] GzipHeader = new byte[] {
+        (byte) GZIP_MAGIC,        // Magic number (short)
+        (byte)(GZIP_MAGIC >> 8),  // Magic number (short)
+        Deflater.DEFLATED,        // Compression method (CM)
+        0,                        // Flags (FLG)
+        0,                        // Modification time MTIME (int)
+        0,                        // Modification time MTIME (int)
+        0,                        // Modification time MTIME (int)
+        0,                        // Modification time MTIME (int)
+        0,                        // Extra flags (XFLG)
+        0                         // Operating system (OS)
+    };
+
     /*
      * Writes GZIP member header.
      */
     private void writeHeader() throws IOException {
-        out.write(new byte[] {
-                      (byte) GZIP_MAGIC,        // Magic number (short)
-                      (byte)(GZIP_MAGIC >> 8),  // Magic number (short)
-                      Deflater.DEFLATED,        // Compression method (CM)
-                      0,                        // Flags (FLG)
-                      0,                        // Modification time MTIME (int)
-                      0,                        // Modification time MTIME (int)
-                      0,                        // Modification time MTIME (int)
-                      0,                        // Modification time MTIME (int)
-                      0,                        // Extra flags (XFLG)
-                      0                         // Operating system (OS)
-                  });
+        out.write(GzipHeader);
     }
 
     /*

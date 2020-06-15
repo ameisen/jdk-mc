@@ -58,11 +58,13 @@ module Directory
 	def self.working; Dir.pwd; end
 
 	def self.finalize
-		if (@vc_root.nil?)
-			error "'Directory.vc_root' is not set!"
-			exit 1
+		if System::build_platform.is?(System::Platforms::WINDOWS)
+			if (@vc_root.nil?)
+				error "'Directory.vc_root' is not set!"
+				exit 1
+			end
+			@vc_bin = File.join(@vc_root, "VC", "Tools")
 		end
-		@vc_bin = File.join(@vc_root, "VC", "Tools")
 		self.freeze
 	end
 

@@ -126,7 +126,7 @@ ifeq ($(BUILD_CDS_ARCHIVE), true)
       OUTPUT_FILE := $(JDK_IMAGE_DIR)/$(CDS_ARCHIVE), \
       SUPPORT_DIR := $(SUPPORT_OUTPUTDIR)/images/jdk, \
       COMMAND := $(FIXPATH) $(JDK_IMAGE_DIR)/bin/java -Xshare:dump \
-          -Xmx128M -Xms128M $(LOG_INFO), \
+          -Xmx512M -Xms512M -XX:-UseZGC -XX:-UseShenandoahGC -XX:+UseG1GC -XX:-UseLargePages -XX:-UseLargePagesIndividualAllocation -XX:-UseLargePagesInMetaspace $(LOG_INFO), \
   ))
 
   JDK_TARGETS += $(gen_cds_archive_jdk)
@@ -137,7 +137,7 @@ ifeq ($(BUILD_CDS_ARCHIVE), true)
       OUTPUT_FILE := $(JRE_IMAGE_DIR)/$(CDS_ARCHIVE), \
       SUPPORT_DIR := $(SUPPORT_OUTPUTDIR)/images/jre, \
       COMMAND := $(FIXPATH) $(JRE_IMAGE_DIR)/bin/java -Xshare:dump \
-          -Xmx128M -Xms128M $(LOG_INFO), \
+          -Xmx512M -Xms512M -XX:-UseZGC -XX:-UseShenandoahGC -XX:+UseG1GC -XX:-UseLargePages -XX:-UseLargePagesIndividualAllocation -XX:-UseLargePagesInMetaspace $(LOG_INFO), \
   ))
 
   JRE_TARGETS += $(gen_cds_archive_jre)

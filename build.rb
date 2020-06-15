@@ -2,12 +2,18 @@
 
 require File.join(__dir__, "rb", "runtime.rb")
 
+CONFIG_NAME = "mc"
+
+BUILD_PLATFORM = System::build_platform
+TARGET_PLATFORM = BUILD_PLATFORM
+
 # Include the global configuration file if there is one
 GLOBAL_BUILD_CFG_PATH = File.join(Dir.pwd, ".build.rb")
-begin
+if File.exist?(GLOBAL_BUILD_CFG_PATH)
 	require GLOBAL_BUILD_CFG_PATH
-rescue
-	warning "Global Build Configuration File '#{GLOBAL_BUILD_CFG_PATH}' not accessible"
+	INCLUDED_GLOBAL_BUILD_CFG = true
+else
+	INCLUDED_GLOBAL_BUILD_CFG = false
 end
 
 module Options
@@ -82,14 +88,13 @@ if (Options::Pass::clear_term)
 	system("clear") or system("cls")
 end
 
+unless INCLUDED_GLOBAL_BUILD_CFG
+	warning "Global Build Configuration File '#{GLOBAL_BUILD_CFG_PATH}' not accessible"
+end
+
 Directory::finalize
 
 puts "Build System Information:\n#{System::dump(1)}"
-
-CONFIG_NAME = "mc"
-
-BUILD_PLATFORM = System::build_platform
-TARGET_PLATFORM = BUILD_PLATFORM
 
 TARGET_NAME = {
 	"Linux" => "linux",
@@ -122,8 +127,10 @@ tputs(1, "Install") if Options::Pass::install
 IN_BUILD_ROOT = Directory.same?(Directory::build, Directory::build_root)
 
 ExecutePass("Cleaning Pass", Error::Flag::CLEAN) {
-	Directory.delete(Directory::build, recursive: true)
+	Directory.delete(File.join(Directory::build, FULL_CONFIG_NAME), recursive: true)
 	Directory.make(Directory::build) if IN_BUILD_ROOT
+	File.delete(File.join(Directory::build, "#{FULL_CONFIG_NAME}.config.cache"))
+	File.delete(File.join(Directory::build_root, "#{FULL_CONFIG_NAME}.config.cache"))
 } if Options::Pass::clean
 
 ExecutePass("Fetch Pass", Error::Flag::FETCH) {
@@ -156,7 +163,6 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 			"graal",
 			"jvmci",
 			"jvmti",
-			"link-time-opt",
 			"management",
 			"nmt",
 			"services",
@@ -191,7 +197,7 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 			"management",
 			"nmt",
 			"compiler2",
-			"zgc"
+			"link-time-opt",
 		].sort
 
 		enabled_features = all_features.filter_map { |f| f unless disabled_features.include?(f) }.sort
@@ -230,6 +236,9 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 
 		if (TARGET_PLATFORM.is?(System::Platforms::WINDOWS))
 			with_flags << "tools-dir=#{Directory::vc_bin}"
+		else
+			with_flags << "toolchain_type=gcc" # clang
+			with_flags << "ccache"
 		end
 
 		with_flags << "boot-jdk=#{Directory::java}" unless Directory::java.blank?
@@ -240,7 +249,7 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 		]
 
 		configure_flags = [
-			"--config-cache",
+			"--cache-file=#{FULL_CONFIG_NAME}.config.cache",
 			"--prefix=#{Directory::install}",
 		] +
 		enable_flags.filter_map { |f| "--enable-#{f}" unless f.blank? } +
@@ -249,6 +258,25 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 		without_flags.filter_map { |f| "--without-#{f}" unless f.blank? }
 		#enabled_features.filter_map { |f| jvm_enable(f) unless f.blank? } +
 		#disabled_features.filter_map { |f| jvm_disable(f) unless f.blank? }
+
+		configure_add_env = lambda { |name|
+			return if ENV[name].nil?
+			configure_flags << "#{name}=#{ENV[name]}"
+			configure_flags << "BUILD_#{name}=#{ENV[name]}"
+		}
+
+		ENV["CC"] = File.join(__dir__, "alias", "gcc")
+		ENV["CXX"] = File.join(__dir__, "alias", "g++")
+		ENV["CPP"] = File.join(__dir__, "alias", "cpp")
+
+		configure_add_env.call("NM")
+		configure_add_env.call("AR")
+		configure_add_env.call("RANLIB")
+		configure_add_env.call("CPP")
+		configure_add_env.call("CC")
+		configure_add_env.call("CXX")
+		configure_add_env.call("LD")
+		configure_add_env.call("STRIP")
 
 		puts "Configure Flags:"
 		configure_flags.each { |f|

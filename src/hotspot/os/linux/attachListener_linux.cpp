@@ -108,7 +108,7 @@ class LinuxAttachListener: AllStatic {
   static LinuxAttachOperation* dequeue();
 };
 
-class LinuxAttachOperation: public AttachOperation {
+class LinuxAttachOperation final : public AttachOperation {
  private:
   // the connection to the client
   int _socket;
@@ -131,7 +131,7 @@ int LinuxAttachListener::_listener = -1;
 bool LinuxAttachListener::_atexit_registered = false;
 
 // Supporting class to help split a buffer into individual components
-class ArgumentIterator : public StackObj {
+class ArgumentIterator final : public StackObj {
  private:
   char* _pos;
   char* _end;

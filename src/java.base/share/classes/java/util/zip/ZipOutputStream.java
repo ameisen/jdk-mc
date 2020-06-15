@@ -122,6 +122,20 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
     /**
      * Creates a new ZIP output stream.
      *
+     * <p>The UTF-8 {@link java.nio.charset.Charset charset} is used
+     * to encode the entry names and comments.
+     *
+     * @param out the actual output stream
+     *
+     * @param level compression level
+     */
+    public ZipOutputStream(OutputStream out, int level) {
+        this(out, UTF_8.INSTANCE, level);
+    }
+
+    /**
+     * Creates a new ZIP output stream.
+     *
      * @param out the actual output stream
      *
      * @param charset the {@linkplain java.nio.charset.Charset charset}
@@ -130,7 +144,23 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
      * @since 1.7
      */
     public ZipOutputStream(OutputStream out, Charset charset) {
-        super(out, new Deflater(Deflater.DEFAULT_COMPRESSION, true));
+        this(out, charset, Deflater.DEFAULT_COMPRESSION);
+    }
+
+    /**
+     * Creates a new ZIP output stream.
+     *
+     * @param out the actual output stream
+     *
+     * @param charset the {@linkplain java.nio.charset.Charset charset}
+     *                to be used to encode the entry names and comments
+     *
+     * @param level compression level
+     *
+     * @since 1.7
+     */
+    public ZipOutputStream(OutputStream out, Charset charset, int level) {
+        super(out, new Deflater(level, true));
         if (charset == null)
             throw new NullPointerException("charset is null");
         this.zc = ZipCoder.get(charset);

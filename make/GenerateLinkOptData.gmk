@@ -65,7 +65,7 @@ $(CLASSLIST_FILE): $(INTERIM_IMAGE_DIR)/bin/java$(EXE_SUFFIX) $(CLASSLIST_JAR)
 	$(call MakeDir, $(LINK_OPT_DIR))
 	$(call LogInfo, Generating $(patsubst $(OUTPUTDIR)/%, %, $@))
 	$(call LogInfo, Generating $(patsubst $(OUTPUTDIR)/%, %, $(JLI_TRACE_FILE)))
-	$(FIXPATH) $(INTERIM_IMAGE_DIR)/bin/java -XX:DumpLoadedClassList=$@.raw \
+	$(FIXPATH) $(INTERIM_IMAGE_DIR)/bin/java -XX:-UseZGC -XX:-UseShenandoahGC -XX:+UseG1GC -XX:-UseLargePages -XX:-UseLargePagesIndividualAllocation -XX:-UseLargePagesInMetaspace -XX:DumpLoadedClassList=$@.raw \
 	    -Djava.lang.invoke.MethodHandle.TRACE_RESOLVE=true \
 	    -Duser.language=en -Duser.country=US \
 	    -cp $(SUPPORT_OUTPUTDIR)/classlist.jar \

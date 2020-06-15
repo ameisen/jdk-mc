@@ -135,7 +135,7 @@ public:
  * don't call code that could leave the heap / memory in an inconsistent state,
  * or anything else where we are not in control if we suddenly jump out.
  */
-class ThreadCrashProtection : public StackObj {
+class ThreadCrashProtection final : public StackObj {
 public:
   static bool is_crash_protected(Thread* thr) {
     return _crash_protection != NULL && _protected_thread == thr;
@@ -204,7 +204,7 @@ class PlatformMutex : public CHeapObj<mtSynchronizer> {
   bool try_lock();
 };
 
-class PlatformMonitor : public PlatformMutex {
+class PlatformMonitor final : public PlatformMutex {
  private:
   CONDITION_VARIABLE _cond;  // Native condition variable for blocking
   NONCOPYABLE(PlatformMonitor);

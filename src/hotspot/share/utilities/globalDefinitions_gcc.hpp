@@ -275,7 +275,7 @@ inline int wcslen(const jchar* x) { return wcslen((const wchar_t*)x); }
 
 #define UNREACHABLE() __builtin_unreachable()
 
-#if __clang__
+#ifdef __clang__
 # define ASSUME(expr) __builtin_assume(expr)
 #else
 # define ASSUME(expr) do { if (!(expr)) __builtin_unreachable(); } while(0)

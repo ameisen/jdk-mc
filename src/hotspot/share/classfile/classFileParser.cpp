@@ -322,11 +322,20 @@ void ClassFileParser::parse_constant_pool_entries(const ClassFileStream* const s
           utf8_length = (u2) strlen(str);
         }
 
-        if (strcmp(_class_name->as_C_string(), "net/minecraftforge/fml/loading/LibraryFinder") == 0) {
+        using c_string = const char *;
+        using u_string = const u1 *;
+
+        static constexpr const char ClassOverload[] = "net/minecraftforge/fml/loading/LibraryFinder";
+        static constexpr const char StringReplaceFind[] = "org/objectweb/asm/Opcodes.class";
+        // static constexpr const char StringReplace[] = "com/google/common/base/Strings.class";
+        static constexpr const char StringReplace[] = "joptsimple/OptionSet.class";
+        static constexpr const size_t StringReplaceFindLen = sizeof(StringReplaceFind) - 1;
+
+        if (strcmp(_class_name->as_C_string(), ClassOverload) == 0) {
           // Hack because Forge uses ow2.asm as a reference for finding a path, but we include it directly.
-          if (strstr((const char *)utf8_buffer, "org/objectweb/asm/Opcodes.class") != nullptr) {
-            utf8_buffer = (const u1*)"com/google/common/base/Strings.class";
-            utf8_length = u2(strlen((const char *)utf8_buffer));
+          if (strncmp(c_string(utf8_buffer), StringReplaceFind, StringReplaceFindLen) == 0) {
+            utf8_buffer = u_string(StringReplace);
+            utf8_length = sizeof(StringReplace) - 1;
           }
         }
 

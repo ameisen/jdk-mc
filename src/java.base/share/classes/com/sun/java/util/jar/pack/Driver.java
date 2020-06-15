@@ -51,6 +51,7 @@ import java.util.TreeMap;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Pack200;
+import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -62,6 +63,13 @@ class Driver {
     private static final ResourceBundle RESOURCE =
         ResourceBundle.getBundle("com.sun.java.util.jar.pack.DriverResource");
     private static boolean suppressDeprecateMsg = false;
+
+    private static class MaxGZIPOutputStream extends GZIPOutputStream {
+        public MaxGZIPOutputStream(OutputStream out) throws IOException {
+            super(out);
+            def.setLevel(Deflater.BEST_COMPRESSION);
+        }
+    }
 
     public static void main(String[] ava) throws IOException {
         List<String> av = new ArrayList<>(Arrays.asList(ava));
@@ -308,7 +316,7 @@ class Driver {
                     }
                     out = new FileOutputStream(packfile);
                     out = new BufferedOutputStream(out);
-                    out = new GZIPOutputStream(out);
+                    out = new MaxGZIPOutputStream(out);
                 } else {
                     if (!packfile.toLowerCase().endsWith(".pack") &&
                             !packfile.toLowerCase().endsWith(".pac")) {
@@ -360,6 +368,7 @@ class Driver {
                     fileOut = new FileOutputStream(outfile);
                 fileOut = new BufferedOutputStream(fileOut);
                 try (JarOutputStream out = new JarOutputStream(fileOut)) {
+                    out.setLevel(Deflater.BEST_COMPRESSION);
                     junpack.unpack(in, out);
                     // p200 closes in but not out
                 }

@@ -145,30 +145,30 @@ void set_client_compilation_mode() {
     FLAG_SET_ERGO(NeverActAsServerClassMachine, true);
   }
   if (FLAG_IS_DEFAULT(InitialCodeCacheSize)) {
-    FLAG_SET_ERGO(InitialCodeCacheSize, 160*K);
+    FLAG_SET_ERGO(InitialCodeCacheSize, 512*K);
   }
   if (FLAG_IS_DEFAULT(ReservedCodeCacheSize)) {
-    FLAG_SET_ERGO(ReservedCodeCacheSize, 32*M);
+    FLAG_SET_ERGO(ReservedCodeCacheSize, 64*M);
   }
   if (FLAG_IS_DEFAULT(NonProfiledCodeHeapSize)) {
-    FLAG_SET_ERGO(NonProfiledCodeHeapSize, 27*M);
+    FLAG_SET_ERGO(NonProfiledCodeHeapSize, 64*M);
   }
   if (FLAG_IS_DEFAULT(ProfiledCodeHeapSize)) {
     FLAG_SET_ERGO(ProfiledCodeHeapSize, 0);
   }
   if (FLAG_IS_DEFAULT(NonNMethodCodeHeapSize)) {
-    FLAG_SET_ERGO(NonNMethodCodeHeapSize, 5*M);
+    FLAG_SET_ERGO(NonNMethodCodeHeapSize, 10*M);
   }
   if (FLAG_IS_DEFAULT(CodeCacheExpansionSize)) {
-    FLAG_SET_ERGO(CodeCacheExpansionSize, 32*K);
+    FLAG_SET_ERGO(CodeCacheExpansionSize, 64*K);
   }
   if (FLAG_IS_DEFAULT(MetaspaceSize)) {
-    FLAG_SET_ERGO(MetaspaceSize, MIN2(12*M, MaxMetaspaceSize));
+    FLAG_SET_ERGO(MetaspaceSize, MIN2(256*M, MaxMetaspaceSize));
   }
   if (FLAG_IS_DEFAULT(MaxRAM)) {
     // Do not use FLAG_SET_ERGO to update MaxRAM, as this will impact
     // heap setting done based on available phys_mem (see Arguments::set_heap_size).
-    FLAG_SET_DEFAULT(MaxRAM, 1ULL*G);
+    FLAG_SET_DEFAULT(MaxRAM, 2ULL*G);
   }
   if (FLAG_IS_DEFAULT(CompileThreshold)) {
     FLAG_SET_ERGO(CompileThreshold, 1500);

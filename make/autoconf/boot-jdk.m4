@@ -419,7 +419,7 @@ AC_DEFUN_ONCE([BOOTJDK_SETUP_BOOT_JDK_ARGUMENTS],
   # Maximum amount of heap memory and stack size.
   JVM_HEAP_LIMIT_32="768"
   # Running a 64 bit JVM allows for and requires a bigger heap
-  JVM_HEAP_LIMIT_64="1600"
+  JVM_HEAP_LIMIT_64="3200"
   STACK_SIZE_32=768
   STACK_SIZE_64=1536
   JVM_HEAP_LIMIT_GLOBAL=`expr $MEMORY_SIZE / 2`
@@ -446,7 +446,7 @@ AC_DEFUN_ONCE([BOOTJDK_SETUP_BOOT_JDK_ARGUMENTS],
 
   AC_MSG_RESULT([$boot_jdk_jvmargs_big])
 
-  JAVA_FLAGS_BIG=$boot_jdk_jvmargs_big
+  JAVA_FLAGS_BIG=$boot_jdk_jvmargs_big -XX:-UseZGC -XX:-UseShenandoahGC -XX:+UseG1GC -XX:-UseLargePages -XX:-UseLargePagesIndividualAllocation -XX:-UseLargePagesInMetaspace
   AC_SUBST(JAVA_FLAGS_BIG)
 
   if test "x$OPENJDK_TARGET_CPU_BITS" = "x32"; then
@@ -458,6 +458,7 @@ AC_DEFUN_ONCE([BOOTJDK_SETUP_BOOT_JDK_ARGUMENTS],
   fi
   BOOTCYCLE_JVM_ARGS_BIG="$BOOTCYCLE_JVM_ARGS_BIG -Xmx${BOOTCYCLE_MAX_HEAP}M"
   BOOTCYCLE_JVM_ARGS_BIG="$BOOTCYCLE_JVM_ARGS_BIG -XX:ThreadStackSize=$BOOTCYCLE_STACK_SIZE"
+  BOOTCYCLE_JVM_ARGS_BIG="$BOOTCYCLE_JVM_ARGS_BIG -XX:ThreadStackSize=$BOOTCYCLE_STACK_SIZE -XX:-UseZGC -XX:-UseShenandoahGC -XX:+UseG1GC -XX:-UseLargePages -XX:-UseLargePagesIndividualAllocation -XX:-UseLargePagesInMetaspace"
   AC_MSG_CHECKING([flags for bootcycle boot jdk java command for big workloads])
   AC_MSG_RESULT([$BOOTCYCLE_JVM_ARGS_BIG])
   AC_SUBST(BOOTCYCLE_JVM_ARGS_BIG)
@@ -471,12 +472,12 @@ AC_DEFUN_ONCE([BOOTJDK_SETUP_BOOT_JDK_ARGUMENTS],
   # Use serial gc for small short lived tools if possible
   ADD_JVM_ARG_IF_OK([-XX:+UseShenandoah],boot_jdk_jvmargs_small,[$JAVA])
   ADD_JVM_ARG_IF_OK([-Xms32M],boot_jdk_jvmargs_small,[$JAVA])
-  ADD_JVM_ARG_IF_OK([-Xmx512M],boot_jdk_jvmargs_small,[$JAVA])
+  ADD_JVM_ARG_IF_OK([-Xmx1G],boot_jdk_jvmargs_small,[$JAVA])
   ADD_JVM_ARG_IF_OK([-XX:TieredStopAtLevel=1],boot_jdk_jvmargs_small,[$JAVA])
 
   AC_MSG_RESULT([$boot_jdk_jvmargs_small])
 
-  JAVA_FLAGS_SMALL=$boot_jdk_jvmargs_small
+  JAVA_FLAGS_SMALL=$boot_jdk_jvmargs_big -XX:-UseZGC -XX:-UseShenandoahGC -XX:+UseG1GC -XX:-UseLargePages -XX:-UseLargePagesIndividualAllocation -XX:-UseLargePagesInMetaspace
   AC_SUBST(JAVA_FLAGS_SMALL)
 
   JAVA_TOOL_FLAGS_SMALL=""

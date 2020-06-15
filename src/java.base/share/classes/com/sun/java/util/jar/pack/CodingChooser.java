@@ -1179,7 +1179,7 @@ class CodingChooser {
     }
 
     private Sizer zipSizer  = new Sizer();
-    private Deflater zipDef = new Deflater();
+    private Deflater zipDef = new Deflater(Deflater.BEST_COMPRESSION);
     private DeflaterOutputStream zipOut = new DeflaterOutputStream(zipSizer, zipDef);
     private Sizer byteSizer = new Sizer(zipOut);
     private Sizer byteOnlySizer = new Sizer();

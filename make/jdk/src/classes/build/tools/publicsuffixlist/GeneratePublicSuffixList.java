@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -76,6 +77,8 @@ public final class GeneratePublicSuffixList {
         try (FileInputStream fis = new FileInputStream(args[0]);
              ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(args[1])))
         {
+            zos.setLevel(Deflater.BEST_COMPRESSION);
+
             BufferedReader br =
                 new BufferedReader(new InputStreamReader(fis, "UTF-8"));
 

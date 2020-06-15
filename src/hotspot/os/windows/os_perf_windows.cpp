@@ -952,7 +952,7 @@ static void pdh_release() {
   while (InterlockedCompareExchange(&critical_section, 0, 1) == 0);
 }
 
-class CPUPerformanceInterface::CPUPerformance : public CHeapObj<mtInternal> {
+class CPUPerformanceInterface::CPUPerformance final : public CHeapObj<mtInternal> {
   friend class CPUPerformanceInterface;
  private:
   CounterQueryP _context_switches;
@@ -968,7 +968,7 @@ class CPUPerformanceInterface::CPUPerformance : public CHeapObj<mtInternal> {
   bool initialize();
 };
 
-class SystemProcessInterface::SystemProcesses : public CHeapObj<mtInternal> {
+class SystemProcessInterface::SystemProcesses final : public CHeapObj<mtInternal> {
   friend class SystemProcessInterface;
  private:
   class ProcessIterator : public CHeapObj<mtInternal> {

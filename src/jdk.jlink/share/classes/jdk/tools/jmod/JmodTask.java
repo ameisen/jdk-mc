@@ -82,6 +82,7 @@ import java.util.jar.JarOutputStream;
 import java.util.stream.Collectors;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -977,6 +978,7 @@ public class JmodTask {
                  OutputStream out = Files.newOutputStream(tempTarget);
                  JarOutputStream jos = new JarOutputStream(out))
             {
+                jos.setLevel(Deflater.BEST_COMPRESSION);
                 jf.stream().forEach(e -> {
                     try (InputStream in = jf.getInputStream(e)) {
                         if (e.getName().equals(MODULE_INFO)) {

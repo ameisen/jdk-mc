@@ -92,7 +92,7 @@ static double zero = 0.0;       /* used as const */
         double x,y; int type;
 #endif
 {
-        struct exception exc;
+        struct exception exc = exc;
 #ifndef HUGE_VAL        /* this is the only routine that uses HUGE_VAL */
 #define HUGE_VAL inf
         double inf = 0.0;
@@ -106,6 +106,7 @@ static double zero = 0.0;       /* used as const */
         exc.arg1 = x;
         exc.arg2 = y;
         switch(type) {
+            default:
             case 1:
                 /* acos(|x|>1) */
                 exc.type = DOMAIN;

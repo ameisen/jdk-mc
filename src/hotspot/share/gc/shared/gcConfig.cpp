@@ -127,6 +127,16 @@ bool GCConfig::is_no_gc_selected() {
 }
 
 bool GCConfig::is_exactly_one_gc_selected() {
+  // In Preferential Order...
+  if (UseShenandoahGC) {
+    UseZGC = false;
+    UseG1GC = false;
+  }
+  else if (UseZGC) {
+    UseG1GC = false;
+  }
+  // ~~ Carbide
+
   CollectedHeap::Name selected = CollectedHeap::None;
 
   FOR_EACH_INCLUDED_GC(gc) {

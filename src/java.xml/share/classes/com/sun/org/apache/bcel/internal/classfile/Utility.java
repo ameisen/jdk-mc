@@ -33,6 +33,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -47,6 +48,13 @@ import com.sun.org.apache.bcel.internal.util.ByteSequence;
  */
 // @since 6.0 methods are no longer final
 public abstract class Utility {
+
+    private static class MaxGZIPOutputStream extends GZIPOutputStream {
+        public MaxGZIPOutputStream(ByteArrayOutputStream out) throws IOException {
+            super(out);
+            def.setLevel(Deflater.BEST_COMPRESSION);
+        }
+    }
 
     private static int unwrap( final ThreadLocal<Integer> tl ) {
         return tl.get();
@@ -1312,7 +1320,7 @@ public abstract class Utility {
     public static String encode(byte[] bytes, final boolean compress) throws IOException {
         if (compress) {
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    GZIPOutputStream gos = new GZIPOutputStream(baos)) {
+                MaxGZIPOutputStream gos = new MaxGZIPOutputStream(baos)) {
                 gos.write(bytes, 0, bytes.length);
                 bytes = baos.toByteArray();
             }

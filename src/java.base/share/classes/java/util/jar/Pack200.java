@@ -25,6 +25,7 @@
 package java.util.jar;
 
 import java.util.SortedMap;
+import java.util.zip.Deflater;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.File;

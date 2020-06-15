@@ -303,7 +303,7 @@ MAKECMD =
 INSTALLCMD = install
 
 
-declare_tools = CC$(1)=$(2)gcc LD$(1)=$(2)ld AR$(1)=$(2)ar AS$(1)=$(2)as RANLIB$(1)=$(2)ranlib CXX$(1)=$(2)g++ OBJDUMP$(1)=$(2)objdump
+declare_tools = CC$(1)=$(2)gcc LD$(1)=$(2)ld AR$(1)=$(2)ar AS$(1)=$(2)as RANLIB$(1)=$(2)gcc-ranlib CXX$(1)=$(2)g++ OBJDUMP$(1)=$(2)objdump
 
 ifeq ($(HOST),$(BUILD))
   ifeq ($(HOST),$(TARGET))

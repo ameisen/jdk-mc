@@ -298,20 +298,42 @@ def edump(name, value)
 	eputs "#{name} = #{value}"
 end
 
+class Object
+	def maybe_synchronize
+		if (self.nil?)
+			yield
+		else
+			self.synchronize {
+				yield
+			}
+		end
+	end
+end
+
+def stream_stream(in_stream, out_stream, lock)
+	return Thread.new {
+		begin
+			in_stream.each {|l|
+				lock.maybe_synchronize {
+					out_stream.puts l
+				}
+			}
+		rescue
+		end
+	}
+end
+
 def execute(*cmd)
 		Open3.popen3(*cmd) { |stdin, stdout, stderr, wait_thr|
 			io_lock = Mutex.new
 
-			Thread.new do
-				stdout.each {|l| io_lock.synchronize { STDOUT.puts l } }
-			end
-
-			Thread.new do
-				stderr.each {|l| io_lock.synchronize { STDERR.puts l } }
-			end
+			thread_stdout = stream_stream(stdout, STDOUT, io_lock)
+			thread_stdin = stream_stream(stderr, STDERR, io_lock)
 
 			stdin.close
 
+			thread_stdout.join
+			thread_stdin.join
 			wait_thr.value
 		}
 end

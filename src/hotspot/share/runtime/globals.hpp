@@ -180,16 +180,16 @@ const size_t minimumSymbolTableSize = 1024;
           "Print information about Java monitor locks when the stacks are"  \
           "dumped")                                                         \
                                                                             \
-  product(bool, UseLargePages, true,                                        \
+  product(bool, UseLargePages, false,                                        \
           "Use large page memory")                                          \
                                                                             \
-  product(bool, UseLargePagesIndividualAllocation, true,                    \
+  product(bool, UseLargePagesIndividualAllocation, false,                    \
           "Allocate large pages individually for better affinity")          \
                                                                             \
   develop(bool, LargePagesIndividualAllocationInjectError, false,           \
           "Fail large pages individual allocation")                         \
                                                                             \
-  product(bool, UseLargePagesInMetaspace, true,                             \
+  product(bool, UseLargePagesInMetaspace, false,                             \
           "Use large page memory in metaspace. "                            \
           "Only used if UseLargePages is enabled.")                         \
                                                                             \

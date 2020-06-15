@@ -38,6 +38,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import sun.util.logging.PlatformLogger;
 
@@ -245,6 +246,7 @@ class Utils {
         out = new BufferedOutputStream(out);
         out = new NonCloser(out); // protect from JarOutputStream.close()
         try (JarOutputStream jout = new JarOutputStream(out)) {
+            jout.setLevel(Deflater.BEST_COMPRESSION);
             copyJarFile(in, jout);
         }
     }
@@ -254,6 +256,7 @@ class Utils {
         out = new BufferedOutputStream(out);
         out = new NonCloser(out); // protect from JarOutputStream.close()
         try (JarOutputStream jout = new JarOutputStream(out)) {
+            jout.setLevel(Deflater.BEST_COMPRESSION);
             copyJarFile(in, jout);
         }
     }

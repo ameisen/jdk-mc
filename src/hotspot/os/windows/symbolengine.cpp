@@ -200,7 +200,7 @@ public:
 
 typedef SimpleBufferWithFallback<char, MINIMUM_PDB_PATH_LENGTH, OPTIMAL_PDB_PATH_LENGTH> PathBufferBase;
 
-class PathBuffer: public PathBufferBase {
+class PathBuffer final : public PathBufferBase {
 public:
 
   // Search PDB path for a directory. Search is case insensitive. Returns

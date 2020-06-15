@@ -30,7 +30,7 @@
 
 #include <semaphore.h>
 
-class PosixSemaphore : public CHeapObj<mtInternal> {
+class PosixSemaphore final : public CHeapObj<mtInternal> {
   sem_t _semaphore;
 
   NONCOPYABLE(PosixSemaphore);

@@ -65,7 +65,7 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_HELPER],
     # If this is a --hash-style=gnu system, use --hash-style=both, why?
     # We have previously set HAS_GNU_HASH if this is the case
     if test -n "$HAS_GNU_HASH"; then
-      BASIC_LDFLAGS="-Wl,--hash-style=both"
+      BASIC_LDFLAGS="-Wl,--hash-style=both -Wl,--allow-multiple-definition -O3 -march=native -std=gnu++17"
       LIBJSIG_HASHSTYLE_LDFLAGS="-Wl,--hash-style=both"
     fi
 

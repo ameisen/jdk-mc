@@ -1,0 +1,5 @@
+#!/usr/bin/env truffleruby
+
+require "#{__dir__}/.common.rb"
+
+call(*ARGV)

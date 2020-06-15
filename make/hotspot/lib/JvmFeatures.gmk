@@ -196,8 +196,30 @@ ifeq ($(call check-jvm-feature, link-time-opt), true)
     JVM_CFLAGS_FEATURES += /GL
     JVM_LDFLAGS_FEATURES += /LTCG
   else
-    JVM_CFLAGS_FEATURES += -O3 -flto
-    JVM_LDFLAGS_FEATURES += -O3 -flto -fuse-linker-plugin -fno-strict-aliasing
+    ifeq ($(TOOLCHAIN_TYPE), clang)
+      JVM_CFLAGS_FEATURES += -flto=thin
+      JVM_LDFLAGS_FEATURES += -flto=thin
+    else
+      JVM_CFLAGS_FEATURES += -flto -fuse-linker-plugin
+      JVM_LDFLAGS_FEATURES += -flto -fuse-linker-plugin
+    endif
+  endif
+endif
+
+ifeq ($(TOOLCHAIN_TYPE), clang)
+  JVM_CFLAGS_FEATURES_ALL += -O3 -fno-strict-aliasing -std=gnu++17 -fPIC -march=native
+  JVM_CFLAGS_FEATURES_ALL += -Wno-assume -Wno-deprecated-copy -Wno-deprecated-volatile -Wno-deprecated-anon-enum-enum-conversion
+  JVM_CFLAGS_FEATURES_ALL += -Wno-ambiguous-reversed-operator -Wno-deprecated-enum-enum-conversion -Wno-misleading-indentation
+  JVM_CFLAGS_FEATURES_ALL += -Wno-deprecated-enum-float-conversion -Wno-maybe-uninitialized
+  JVM_CFLAGS_FEATURES_ALL += -Wno-error -Wno-unused-command-line-argument
+  JVM_CFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL)
+  JVM_LDFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL)
+else
+  ifeq ($(TOOLCHAIN_TYPE), gcc)
+    JVM_CFLAGS_FEATURES_ALL += -O3 -fno-strict-aliasing -std=gnu++17 -march=native
+    JVM_CFLAGS_FEATURES_ALL += -Wno-stringop-truncation -Wno-stringop-overflow
+    JVM_CFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL)
+    JVM_LDFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL) -Wl,--allow-multiple-definition
   endif
 endif
 

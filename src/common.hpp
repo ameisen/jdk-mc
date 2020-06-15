@@ -55,7 +55,7 @@ namespace carbide {
 				}
 			}();
 			template <typename T> static constexpr const bool by_value = (sizeof(T) <= value_reference_crossover) && std::is_trivially_copyable_v<T>;
-			template <typename T> static constexpr const bool by_reference = !pass_by_value<T>;
+			template <typename T> static constexpr const bool by_reference = !by_value<T>;
 		}
 	}
 

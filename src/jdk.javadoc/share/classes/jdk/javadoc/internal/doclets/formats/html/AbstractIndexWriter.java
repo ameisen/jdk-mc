@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -497,6 +498,7 @@ public class AbstractIndexWriter extends HtmlDocletWriter {
             DocFile zipFile = DocFile.createFileForOutput(configuration, searchIndexZip);
             try (OutputStream fos = zipFile.openOutputStream();
                     ZipOutputStream zos = new ZipOutputStream(fos)) {
+                zos.setLevel(Deflater.BEST_COMPRESSION);
                 try {
                     ZipEntry ze = new ZipEntry(searchIndexFile.getPath());
                     zos.putNextEntry(ze);

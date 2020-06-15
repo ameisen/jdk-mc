@@ -157,7 +157,7 @@ size_t ZBackingFile::uncommit(size_t offset, size_t length) {
   const void* const res = mmap((void*)start, length, PROT_NONE, MAP_FIXED | MAP_ANONYMOUS | MAP_PRIVATE | MAP_NORESERVE, -1, 0);
   if (res == MAP_FAILED) {
     ZErrno err;
-    log_error(gc)("Failed to uncommit memory (%s)", err.to_string());
+    //log_error(gc)("Failed to uncommit memory (%s)", err.to_string());
     return 0;
   }
 

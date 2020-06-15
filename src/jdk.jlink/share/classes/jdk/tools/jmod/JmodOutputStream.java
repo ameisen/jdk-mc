@@ -34,6 +34,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import jdk.internal.jmod.JmodFile;
@@ -57,6 +58,7 @@ class JmodOutputStream extends OutputStream implements AutoCloseable {
     private final ZipOutputStream zos;
     private JmodOutputStream(OutputStream out) {
         this.zos = new ZipOutputStream(out);
+        this.zos.setLevel(Deflater.BEST_COMPRESSION);
         try {
             JmodFile.writeMagicNumber(out);
         } catch (IOException e) {
@@ -114,4 +116,3 @@ class JmodOutputStream extends OutputStream implements AutoCloseable {
         zos.close();
     }
 }
-

@@ -53,6 +53,10 @@
 
 #include "java_net_InetAddress.h"
 
+#if !defined(__clang__) && defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif
+
 #if defined(__linux__)
     #define _PATH_PROCNET_IFINET6 "/proc/net/if_inet6"
 #elif defined(__solaris__)

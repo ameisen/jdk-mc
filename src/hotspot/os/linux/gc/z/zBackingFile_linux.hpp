@@ -28,7 +28,7 @@
 
 class ZErrno;
 
-class ZBackingFile {
+class ZBackingFile final {
 private:
   int      _fd;
   size_t   _size;

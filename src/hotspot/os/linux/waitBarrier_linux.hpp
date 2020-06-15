@@ -28,7 +28,7 @@
 #include "memory/allocation.hpp"
 #include "utilities/globalDefinitions.hpp"
 
-class LinuxWaitBarrier : public CHeapObj<mtInternal> {
+class LinuxWaitBarrier final : public CHeapObj<mtInternal> {
   volatile int _futex_barrier;
 
   NONCOPYABLE(LinuxWaitBarrier);

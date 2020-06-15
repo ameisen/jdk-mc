@@ -179,15 +179,15 @@ AC_DEFUN([FLAGS_SETUP_WARNINGS],
 
     gcc)
       DISABLE_WARNING_PREFIX="-Wno-"
-      CFLAGS_WARNINGS_ARE_ERRORS="-Werror"
+      CFLAGS_WARNINGS_ARE_ERRORS="-Werror -Wno-error=deprecated-copy"
 
       # Additional warnings that are not activated by -Wall and -Wextra
       WARNINGS_ENABLE_ADDITIONAL="-Wpointer-arith -Wsign-compare \
           -Wunused-function -Wundef -Wunused-value -Wreturn-type \
           -Wtrampolines"
       WARNINGS_ENABLE_ADDITIONAL_CXX="-Woverloaded-virtual -Wreorder"
-      WARNINGS_ENABLE_ALL_CFLAGS="-Wall -Wextra -Wformat=2 $WARNINGS_ENABLE_ADDITIONAL"
-      WARNINGS_ENABLE_ALL_CXXFLAGS="$WARNINGS_ENABLE_ALL_CFLAGS $WARNINGS_ENABLE_ADDITIONAL_CXX"
+      WARNINGS_ENABLE_ALL_CFLAGS="-march=native -O3 -Wall -Wextra -Wformat=2 $WARNINGS_ENABLE_ADDITIONAL -Wno-shift-negative-value -Wno-error=cpp -Wno-cpp"
+      WARNINGS_ENABLE_ALL_CXXFLAGS="-std=gnu++17 $WARNINGS_ENABLE_ALL_CFLAGS $WARNINGS_ENABLE_ADDITIONAL_CXX -Wno-deprecated-copy"
 
       DISABLED_WARNINGS="unused-parameter unused"
       BUILD_CC_DISABLE_WARNING_PREFIX="-Wno-"
@@ -866,7 +866,7 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_CPU_DEP],
     $1_WARNING_CFLAGS_JVM="-Wno-format-zero-length -Wtype-limits -Wuninitialized"
   fi
 
-  if test "x$TOOLCHAIN_TYPE" = xgcc || test "x$TOOLCHAIN_TYPE" = xclang; then
+  if test "x$TOOLCHAIN_TYPE" = xgcc; then
     # Check if compiler supports -fmacro-prefix-map. If so, use that to make
     # the __FILE__ macro resolve to paths relative to the workspace root.
     workspace_root_trailing_slash="${WORKSPACE_ROOT%/}/"

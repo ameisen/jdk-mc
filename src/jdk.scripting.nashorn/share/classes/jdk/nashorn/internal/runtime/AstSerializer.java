@@ -39,7 +39,7 @@ import jdk.nashorn.internal.runtime.options.Options;
 final class AstSerializer {
     // Experimentally, we concluded that compression level 4 gives a good tradeoff between serialization speed
     // and size.
-    private static final int COMPRESSION_LEVEL = Options.getIntProperty("nashorn.serialize.compression", 4);
+    private static final int COMPRESSION_LEVEL = Options.getIntProperty("nashorn.serialize.compression", 9);
     static byte[] serialize(final FunctionNode fn) {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final Deflater deflater = new Deflater(COMPRESSION_LEVEL);

@@ -29,7 +29,7 @@
 
 #include <Windows.h>
 
-class ZBackingFile {
+class ZBackingFile final {
 private:
   ZGranuleMap<HANDLE> _handles;
   size_t              _size;
