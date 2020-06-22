@@ -98,23 +98,23 @@ define_pd_global(intx, InitArrayShortSize, 8*BytesPerLong);
                    constraint, \
                    writeable) \
                                                                             \
-  develop(bool, IEEEPrecision, false,                                        \
+  develop(bool, IEEEPrecision, true,                                        \
           "Enables IEEE precision (for INTEL only)")                        \
                                                                             \
   product(bool, UseStoreImmI16, true,                                       \
           "Use store immediate 16-bits value instruction on x86")           \
                                                                             \
-  product(intx, UseAVX, 99,                                                  \
+  product(intx, UseAVX, 3,                                                  \
           "Highest supported AVX instructions set on x86/x64")              \
           range(0, 99)                                                      \
                                                                             \
-  product(bool, UseCLMUL, true,                                            \
+  product(bool, UseCLMUL, false,                                            \
           "Control whether CLMUL instructions can be used on x86/x64")      \
                                                                             \
   diagnostic(bool, UseIncDec, true,                                         \
           "Use INC, DEC instructions on x86")                               \
                                                                             \
-  product(bool, UseNewLongLShift, true,                                    \
+  product(bool, UseNewLongLShift, false,                                    \
           "Use optimized bitwise shift left")                               \
                                                                             \
   product(bool, UseAddressNop, false,                                       \
@@ -126,19 +126,19 @@ define_pd_global(intx, InitArrayShortSize, 8*BytesPerLong);
   product(bool, UseXmmRegToRegMoveAll, false,                               \
           "Copy all XMM register bits when moving value between registers") \
                                                                             \
-  product(bool, UseXmmI2D, true,                                           \
+  product(bool, UseXmmI2D, false,                                           \
           "Use SSE2 CVTDQ2PD instruction to convert Integer to Double")     \
                                                                             \
-  product(bool, UseXmmI2F, true,                                           \
+  product(bool, UseXmmI2F, false,                                           \
           "Use SSE2 CVTDQ2PS instruction to convert Integer to Float")      \
                                                                             \
-  product(bool, UseUnalignedLoadStores, true,                              \
+  product(bool, UseUnalignedLoadStores, false,                              \
           "Use SSE2 MOVDQU instruction for Arraycopy")                      \
                                                                             \
-  product(bool, UseXMMForObjInit, true,                                    \
+  product(bool, UseXMMForObjInit, false,                                    \
           "Use XMM/YMM MOVDQU instruction for Object Initialization")       \
                                                                             \
-  product(bool, UseFastStosb, true,                                        \
+  product(bool, UseFastStosb, false,                                        \
           "Use fast-string operation for zeroing: rep stosb")               \
                                                                             \
   /* Use Restricted Transactional Memory for lock eliding */                \
@@ -185,19 +185,19 @@ define_pd_global(intx, InitArrayShortSize, 8*BytesPerLong);
           "Use RTM Xend instead of Xabort when lock busy")                  \
                                                                             \
   /* assembler */                                                           \
-  product(bool, UseCountLeadingZerosInstruction, true,                     \
+  product(bool, UseCountLeadingZerosInstruction, false,                     \
           "Use count leading zeros instruction")                            \
                                                                             \
-  product(bool, UseCountTrailingZerosInstruction, true,                    \
+  product(bool, UseCountTrailingZerosInstruction, false,                    \
           "Use count trailing zeros instruction")                           \
                                                                             \
-  product(bool, UseSSE42Intrinsics, true,                                  \
+  product(bool, UseSSE42Intrinsics, false,                                  \
           "SSE4.2 versions of intrinsics")                                  \
                                                                             \
-  product(bool, UseBMI1Instructions, true,                                 \
+  product(bool, UseBMI1Instructions, false,                                 \
           "Use BMI1 instructions")                                          \
                                                                             \
-  product(bool, UseBMI2Instructions, true,                                 \
+  product(bool, UseBMI2Instructions, false,                                 \
           "Use BMI2 instructions")                                          \
                                                                             \
   diagnostic(bool, UseLibmIntrinsic, true,                                  \

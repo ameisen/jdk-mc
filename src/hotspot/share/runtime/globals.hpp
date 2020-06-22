@@ -138,15 +138,15 @@ const size_t minimumSymbolTableSize = 1024;
                       constraint, \
                       writeable) \
                                                                             \
-  lp64_product(bool, UseCompressedOops, true,                               \
+  lp64_product(bool, UseCompressedOops, false,                              \
           "Use 32-bit object references in 64-bit VM. "                     \
           "lp64_product means flag is always constant in 32 bit VM")        \
                                                                             \
-  lp64_product(bool, UseCompressedClassPointers, true,                      \
+  lp64_product(bool, UseCompressedClassPointers, false,                     \
           "Use 32-bit class pointers in 64-bit VM. "                        \
           "lp64_product means flag is always constant in 32 bit VM")        \
                                                                             \
-  notproduct(bool, CheckCompressedOops, false,                              \
+  notproduct(bool, CheckCompressedOops, true,                               \
           "Generate checks in encoding/decoding code in debug VM")          \
                                                                             \
   product(uintx, HeapSearchSteps, 3 PPC64_ONLY(+17),                        \
@@ -172,7 +172,7 @@ const size_t minimumSymbolTableSize = 1024;
   diagnostic(bool, UnlockDiagnosticVMOptions, trueInDebug,                  \
           "Enable normal processing of flags relating to field diagnostics")\
                                                                             \
-  experimental(bool, UnlockExperimentalVMOptions, true,                     \
+  experimental(bool, UnlockExperimentalVMOptions, false,                    \
           "Enable normal processing of flags relating to experimental "     \
           "features")                                                       \
                                                                             \
@@ -180,20 +180,20 @@ const size_t minimumSymbolTableSize = 1024;
           "Print information about Java monitor locks when the stacks are"  \
           "dumped")                                                         \
                                                                             \
-  product(bool, UseLargePages, false,                                        \
+  product_pd(bool, UseLargePages,                                           \
           "Use large page memory")                                          \
                                                                             \
-  product(bool, UseLargePagesIndividualAllocation, false,                    \
+  product_pd(bool, UseLargePagesIndividualAllocation,                       \
           "Allocate large pages individually for better affinity")          \
                                                                             \
   develop(bool, LargePagesIndividualAllocationInjectError, false,           \
           "Fail large pages individual allocation")                         \
                                                                             \
-  product(bool, UseLargePagesInMetaspace, false,                             \
+  product(bool, UseLargePagesInMetaspace, false,                            \
           "Use large page memory in metaspace. "                            \
           "Only used if UseLargePages is enabled.")                         \
                                                                             \
-  product(bool, UseNUMA, true,                                              \
+  product(bool, UseNUMA, false,                                             \
           "Use NUMA if available")                                          \
                                                                             \
   product(bool, UseNUMAInterleaving, false,                                 \
@@ -230,30 +230,30 @@ const size_t minimumSymbolTableSize = 1024;
           "Highest supported SSE instructions set on x86/x64")              \
           range(0, 99)                                                      \
                                                                             \
-  product(bool, UseAES, true,                                               \
+  product(bool, UseAES, false,                                              \
           "Control whether AES instructions are used when available")       \
                                                                             \
-  product(bool, UseFMA, true,                                               \
+  product(bool, UseFMA, false,                                              \
           "Control whether FMA instructions are used when available")       \
                                                                             \
-  product(bool, UseSHA, true,                                               \
+  product(bool, UseSHA, false,                                              \
           "Control whether SHA instructions are used when available")       \
                                                                             \
-  diagnostic(bool, UseGHASHIntrinsics, true,                                \
+  diagnostic(bool, UseGHASHIntrinsics, false,                               \
           "Use intrinsics for GHASH versions of crypto")                    \
                                                                             \
-  product(bool, UseBASE64Intrinsics, true,                                  \
+  product(bool, UseBASE64Intrinsics, false,                                 \
           "Use intrinsics for java.util.Base64")                            \
                                                                             \
   product(size_t, LargePageSizeInBytes, 0,                                  \
           "Large page size (0 to let VM choose the page size)")             \
           range(0, max_uintx)                                               \
                                                                             \
-  product(size_t, LargePageHeapSizeThreshold, 16*M,                         \
+  product(size_t, LargePageHeapSizeThreshold, 128*M,                        \
           "Use large pages if maximum heap is at least this big")           \
           range(0, max_uintx)                                               \
                                                                             \
-  product(bool, ForceTimeHighResolution, true,                              \
+  product(bool, ForceTimeHighResolution, false,                             \
           "Using high time resolution (for Win32 only)")                    \
                                                                             \
   develop(bool, TracePcPatching, false,                                     \
@@ -274,7 +274,7 @@ const size_t minimumSymbolTableSize = 1024;
           "Generate a lot of handshakes. This works with "                  \
           "GuaranteedSafepointInterval")                                    \
                                                                             \
-  product(bool, BackgroundCompilation, true,                                \
+  product_pd(bool, BackgroundCompilation,                                   \
           "A thread requesting compilation is not blocked during "          \
           "compilation")                                                    \
                                                                             \
@@ -336,34 +336,34 @@ const size_t minimumSymbolTableSize = 1024;
   notproduct(bool, StressCriticalJNINatives, false,                         \
           "Exercise register saving code in critical natives")              \
                                                                             \
-  diagnostic(bool, UseAESIntrinsics, true,                                  \
+  diagnostic(bool, UseAESIntrinsics, false,                                 \
           "Use intrinsics for AES versions of crypto")                      \
                                                                             \
-  diagnostic(bool, UseAESCTRIntrinsics, true,                               \
+  diagnostic(bool, UseAESCTRIntrinsics, false,                              \
           "Use intrinsics for the paralleled version of AES/CTR crypto")    \
                                                                             \
-  diagnostic(bool, UseSHA1Intrinsics, true,                                 \
+  diagnostic(bool, UseSHA1Intrinsics, false,                                \
           "Use intrinsics for SHA-1 crypto hash function. "                 \
           "Requires that UseSHA is enabled.")                               \
                                                                             \
-  diagnostic(bool, UseSHA256Intrinsics, true,                               \
+  diagnostic(bool, UseSHA256Intrinsics, false,                              \
           "Use intrinsics for SHA-224 and SHA-256 crypto hash functions. "  \
           "Requires that UseSHA is enabled.")                               \
                                                                             \
-  diagnostic(bool, UseSHA512Intrinsics, true,                               \
+  diagnostic(bool, UseSHA512Intrinsics, false,                              \
           "Use intrinsics for SHA-384 and SHA-512 crypto hash functions. "  \
           "Requires that UseSHA is enabled.")                               \
                                                                             \
-  diagnostic(bool, UseCRC32Intrinsics, true,                                \
+  diagnostic(bool, UseCRC32Intrinsics, false,                               \
           "use intrinsics for java.util.zip.CRC32")                         \
                                                                             \
-  diagnostic(bool, UseCRC32CIntrinsics, true,                               \
+  diagnostic(bool, UseCRC32CIntrinsics, false,                              \
           "use intrinsics for java.util.zip.CRC32C")                        \
                                                                             \
-  diagnostic(bool, UseAdler32Intrinsics, true,                              \
+  diagnostic(bool, UseAdler32Intrinsics, false,                             \
           "use intrinsics for java.util.zip.Adler32")                       \
                                                                             \
-  diagnostic(bool, UseVectorizedMismatchIntrinsic, true,                    \
+  diagnostic(bool, UseVectorizedMismatchIntrinsic, false,                   \
           "Enables intrinsification of ArraysSupport.vectorizedMismatch()") \
                                                                             \
   diagnostic(ccstrlist, DisableIntrinsic, "",                               \
@@ -427,14 +427,14 @@ const size_t minimumSymbolTableSize = 1024;
   product(bool, MaxFDLimit, true,                                           \
           "Bump the number of file descriptors to maximum in Solaris")      \
                                                                             \
-  diagnostic(bool, LogEvents, false,                                         \
+  diagnostic(bool, LogEvents, true,                                         \
           "Enable the various ring buffer event logs")                      \
                                                                             \
   diagnostic(uintx, LogEventsBufferEntries, 20,                             \
           "Number of ring buffer event logs")                               \
           range(1, NOT_LP64(1*K) LP64_ONLY(1*M))                            \
                                                                             \
-  diagnostic(bool, BytecodeVerificationRemote, false,                       \
+  diagnostic(bool, BytecodeVerificationRemote, true,                        \
           "Enable the Java bytecode verifier for remote classes")           \
                                                                             \
   diagnostic(bool, BytecodeVerificationLocal, false,                        \
@@ -658,10 +658,10 @@ const size_t minimumSymbolTableSize = 1024;
   develop(bool, PrintCodeCacheExtension, false,                             \
           "Print extension of code cache")                                  \
                                                                             \
-  develop(bool, UsePrivilegedStack, false,                                  \
+  develop(bool, UsePrivilegedStack, true,                                   \
           "Enable the security JVM functions")                              \
                                                                             \
-  develop(bool, ProtectionDomainVerification, false,                        \
+  develop(bool, ProtectionDomainVerification, true,                         \
           "Verify protection domain before resolution in system dictionary")\
                                                                             \
   product(bool, ClassUnloading, true,                                       \
@@ -688,7 +688,7 @@ const size_t minimumSymbolTableSize = 1024;
           "loadClass() even for class loaders registering "                 \
           "as parallel capable")                                            \
                                                                             \
-  product(bool, AllowParallelDefineClass, true,                             \
+  product(bool, AllowParallelDefineClass, false,                            \
           "Allow parallel defineClass requests for class loaders "          \
           "registering as parallel capable")                                \
                                                                             \
@@ -775,10 +775,10 @@ const size_t minimumSymbolTableSize = 1024;
   develop(uintx, PreallocatedOutOfMemoryErrorCount, 4,                      \
           "Number of OutOfMemoryErrors preallocated with backtrace")        \
                                                                             \
-  product(bool, UseXMMForArrayCopy, true,                                   \
+  product(bool, UseXMMForArrayCopy, false,                                  \
           "Use SSE2 MOVQ instruction for Arraycopy")                        \
                                                                             \
-  product(intx, FieldsAllocationStyle, 2,                                   \
+  product(intx, FieldsAllocationStyle, 1,                                   \
           "(Deprecated) 0 - type based with oops first, "                   \
           "1 - with oops last, "                                            \
           "2 - oops in super and sub classes are together")                 \
@@ -1000,7 +1000,7 @@ const size_t minimumSymbolTableSize = 1024;
   product(bool, UseDynamicNumberOfCompilerThreads, true,                    \
           "Dynamically choose the number of parallel compiler threads")     \
                                                                             \
-  diagnostic(bool, ReduceNumberOfCompilerThreads, false,                    \
+  diagnostic(bool, ReduceNumberOfCompilerThreads, true,                     \
              "Reduce the number of parallel compiler threads when they "    \
              "are not used")                                                \
                                                                             \
@@ -1035,7 +1035,7 @@ const size_t minimumSymbolTableSize = 1024;
           "null (+offset) will not raise a SIGSEGV, i.e.,"                  \
           "ImplicitNullChecks don't work (PPC64).")                         \
                                                                             \
-  diagnostic(bool, EnableThreadSMRExtraValidityChecks, false,               \
+  diagnostic(bool, EnableThreadSMRExtraValidityChecks, true,                \
              "Enable Thread SMR extra validity checks")                     \
                                                                             \
   diagnostic(bool, EnableThreadSMRStatistics, trueInDebug,                  \
@@ -1059,7 +1059,7 @@ const size_t minimumSymbolTableSize = 1024;
   diagnostic(bool, PrintInlining, false,                                    \
           "Print inlining optimizations")                                   \
                                                                             \
-  product(bool, UsePopCountInstruction, true,                               \
+  product(bool, UsePopCountInstruction, false,                              \
           "Use population count instruction")                               \
                                                                             \
   develop(bool, EagerInitialization, false,                                 \
@@ -1216,7 +1216,7 @@ const size_t minimumSymbolTableSize = 1024;
           /* Note:  This value is zero mod 1<<13 for a cheap sparc set. */  \
           "Inline allocations larger than this in doublewords must go slow")\
                                                                             \
-  product(bool, CompactStrings, true,                                       \
+  product_pd(bool, CompactStrings,                                          \
           "Enable Strings to use single byte chars in backing store")       \
                                                                             \
   product_pd(uintx, TypeProfileLevel,                                       \
@@ -1256,10 +1256,10 @@ const size_t minimumSymbolTableSize = 1024;
           "Produce histogram of IC misses")                                 \
                                                                             \
   /* interpreter */                                                         \
-  product(bool, RewriteBytecodes, true,                                     \
+  product_pd(bool, RewriteBytecodes,                                        \
           "Allow rewriting of bytecodes (bytecodes are not immutable)")     \
                                                                             \
-  product(bool, RewriteFrequentPairs, true,                                 \
+  product_pd(bool, RewriteFrequentPairs,                                    \
           "Rewrite frequently used bytecode pairs into a single bytecode")  \
                                                                             \
   diagnostic(bool, PrintInterpreter, false,                                 \
@@ -1274,7 +1274,7 @@ const size_t minimumSymbolTableSize = 1024;
   product(bool, UseLoopCounter, true,                                       \
           "Increment invocation counter on backward branch")                \
                                                                             \
-  product(bool, UseOnStackReplacement, true,                                \
+  product_pd(bool, UseOnStackReplacement,                                   \
           "Use on stack replacement, calls runtime if invoc. counter "      \
           "overflows in loop")                                              \
                                                                             \
@@ -1323,7 +1323,7 @@ const size_t minimumSymbolTableSize = 1024;
   develop(bool, TraceFrequencyInlining, false,                              \
           "Trace frequency based inlining")                                 \
                                                                             \
-  develop(bool, InlineIntrinsics, true,                                     \
+  develop_pd(bool, InlineIntrinsics,                                        \
           "Inline intrinsics that can be statically resolved")              \
                                                                             \
   product_pd(bool, ProfileInterpreter,                                      \
@@ -1370,11 +1370,11 @@ const size_t minimumSymbolTableSize = 1024;
           "The minimum interval (in milliseconds) between invocation of "   \
           "CounterDecay")                                                   \
                                                                             \
-  product(bool, AlwaysCompileLoopMethods, true,                             \
+  product(bool, AlwaysCompileLoopMethods, false,                            \
           "When using recompilation, never interpret methods "              \
           "containing loops")                                               \
                                                                             \
-  product(bool, DontCompileHugeMethods, false,                              \
+  product(bool, DontCompileHugeMethods, true,                               \
           "Do not compile methods > HugeMethodLimit")                       \
                                                                             \
   /* Bytecode escape analysis estimation. */                                \
@@ -1390,11 +1390,11 @@ const size_t minimumSymbolTableSize = 1024;
           "Maximum number of nested calls that are analyzed by BC EA")      \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, MaxBCEAEstimateSize, 1500,                                  \
+  product(intx, MaxBCEAEstimateSize, 150,                                   \
           "Maximum bytecode size of a method to be analyzed by BC EA")      \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx,  AllocatePrefetchStyle, 2,                                  \
+  product(intx,  AllocatePrefetchStyle, 1,                                  \
           "0 = no prefetch, "                                               \
           "1 = generate prefetch instructions for each allocation, "        \
           "2 = use TLAB watermark to gate allocation prefetch, "            \
@@ -1456,7 +1456,7 @@ const size_t minimumSymbolTableSize = 1024;
   LP64_ONLY(range(0, max_intx/MICROUNITS))                                  \
   NOT_LP64(range(0, max_intx))                                              \
                                                                             \
-  product(intx, NmethodSweepActivity, 5,                                    \
+  product(intx, NmethodSweepActivity, 10,                                   \
           "Removes cold nmethods from code cache if > 0. Higher values "    \
           "result in more aggressive sweeping")                             \
           range(0, 2000)                                                    \
@@ -1489,7 +1489,7 @@ const size_t minimumSymbolTableSize = 1024;
           "maximum number of nested calls that are inlined")                \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, MaxRecursiveInlineLevel, 15,                                \
+  product(intx, MaxRecursiveInlineLevel, 1,                                 \
           "maximum number of nested recursive calls that are inlined")      \
           range(0, max_jint)                                                \
                                                                             \
@@ -1716,7 +1716,7 @@ const size_t minimumSymbolTableSize = 1024;
           "Minimum code cache size (in bytes) required to start VM.")       \
           range(0, max_uintx)                                               \
                                                                             \
-  product(bool, SegmentedCodeCache, true,                                   \
+  product(bool, SegmentedCodeCache, false,                                  \
           "Use a segmented code cache")                                     \
                                                                             \
   product_pd(uintx, ReservedCodeCacheSize,                                  \
@@ -2184,7 +2184,7 @@ const size_t minimumSymbolTableSize = 1024;
           "high-only-quick-internal: C2/JVMCI-only mode, "                  \
           "with JVMCI compiler compiled with C1.")                          \
                                                                             \
-  product(bool, TieredCompilation, true,                                    \
+  product_pd(bool, TieredCompilation,                                       \
           "Enable tiered compilation")                                      \
                                                                             \
   product(bool, PrintTieredEvents, false,                                   \
@@ -2258,7 +2258,7 @@ const size_t minimumSymbolTableSize = 1024;
   product(bool, PerfAllowAtExitRegistration, false,                         \
           "Allow registration of atexit() methods")                         \
                                                                             \
-  product(bool, PerfBypassFileSystemCheck, true,                            \
+  product(bool, PerfBypassFileSystemCheck, false,                           \
           "Bypass Win32 file system criteria checks (Windows Only)")        \
                                                                             \
   product(intx, UnguardOnExecutionViolation, 0,                             \
@@ -2299,7 +2299,7 @@ const size_t minimumSymbolTableSize = 1024;
           "shared spaces, and dumps the shared spaces to a file to be "     \
           "used in future JVM runs")                                        \
                                                                             \
-  product(bool, DynamicDumpSharedSpaces, true,                              \
+  product(bool, DynamicDumpSharedSpaces, false,                             \
           "Dynamic archive")                                                \
                                                                             \
   product(bool, PrintSharedArchiveAndExit, false,                           \
@@ -2336,7 +2336,7 @@ const size_t minimumSymbolTableSize = 1024;
   diagnostic(bool, ShowHiddenFrames, false,                                 \
           "show method handle implementation frames (usually hidden)")      \
                                                                             \
-  experimental(bool, TrustFinalNonStaticFields, true,                       \
+  experimental(bool, TrustFinalNonStaticFields, false,                      \
           "trust final non-static declarations for constant folding")       \
                                                                             \
   diagnostic(bool, FoldStableValues, true,                                  \
@@ -2376,7 +2376,7 @@ const size_t minimumSymbolTableSize = 1024;
   product(bool, DTraceMonitorProbes, false,                                 \
           "Enable dtrace probes for monitor events")                        \
                                                                             \
-  product(bool, RelaxAccessControlCheck, true,                              \
+  product(bool, RelaxAccessControlCheck, false,                             \
           "Relax the access control checks in the verifier")                \
                                                                             \
   product(uintx, StringTableSize, defaultStringTableSize,                   \
@@ -2388,7 +2388,7 @@ const size_t minimumSymbolTableSize = 1024;
           "Number of buckets in the JVM internal Symbol table")             \
           range(minimumSymbolTableSize, 16777216ul /* 2^24 */)              \
                                                                             \
-  product(bool, UseStringDeduplication, true,                               \
+  product(bool, UseStringDeduplication, false,                              \
           "Use string deduplication")                                       \
                                                                             \
   product(uintx, StringDeduplicationAgeThreshold, 3,                        \
@@ -2442,14 +2442,14 @@ const size_t minimumSymbolTableSize = 1024;
   experimental(bool, AlwaysAtomicAccesses, false,                           \
           "Accesses to all variables should always be atomic")              \
                                                                             \
-  diagnostic(bool, UseUnalignedAccesses, true,                              \
+  diagnostic(bool, UseUnalignedAccesses, false,                             \
           "Use unaligned memory accesses in Unsafe")                        \
                                                                             \
-  product(bool, PreserveFramePointer, false,                                \
+  product_pd(bool, PreserveFramePointer,                                    \
              "Use the FP register for holding the frame pointer "           \
              "and not as a general purpose register.")                      \
                                                                             \
-  diagnostic(bool, CheckIntrinsics, false,                                  \
+  diagnostic(bool, CheckIntrinsics, true,                                   \
              "When a class C is loaded, check that "                        \
              "(1) all intrinsics defined by the VM for class C are present "\
              "in the loaded class file and are marked with the "            \
@@ -2509,7 +2509,7 @@ const size_t minimumSymbolTableSize = 1024;
   JFR_ONLY(product(ccstr, StartFlightRecording, NULL,                       \
           "Start flight recording with options"))                           \
                                                                             \
-  experimental(bool, UseFastUnorderedTimeStamps, true,                      \
+  experimental(bool, UseFastUnorderedTimeStamps, false,                     \
           "Use platform unstable time where supported for timestamps only")
 
 // Interface macros

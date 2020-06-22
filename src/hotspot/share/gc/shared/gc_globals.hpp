@@ -178,7 +178,7 @@
   experimental(bool, UseZGC, true,                                         \
           "Use the Z garbage collector")                                    \
                                                                             \
-  experimental(bool, UseShenandoahGC, false,                                 \
+  experimental(bool, UseShenandoahGC, false,                                \
           "Use the Shenandoah garbage collector")                           \
                                                                             \
   product(uint, ParallelGCThreads, 0,                                       \
@@ -258,7 +258,7 @@
           range(1, max_jint/3)                                              \
                                                                             \
                                                                             \
-  product(bool, AlwaysPreTouch, true,                                      \
+  product(bool, AlwaysPreTouch, false,                                      \
           "Force all freshly committed pages to be pre-touched")            \
                                                                             \
   product(size_t, PreTouchParallelChunkSize, 1 * G,                         \
@@ -280,7 +280,7 @@
           range(ReferenceProcessor::DiscoveryPolicyMin,                     \
                 ReferenceProcessor::DiscoveryPolicyMax)                     \
                                                                             \
-  product(bool, ParallelRefProcEnabled, true,                              \
+  product(bool, ParallelRefProcEnabled, false,                              \
           "Enable parallel reference processing whenever possible")         \
                                                                             \
   product(bool, ParallelRefProcBalancingEnabled, true,                      \
@@ -357,28 +357,28 @@
   product(bool, ExecutingUnitTests, false,                                  \
           "Whether the JVM is running unit tests or not")                   \
                                                                             \
-  product(bool, UseTLAB, true, "Use thread-local object allocation")           \
+  product_pd(bool, UseTLAB, "Use thread-local object allocation")           \
                                                                             \
-  product(bool, ResizeTLAB, true,                                             \
+  product_pd(bool, ResizeTLAB,                                              \
           "Dynamically resize TLAB size for threads")                       \
                                                                             \
   product(bool, ZeroTLAB, false,                                            \
           "Zero out the newly created TLAB")                                \
                                                                             \
-  product(bool, TLABStats, false,                                            \
+  product(bool, TLABStats, true,                                            \
           "Provide more detailed and expensive TLAB statistics.")           \
                                                                             \
-  product(bool, NeverActAsServerClassMachine, false,                        \
+  product_pd(bool, NeverActAsServerClassMachine,                            \
           "Never act like a server-class machine")                          \
                                                                             \
-  product(bool, AlwaysActAsServerClassMachine, true,                        \
+  product(bool, AlwaysActAsServerClassMachine, false,                       \
           "Always act like a server-class machine")                         \
                                                                             \
   product_pd(uint64_t, MaxRAM,                                              \
           "Real memory size (in bytes) used to set maximum heap size")      \
           range(0, 0XFFFFFFFFFFFFFFFF)                                      \
                                                                             \
-  product(bool, AggressiveHeap, false,                                       \
+  product(bool, AggressiveHeap, false,                                      \
           "Optimize heap options for long-running memory intensive apps")   \
                                                                             \
   product(size_t, ErgoHeapSizeLimit, 0,                                     \
@@ -435,10 +435,10 @@
   product(bool, UseAdaptiveGenerationSizePolicyAtMajorCollection, true,     \
           "Use adaptive young-old sizing policies at major collections")    \
                                                                             \
-  product(bool, UseAdaptiveSizePolicyWithSystemGC, true,                   \
+  product(bool, UseAdaptiveSizePolicyWithSystemGC, false,                   \
           "Include statistics from System.gc() for adaptive size policy")   \
                                                                             \
-  product(bool, UseAdaptiveGCBoundary, true,                               \
+  product(bool, UseAdaptiveGCBoundary, false,                               \
           "Allow young-old boundary to move")                               \
                                                                             \
   develop(intx, PSAdaptiveSizePolicyResizeVirtualSpaceAlot, -1,             \
@@ -516,7 +516,7 @@
           "Decay factor to TenuredGenerationSizeIncrement")                 \
           range(1, max_uintx)                                               \
                                                                             \
-  product(uintx, MaxGCPauseMillis, 10,                                      \
+  product(uintx, MaxGCPauseMillis, max_uintx - 1,                           \
           "Adaptive size policy maximum GC pause time goal in millisecond, "\
           "or (G1 Only) the maximum GC time per MMU time slice")            \
           range(1, max_uintx - 1)                                           \
@@ -558,16 +558,16 @@
           "Estimate of footprint other than Java Heap")                     \
           range(0, max_uintx)                                               \
                                                                             \
-  product(bool, UseGCOverheadLimit, false,                                   \
+  product(bool, UseGCOverheadLimit, true,                                   \
           "Use policy to limit of proportion of time spent in GC "          \
           "before an OutOfMemory error is thrown")                          \
                                                                             \
-  product(uintx, GCTimeLimit, 100,                                           \
+  product(uintx, GCTimeLimit, 98,                                           \
           "Limit of the proportion of time spent in GC before "             \
           "an OutOfMemoryError is thrown (used with GCHeapFreeLimit)")      \
           range(0, 100)                                                     \
                                                                             \
-  product(uintx, GCHeapFreeLimit, 0,                                        \
+  product(uintx, GCHeapFreeLimit, 2,                                        \
           "Minimum percentage of free space after a full GC before an "     \
           "OutOfMemoryError is thrown (used with GCTimeLimit)")             \
           range(0, 100)                                                     \
@@ -576,15 +576,15 @@
           "Number of consecutive collections before gc time limit fires")   \
           range(1, max_uintx)                                               \
                                                                             \
-  product(intx, PrefetchCopyIntervalInBytes, 512,                            \
+  product(intx, PrefetchCopyIntervalInBytes, -1,                            \
           "How far ahead to prefetch destination area (<= 0 means off)")    \
           range(-1, max_jint)                                               \
                                                                             \
-  product(intx, PrefetchScanIntervalInBytes, 512,                            \
+  product(intx, PrefetchScanIntervalInBytes, -1,                            \
           "How far ahead to prefetch scan area (<= 0 means off)")           \
           range(-1, max_jint)                                               \
                                                                             \
-  product(intx, PrefetchFieldsAhead, 8,                                    \
+  product(intx, PrefetchFieldsAhead, -1,                                    \
           "How many fields ahead to prefetch in oop scan (<= 0 means off)") \
           range(-1, max_jint)                                               \
                                                                             \
@@ -623,16 +623,16 @@
           "When +ReduceInitialCardMarks, explicitly defer any that "        \
           "may arise from new_pre_store_barrier")                           \
                                                                             \
-  product(bool, UseCondCardMark, true,                                     \
+  product(bool, UseCondCardMark, false,                                     \
           "Check for already marked card before updating card table")       \
                                                                             \
   diagnostic(bool, VerifyRememberedSets, false,                             \
           "Verify GC remembered sets")                                      \
                                                                             \
-  diagnostic(bool, VerifyObjectStartArray, false,                           \
+  diagnostic(bool, VerifyObjectStartArray, true,                            \
           "Verify GC object start array if verify before/after")            \
                                                                             \
-  product(bool, DisableExplicitGC, true,                                   \
+  product(bool, DisableExplicitGC, false,                                   \
           "Ignore calls to System.gc()")                                    \
                                                                             \
   product(bool, PrintGC, false,                                             \

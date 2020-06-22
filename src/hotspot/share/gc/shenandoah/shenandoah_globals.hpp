@@ -252,7 +252,7 @@
           "How many objects to evacuate on LRB assist path. "               \
           "Use zero to disable.")                                           \
                                                                             \
-  experimental(bool, ShenandoahPacing, false,                                \
+  experimental(bool, ShenandoahPacing, true,                                \
           "Pace application allocations to give GC chance to start "        \
           "and complete before allocation failure is reached.")             \
                                                                             \
@@ -295,7 +295,7 @@
           "How many back-to-back Degenerated GCs to do before triggering "  \
           "a Full GC.")                                                     \
                                                                             \
-  experimental(bool, ShenandoahImplicitGCInvokesConcurrent, true,          \
+  experimental(bool, ShenandoahImplicitGCInvokesConcurrent, false,          \
           "Should internally-caused GCs invoke concurrent cycles, or go to" \
           "stop-the-world (degenerated/full)?")                             \
                                                                             \
@@ -314,7 +314,7 @@
   diagnostic(bool, ShenandoahTerminationTrace, false,                       \
           "Tracing task termination timings")                               \
                                                                             \
-  diagnostic(bool, ShenandoahAlwaysPreTouch, true,                         \
+  diagnostic(bool, ShenandoahAlwaysPreTouch, false,                         \
           "Pre-touch heap memory, overrides global AlwaysPreTouch")         \
                                                                             \
   experimental(intx, ShenandoahMarkScanPrefetch, 32,                        \
@@ -345,7 +345,7 @@
           "definitely alive references to avoid dealing with them during "  \
           "pause.")                                                         \
                                                                             \
-  experimental(bool, ShenandoahSuspendibleWorkers, true,                    \
+  experimental(bool, ShenandoahSuspendibleWorkers, false,                   \
           "Suspend concurrent GC worker threads at safepoints")             \
                                                                             \
   diagnostic(bool, ShenandoahSATBBarrier, true,                             \
@@ -380,7 +380,7 @@
           "Turn it off for maximum compatibility with reflection or JNI "   \
           "code that manipulates final fields.")                            \
                                                                             \
-  experimental(bool, ShenandoahCommonGCStateLoads, true,                   \
+  experimental(bool, ShenandoahCommonGCStateLoads, false,                   \
          "Enable commonming for GC state loads in generated code.")         \
                                                                             \
   develop(bool, ShenandoahVerifyOptoBarriers, false,                        \
