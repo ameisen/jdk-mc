@@ -653,7 +653,7 @@ gss_acquire_cred(OM_uint32 *minor_status,
         }
         ss = AcquireCredentialsHandle(
                 NULL,
-                L"Kerberos",
+                (wchar_t *)L"Kerberos",
                 cred_usage == 0 ? SECPKG_CRED_BOTH :
                     (cred_usage == 1 ? SECPKG_CRED_OUTBOUND : SECPKG_CRED_INBOUND),
                 NULL,
@@ -683,7 +683,7 @@ gss_acquire_cred(OM_uint32 *minor_status,
         auth.PackageListLength = 8;
         ss = AcquireCredentialsHandle(
                 NULL,
-                L"Negotiate",
+                (wchar_t *)L"Negotiate",
                 cred_usage == 0 ? SECPKG_CRED_BOTH :
                     (cred_usage == 1 ? SECPKG_CRED_OUTBOUND : SECPKG_CRED_INBOUND),
                 NULL,
@@ -945,7 +945,7 @@ gss_init_sec_context(OM_uint32 *minor_status,
             auth.PackageListLength = 8;
             ss = AcquireCredentialsHandle(
                     NULL,
-                    isSPNEGO ? L"Negotiate" : L"Kerberos",
+                    isSPNEGO ? (wchar_t *)L"Negotiate" : (wchar_t *)L"Kerberos",
                     SECPKG_CRED_OUTBOUND,
                     NULL,
                     isSPNEGO ? &auth : NULL,

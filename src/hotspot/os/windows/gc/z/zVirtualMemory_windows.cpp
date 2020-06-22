@@ -25,6 +25,7 @@
 #include "gc/z/zAddress.inline.hpp"
 #include "gc/z/zGlobals.hpp"
 #include "gc/z/zMapper_windows.hpp"
+#include "gc/z/zMemory.inline.hpp"
 #include "gc/z/zVirtualMemory.hpp"
 #include "utilities/align.hpp"
 #include "utilities/debug.hpp"

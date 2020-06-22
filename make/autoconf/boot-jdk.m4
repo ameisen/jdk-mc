@@ -446,7 +446,7 @@ AC_DEFUN_ONCE([BOOTJDK_SETUP_BOOT_JDK_ARGUMENTS],
 
   AC_MSG_RESULT([$boot_jdk_jvmargs_big])
 
-  JAVA_FLAGS_BIG=$boot_jdk_jvmargs_big -XX:-UseZGC -XX:-UseShenandoahGC -XX:+UseG1GC -XX:-UseLargePages -XX:-UseLargePagesIndividualAllocation -XX:-UseLargePagesInMetaspace
+  JAVA_FLAGS_BIG="$boot_jdk_jvmargs_big -XX:+UnlockExperimentalVMOptions -XX:-UseZGC -XX:-UseShenandoahGC -XX:+UseG1GC -XX:-UseLargePages -XX:-UseLargePagesIndividualAllocation -XX:-UseLargePagesInMetaspace"
   AC_SUBST(JAVA_FLAGS_BIG)
 
   if test "x$OPENJDK_TARGET_CPU_BITS" = "x32"; then
@@ -458,7 +458,7 @@ AC_DEFUN_ONCE([BOOTJDK_SETUP_BOOT_JDK_ARGUMENTS],
   fi
   BOOTCYCLE_JVM_ARGS_BIG="$BOOTCYCLE_JVM_ARGS_BIG -Xmx${BOOTCYCLE_MAX_HEAP}M"
   BOOTCYCLE_JVM_ARGS_BIG="$BOOTCYCLE_JVM_ARGS_BIG -XX:ThreadStackSize=$BOOTCYCLE_STACK_SIZE"
-  BOOTCYCLE_JVM_ARGS_BIG="$BOOTCYCLE_JVM_ARGS_BIG -XX:ThreadStackSize=$BOOTCYCLE_STACK_SIZE -XX:-UseZGC -XX:-UseShenandoahGC -XX:+UseG1GC -XX:-UseLargePages -XX:-UseLargePagesIndividualAllocation -XX:-UseLargePagesInMetaspace"
+  BOOTCYCLE_JVM_ARGS_BIG="$BOOTCYCLE_JVM_ARGS_BIG -XX:ThreadStackSize=$BOOTCYCLE_STACK_SIZE -XX:+UnlockExperimentalVMOptions -XX:-UseZGC -XX:-UseShenandoahGC -XX:+UseG1GC -XX:-UseLargePages -XX:-UseLargePagesIndividualAllocation -XX:-UseLargePagesInMetaspace"
   AC_MSG_CHECKING([flags for bootcycle boot jdk java command for big workloads])
   AC_MSG_RESULT([$BOOTCYCLE_JVM_ARGS_BIG])
   AC_SUBST(BOOTCYCLE_JVM_ARGS_BIG)
@@ -477,7 +477,7 @@ AC_DEFUN_ONCE([BOOTJDK_SETUP_BOOT_JDK_ARGUMENTS],
 
   AC_MSG_RESULT([$boot_jdk_jvmargs_small])
 
-  JAVA_FLAGS_SMALL=$boot_jdk_jvmargs_big -XX:-UseZGC -XX:-UseShenandoahGC -XX:+UseG1GC -XX:-UseLargePages -XX:-UseLargePagesIndividualAllocation -XX:-UseLargePagesInMetaspace
+  JAVA_FLAGS_SMALL="$boot_jdk_jvmargs_big -XX:+UnlockExperimentalVMOptions -XX:-UseZGC -XX:-UseShenandoahGC -XX:+UseG1GC -XX:-UseLargePages -XX:-UseLargePagesIndividualAllocation -XX:-UseLargePagesInMetaspace"
   AC_SUBST(JAVA_FLAGS_SMALL)
 
   JAVA_TOOL_FLAGS_SMALL=""

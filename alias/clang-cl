@@ -1,0 +1,21 @@
+#!rb.sh
+
+MSC_NAME = "Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64"
+MSC_VER = "19.26.28806"
+#"1926"
+
+if ARGV.empty?
+	puts MSC_NAME
+	exit 0
+end
+
+nologo = false
+ARGV.each { |arg|
+	if arg[1..-1] == "nologo"
+		nologo = true
+		break
+	end
+}
+puts MSC_NAME unless nologo
+
+call(*ARGV, "-Wno-unused-command-line-argument", "-D_CRT_SECURE_NO_WARNINGS=1", "-fms-compatibility", "-fms-compatibility-version=#{MSC_VER}")

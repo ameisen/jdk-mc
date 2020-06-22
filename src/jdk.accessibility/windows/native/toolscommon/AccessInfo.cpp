@@ -758,7 +758,7 @@ char *getAccessibleInfo(long vmID, AccessibleContext ac, int x, int y,
             }
 
             if ( GetAccessibleTextLineBounds( vmID, ac, textInfo.indexAtPoint,
-                                              &start, &end ) ) {
+                                              (jint*)&start, (jint*)&end ) ) {
                 if ( GetAccessibleTextRange( vmID, ac, start, end, tmpBuf,
                         (sizeof(tmpBuf) / sizeof(wchar_t)) ) ) {
                     appendToBuffer( buffer, bufsize,
@@ -865,7 +865,7 @@ char *getAccessibleInfo(long vmID, AccessibleContext ac, int x, int y,
             }
 
             if ( GetAccessibleTextLineBounds( vmID, ac, textInfo.caretIndex,
-                                              &start, &end ) ) {
+                                              (jint*)&start, (jint*)&end ) ) {
                 if ( GetAccessibleTextRange( vmID, ac, start, end, tmpBuf,
                                              (sizeof(tmpBuf) / sizeof(wchar_t)) ) ) {
 

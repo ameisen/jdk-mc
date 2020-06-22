@@ -1,0 +1,8 @@
+{
+	"files.associations": {
+		"*.c": "cpp",
+		"*.autogen": "makefile",
+		"*.gmk": "automake",
+		"type_traits": "cpp"
+	}
+}

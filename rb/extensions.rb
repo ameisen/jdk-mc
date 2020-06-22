@@ -53,6 +53,7 @@ module Directory
 	@java = ENV["JAVA_HOME"]
 	@vc_root = ENV["VC_ROOT"]
 	@vc_bin = nil
+	@llvm_root = nil
 	@jmh = nil
 
 	def self.working; Dir.pwd; end

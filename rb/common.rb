@@ -1,5 +1,11 @@
 $TAB = "\t"
 
+class File
+	def self.root(*path)
+		return "/#{File.join(*path)}"
+	end
+end
+
 def eputs(*str)
 	STDERR.puts(*str)
 end.freeze

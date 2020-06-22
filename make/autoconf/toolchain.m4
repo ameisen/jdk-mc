@@ -276,6 +276,22 @@ AC_DEFUN_ONCE([TOOLCHAIN_DETERMINE_TOOLCHAIN_TYPE],
   fi
   AC_SUBST(TOOLCHAIN_TYPE)
 
+  if test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
+    case "$CC" in
+      clang*) TOOLCHAIN_SUBTYPE_CC=clang;;
+      *) TOOLCHAIN_SUBTYPE_CC=default;;
+    esac
+    case "$LD" in
+      lld*) TOOLCHAIN_SUBTYPE_LD=clang;;
+      *) TOOLCHAIN_SUBTYPE_LD=default;;
+    esac
+  else
+    TOOLCHAIN_SUBTYPE_CC=default
+    TOOLCHAIN_SUBTYPE_LD=default
+  fi
+  AC_SUBST(TOOLCHAIN_SUBTYPE_CC)
+  AC_SUBST(TOOLCHAIN_SUBTYPE_LD)
+
   # on AIX, check for xlclang++ on the PATH and TOOLCHAIN_PATH and use it if it is available
   if test "x$OPENJDK_TARGET_OS" = xaix; then
     if test "x$TOOLCHAIN_PATH" != x; then
@@ -454,9 +470,25 @@ AC_DEFUN([TOOLCHAIN_EXTRACT_COMPILER_VERSION],
     # Check that this is likely to be Microsoft CL.EXE.
     $ECHO "$COMPILER_VERSION_OUTPUT" | $GREP "Microsoft.*Compiler" > /dev/null
     if test $? -ne 0; then
-      AC_MSG_NOTICE([The $COMPILER_NAME compiler (located as $COMPILER) does not seem to be the required $TOOLCHAIN_TYPE compiler.])
-      AC_MSG_NOTICE([The result from running it was: "$COMPILER_VERSION_OUTPUT"])
-      AC_MSG_ERROR([A $TOOLCHAIN_TYPE compiler is required. Try setting --with-tools-dir.])
+      # clang --version output typically looks like
+      #    Apple LLVM version 5.0 (clang-500.2.79) (based on LLVM 3.3svn)
+      #    clang version 3.3 (tags/RELEASE_33/final)
+      # or
+      #    Debian clang version 3.2-7ubuntu1 (tags/RELEASE_32/final) (based on LLVM 3.2)
+      #    Target: x86_64-pc-linux-gnu
+      #    Thread model: posix
+      COMPILER_VERSION_OUTPUT=`$COMPILER --version 2>&1`
+      # Check that this is likely to be clang
+      $ECHO "$COMPILER_VERSION_OUTPUT" | $GREP "clang" > /dev/null
+      if test $? -ne 0; then
+        AC_MSG_NOTICE([The $COMPILER_NAME compiler (located as $COMPILER) does not seem to be the required $TOOLCHAIN_TYPE compiler.])
+        AC_MSG_NOTICE([The result from running it was: "$COMPILER_VERSION_OUTPUT"])
+        AC_MSG_ERROR([A $TOOLCHAIN_TYPE compiler is required. Try setting --with-tools-dir.])
+      fi
+      # Collapse compiler output into a single line
+      COMPILER_VERSION_STRING=`$ECHO $COMPILER_VERSION_OUTPUT`
+      COMPILER_VERSION_NUMBER=`$ECHO $COMPILER_VERSION_OUTPUT | \
+          $SED -e 's/^.* version \(@<:@1-9@:>@@<:@0-9.@:>@*\).*$/\1/'`
     fi
     # Collapse compiler output into a single line
     COMPILER_VERSION_STRING=`$ECHO $COMPILER_VERSION_OUTPUT`
@@ -702,13 +734,13 @@ AC_DEFUN_ONCE([TOOLCHAIN_DETECT_TOOLCHAIN_CORE],
 
   TOOLCHAIN_PREPARE_FOR_VERSION_COMPARISONS
 
-  if test "x$TOOLCHAIN_MINIMUM_VERSION" != x; then
-    TOOLCHAIN_CHECK_COMPILER_VERSION(VERSION: $TOOLCHAIN_MINIMUM_VERSION,
-        IF_OLDER_THAN: [
-          AC_MSG_WARN([You are using $TOOLCHAIN_TYPE older than $TOOLCHAIN_MINIMUM_VERSION. This is not a supported configuration.])
-        ]
-    )
-  fi
+  #if test "x$TOOLCHAIN_MINIMUM_VERSION" != x; then
+  #  TOOLCHAIN_CHECK_COMPILER_VERSION(VERSION: $TOOLCHAIN_MINIMUM_VERSION,
+  #      IF_OLDER_THAN: [
+  #        AC_MSG_WARN([You are using $TOOLCHAIN_TYPE older than $TOOLCHAIN_MINIMUM_VERSION. This is not a supported configuration.])
+  #      ]
+  #  )
+  #fi
 
   #
   # Setup the preprocessor (CPP and CXXCPP)
@@ -730,12 +762,12 @@ AC_DEFUN_ONCE([TOOLCHAIN_DETECT_TOOLCHAIN_CORE],
     # Verify that we indeed succeeded with this trick.
     AC_MSG_CHECKING([if the found link.exe is actually the Visual Studio linker])
     "$LD" --version > /dev/null
-    if test $? -eq 0 ; then
-      AC_MSG_RESULT([no])
-      AC_MSG_ERROR([This is the Cygwin link tool. Please check your PATH and rerun configure.])
-    else
+    #if test $? -eq 0 ; then
+    #  AC_MSG_RESULT([no])
+    #  AC_MSG_ERROR([This is the Cygwin link tool. Please check your PATH and rerun configure.])
+    #else
       AC_MSG_RESULT([yes])
-    fi
+    #fi
     LDCXX="$LD"
     # jaotc being a windows program expects the linker to be supplied with exe suffix.
     LD_JAOTC="$LD$EXE_SUFFIX"
@@ -1030,20 +1062,20 @@ AC_DEFUN_ONCE([TOOLCHAIN_SETUP_BUILD_COMPILERS],
 AC_DEFUN_ONCE([TOOLCHAIN_MISC_CHECKS],
 [
   # Check for extra potential brokenness.
-  if test  "x$TOOLCHAIN_TYPE" = xmicrosoft; then
-    # On Windows, double-check that we got the right compiler.
-    CC_VERSION_OUTPUT=`$CC 2>&1 | $GREP -v 'ERROR.*UtilTranslatePathList' | $HEAD -n 1 | $TR -d '\r'`
-    COMPILER_CPU_TEST=`$ECHO $CC_VERSION_OUTPUT | $SED -n "s/^.* \(.*\)$/\1/p"`
-    if test "x$OPENJDK_TARGET_CPU" = "xx86"; then
-      if test "x$COMPILER_CPU_TEST" != "x80x86" -a "x$COMPILER_CPU_TEST" != "xx86"; then
-        AC_MSG_ERROR([Target CPU mismatch. We are building for $OPENJDK_TARGET_CPU but CL is for "$COMPILER_CPU_TEST"; expected "80x86" or "x86".])
-      fi
-    elif test "x$OPENJDK_TARGET_CPU" = "xx86_64"; then
-      if test "x$COMPILER_CPU_TEST" != "xx64"; then
-        AC_MSG_ERROR([Target CPU mismatch. We are building for $OPENJDK_TARGET_CPU but CL is for "$COMPILER_CPU_TEST"; expected "x64".])
-      fi
-    fi
-  fi
+  #if test  "x$TOOLCHAIN_TYPE" = xmicrosoft; then
+  #  # On Windows, double-check that we got the right compiler.
+  #  CC_VERSION_OUTPUT=`$CC 2>&1 | $GREP -v 'ERROR.*UtilTranslatePathList' | $HEAD -n 1 | $TR -d '\r'`
+  #  COMPILER_CPU_TEST=`$ECHO $CC_VERSION_OUTPUT | $SED -n "s/^.* \(.*\)$/\1/p"`
+  #  if test "x$OPENJDK_TARGET_CPU" = "xx86"; then
+  #    if test "x$COMPILER_CPU_TEST" != "x80x86" -a "x$COMPILER_CPU_TEST" != "xx86"; then
+  #      AC_MSG_ERROR([Target CPU mismatch. We are building for $OPENJDK_TARGET_CPU but CL is for "$COMPILER_CPU_TEST"; expected "80x86" or "x86".])
+  #    fi
+  #  elif test "x$OPENJDK_TARGET_CPU" = "xx86_64"; then
+  #    if test "x$COMPILER_CPU_TEST" != "xx64"; then
+  #      AC_MSG_ERROR([Target CPU mismatch. We are building for $OPENJDK_TARGET_CPU but CL is for "$COMPILER_CPU_TEST"; expected "x64".])
+  #    fi
+  #  fi
+  #fi
 
   if test "x$TOOLCHAIN_TYPE" = xgcc; then
     # If this is a --hash-style=gnu system, use --hash-style=both, why?

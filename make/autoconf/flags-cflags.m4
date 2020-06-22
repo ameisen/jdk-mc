@@ -160,9 +160,9 @@ AC_DEFUN([FLAGS_SETUP_WARNINGS],
   case "${TOOLCHAIN_TYPE}" in
     microsoft)
       DISABLE_WARNING_PREFIX="-wd"
-      CFLAGS_WARNINGS_ARE_ERRORS="-WX"
+      CFLAGS_WARNINGS_ARE_ERRORS="-w"
 
-      WARNINGS_ENABLE_ALL="-W3"
+      WARNINGS_ENABLE_ALL="-W0 -w"
       DISABLED_WARNINGS="4800"
       ;;
 
@@ -526,12 +526,12 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_HELPER],
   if test "x$TOOLCHAIN_TYPE" = xgcc || test "x$TOOLCHAIN_TYPE" = xclang; then
     # COMMON to gcc and clang
     TOOLCHAIN_CFLAGS_JVM="-pipe -fno-rtti -fno-exceptions \
-        -fvisibility=hidden -fno-strict-aliasing -fno-omit-frame-pointer"
+        -fvisibility=hidden -fno-strict-aliasing -fomit-frame-pointer"
   fi
 
   if test "x$TOOLCHAIN_TYPE" = xgcc; then
-    TOOLCHAIN_CFLAGS_JVM="$TOOLCHAIN_CFLAGS_JVM -fcheck-new -fstack-protector"
-    TOOLCHAIN_CFLAGS_JDK="-pipe -fstack-protector"
+    TOOLCHAIN_CFLAGS_JVM="$TOOLCHAIN_CFLAGS_JVM -fno-check-new -fno-stack-protector"
+    TOOLCHAIN_CFLAGS_JDK="-pipe -fno-stack-protector"
     # reduce lib size on s390x in link step, this needs also special compile flags
     if test "x$OPENJDK_TARGET_CPU" = xs390x; then
       TOOLCHAIN_CFLAGS_JVM="$TOOLCHAIN_CFLAGS_JVM -ffunction-sections -fdata-sections"
@@ -551,7 +551,7 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_HELPER],
     # should agree with values of StackAlignmentInBytes in various
     # src/hotspot/cpu/*/globalDefinitions_*.hpp files, but this value currently
     # works for all platforms.
-    TOOLCHAIN_CFLAGS_JVM="$TOOLCHAIN_CFLAGS_JVM -mno-omit-leaf-frame-pointer -mstack-alignment=16"
+    TOOLCHAIN_CFLAGS_JVM="$TOOLCHAIN_CFLAGS_JVM -momit-leaf-frame-pointer -mstack-alignment=16"
 
     if test "x$OPENJDK_TARGET_OS" = xlinux; then
       if test "x$DEBUG_LEVEL" = xrelease; then
@@ -711,7 +711,7 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_HELPER],
   fi
   if test "x$TOOLCHAIN_TYPE" = xgcc; then
     # Disable relax-relocation to enable compatibility with older linkers
-    RELAX_RELOCATIONS_FLAG="-Xassembler -mrelax-relocations=no"
+    RELAX_RELOCATIONS_FLAG="-Xassembler -mrelax-relocations"
     FLAGS_COMPILER_CHECK_ARGUMENTS(ARGUMENT: [${RELAX_RELOCATIONS_FLAG}],
         IF_TRUE: [STATIC_LIBS_CFLAGS="$STATIC_LIBS_CFLAGS ${RELAX_RELOCATIONS_FLAG}"])
   fi

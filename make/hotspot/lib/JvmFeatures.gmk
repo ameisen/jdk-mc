@@ -179,12 +179,20 @@ endif
 ################################################################################
 
 ifeq ($(TOOLCHAIN_TYPE), microsoft)
-  JVM_CFLAGS_FEATURES += /O2 /Ob3 /arch:AVX2 /favor:INTEL64 /fp:fast /GS- /QIntel-jcc-erratum /Qpar /volatile:iso
+  JVM_CFLAGS_FEATURES += /O2 /Ob3 /arch:AVX2 /favor:INTEL64 /fp:fast /GS- /Qpar /volatile:iso
   JVM_CFLAGS_FEATURES += /Gw
   JVM_CFLAGS_FEATURES += /Gy
   JVM_CFLAGS_FEATURES += /MP
   JVM_CFLAGS_FEATURES += /Zc:alignedNew /Zc:__cplusplus /Zc:forScope /Zc:threadSafeInit- /Zc:throwingNew
-  JVM_LDFLAGS_FEATURES += /LARGEADDRESSAWARE /OPT:REF /OPT:ICF /CGTHREADS:8
+  ifneq (,$(findstring clang,$(CC)))
+    JVM_CFLAGS_FEATURES += -m64 -Wno-narrowing -fms-compatibility -fms-extensions -fms-compatibility-version=19.26.28806
+  else
+    JVM_CFLAGS_FEATURES += /QIntel-jcc-erratum
+  endif
+  JVM_LDFLAGS_FEATURES += /LARGEADDRESSAWARE /OPT:REF /OPT:ICF
+  ifeq (,$(findstring lld,$(LD)))
+    JVM_LDFLAGS_FEATURES += /CGTHREADS:8
+  endif
 endif
 
 ifeq ($(call check-jvm-feature, link-time-opt), true)
@@ -193,8 +201,12 @@ ifeq ($(call check-jvm-feature, link-time-opt), true)
   # like the old build, but it's probably not right.
   JVM_OPTIMIZATION :=
   ifeq ($(TOOLCHAIN_TYPE), microsoft)
-    JVM_CFLAGS_FEATURES += /GL
-    JVM_LDFLAGS_FEATURES += /LTCG
+    ifneq (,$(findstring clang,$(CC)))
+      #JVM_CFLAGS_FEATURES += -flto=thin
+    else
+      JVM_CFLAGS_FEATURES += /GL
+      JVM_LDFLAGS_FEATURES += /LTCG
+    endif
   else
     ifeq ($(TOOLCHAIN_TYPE), clang)
       JVM_CFLAGS_FEATURES += -flto=thin

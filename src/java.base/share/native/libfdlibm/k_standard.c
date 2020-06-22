@@ -26,6 +26,10 @@
 #include "fdlibm.h"
 #include <errno.h>
 
+#ifdef _MSC_VER
+#	pragma warning(disable:4700)
+#endif
+
 #ifndef _USE_WRITE
 #include <stdio.h>                      /* fputs(), stderr */
 #define WRITE2(u,v)     fputs(u, stderr)
@@ -743,3 +747,7 @@ static double zero = 0.0;       /* used as const */
         }
         return exc.retval;
 }
+
+#ifdef _MSC_VER
+#	pragma warning(default:4700)
+#endif

@@ -16,7 +16,29 @@ else
 	INCLUDED_GLOBAL_BUILD_CFG = false
 end
 
+module Toolchains
+	MSVC = "MSVC"
+	GNU = "GNU"
+	LLVM = "LLVM"
+
+	def self.get_default
+		if (TARGET_PLATFORM.is?(System::Platforms::WINDOWS))
+			return Toolchains::MSVC
+		elsif (TARGET_PLATFORM.is?(System::Platforms::LINUX))
+			return Toolchains::GNU
+		else
+			return Toolchains::LLVM
+		end
+	end
+
+	include AutoInstance(self)
+end
+
 module Options
+	@toolchain = Toolchains::get_default
+	@project = false
+	@native = false
+
 	module Pass
 		@cleared = false
 		@fetch = false
@@ -48,6 +70,9 @@ cmd_arguments = {
 		puts "Loading Configuration File '#{arg}'..."
 		load(arg)
 	} ],
+	"project" => [ Argument::FLAG, proc { |name, flag|
+		Options::project = flag
+	} ],
 	"fetch" => [ Argument::FLAG, proc { |name, flag|
 		Options::Pass::clear if flag
 		Options::Pass::fetch = flag
@@ -78,6 +103,12 @@ cmd_arguments = {
 	} ],
 	"all" => [ Argument::FLAG, proc { |name, flag|
 		Options::Pass::clear(force: true, inverse: flag)
+	} ],
+	"llvm" => [ Argument::FLAG, proc { |name, flag|
+		Options::toolchain = flag ? Toolchains::LLVM : Toolchains::get_default
+	} ],
+	"native" => [ Argument::FLAG, proc { |name, flag|
+		Options::native = flag ? Toolchains::LLVM : Toolchains::get_default
 	} ],
 }
 
@@ -117,6 +148,7 @@ def ExecutePass(name, flag)
 	puts "Completed Pass #{name}"
 end
 
+puts "Toolchain: #{Options::toolchain}"
 puts "Passes:"
 tputs(1, "Clean") if Options::Pass::clean
 tputs(1, "Fetch") if Options::Pass::fetch
@@ -189,7 +221,7 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 			"opt-size",
 			"zero",
 			"static-build",
-			"g1gc",
+			#"g1gc",
 			"parallelgc",
 			"serialgc",
 			"epsilongc",
@@ -208,7 +240,7 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 			"cds-archive",
 			"javac-server",
 			"precompiled-headers",
-			"aot=no",
+			"aot=yes",
 			"dtrace=no",
 			"unlimited-crypto"
 		]
@@ -237,7 +269,7 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 		if (TARGET_PLATFORM.is?(System::Platforms::WINDOWS))
 			with_flags << "tools-dir=#{Directory::vc_bin}"
 		else
-			with_flags << "toolchain_type=gcc" # clang
+			with_flags << "toolchain_type=#{(Options::toolchain == Toolchains::GNU) ? "gcc" : "clang"}"
 			with_flags << "ccache"
 		end
 
@@ -265,18 +297,58 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 			configure_flags << "BUILD_#{name}=#{ENV[name]}"
 		}
 
-		ENV["CC"] = File.join(__dir__, "alias", "gcc")
-		ENV["CXX"] = File.join(__dir__, "alias", "g++")
-		ENV["CPP"] = File.join(__dir__, "alias", "cpp")
+		llvm = (Options::toolchain == Toolchains::LLVM)
 
-		configure_add_env.call("NM")
-		configure_add_env.call("AR")
-		configure_add_env.call("RANLIB")
-		configure_add_env.call("CPP")
-		configure_add_env.call("CC")
-		configure_add_env.call("CXX")
-		configure_add_env.call("LD")
-		configure_add_env.call("STRIP")
+		ENV["PATH"] = File.join(__dir__, "alias", "interpreter") + ":" + ENV["PATH"]
+
+		extra_cflags = []
+
+		if BUILD_PLATFORM.is?(System::Platforms::WINDOWS)
+			# At the present, we only have to redirect if we're using an LLVM toolchain
+			if llvm
+				# Add the toolchain to the PATH so that the scripts know where to find it
+				#ENV["CC"] = File.join(__dir__, "alias", "clang-cl")
+				#ENV["CXX"] = File.join(__dir__, "alias", "clang-cl")
+				#ENV["CPP"] = File.join(__dir__, "alias", "clang-cl")
+				#ENV["LD"] = File.join(__dir__, "alias", "lld-link")
+				ENV["CC"] = File.join(Directory::llvm_root, "bin", "clang-cl")
+				ENV["CXX"] = File.join(Directory::llvm_root, "bin", "clang-cl")
+				extra_cflags += ['-m64', '-Wno-narrowing', '-fms-compatibility', '-fms-extensions', '-fms-compatibility-version=19.26.28806']
+				ENV["LD"] = File.join(Directory::llvm_root, "bin", "lld-link")
+
+				ENV["AS"] = "llvm-as"
+				#ENV["RC"] = "llvm-rc"
+				#ENV["NM"] = "llvm-nm"
+				#ENV["AR"] = "llvm-ar"
+				#ENV["RANLIB"] = "llvm-ranlib"
+				ENV["OBJDUMP"] = "llvm-objdump"
+				ENV["OBJCOPY"] = "llvm-objcopy"
+				ENV["PROFDATA"] = "llvm-profdata"
+				ENV["LIB"] = "llvm-lib"
+				ENV["SYMBOLIZER"] = "llvm-symbolizer"
+			end
+		else
+			ENV["CC"] = File.join(__dir__, "alias", llvm ? "clang" : "gcc")
+			ENV["CXX"] = File.join(__dir__, "alias", llvm ? "clang++" : "g++")
+			ENV["CPP"] = File.join(__dir__, "alias", llvm ? "clang-cpp" : "cpp")
+
+			configure_add_env.call("NM")
+			configure_add_env.call("AR")
+			configure_add_env.call("RANLIB")
+			configure_add_env.call("CPP")
+			configure_add_env.call("CC")
+			configure_add_env.call("CXX")
+			configure_add_env.call("LD")
+			configure_add_env.call("STRIP")
+
+			if Options::native
+				extra_cflags += [
+					'-O3', '-march=native'
+				]
+			end
+		end
+
+		configure_flags << "--with-extra-cflags=#{extra_cflags.join(" ")}" unless extra_cflags.empty?
 
 		puts "Configure Flags:"
 		configure_flags.each { |f|
@@ -307,7 +379,7 @@ ExecutePass("Build Pass", Error::Flag::BUILD) {
 	Directory.enter(Directory::build_root, must: true) {
 		jobs = Etc.nprocessors
 
-		execute("make", "JOBS=#{jobs}", "CONF=#{FULL_CONFIG_NAME}", "images")
+		execute("make", "JOBS=#{jobs}", "CONF=#{FULL_CONFIG_NAME}", Options::project ? "hotspot-ide-project" : "images")
 	}
 } if Options::Pass::build
 

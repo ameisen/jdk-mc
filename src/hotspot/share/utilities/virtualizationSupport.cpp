@@ -26,6 +26,7 @@
 #include "precompiled.hpp"
 #include "runtime/globals.hpp"
 #include "runtime/os.hpp"
+#include "runtime/os.inline.hpp"
 #include "utilities/virtualizationSupport.hpp"
 
 static void *dlHandle = NULL;
