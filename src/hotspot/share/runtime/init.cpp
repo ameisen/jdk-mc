@@ -155,12 +155,6 @@ jint init_globals() {
   stubRoutines_init2(); // note: StubRoutines need 2-phase init
   MethodHandles::generate_adapters();
 
-#if INCLUDE_NMT
-  // Solaris stack is walkable only after stubRoutines are set up.
-  // On Other platforms, the stack is always walkable.
-  NMT_stack_walkable = true;
-#endif // INCLUDE_NMT
-
   // All the flags that get adjusted by VM_Version_init and os::init_2
   // have been set so dump the flags now.
   if (PrintFlagsFinal || PrintFlagsRanges) {
@@ -178,8 +172,12 @@ void exit_globals() {
     if (log_is_enabled(Info, monitorinflation)) {
       // The ObjectMonitor subsystem uses perf counters so
       // do this before perfMemory_exit().
-      // ObjectSynchronizer::finish_deflate_idle_monitors()'s call
-      // to audit_and_print_stats() is done at the Debug level.
+      // These other two audit_and_print_stats() calls are done at the
+      // Debug level at a safepoint:
+      // - for safepoint based deflation auditing:
+      //   ObjectSynchronizer::finish_deflate_idle_monitors()
+      // - for async deflation auditing:
+      //   ObjectSynchronizer::do_safepoint_work()
       ObjectSynchronizer::audit_and_print_stats(true /* on_exit */);
     }
     perfMemory_exit();

@@ -41,6 +41,7 @@
 #include "runtime/mutexLocker.hpp"
 #include "runtime/os.hpp"
 #include "runtime/safepoint.hpp"
+#include "runtime/synchronizer.hpp"
 #include "runtime/thread.inline.hpp"
 #include "runtime/vmThread.hpp"
 #include "runtime/vmOperations.hpp"
@@ -283,6 +284,14 @@ void VMThread::run() {
     assert(should_terminate(), "termination flag must be set");
   }
 
+  if (AsyncDeflateIdleMonitors && log_is_enabled(Info, monitorinflation)) {
+    // AsyncDeflateIdleMonitors does a special deflation at the final
+    // safepoint in order to reduce the in-use monitor population that
+    // is reported by ObjectSynchronizer::log_in_use_monitor_details()
+    // at VM exit.
+    ObjectSynchronizer::set_is_special_deflation_requested(true);
+  }
+
   // 4526887 let VM thread exit at Safepoint
   _cur_vm_operation = &halt_op;
   SafepointSynchronize::begin();
@@ -437,13 +446,6 @@ void VMThread::loop() {
       // Look for new operation
       assert(_cur_vm_operation == NULL, "no current one should be executing");
       _cur_vm_operation = _vm_queue->remove_next();
-
-      // Stall time tracking code
-      if (PrintVMQWaitTime && _cur_vm_operation != NULL) {
-        jlong stall = nanos_to_millis(os::javaTimeNanos() - _cur_vm_operation->timestamp());
-        if (stall > 0)
-          tty->print_cr("%s stall: " JLONG_FORMAT,  _cur_vm_operation->name(), stall);
-      }
 
       while (!should_terminate() && _cur_vm_operation == NULL) {
         // wait with a timeout to guarantee safepoints at regular intervals
@@ -634,7 +636,6 @@ void VMThread::execute(VM_Operation* op) {
       MonitorLocker ml(VMOperationQueue_lock, Mutex::_no_safepoint_check_flag);
       log_debug(vmthread)("Adding VM operation: %s", op->name());
       _vm_queue->add(op);
-      op->set_timestamp(os::javaTimeNanos());
       ml.notify();
     }
     {
