@@ -126,7 +126,9 @@ class ParallelScavengeHeap : public CollectedHeap {
 
   static PSGCAdaptivePolicyCounters* gc_policy_counters() { return _gc_policy_counters; }
 
-  static ParallelScavengeHeap* heap();
+  static ParallelScavengeHeap* heap() {
+    return named_heap<ParallelScavengeHeap>(CollectedHeap::Parallel);
+  }
 
   CardTableBarrierSet* barrier_set();
   PSCardTable* card_table();
@@ -211,8 +213,6 @@ class ParallelScavengeHeap : public CollectedHeap {
   HeapWord* block_start(const void* addr) const;
   bool block_is_obj(const HeapWord* addr) const;
 
-  jlong millis_since_last_gc();
-
   void prepare_for_verify();
   PSHeapSummary create_ps_heap_summary();
   virtual void print_on(outputStream* st) const;
@@ -220,7 +220,7 @@ class ParallelScavengeHeap : public CollectedHeap {
   virtual void gc_threads_do(ThreadClosure* tc) const;
   virtual void print_tracing_info() const;
 
-  virtual WorkGang* get_safepoint_workers() { return &_workers; }
+  virtual WorkGang* safepoint_workers() { return &_workers; }
 
   PreGenGCValues get_pre_gc_values() const;
   void print_heap_change(const PreGenGCValues& pre_gc_values) const;

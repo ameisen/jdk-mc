@@ -211,14 +211,14 @@ private:
                                  TRAPS);
   static DumpTimeSharedClassInfo* find_or_allocate_info_for(InstanceKlass* k);
   static void write_dictionary(RunTimeSharedDictionary* dictionary,
-                               bool is_builtin,
-                               bool is_static_archive = true);
+                               bool is_builtin);
   static void write_lambda_proxy_class_dictionary(LambdaProxyClassDictionary* dictionary);
   static bool is_jfr_event_class(InstanceKlass *k);
   static bool is_registered_lambda_proxy_class(InstanceKlass* ik);
   static void warn_excluded(InstanceKlass* k, const char* reason);
   static bool should_be_excluded(InstanceKlass* k);
 
+  static bool _dump_in_progress;
   DEBUG_ONLY(static bool _no_class_loading_should_happen;)
 
 public:
@@ -242,12 +242,6 @@ public:
 
   // Check if sharing is supported for the class loader.
   static bool is_sharing_possible(ClassLoaderData* loader_data);
-  static bool is_shared_class_visible_for_classloader(InstanceKlass* ik,
-                                                      Handle class_loader,
-                                                      Symbol* pkg_name,
-                                                      PackageEntry* pkg_entry,
-                                                      ModuleEntry* mod_entry,
-                                                      TRAPS);
 
   static bool add_unregistered_class(InstanceKlass* k, TRAPS);
   static InstanceKlass* dump_time_resolve_super_or_fail(Symbol* child_name,
@@ -325,6 +319,7 @@ public:
   static void print_on(outputStream* st) NOT_CDS_RETURN;
   static void print_table_statistics(outputStream* st) NOT_CDS_RETURN;
   static bool empty_dumptime_table() NOT_CDS_RETURN_(true);
+  static void start_dumping() NOT_CDS_RETURN;
 
   DEBUG_ONLY(static bool no_class_loading_should_happen() {return _no_class_loading_should_happen;})
 

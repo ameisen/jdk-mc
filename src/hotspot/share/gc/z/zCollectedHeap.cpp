@@ -41,10 +41,7 @@
 #include "utilities/align.hpp"
 
 ZCollectedHeap* ZCollectedHeap::heap() {
-  CollectedHeap* heap = Universe::heap();
-  assert(heap != NULL, "Uninitialized access to ZCollectedHeap::heap()");
-  assert(heap->kind() == CollectedHeap::Z, "Invalid name");
-  return (ZCollectedHeap*)heap;
+  return named_heap<ZCollectedHeap>(CollectedHeap::Z);
 }
 
 ZCollectedHeap::ZCollectedHeap() :
@@ -276,12 +273,8 @@ void ZCollectedHeap::verify_nmethod(nmethod* nm) {
   // Does nothing
 }
 
-WorkGang* ZCollectedHeap::get_safepoint_workers() {
+WorkGang* ZCollectedHeap::safepoint_workers() {
   return _runtime_workers.workers();
-}
-
-jlong ZCollectedHeap::millis_since_last_gc() {
-  return ZStatCycle::time_since_last() / MILLIUNITS;
 }
 
 void ZCollectedHeap::gc_threads_do(ThreadClosure* tc) const {

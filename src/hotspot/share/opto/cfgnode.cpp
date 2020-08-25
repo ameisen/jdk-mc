@@ -346,9 +346,8 @@ bool RegionNode::is_unreachable_region(PhaseGVN *phase) const {
   // Unsafe case - check if the Region node is reachable from root.
   ResourceMark rm;
 
-  Arena *a = Thread::current()->resource_area();
-  Node_List nstack(a);
-  VectorSet visited(a);
+  Node_List nstack;
+  VectorSet visited;
 
   // Mark all control nodes reachable from root outputs
   Node *n = (Node*)phase->C->root();
@@ -1040,7 +1039,7 @@ void PhiNode::verify_adr_type(bool recursive) const {
          "Phi::adr_type must be pre-normalized");
 
   if (recursive) {
-    VectorSet visited(Thread::current()->resource_area());
+    VectorSet visited;
     verify_adr_type(visited, _adr_type);
   }
 }
@@ -1335,6 +1334,30 @@ Node* PhiNode::Identity(PhaseGVN* phase) {
     if (id != NULL)  return id;
   }
 
+  // Looking for phis with identical inputs.  If we find one that has
+  // type TypePtr::BOTTOM, replace the current phi with the bottom phi.
+  if (phase->is_IterGVN() && type() == Type::MEMORY && adr_type() !=
+      TypePtr::BOTTOM && !adr_type()->is_known_instance()) {
+    uint phi_len = req();
+    Node* phi_reg = region();
+    for (DUIterator_Fast imax, i = phi_reg->fast_outs(imax); i < imax; i++) {
+      Node* u = phi_reg->fast_out(i);
+      if (u->is_Phi() && u->as_Phi()->type() == Type::MEMORY &&
+          u->adr_type() == TypePtr::BOTTOM && u->in(0) == phi_reg &&
+          u->req() == phi_len) {
+        for (uint j = 1; j < phi_len; j++) {
+          if (in(j) != u->in(j)) {
+            u = NULL;
+            break;
+          }
+        }
+        if (u != NULL) {
+          return u;
+        }
+      }
+    }
+  }
+
   return this;                     // No identity
 }
 
@@ -1582,40 +1605,33 @@ static Node* is_absolute( PhaseGVN *phase, PhiNode *phi_root, int true_path) {
   // Check other phi input for subtract node
   Node *sub = phi_root->in(3 - phi_x_idx);
 
+  bool is_sub = sub->Opcode() == Op_SubF || sub->Opcode() == Op_SubD ||
+                sub->Opcode() == Op_SubI || sub->Opcode() == Op_SubL;
+
   // Allow only Sub(0,X) and fail out for all others; Neg is not OK
-  if( tzero == TypeF::ZERO ) {
-    if( sub->Opcode() != Op_SubF ||
-        sub->in(2) != x ||
-        phase->type(sub->in(1)) != tzero ) return NULL;
+  if (!is_sub || phase->type(sub->in(1)) != tzero || sub->in(2) != x) return NULL;
+
+  if (tzero == TypeF::ZERO) {
     x = new AbsFNode(x);
     if (flip) {
       x = new SubFNode(sub->in(1), phase->transform(x));
     }
   } else if (tzero == TypeD::ZERO) {
-    if( sub->Opcode() != Op_SubD ||
-        sub->in(2) != x ||
-        phase->type(sub->in(1)) != tzero ) return NULL;
     x = new AbsDNode(x);
     if (flip) {
       x = new SubDNode(sub->in(1), phase->transform(x));
     }
-  } else if (tzero == TypeInt::ZERO) {
-    if (sub->Opcode() != Op_SubI ||
-        sub->in(2) != x ||
-        phase->type(sub->in(1)) != tzero) return NULL;
+  } else if (tzero == TypeInt::ZERO && Matcher::match_rule_supported(Op_AbsI)) {
     x = new AbsINode(x);
     if (flip) {
       x = new SubINode(sub->in(1), phase->transform(x));
     }
-  } else {
-    if (sub->Opcode() != Op_SubL ||
-        sub->in(2) != x ||
-        phase->type(sub->in(1)) != tzero) return NULL;
+  } else if (tzero == TypeLong::ZERO && Matcher::match_rule_supported(Op_AbsL)) {
     x = new AbsLNode(x);
     if (flip) {
       x = new SubLNode(sub->in(1), phase->transform(x));
     }
-  }
+  } else return NULL;
 
   return x;
 }
@@ -1780,9 +1796,8 @@ bool PhiNode::is_unsafe_data_reference(Node *in) const {
 
   ResourceMark rm;
 
-  Arena *a = Thread::current()->resource_area();
-  Node_List nstack(a);
-  VectorSet visited(a);
+  Node_List nstack;
+  VectorSet visited;
 
   nstack.push(in); // Start with unique input.
   visited.set(in->_idx);
@@ -2207,23 +2222,30 @@ Node *PhiNode::Ideal(PhaseGVN *phase, bool can_reshape) {
       } else {
         // We know that at least one MergeMem->base_memory() == this
         // (saw_self == true). If all other inputs also references this phi
-        // (directly or through data nodes) - it is dead loop.
+        // (directly or through data nodes) - it is a dead loop.
         bool saw_safe_input = false;
         for (uint j = 1; j < req(); ++j) {
-          Node *n = in(j);
-          if (n->is_MergeMem() && n->as_MergeMem()->base_memory() == this)
-            continue;              // skip known cases
+          Node* n = in(j);
+          if (n->is_MergeMem()) {
+            MergeMemNode* mm = n->as_MergeMem();
+            if (mm->base_memory() == this || mm->base_memory() == mm->empty_memory()) {
+              // Skip this input if it references back to this phi or if the memory path is dead
+              continue;
+            }
+          }
           if (!is_unsafe_data_reference(n)) {
             saw_safe_input = true; // found safe input
             break;
           }
         }
-        if (!saw_safe_input)
-          return top; // all inputs reference back to this phi - dead loop
+        if (!saw_safe_input) {
+          // There is a dead loop: All inputs are either dead or reference back to this phi
+          return top;
+        }
 
         // Phi(...MergeMem(m0, m1:AT1, m2:AT2)...) into
         //     MergeMem(Phi(...m0...), Phi:AT1(...m1...), Phi:AT2(...m2...))
-        PhaseIterGVN *igvn = phase->is_IterGVN();
+        PhaseIterGVN* igvn = phase->is_IterGVN();
         Node* hook = new Node(1);
         PhiNode* new_base = (PhiNode*) clone();
         // Must eagerly register phis, since they participate in loops.

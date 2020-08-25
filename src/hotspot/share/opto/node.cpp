@@ -67,21 +67,27 @@ extern int nodes_created;
 void Node::verify_construction() {
   _debug_orig = NULL;
   int old_debug_idx = Compile::debug_idx();
-  int new_debug_idx = old_debug_idx+1;
+  int new_debug_idx = old_debug_idx + 1;
   if (new_debug_idx > 0) {
     // Arrange that the lowest five decimal digits of _debug_idx
     // will repeat those of _idx. In case this is somehow pathological,
     // we continue to assign negative numbers (!) consecutively.
     const int mod = 100000;
     int bump = (int)(_idx - new_debug_idx) % mod;
-    if (bump < 0)  bump += mod;
+    if (bump < 0) {
+      bump += mod;
+    }
     assert(bump >= 0 && bump < mod, "");
     new_debug_idx += bump;
   }
   Compile::set_debug_idx(new_debug_idx);
-  set_debug_idx( new_debug_idx );
-  assert(Compile::current()->unique() < (INT_MAX - 1), "Node limit exceeded INT_MAX");
-  assert(Compile::current()->live_nodes() < Compile::current()->max_node_limit(), "Live Node limit exceeded limit");
+  set_debug_idx(new_debug_idx);
+  Compile* C = Compile::current();
+  assert(C->unique() < (INT_MAX - 1), "Node limit exceeded INT_MAX");
+  if (!C->phase_optimize_finished()) {
+    // Only check assert during parsing and optimization phase. Skip it while generating code.
+    assert(C->live_nodes() <= C->max_node_limit(), "Live Node limit exceeded limit");
+  }
   if (BreakAtNode != 0 && (_debug_idx == BreakAtNode || (int)_idx == BreakAtNode)) {
     tty->print_cr("BreakAtNode: _idx=%d _debug_idx=%d", _idx, _debug_idx);
     BREAKPOINT;
@@ -1328,7 +1334,7 @@ static void kill_dead_code( Node *dead, PhaseIterGVN *igvn ) {
   if( dead->is_Con() ) return;
 
   ResourceMark rm;
-  Node_List  nstack(Thread::current()->resource_area());
+  Node_List nstack;
 
   Node *top = igvn->C->top();
   nstack.push(dead);
@@ -1548,80 +1554,95 @@ jfloat Node::getf() const {
 
 #ifndef PRODUCT
 
-//------------------------------find------------------------------------------
-// Find a neighbor of this Node with the given _idx
-// If idx is negative, find its absolute value, following both _in and _out.
-static void find_recur(Compile* C,  Node* &result, Node *n, int idx, bool only_ctrl,
-                        VectorSet* old_space, VectorSet* new_space ) {
-  int node_idx = (idx >= 0) ? idx : -idx;
-  if (NotANode(n))  return;  // Gracefully handle NULL, -1, 0xabababab, etc.
-  // Contained in new_space or old_space?   Check old_arena first since it's mostly empty.
-  VectorSet *v = C->old_arena()->contains(n) ? old_space : new_space;
-  if( v->test(n->_idx) ) return;
-  if( (int)n->_idx == node_idx
-      debug_only(|| n->debug_idx() == node_idx) ) {
-    if (result != NULL)
-      tty->print("find: " INTPTR_FORMAT " and " INTPTR_FORMAT " both have idx==%d\n",
-                 (uintptr_t)result, (uintptr_t)n, node_idx);
-    result = n;
-  }
-  v->set(n->_idx);
-  for( uint i=0; i<n->len(); i++ ) {
-    if( only_ctrl && !(n->is_Region()) && (n->Opcode() != Op_Root) && (i != TypeFunc::Control) ) continue;
-    find_recur(C, result, n->in(i), idx, only_ctrl, old_space, new_space );
-  }
-  // Search along forward edges also:
-  if (idx < 0 && !only_ctrl) {
-    for( uint j=0; j<n->outcnt(); j++ ) {
-      find_recur(C, result, n->raw_out(j), idx, only_ctrl, old_space, new_space );
-    }
-  }
-#ifdef ASSERT
-  // Search along debug_orig edges last, checking for cycles
-  Node* orig = n->debug_orig();
-  if (orig != NULL) {
-    do {
-      if (NotANode(orig))  break;
-      find_recur(C, result, orig, idx, only_ctrl, old_space, new_space );
-      orig = orig->debug_orig();
-    } while (orig != NULL && orig != n->debug_orig());
-  }
-#endif //ASSERT
-}
-
-// call this from debugger:
-Node* find_node(Node* n, int idx) {
+// Call this from debugger:
+Node* find_node(Node* n, const int idx) {
   return n->find(idx);
 }
 
-// call this from debugger with root node as default:
-Node* find_node(int idx) {
+// Call this from debugger with root node as default:
+Node* find_node(const int idx) {
   return Compile::current()->root()->find(idx);
 }
 
-//------------------------------find-------------------------------------------
-Node* Node::find(int idx) const {
-  ResourceArea *area = Thread::current()->resource_area();
-  VectorSet old_space(area), new_space(area);
-  Node* result = NULL;
-  find_recur(Compile::current(), result, (Node*) this, idx, false, &old_space, &new_space );
-  return result;
+// Call this from debugger:
+Node* find_ctrl(Node* n, const int idx) {
+  return n->find_ctrl(idx);
+}
+
+// Call this from debugger with root node as default:
+Node* find_ctrl(const int idx) {
+  return Compile::current()->root()->find_ctrl(idx);
 }
 
 //------------------------------find_ctrl--------------------------------------
 // Find an ancestor to this node in the control history with given _idx
-Node* Node::find_ctrl(int idx) const {
-  ResourceArea *area = Thread::current()->resource_area();
-  VectorSet old_space(area), new_space(area);
+Node* Node::find_ctrl(int idx) {
+  return find(idx, true);
+}
+
+//------------------------------find-------------------------------------------
+// Tries to find the node with the index |idx| starting from this node. If idx is negative,
+// the search also includes forward (out) edges. Returns NULL if not found.
+// If only_ctrl is set, the search will only be done on control nodes. Returns NULL if
+// not found or if the node to be found is not a control node (search will not find it).
+Node* Node::find(const int idx, bool only_ctrl) {
+  ResourceMark rm;
+  VectorSet old_space;
+  VectorSet new_space;
+  Node_List worklist;
+  Arena* old_arena = Compile::current()->old_arena();
+  add_to_worklist(this, &worklist, old_arena, &old_space, &new_space);
   Node* result = NULL;
-  find_recur(Compile::current(), result, (Node*) this, idx, true, &old_space, &new_space );
+  int node_idx = (idx >= 0) ? idx : -idx;
+
+  for (uint list_index = 0; list_index < worklist.size(); list_index++) {
+    Node* n = worklist[list_index];
+
+    if ((int)n->_idx == node_idx debug_only(|| n->debug_idx() == node_idx)) {
+      if (result != NULL) {
+        tty->print("find: " INTPTR_FORMAT " and " INTPTR_FORMAT " both have idx==%d\n",
+                  (uintptr_t)result, (uintptr_t)n, node_idx);
+      }
+      result = n;
+    }
+
+    for (uint i = 0; i < n->len(); i++) {
+      if (!only_ctrl || n->is_Region() || (n->Opcode() == Op_Root) || (i == TypeFunc::Control)) {
+        // If only_ctrl is set: Add regions, the root node, or control inputs only
+        add_to_worklist(n->in(i), &worklist, old_arena, &old_space, &new_space);
+      }
+    }
+
+    // Also search along forward edges if idx is negative and the search is not done on control nodes only
+    if (idx < 0 && !only_ctrl) {
+      for (uint i = 0; i < n->outcnt(); i++) {
+        add_to_worklist(n->raw_out(i), &worklist, old_arena, &old_space, &new_space);
+      }
+    }
+#ifdef ASSERT
+    // Search along debug_orig edges last
+    Node* orig = n->debug_orig();
+    while (orig != NULL && add_to_worklist(orig, &worklist, old_arena, &old_space, &new_space)) {
+      orig = orig->debug_orig();
+    }
+#endif // ASSERT
+  }
   return result;
 }
-#endif
 
+bool Node::add_to_worklist(Node* n, Node_List* worklist, Arena* old_arena, VectorSet* old_space, VectorSet* new_space) {
+  if (NotANode(n)) {
+    return false; // Gracefully handle NULL, -1, 0xabababab, etc.
+  }
 
-
-#ifndef PRODUCT
+  // Contained in new_space or old_space? Check old_arena first since it's mostly empty.
+  VectorSet* v = old_arena->contains(n) ? old_space : new_space;
+  if (!v->test_set(n->_idx)) {
+    worklist->push(n);
+    return true;
+  }
+  return false;
+}
 
 // -----------------------------Name-------------------------------------------
 extern const char *NodeClassNames[];
@@ -2137,8 +2158,9 @@ void Node::verify_edges(Unique_Node_List &visited) {
       }
       assert( cnt == 0,"Mismatched edge count.");
     } else if (n == NULL) {
-      assert(i >= req() || i == 0 || is_Region() || is_Phi() || is_ArrayCopy()
-              || (is_Unlock() && i == req()-1), "only region, phi, arraycopy or unlock nodes have null data edges");
+      assert(i >= req() || i == 0 || is_Region() || is_Phi() || is_ArrayCopy() || (is_Unlock() && i == req()-1)
+              || (is_MemBar() && i == 5), // the precedence edge to a membar can be removed during macro node expansion
+              "only region, phi, arraycopy, unlock or membar nodes have null data edges");
     } else {
       assert(n->is_top(), "sanity");
       // Nothing to check.
@@ -2156,10 +2178,9 @@ void Node::verify_edges(Unique_Node_List &visited) {
 void Node::verify(Node* n, int verify_depth) {
   assert(verify_depth != 0, "depth should not be 0");
   ResourceMark rm;
-  ResourceArea* area = Thread::current()->resource_area();
-  VectorSet old_space(area);
-  VectorSet new_space(area);
-  Node_List worklist(area);
+  VectorSet old_space;
+  VectorSet new_space;
+  Node_List worklist;
   worklist.push(n);
   Compile* C = Compile::current();
   uint last_index_on_current_depth = 0;
@@ -2223,12 +2244,12 @@ void Node::verify(Node* n, int verify_depth) {
     }
   }
 }
-#endif
+#endif // not PRODUCT
 
 //------------------------------walk-------------------------------------------
 // Graph walk, with both pre-order and post-order functions
 void Node::walk(NFunc pre, NFunc post, void *env) {
-  VectorSet visited(Thread::current()->resource_area()); // Setup for local walk
+  VectorSet visited; // Setup for local walk
   walk_(pre, post, env, visited);
 }
 

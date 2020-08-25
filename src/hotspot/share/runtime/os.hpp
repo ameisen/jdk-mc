@@ -27,9 +27,7 @@
 
 #include "jvm.h"
 #include "jvmtifiles/jvmti.h"
-#include "metaprogramming/isRegisteredEnum.hpp"
 #include "metaprogramming/integralConstant.hpp"
-#include "runtime/extendedPC.hpp"
 #include "utilities/exceptions.hpp"
 #include "utilities/ostream.hpp"
 #include "utilities/macros.hpp"
@@ -473,9 +471,8 @@ class os: AllStatic {
 
   static int pd_self_suspend_thread(Thread* thread);
 
-  static ExtendedPC fetch_frame_from_context(const void* ucVoid, intptr_t** sp, intptr_t** fp);
+  static address    fetch_frame_from_context(const void* ucVoid, intptr_t** sp, intptr_t** fp);
   static frame      fetch_frame_from_context(const void* ucVoid);
-  static frame      fetch_frame_from_ucontext(Thread* thread, void* ucVoid);
 
   static void breakpoint();
   static bool start_debugging(char *buf, int buflen);
@@ -973,10 +970,6 @@ class os: AllStatic {
   static bool set_boot_path(char fileSep, char pathSep);
 
 };
-
-#ifndef _WINDOWS
-template<> struct IsRegisteredEnum<os::SuspendResume::State> : public TrueType {};
-#endif // !_WINDOWS
 
 // Note that "PAUSE" is almost always used with synchronization
 // so arguably we should provide Atomic::SpinPause() instead

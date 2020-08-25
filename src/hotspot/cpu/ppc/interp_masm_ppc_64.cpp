@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2003, 2020, Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2012, 2018 SAP SE. All rights reserved.
+ * Copyright (c) 2012, 2020 SAP SE. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -30,6 +30,7 @@
 #include "gc/shared/barrierSetAssembler.hpp"
 #include "interp_masm_ppc.hpp"
 #include "interpreter/interpreterRuntime.hpp"
+#include "oops/methodData.hpp"
 #include "prims/jvmtiThreadState.hpp"
 #include "runtime/frame.inline.hpp"
 #include "runtime/safepointMechanism.hpp"
@@ -908,6 +909,13 @@ void InterpreterMacroAssembler::lock_object(Register monitor, Register object) {
 
     // Load markWord from object into displaced_header.
     ld(displaced_header, oopDesc::mark_offset_in_bytes(), object);
+
+    if (DiagnoseSyncOnPrimitiveWrappers != 0) {
+      load_klass(tmp, object);
+      lwz(tmp, in_bytes(Klass::access_flags_offset()), tmp);
+      testbitdi(CCR0, R0, tmp, exact_log2(JVM_ACC_IS_BOX_CLASS));
+      bne(CCR0, slow_case);
+    }
 
     if (UseBiasedLocking) {
       biased_locking_enter(CCR0, object, displaced_header, tmp, current_header, done, &slow_case);

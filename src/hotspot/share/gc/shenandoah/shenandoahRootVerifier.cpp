@@ -37,15 +37,14 @@
 #include "gc/shared/oopStorage.inline.hpp"
 #include "gc/shared/oopStorageSet.hpp"
 #include "gc/shared/weakProcessor.inline.hpp"
-#include "memory/universe.hpp"
 #include "runtime/thread.hpp"
-#include "services/management.hpp"
 #include "utilities/debug.hpp"
 
 // Check for overflow of number of root types.
 STATIC_ASSERT((static_cast<uint>(ShenandoahRootVerifier::AllRoots) + 1) > static_cast<uint>(ShenandoahRootVerifier::AllRoots));
 
 ShenandoahRootVerifier::ShenandoahRootVerifier(RootTypes types) : _types(types) {
+  Threads::change_thread_claim_token();
 }
 
 void ShenandoahRootVerifier::excludes(RootTypes types) {
@@ -75,16 +74,13 @@ void ShenandoahRootVerifier::oops_do(OopClosure* oops) {
 
   if (verify(SerialRoots)) {
     shenandoah_assert_safepoint();
-    Universe::oops_do(oops);
-    Management::oops_do(oops);
-    JvmtiExport::oops_do(oops);
     ObjectSynchronizer::oops_do(oops);
   }
 
   if (verify(JNIHandleRoots)) {
     shenandoah_assert_safepoint();
     JNIHandles::oops_do(oops);
-    OopStorageSet::vm_global()->oops_do(oops);
+    Universe::vm_global()->oops_do(oops);
   }
 
   if (verify(WeakRoots)) {
@@ -121,12 +117,9 @@ void ShenandoahRootVerifier::roots_do(OopClosure* oops) {
   CLDToOopClosure clds(oops, ClassLoaderData::_claim_none);
   ClassLoaderDataGraph::cld_do(&clds);
 
-  Universe::oops_do(oops);
-  Management::oops_do(oops);
-  JvmtiExport::oops_do(oops);
   JNIHandles::oops_do(oops);
   ObjectSynchronizer::oops_do(oops);
-  OopStorageSet::vm_global()->oops_do(oops);
+  Universe::vm_global()->oops_do(oops);
 
   AlwaysTrueClosure always_true;
   WeakProcessor::weak_oops_do(&always_true, oops);
@@ -138,7 +131,7 @@ void ShenandoahRootVerifier::roots_do(OopClosure* oops) {
   // Do thread roots the last. This allows verification code to find
   // any broken objects from those special roots first, not the accidental
   // dangling reference from the thread root.
-  Threads::possibly_parallel_oops_do(false, oops, &blobs);
+  Threads::possibly_parallel_oops_do(true, oops, &blobs);
 }
 
 void ShenandoahRootVerifier::strong_roots_do(OopClosure* oops) {
@@ -149,17 +142,14 @@ void ShenandoahRootVerifier::strong_roots_do(OopClosure* oops) {
   CLDToOopClosure clds(oops, ClassLoaderData::_claim_none);
   ClassLoaderDataGraph::roots_cld_do(&clds, NULL);
 
-  Universe::oops_do(oops);
-  Management::oops_do(oops);
-  JvmtiExport::oops_do(oops);
   JNIHandles::oops_do(oops);
   ObjectSynchronizer::oops_do(oops);
-  OopStorageSet::vm_global()->oops_do(oops);
+  Universe::vm_global()->oops_do(oops);
 
   // Do thread roots the last. This allows verification code to find
   // any broken objects from those special roots first, not the accidental
   // dangling reference from the thread root.
-  Threads::possibly_parallel_oops_do(false, oops, &blobs);
+  Threads::possibly_parallel_oops_do(true, oops, &blobs);
 }
 
 void ShenandoahRootVerifier::serial_weak_roots_do(OopClosure* cl) {

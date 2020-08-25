@@ -32,6 +32,7 @@
 #include "memory/iterator.hpp"
 #include "memory/metaspaceClosure.hpp"
 #include "memory/resourceArea.hpp"
+#include "memory/universe.hpp"
 #include "oops/oop.inline.hpp"
 #include "oops/oopHandle.inline.hpp"
 #include "runtime/mutexLocker.hpp"
@@ -406,14 +407,14 @@ oop SymbolPropertyEntry::method_type() const {
 }
 
 void SymbolPropertyEntry::set_method_type(oop p) {
-  _method_type = OopHandle::create(p);
+  _method_type = OopHandle(Universe::vm_global(), p);
 }
 
 void SymbolPropertyEntry::free_entry() {
   // decrement Symbol refcount here because hashtable doesn't.
   literal()->decrement_refcount();
   // Free OopHandle
-  _method_type.release();
+  _method_type.release(Universe::vm_global());
 }
 
 SymbolPropertyTable::SymbolPropertyTable(int table_size)

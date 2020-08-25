@@ -127,7 +127,7 @@
   template(jdk_internal_vm_PostVMInitHook,            "jdk/internal/vm/PostVMInitHook")           \
   template(sun_net_www_ParseUtil,                     "sun/net/www/ParseUtil")                    \
   template(java_util_Iterator,                        "java/util/Iterator")                       \
-  template(java_lang_Record,                          "java/lang/Record")                       \
+  template(java_lang_Record,                          "java/lang/Record")                         \
                                                                                                   \
   template(jdk_internal_loader_NativeLibraries,       "jdk/internal/loader/NativeLibraries")      \
   template(jdk_internal_loader_ClassLoaders_AppClassLoader,      "jdk/internal/loader/ClassLoaders$AppClassLoader")      \
@@ -1044,11 +1044,15 @@
    do_intrinsic(_counterMode_AESCrypt, com_sun_crypto_provider_counterMode, crypt_name, byteArray_int_int_byteArray_int_signature, F_R)   \
    do_name(     crypt_name,                                 "implCrypt")                                                    \
                                                                                                                         \
+  /* support for sun.security.provider.MD5 */                                                                           \
+  do_class(sun_security_provider_md5,                              "sun/security/provider/MD5")                         \
+  do_intrinsic(_md5_implCompress, sun_security_provider_md5, implCompress_name, implCompress_signature, F_R)            \
+   do_name(     implCompress_name,                                 "implCompress0")                                     \
+   do_signature(implCompress_signature,                            "([BI)V")                                            \
+                                                                                                                        \
   /* support for sun.security.provider.SHA */                                                                           \
   do_class(sun_security_provider_sha,                              "sun/security/provider/SHA")                         \
   do_intrinsic(_sha_implCompress, sun_security_provider_sha, implCompress_name, implCompress_signature, F_R)            \
-   do_name(     implCompress_name,                                 "implCompress0")                                     \
-   do_signature(implCompress_signature,                            "([BI)V")                                            \
                                                                                                                         \
   /* support for sun.security.provider.SHA2 */                                                                          \
   do_class(sun_security_provider_sha2,                             "sun/security/provider/SHA2")                        \
@@ -1635,7 +1639,10 @@ private:
                          vmSymbols::SID sig,
                          jshort flags);
 
+  // check if the intrinsic is disabled by course-grained flags.
+  static bool disabled_by_jvm_flags(vmIntrinsics::ID id);
 public:
+  static ID find_id(const char* name);
   // Given a method's class, name, signature, and access flags, report its ID.
   static ID find_id(vmSymbols::SID holder,
                     vmSymbols::SID name,
@@ -1685,12 +1692,25 @@ public:
   // 'method' requires predicated logic.
   static int predicates_needed(vmIntrinsics::ID id);
 
-  // Returns true if a compiler intrinsic is disabled by command-line flags
-  // and false otherwise.
-  static bool is_disabled_by_flags(const methodHandle& method);
+  // There are 2 kinds of JVM options to control intrinsics.
+  // 1. Disable/Control Intrinsic accepts a list of intrinsic IDs.
+  //    ControlIntrinsic is recommended. DisableIntrinic will be deprecated.
+  //    Currently, the DisableIntrinsic list prevails if an intrinsic appears on
+  //    both lists.
+  //
+  // 2. Explicit UseXXXIntrinsics options. eg. UseAESIntrinsics, UseCRC32Intrinsics etc.
+  //    Each option can control a group of intrinsics. The user can specify them but
+  //    their final values are subject to hardware inspection (VM_Version::initialize).
+  //    Stub generators are controlled by them.
+  //
+  // An intrinsic is enabled if and only if neither the fine-grained control(1) nor
+  // the corresponding coarse-grained control(2) disables it.
   static bool is_disabled_by_flags(vmIntrinsics::ID id);
-  static bool is_intrinsic_disabled(vmIntrinsics::ID id);
-  static bool is_intrinsic_available(vmIntrinsics::ID id);
+
+  static bool is_disabled_by_flags(const methodHandle& method);
+  static bool is_intrinsic_available(vmIntrinsics::ID id) {
+    return !is_disabled_by_flags(id);
+  }
 };
 
 #endif // SHARE_CLASSFILE_VMSYMBOLS_HPP

@@ -90,12 +90,6 @@ bool Jfr::is_excluded(Thread* t) {
   return t != NULL && t->jfr_thread_local()->is_excluded();
 }
 
-void Jfr::on_java_thread_dismantle(JavaThread* jt) {
-  if (JfrRecorder::is_recording()) {
-    JfrCheckpointManager::write_thread_checkpoint(jt);
-  }
-}
-
 void Jfr::on_vm_shutdown(bool exception_handler) {
   if (JfrRecorder::is_recording()) {
     JfrEmergencyDump::on_vm_shutdown(exception_handler);
@@ -105,12 +99,6 @@ void Jfr::on_vm_shutdown(bool exception_handler) {
 void Jfr::on_vm_error_report(outputStream* st) {
   if (JfrRecorder::is_recording()) {
     JfrRepository::on_vm_error_report(st);
-  }
-}
-
-void Jfr::weak_oops_do(BoolObjectClosure* is_alive, OopClosure* f) {
-  if (LeakProfiler::is_running()) {
-    LeakProfiler::weak_oops_do(is_alive, f);
   }
 }
 

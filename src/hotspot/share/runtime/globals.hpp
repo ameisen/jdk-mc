@@ -191,9 +191,6 @@ const size_t minimumSymbolTableSize = 1024;
           "Granularity to use for NUMA interleaving on Windows OS")         \
           range(os::vm_allocation_granularity(), NOT_LP64(2*G) LP64_ONLY(8192*G)) \
                                                                             \
-  product(bool, ForceNUMA, false,                                           \
-          "(Deprecated) Force NUMA optimizations on single-node/UMA systems") \
-                                                                            \
   product(uintx, NUMAChunkResizeWeight, 20,                                 \
           "Percentage (0-100) used to weight the current sample when "      \
           "computing exponentially decaying average for "                   \
@@ -323,6 +320,9 @@ const size_t minimumSymbolTableSize = 1024;
   diagnostic(bool, UseAESCTRIntrinsics, false,                              \
           "Use intrinsics for the paralleled version of AES/CTR crypto")    \
                                                                             \
+  diagnostic(bool, UseMD5Intrinsics, false,                                 \
+          "Use intrinsics for MD5 crypto hash function")                    \
+                                                                            \
   diagnostic(bool, UseSHA1Intrinsics, false,                                \
           "Use intrinsics for SHA-1 crypto hash function. "                 \
           "Requires that UseSHA is enabled.")                               \
@@ -349,6 +349,10 @@ const size_t minimumSymbolTableSize = 1024;
                                                                             \
   diagnostic(ccstrlist, DisableIntrinsic, "",                               \
          "do not expand intrinsics whose (internal) names appear here")     \
+                                                                            \
+  diagnostic(ccstrlist, ControlIntrinsic, "",                               \
+         "Control intrinsics using a list of +/- (internal) names, "        \
+         "separated by commas")                                             \
                                                                             \
   develop(bool, TraceCallFixup, false,                                      \
           "Trace all call fixups")                                          \
@@ -534,6 +538,10 @@ const size_t minimumSymbolTableSize = 1024;
   product(bool, PrintCompilation, false,                                    \
           "Print compilations")                                             \
                                                                             \
+  diagnostic(intx, RepeatCompilation, 0,                                    \
+          "Repeat compilation without installing code (number of times)")   \
+          range(0, max_jint)                                                 \
+                                                                            \
   product(bool, PrintExtendedThreadInfo, false,                             \
           "Print more information in thread dump")                          \
                                                                             \
@@ -680,9 +688,6 @@ const size_t minimumSymbolTableSize = 1024;
                "Disable the use of stack guard pages if the JVM is loaded " \
                "on the primordial process thread")                          \
                                                                             \
-  diagnostic(bool, AsyncDeflateIdleMonitors, true,                          \
-          "Deflate idle monitors using the ServiceThread.")                 \
-                                                                            \
   /* notice: the max range value here is max_jint, not max_intx  */         \
   /* because of overflow issue                                   */         \
   diagnostic(intx, AsyncDeflationInterval, 250,                             \
@@ -803,6 +808,16 @@ const size_t minimumSymbolTableSize = 1024;
           range(500, max_intx)                                              \
           constraint(BiasedLockingDecayTimeFunc,AfterErgo)                  \
                                                                             \
+  diagnostic(intx, DiagnoseSyncOnPrimitiveWrappers, 0,                      \
+             "Detect and take action upon identifying synchronization on "  \
+             "primitive wrappers. Modes: "                                  \
+             "0: off; "                                                     \
+             "1: exit with fatal error; "                                   \
+             "2: log message to stdout. Output file can be specified with " \
+             "   -Xlog:primitivewrappers. If JFR is running it will "       \
+             "   also generate JFR events.")                                \
+             range(0, 2)                                                    \
+                                                                            \
   product(bool, ExitOnOutOfMemoryError, false,                              \
           "JVM exits on the first occurrence of an out-of-memory error")    \
                                                                             \
@@ -863,7 +878,7 @@ const size_t minimumSymbolTableSize = 1024;
           "Time calls to GenerateOopMap::compute_map() individually")       \
                                                                             \
   develop(bool, TraceOopMapRewrites, false,                                 \
-          "Trace rewriting of method oops during oop map generation")       \
+          "Trace rewriting of methods during oop map generation")           \
                                                                             \
   develop(bool, TraceICBuffer, false,                                       \
           "Trace usage of IC buffer")                                       \
@@ -2446,9 +2461,6 @@ const size_t minimumSymbolTableSize = 1024;
                                                                             \
   experimental(bool, UseFastUnorderedTimeStamps, false,                     \
           "Use platform unstable time where supported for timestamps only") \
-                                                                            \
-  product(bool, UseNewFieldLayout, true,                                    \
-               "(Deprecated) Use new algorithm to compute field layouts")   \
                                                                             \
   product(bool, UseEmptySlotsInSupers, true,                                \
                 "Allow allocating fields in empty slots of super-classes")  \

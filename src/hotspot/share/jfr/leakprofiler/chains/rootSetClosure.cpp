@@ -27,18 +27,15 @@
 #include "classfile/classLoaderDataGraph.hpp"
 #include "classfile/stringTable.hpp"
 #include "gc/shared/oopStorage.inline.hpp"
-#include "gc/shared/oopStorageSet.hpp"
+#include "gc/shared/oopStorageSet.inline.hpp"
 #include "gc/shared/strongRootsScope.hpp"
 #include "jfr/leakprofiler/chains/bfsClosure.hpp"
 #include "jfr/leakprofiler/chains/dfsClosure.hpp"
 #include "jfr/leakprofiler/chains/edgeQueue.hpp"
 #include "jfr/leakprofiler/chains/rootSetClosure.hpp"
 #include "jfr/leakprofiler/utilities/unifiedOopRef.inline.hpp"
-#include "memory/universe.hpp"
 #include "oops/access.inline.hpp"
 #include "oops/oop.inline.hpp"
-#include "prims/jvmtiExport.hpp"
-#include "runtime/jniHandles.inline.hpp"
 #include "runtime/synchronizer.hpp"
 #include "runtime/thread.hpp"
 #include "services/management.hpp"
@@ -75,11 +72,7 @@ void RootSetClosure<Delegate>::process() {
   // We don't follow code blob oops, because they have misaligned oops.
   Threads::oops_do(this, NULL);
   ObjectSynchronizer::oops_do(this);
-  Universe::oops_do(this);
-  JNIHandles::oops_do(this);
-  JvmtiExport::oops_do(this);
-  OopStorageSet::vm_global()->oops_do(this);
-  Management::oops_do(this);
+  OopStorageSet::strong_oops_do(this);
   AOTLoader::oops_do(this);
 }
 

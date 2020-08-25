@@ -308,6 +308,8 @@ public class HotSpotReplacementsUtil {
      */
     public static final LocationIdentity JAVA_THREAD_THREAD_OBJECT_LOCATION = NamedLocationIdentity.immutable("JavaThread::_threadObj");
 
+    public static final LocationIdentity JAVA_THREAD_THREAD_OBJECT_HANDLE_LOCATION = NamedLocationIdentity.immutable("JavaThread::_threadObj handle");
+
     @Fold
     public static int threadObjectOffset(@InjectedParameter GraalHotSpotVMConfig config) {
         return config.threadObjectOffset;
@@ -603,6 +605,11 @@ public class HotSpotReplacementsUtil {
 
     public static Word arrayStart(int[] a) {
         return WordFactory.unsigned(ComputeObjectAddressNode.get(a, ReplacementsUtil.getArrayBaseOffset(INJECTED_METAACCESS, JavaKind.Int)));
+    }
+
+    @Fold
+    public static boolean verifyBeforeOrAfterGC(@InjectedParameter GraalHotSpotVMConfig config) {
+        return config.verifyBeforeGC || config.verifyAfterGC;
     }
 
     /**

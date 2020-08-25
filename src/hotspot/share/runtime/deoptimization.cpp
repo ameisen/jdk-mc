@@ -1,5 +1,3 @@
-
-
 /*
  * Copyright (c) 1997, 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
@@ -218,6 +216,8 @@ static bool eliminate_allocations(JavaThread* thread, int exec_mode, CompiledMet
 }
 
 static void eliminate_locks(JavaThread* thread, GrowableArray<compiledVFrame*>* chunk, bool realloc_failures) {
+  assert(thread == Thread::current(), "should be");
+  HandleMark hm(thread);
 #ifndef PRODUCT
   bool first = true;
 #endif
@@ -596,16 +596,9 @@ void Deoptimization::cleanup_deopt_info(JavaThread *thread,
 
 
   if (JvmtiExport::can_pop_frame()) {
-#ifndef CC_INTERP
     // Regardless of whether we entered this routine with the pending
     // popframe condition bit set, we should always clear it now
     thread->clear_popframe_condition();
-#else
-    // C++ interpreter will clear has_pending_popframe when it enters
-    // with method_resume. For deopt_resume2 we clear it now.
-    if (thread->popframe_forcing_deopt_reexecution())
-        thread->clear_popframe_condition();
-#endif /* CC_INTERP */
   }
 
   // unpack_frames() is called at the end of the deoptimization handler
@@ -644,7 +637,7 @@ JRT_LEAF(BasicType, Deoptimization::unpack_frames(JavaThread* thread, int exec_m
   // but makes the entry a little slower. There is however a little dance we have to
   // do in debug mode to get around the NoHandleMark code in the JRT_LEAF macro
   ResetNoHandleMark rnhm; // No-op in release/product versions
-  HandleMark hm;
+  HandleMark hm(thread);
 
   frame stub_frame = thread->last_frame();
 
@@ -1542,6 +1535,9 @@ void Deoptimization::revoke_from_deopt_handler(JavaThread* thread, frame fr, Reg
   if (!UseBiasedLocking) {
     return;
   }
+  assert(thread == Thread::current(), "should be");
+  ResourceMark rm(thread);
+  HandleMark hm(thread);
   GrowableArray<Handle>* objects_to_revoke = new GrowableArray<Handle>();
   get_monitors_from_stack(objects_to_revoke, thread, fr, map);
 
@@ -1773,7 +1769,7 @@ static void post_deoptimization_event(CompiledMethod* nm,
 #endif // INCLUDE_JFR
 
 JRT_ENTRY(void, Deoptimization::uncommon_trap_inner(JavaThread* thread, jint trap_request)) {
-  HandleMark hm;
+  HandleMark hm(thread);
 
   // uncommon_trap() is called at the beginning of the uncommon trap
   // handler. Note this fact before we start generating temporary frames
