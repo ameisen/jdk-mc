@@ -82,7 +82,7 @@ const char* ShenandoahPassiveHeuristics::name() {
 }
 
 bool ShenandoahPassiveHeuristics::is_diagnostic() {
-  return true;
+  return false;
 }
 
 bool ShenandoahPassiveHeuristics::is_experimental() {

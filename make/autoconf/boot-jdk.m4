@@ -362,6 +362,8 @@ AC_DEFUN_ONCE([BOOTJDK_SETUP_BOOT_JDK],
   # Try to enable CDS
   AC_MSG_CHECKING([for local Boot JDK Class Data Sharing (CDS)])
   BOOT_JDK_CDS_ARCHIVE=$CONFIGURESUPPORT_OUTPUTDIR/classes.jsa
+	BOOT_JDK_CDS_ARCHIVE=`if command -v cygpath > /dev/null; then cygpath -m "$BOOT_JDK_CDS_ARCHIVE"; else $ECHO -n "$BOOT_JDK_CDS_ARCHIVE"; fi`
+	
   ADD_JVM_ARG_IF_OK([-XX:+UnlockDiagnosticVMOptions -XX:-VerifySharedSpaces -XX:SharedArchiveFile=$BOOT_JDK_CDS_ARCHIVE],boot_jdk_cds_args,[$JAVA])
 
   if test "x$boot_jdk_cds_args" != x; then
@@ -470,7 +472,7 @@ AC_DEFUN_ONCE([BOOTJDK_SETUP_BOOT_JDK_ARGUMENTS],
   AC_MSG_CHECKING([flags for boot jdk java command for small workloads])
 
   # Use serial gc for small short lived tools if possible
-  ADD_JVM_ARG_IF_OK([-XX:+UseShenandoah],boot_jdk_jvmargs_small,[$JAVA])
+  # ADD_JVM_ARG_IF_OK([-XX:+UnlockExperimentalVMOptions -XX:+UseShenandoahGC],boot_jdk_jvmargs_small,[$JAVA])
   ADD_JVM_ARG_IF_OK([-Xms32M],boot_jdk_jvmargs_small,[$JAVA])
   ADD_JVM_ARG_IF_OK([-Xmx1G],boot_jdk_jvmargs_small,[$JAVA])
   ADD_JVM_ARG_IF_OK([-XX:TieredStopAtLevel=1],boot_jdk_jvmargs_small,[$JAVA])

@@ -75,9 +75,11 @@ class UnsafeQualifiedCharacterFieldAccessorImpl
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
+        /*
         if (isReadOnly) {
             throwFinalFieldIllegalAccessException(value);
         }
+        */
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -104,9 +106,11 @@ class UnsafeQualifiedCharacterFieldAccessorImpl
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
+        /*
         if (isReadOnly) {
             throwFinalFieldIllegalAccessException(c);
         }
+        */
         unsafe.putCharVolatile(obj, fieldOffset, c);
     }
 

@@ -75,9 +75,11 @@ class UnsafeQualifiedIntegerFieldAccessorImpl
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
+        /*
         if (isReadOnly) {
             throwFinalFieldIllegalAccessException(value);
         }
+        */
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -128,9 +130,11 @@ class UnsafeQualifiedIntegerFieldAccessorImpl
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
+        /*
         if (isReadOnly) {
             throwFinalFieldIllegalAccessException(i);
         }
+        */
         unsafe.putIntVolatile(obj, fieldOffset, i);
     }
 

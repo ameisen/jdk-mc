@@ -186,8 +186,8 @@ AC_DEFUN([FLAGS_SETUP_WARNINGS],
           -Wunused-function -Wundef -Wunused-value -Wreturn-type \
           -Wtrampolines"
       WARNINGS_ENABLE_ADDITIONAL_CXX="-Woverloaded-virtual -Wreorder"
-      WARNINGS_ENABLE_ALL_CFLAGS="-march=native -O3 -Wall -Wextra -Wformat=2 $WARNINGS_ENABLE_ADDITIONAL -Wno-shift-negative-value -Wno-error=cpp -Wno-cpp"
-      WARNINGS_ENABLE_ALL_CXXFLAGS="-std=gnu++17 $WARNINGS_ENABLE_ALL_CFLAGS $WARNINGS_ENABLE_ADDITIONAL_CXX -Wno-deprecated-copy"
+      WARNINGS_ENABLE_ALL_CFLAGS="-march=haswell -O3 -fmerge-all-constants -fmerge-all-constants -Wall -Wextra -Wformat=2 $WARNINGS_ENABLE_ADDITIONAL -Wno-shift-negative-value -Wno-error=cpp -Wno-cpp -Wno-maybe-uninitialized"
+      WARNINGS_ENABLE_ALL_CXXFLAGS="-std=gnu++17 $WARNINGS_ENABLE_ALL_CFLAGS $WARNINGS_ENABLE_ADDITIONAL_CXX -Wno-deprecated-copy -fno-threadsafe-statics"
 
       DISABLED_WARNINGS="unused-parameter unused"
       BUILD_CC_DISABLE_WARNING_PREFIX="-Wno-"
@@ -275,14 +275,17 @@ AC_DEFUN([FLAGS_SETUP_OPTIMIZATION],
       C_O_FLAG_NORM="-xO2 -Wc,-Qrm-s -Wc,-Qiselect-T0"
     fi
   elif test "x$TOOLCHAIN_TYPE" = xgcc; then
-    C_O_FLAG_HIGHEST_JVM="-O3"
-    C_O_FLAG_HIGHEST="-O3"
-    C_O_FLAG_HI="-O3"
-    C_O_FLAG_NORM="-O2"
-    C_O_FLAG_SIZE="-Os"
-    C_O_FLAG_DEBUG="-O0"
-    C_O_FLAG_DEBUG_JVM="-O0"
-    C_O_FLAG_NONE="-O0"
+		C_O_COMMON_FLAGS="-Wno-maybe-uninitialized"
+		C_O_COMMON_FLAGS_OPT="-O3 -march=haswell -fmerge-all-constants $C_O_COMMON_FLAGS"
+	
+    C_O_FLAG_HIGHEST_JVM="$C_O_COMMON_FLAGS_OPT"
+    C_O_FLAG_HIGHEST="$C_O_COMMON_FLAGS_OPT"
+    C_O_FLAG_HI="$C_O_COMMON_FLAGS_OPT"
+    C_O_FLAG_NORM="$C_O_COMMON_FLAGS_OPT"
+    C_O_FLAG_SIZE="$C_O_COMMON_FLAGS_OPT"
+    C_O_FLAG_DEBUG="-O0 $C_O_COMMON_FLAGS"
+    C_O_FLAG_DEBUG_JVM="-O0 $C_O_COMMON_FLAGS"
+    C_O_FLAG_NONE="-O0 $C_O_COMMON_FLAGS"
     # -D_FORTIFY_SOURCE=2 hardening option needs optimization (at least -O1) enabled
     # set for lower O-levels -U_FORTIFY_SOURCE to overwrite previous settings
     if test "x$OPENJDK_TARGET_OS" = xlinux -a "x$DEBUG_LEVEL" = "xfastdebug"; then
@@ -326,14 +329,22 @@ AC_DEFUN([FLAGS_SETUP_OPTIMIZATION],
     C_O_FLAG_DEBUG_JVM=""
     C_O_FLAG_NONE="-qnoopt"
   elif test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
-    C_O_FLAG_HIGHEST_JVM="-O2 -Oy-"
-    C_O_FLAG_HIGHEST="-O2"
-    C_O_FLAG_HI="-O1"
-    C_O_FLAG_NORM="-O1"
+    MS_CFLAGS=" /O2 /Ob3 /arch:AVX2 /favor:INTEL64 /fp:fast /GS- /Qpar /volatile:iso"
+    MS_CFLAGS+=" /Gw /Gy /MP"
+    MS_CFLAGS+=" /Zc:alignedNew /Zc:__cplusplus /Zc:forScope /Zc:threadSafeInit- /Zc:throwingNew"
+    case "x$CC" in
+      xclang*) MS_CFLAGS+=" -m64 -Wno-narrowing -fms-compatibility -fms-extensions -fms-compatibility-version=19.26.28806";;
+      *) MS_CFLAGS+=" /QIntel-jcc-erratum /GL";;
+    esac
+
+    C_O_FLAG_HIGHEST_JVM="$MS_CFLAGS"
+    C_O_FLAG_HIGHEST="$MS_CFLAGS"
+    C_O_FLAG_HI="$MS_CFLAGS"
+    C_O_FLAG_NORM="$MS_CFLAGS"
     C_O_FLAG_DEBUG="-Od"
     C_O_FLAG_DEBUG_JVM=""
     C_O_FLAG_NONE="-Od"
-    C_O_FLAG_SIZE="-Os"
+    C_O_FLAG_SIZE="$MS_CFLAGS -Os"
   fi
 
   # Now copy to C++ flags
@@ -345,6 +356,17 @@ AC_DEFUN([FLAGS_SETUP_OPTIMIZATION],
   CXX_O_FLAG_DEBUG_JVM="$C_O_FLAG_DEBUG_JVM"
   CXX_O_FLAG_NONE="$C_O_FLAG_NONE"
   CXX_O_FLAG_SIZE="$C_O_FLAG_SIZE"
+	
+	if test "x$TOOLCHAIN_TYPE" = xgcc; then
+    CXX_O_FLAG_HIGHEST_JVM="$CXX_O_FLAG_HIGHEST_JVM -fno-threadsafe-statics"
+    CXX_O_FLAG_HIGHEST="$CXX_O_FLAG_HIGHEST -fno-threadsafe-statics"
+    CXX_O_FLAG_HI="$CXX_O_FLAG_HI -fno-threadsafe-statics"
+    CXX_O_FLAG_NORM="$CXX_O_FLAG_NORM -fno-threadsafe-statics"
+    CXX_O_FLAG_DEBUG="$CXX_O_FLAG_DEBUG -fno-threadsafe-statics"
+    CXX_O_FLAG_DEBUG_JVM="$CXX_O_FLAG_DEBUG_JVM -fno-threadsafe-statics"
+    CXX_O_FLAG_NONE="$CXX_O_FLAG_NONE -fno-threadsafe-statics"
+    CXX_O_FLAG_SIZE="$CXX_O_FLAG_SIZE -fno-threadsafe-statics"
+	fi
 
   if test "x$TOOLCHAIN_TYPE" = xsolstudio; then
     # In solstudio, also add this to C (but not C++) flags...

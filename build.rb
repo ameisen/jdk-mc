@@ -7,6 +7,36 @@ CONFIG_NAME = "mc"
 BUILD_PLATFORM = System::build_platform
 TARGET_PLATFORM = BUILD_PLATFORM
 
+DEFAULT_GNU_CFLAGS = [
+]
+
+DEFAULT_GNU_CXXFLAGS = DEFAULT_GNU_CFLAGS + [
+]
+
+DEFAULT_GNU_LDFLAGS = [
+]
+
+DEFAULT_LLVM_CFLAGS = [
+]
+
+DEFAULT_LLVM_CXXFLAGS = DEFAULT_LLVM_CFLAGS + [
+]
+
+DEFAULT_LLVM_LDFLAGS = [
+]
+
+DEFAULT_MSVC_CFLAGS = [
+	"msvc_cflag"
+]
+
+DEFAULT_MSVC_CXXFLAGS = DEFAULT_MSVC_CFLAGS + [
+	"msvc_cxxflag"
+]
+
+DEFAULT_MSVC_LDFLAGS = [
+	"msvc_ldflag"
+]
+
 # Include the global configuration file if there is one
 GLOBAL_BUILD_CFG_PATH = File.join(Dir.pwd, ".build.rb")
 if File.exist?(GLOBAL_BUILD_CFG_PATH)
@@ -38,6 +68,9 @@ module Options
 	@toolchain = Toolchains::get_default
 	@project = false
 	@native = false
+	@cflags = nil
+	@cxxflags = nil
+	@ldflags = nil
 
 	module Pass
 		@cleared = false
@@ -113,6 +146,16 @@ cmd_arguments = {
 }
 
 Argument.process(ARGV, cmd_arguments)
+
+Options::cflags, Options::cxxflags, Options::ldflags = *{
+	Toolchains::GNU  => [DEFAULT_GNU_CFLAGS, DEFAULT_GNU_CXXFLAGS, DEFAULT_GNU_LDFLAGS],
+	Toolchains::LLVM => [DEFAULT_LLVM_CFLAGS, DEFAULT_LLVM_CXXFLAGS, DEFAULT_LLVM_LDFLAGS],
+	Toolchains::MSVC => [DEFAULT_MSVC_CFLAGS, DEFAULT_MSVC_CXXFLAGS, DEFAULT_MSVC_LDFLAGS]
+}[Options::toolchain]
+
+ENV["_JAVA_BUILD_CFLAGS"] = Options::cflags.join(" ")
+ENV["_JAVA_BUILD_CXXFLAGS"] = Options::cxxflags.join(" ")
+ENV["_JAVA_BUILD_LDFLAGS"] = Options::ldflags.join(" ")
 
 if (Options::Pass::clear_term)
 	puts "\e[H\e[2J"
@@ -347,6 +390,10 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 				]
 			end
 		end
+		
+		configure_add_env.call("_JAVA_BUILD_CFLAGS")
+		configure_add_env.call("_JAVA_BUILD_CXXFLAGS")
+		configure_add_env.call("_JAVA_BUILD_LDFLAGS")
 
 		configure_flags << "--with-extra-cflags=#{extra_cflags.join(" ")}" unless extra_cflags.empty?
 

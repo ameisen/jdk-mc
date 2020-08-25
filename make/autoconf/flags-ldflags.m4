@@ -65,7 +65,7 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_HELPER],
     # If this is a --hash-style=gnu system, use --hash-style=both, why?
     # We have previously set HAS_GNU_HASH if this is the case
     if test -n "$HAS_GNU_HASH"; then
-      BASIC_LDFLAGS="-Wl,--hash-style=both -Wl,--allow-multiple-definition -O3 -march=native -std=gnu++17"
+      BASIC_LDFLAGS="-Wl,--hash-style=both"
       LIBJSIG_HASHSTYLE_LDFLAGS="-Wl,--hash-style=both"
     fi
 
@@ -76,6 +76,10 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_HELPER],
     if test "x$OPENJDK_TARGET_CPU" = xs390x; then
       BASIC_LDFLAGS="$BASIC_LDFLAGS -Wl,--gc-sections -Wl,--print-gc-sections"
     fi
+		
+		BASIC_LDFLAGS="$BASIC_LDFLAGS -Wl,--allow-multiple-definition -O3 -march=haswell -std=gnu++17 -fmerge-all-constants -fno-threadsafe-statics -Wno-maybe-uninitialized"
+		BASIC_LDFLAGS="$BASIC_LDFLAGS -Wl,--relax"
+		BASIC_LDFLAGS="$BASIC_LDFLAGS -Wl,-O1"
 
     BASIC_LDFLAGS_JVM_ONLY="-Wl,-O1"
 
@@ -185,14 +189,20 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_CPU_DEP],
     fi
 
   elif test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
+    MS_LDFLAGS=" /LARGEADDRESSAWARE /OPT:REF /OPT:ICF"
+    case "x$LD" in
+      xlld*) ;;
+      *) MS_LDFLAGS+=" /CGTHREADS:8 /LTCG" ;;
+    esac
+
     if test "x${OPENJDK_$1_CPU}" = "xx86"; then
-      $1_CPU_LDFLAGS="-safeseh"
+      $1_CPU_LDFLAGS="-safeseh $MS_LDFLAGS"
       # NOTE: Old build added -machine. Probably not needed.
-      $1_CPU_LDFLAGS_JVM_ONLY="-machine:I386"
-      $1_CPU_EXECUTABLE_LDFLAGS="-stack:327680"
+      $1_CPU_LDFLAGS_JVM_ONLY="-machine:I386 $MS_LDFLAGS"
+      $1_CPU_EXECUTABLE_LDFLAGS="-stack:327680 $MS_LDFLAGS"
     else
-      $1_CPU_LDFLAGS_JVM_ONLY="-machine:AMD64"
-      $1_CPU_EXECUTABLE_LDFLAGS="-stack:1048576"
+      $1_CPU_LDFLAGS_JVM_ONLY="-machine:AMD64 $MS_LDFLAGS"
+      $1_CPU_EXECUTABLE_LDFLAGS="-stack:1048576 $MS_LDFLAGS"
     fi
   fi
 

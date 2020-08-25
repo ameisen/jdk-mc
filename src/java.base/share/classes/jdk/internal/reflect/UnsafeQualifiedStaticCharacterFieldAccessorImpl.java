@@ -73,9 +73,11 @@ class UnsafeQualifiedStaticCharacterFieldAccessorImpl
     public void set(Object obj, Object value)
         throws IllegalArgumentException, IllegalAccessException
     {
+        /*
         if (isReadOnly) {
             throwFinalFieldIllegalAccessException(value);
         }
+        */
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -101,9 +103,11 @@ class UnsafeQualifiedStaticCharacterFieldAccessorImpl
     public void setChar(Object obj, char c)
         throws IllegalArgumentException, IllegalAccessException
     {
+        /*
         if (isReadOnly) {
             throwFinalFieldIllegalAccessException(c);
         }
+        */
         unsafe.putCharVolatile(base, fieldOffset, c);
     }
 

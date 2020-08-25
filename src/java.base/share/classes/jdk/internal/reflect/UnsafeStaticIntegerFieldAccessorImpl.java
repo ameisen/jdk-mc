@@ -71,9 +71,11 @@ class UnsafeStaticIntegerFieldAccessorImpl extends UnsafeStaticFieldAccessorImpl
     public void set(Object obj, Object value)
         throws IllegalArgumentException, IllegalAccessException
     {
+        /*
         if (isFinal) {
             throwFinalFieldIllegalAccessException(value);
         }
+        */
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -123,9 +125,11 @@ class UnsafeStaticIntegerFieldAccessorImpl extends UnsafeStaticFieldAccessorImpl
     public void setInt(Object obj, int i)
         throws IllegalArgumentException, IllegalAccessException
     {
+        /*
         if (isFinal) {
             throwFinalFieldIllegalAccessException(i);
         }
+        */
         unsafe.putInt(base, fieldOffset, i);
     }
 

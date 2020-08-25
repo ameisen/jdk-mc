@@ -75,9 +75,11 @@ class UnsafeQualifiedLongFieldAccessorImpl
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
+        /*
         if (isReadOnly) {
             throwFinalFieldIllegalAccessException(value);
         }
+        */
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -138,9 +140,11 @@ class UnsafeQualifiedLongFieldAccessorImpl
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
+        /*
         if (isReadOnly) {
             throwFinalFieldIllegalAccessException(l);
         }
+        */
         unsafe.putLongVolatile(obj, fieldOffset, l);
     }
 

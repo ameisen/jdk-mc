@@ -71,9 +71,11 @@ class UnsafeStaticLongFieldAccessorImpl extends UnsafeStaticFieldAccessorImpl {
     public void set(Object obj, Object value)
         throws IllegalArgumentException, IllegalAccessException
     {
+        /*
         if (isFinal) {
             throwFinalFieldIllegalAccessException(value);
         }
+        */
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -133,9 +135,11 @@ class UnsafeStaticLongFieldAccessorImpl extends UnsafeStaticFieldAccessorImpl {
     public void setLong(Object obj, long l)
         throws IllegalArgumentException, IllegalAccessException
     {
+        /*
         if (isFinal) {
             throwFinalFieldIllegalAccessException(l);
         }
+        */
         unsafe.putLong(base, fieldOffset, l);
     }
 

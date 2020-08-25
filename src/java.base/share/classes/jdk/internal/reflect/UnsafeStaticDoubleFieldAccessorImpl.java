@@ -71,9 +71,11 @@ class UnsafeStaticDoubleFieldAccessorImpl extends UnsafeStaticFieldAccessorImpl 
     public void set(Object obj, Object value)
         throws IllegalArgumentException, IllegalAccessException
     {
+        /*
         if (isFinal) {
             throwFinalFieldIllegalAccessException(value);
         }
+        */
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -153,9 +155,11 @@ class UnsafeStaticDoubleFieldAccessorImpl extends UnsafeStaticFieldAccessorImpl 
     public void setDouble(Object obj, double d)
         throws IllegalArgumentException, IllegalAccessException
     {
+        /*
         if (isFinal) {
             throwFinalFieldIllegalAccessException(d);
         }
+        */
         unsafe.putDouble(base, fieldOffset, d);
     }
 }

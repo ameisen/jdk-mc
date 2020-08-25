@@ -75,9 +75,11 @@ class UnsafeQualifiedObjectFieldAccessorImpl
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
+        /*
         if (isReadOnly) {
             throwFinalFieldIllegalAccessException(value);
         }
+        */
         if (value != null) {
             if (!field.getType().isAssignableFrom(value.getClass())) {
                 throwSetIllegalArgumentException(value);

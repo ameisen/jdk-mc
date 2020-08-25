@@ -75,9 +75,11 @@ class UnsafeQualifiedBooleanFieldAccessorImpl
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
+        /*
         if (isReadOnly) {
             throwFinalFieldIllegalAccessException(value);
         }
+        */
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -92,9 +94,11 @@ class UnsafeQualifiedBooleanFieldAccessorImpl
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
+        /*
         if (isReadOnly) {
             throwFinalFieldIllegalAccessException(z);
         }
+        */
         unsafe.putBooleanVolatile(obj, fieldOffset, z);
     }
 

@@ -1053,7 +1053,7 @@ JNIEXPORT jintArray JNICALL Java_sun_awt_shell_Win32ShellFolder2_getIconBits
             iconBits = env->NewIntArray(nBits);
             if (!(env->ExceptionCheck())) {
             // Copy values to java array
-            env->SetIntArrayRegion(iconBits, 0, nBits, colorBits);
+            env->SetIntArrayRegion(iconBits, 0, nBits, (const jint *)colorBits);
         }
         }
         // Fix 4745575 GDI Resource Leak

@@ -73,9 +73,11 @@ class UnsafeQualifiedStaticIntegerFieldAccessorImpl
     public void set(Object obj, Object value)
         throws IllegalArgumentException, IllegalAccessException
     {
+        /*
         if (isReadOnly) {
             throwFinalFieldIllegalAccessException(value);
         }
+        */
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -125,9 +127,11 @@ class UnsafeQualifiedStaticIntegerFieldAccessorImpl
     public void setInt(Object obj, int i)
         throws IllegalArgumentException, IllegalAccessException
     {
+        /*
         if (isReadOnly) {
             throwFinalFieldIllegalAccessException(i);
         }
+        */
         unsafe.putIntVolatile(base, fieldOffset, i);
     }
 

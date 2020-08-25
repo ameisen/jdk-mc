@@ -299,7 +299,7 @@
           "Should internally-caused GCs invoke concurrent cycles, or go to" \
           "stop-the-world (degenerated/full)?")                             \
                                                                             \
-  diagnostic(bool, ShenandoahHumongousMoves, true,                          \
+  experimental(bool, ShenandoahHumongousMoves, true,                        \
           "Allow moving humongous regions. This makes GC more resistant "   \
           "to external fragmentation that may otherwise fail other "        \
           "humongous allocations, at the expense of higher GC copying "     \
@@ -314,7 +314,7 @@
   diagnostic(bool, ShenandoahTerminationTrace, false,                       \
           "Tracing task termination timings")                               \
                                                                             \
-  diagnostic(bool, ShenandoahAlwaysPreTouch, false,                         \
+  experimental(bool, ShenandoahAlwaysPreTouch, false,                       \
           "Pre-touch heap memory, overrides global AlwaysPreTouch")         \
                                                                             \
   experimental(intx, ShenandoahMarkScanPrefetch, 32,                        \

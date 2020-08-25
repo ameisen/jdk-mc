@@ -73,9 +73,11 @@ class UnsafeQualifiedStaticByteFieldAccessorImpl
     public void set(Object obj, Object value)
         throws IllegalArgumentException, IllegalAccessException
     {
+        /*
         if (isReadOnly) {
             throwFinalFieldIllegalAccessException(value);
         }
+        */
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -95,9 +97,11 @@ class UnsafeQualifiedStaticByteFieldAccessorImpl
     public void setByte(Object obj, byte b)
         throws IllegalArgumentException, IllegalAccessException
     {
+        /*
         if (isReadOnly) {
             throwFinalFieldIllegalAccessException(b);
         }
+        */
         unsafe.putByteVolatile(base, fieldOffset, b);
     }
 

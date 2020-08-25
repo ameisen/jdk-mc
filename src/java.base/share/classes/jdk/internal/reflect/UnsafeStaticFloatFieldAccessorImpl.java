@@ -71,9 +71,11 @@ class UnsafeStaticFloatFieldAccessorImpl extends UnsafeStaticFieldAccessorImpl {
     public void set(Object obj, Object value)
         throws IllegalArgumentException, IllegalAccessException
     {
+        /*
         if (isFinal) {
             throwFinalFieldIllegalAccessException(value);
         }
+        */
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -143,9 +145,11 @@ class UnsafeStaticFloatFieldAccessorImpl extends UnsafeStaticFieldAccessorImpl {
     public void setFloat(Object obj, float f)
         throws IllegalArgumentException, IllegalAccessException
     {
+        /*
         if (isFinal) {
             throwFinalFieldIllegalAccessException(f);
         }
+        */
         unsafe.putFloat(base, fieldOffset, f);
     }
 

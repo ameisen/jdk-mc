@@ -57,7 +57,7 @@ bool ShenandoahTraversalAggressiveHeuristics::is_experimental() {
 }
 
 bool ShenandoahTraversalAggressiveHeuristics::is_diagnostic() {
-  return true;
+  return false;
 }
 
 const char* ShenandoahTraversalAggressiveHeuristics::name() {

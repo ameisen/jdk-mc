@@ -88,7 +88,7 @@ const char* ShenandoahAggressiveHeuristics::name() {
 }
 
 bool ShenandoahAggressiveHeuristics::is_diagnostic() {
-  return true;
+  return false;
 }
 
 bool ShenandoahAggressiveHeuristics::is_experimental() {

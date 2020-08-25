@@ -32,7 +32,7 @@ public:
   enum Order {
     LITTLE,
     BIG,
-    JAVA = BIG,
+    JAVA = BIG, // TODO : Make little, fix the 'Incompatible magic value' issues popping up from endian swapping.
     NATIVE =
 #ifdef VM_LITTLE_ENDIAN
     LITTLE

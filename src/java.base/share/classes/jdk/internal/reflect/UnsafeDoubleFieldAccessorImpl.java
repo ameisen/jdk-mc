@@ -73,9 +73,11 @@ class UnsafeDoubleFieldAccessorImpl extends UnsafeFieldAccessorImpl {
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
+        /*
         if (isFinal) {
             throwFinalFieldIllegalAccessException(value);
         }
+        */
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -156,9 +158,11 @@ class UnsafeDoubleFieldAccessorImpl extends UnsafeFieldAccessorImpl {
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
+        /*
         if (isFinal) {
             throwFinalFieldIllegalAccessException(d);
         }
+        */
         unsafe.putDouble(obj, fieldOffset, d);
     }
 }

@@ -228,10 +228,10 @@ ifeq ($(TOOLCHAIN_TYPE), clang)
   JVM_LDFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL)
 else
   ifeq ($(TOOLCHAIN_TYPE), gcc)
-    JVM_CFLAGS_FEATURES_ALL += -O3 -fno-strict-aliasing -std=gnu++17 -march=native
-    JVM_CFLAGS_FEATURES_ALL += -Wno-stringop-truncation -Wno-stringop-overflow
+    JVM_CFLAGS_FEATURES_ALL += -O3 -fno-strict-aliasing -std=gnu++17 -march=haswell -fmerge-all-constants -fno-threadsafe-statics
+    JVM_CFLAGS_FEATURES_ALL += -Wno-stringop-truncation -Wno-stringop-overflow -Wno-maybe-uninitialized
     JVM_CFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL)
-    JVM_LDFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL) -Wl,--allow-multiple-definition
+    JVM_LDFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL) -Wl,--allow-multiple-definition -Wl,-O1 -Wl,--relax
   endif
 endif
 

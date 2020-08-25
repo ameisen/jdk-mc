@@ -74,7 +74,7 @@ public:
 
     /*for multifont menu */
     BOOL IsTopMenu();
-    virtual AwtMenuItem* GetItem(jobject target, long index);
+    virtual AwtMenuItem* GetItem(jobject target, jint index);
 
     virtual int CountItem(jobject target);
 
