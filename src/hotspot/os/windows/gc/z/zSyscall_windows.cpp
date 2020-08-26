@@ -26,6 +26,7 @@
 #include "logging/log.hpp"
 #include "runtime/java.hpp"
 #include "runtime/os.hpp"
+#include "runtime/os.inline.hpp"
 
 ZSyscall::CreateFileMappingWFn ZSyscall::CreateFileMappingW;
 ZSyscall::VirtualAlloc2Fn ZSyscall::VirtualAlloc2;

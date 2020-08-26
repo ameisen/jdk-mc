@@ -269,6 +269,10 @@ AC_DEFUN_ONCE([FLAGS_PRE_TOOLCHAIN],
         test "x$OPENJDK_TARGET_CPU_ARCH" = xppc; then
       MACHINE_FLAG="-m${OPENJDK_TARGET_CPU_BITS}"
     fi
+  else
+    case "x$CC" in
+      xclang*) MACHINE_FLAG="-m$(OPENJDK_TARGET_CPU_BITS)";;
+    esac
   fi
 
   # FIXME: global flags are not used yet...

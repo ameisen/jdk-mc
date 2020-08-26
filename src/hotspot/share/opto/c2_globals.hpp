@@ -697,25 +697,25 @@
   diagnostic(bool, OptimizeExpensiveOps, true,                              \
           "Find best control for expensive operations")                     \
                                                                             \
-  diagnostic(bool, UseMathExactIntrinsics, true,                            \
+  experimental(bool, UseMathExactIntrinsics, true,                          \
           "Enables intrinsification of various java.lang.Math functions")   \
                                                                             \
-  diagnostic(bool, UseCharacterCompareIntrinsics, false,                    \
+  experimental(bool, UseCharacterCompareIntrinsics, true,                   \
           "Enables intrinsification of java.lang.Character functions")      \
                                                                             \
-  diagnostic(bool, UseMultiplyToLenIntrinsic, false,                        \
+  experimental(bool, UseMultiplyToLenIntrinsic, true,                       \
           "Enables intrinsification of BigInteger.multiplyToLen()")         \
                                                                             \
-  diagnostic(bool, UseSquareToLenIntrinsic, false,                          \
+  experimental(bool, UseSquareToLenIntrinsic, true,                         \
           "Enables intrinsification of BigInteger.squareToLen()")           \
                                                                             \
-  diagnostic(bool, UseMulAddIntrinsic, false,                               \
+  experimental(bool, UseMulAddIntrinsic, true,                              \
           "Enables intrinsification of BigInteger.mulAdd()")                \
                                                                             \
-  diagnostic(bool, UseMontgomeryMultiplyIntrinsic, false,                   \
+  experimental(bool, UseMontgomeryMultiplyIntrinsic, true,                  \
           "Enables intrinsification of BigInteger.montgomeryMultiply()")    \
                                                                             \
-  diagnostic(bool, UseMontgomerySquareIntrinsic, false,                     \
+  experimental(bool, UseMontgomerySquareIntrinsic, true,                    \
           "Enables intrinsification of BigInteger.montgomerySquare()")      \
                                                                             \
   product(bool, UseTypeSpeculation, true,                                   \

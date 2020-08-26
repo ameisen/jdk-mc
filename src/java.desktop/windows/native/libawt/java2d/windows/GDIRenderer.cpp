@@ -334,10 +334,10 @@ Java_sun_java2d_windows_GDIRenderer_doDrawArc
         } else {
             angleEnd = angleStart + angleExtent;
         }
-        AngleToCoord(angleStart, w, h, &sx, &sy);
+        AngleToCoord(angleStart, w, h, (jint *)&sx, (jint *)&sy);
         sx += x + w/2;
         sy += y + h/2;
-        AngleToCoord(angleEnd, w, h, &ex, &ey);
+        AngleToCoord(angleEnd, w, h, (jint *)&ex, (jint *)&ey);
         ex += x + w/2;
         ey += y + h/2;
     }
@@ -610,10 +610,10 @@ Java_sun_java2d_windows_GDIRenderer_doFillArc
     } else {
         angleEnd = angleStart + angleExtent;
     }
-    AngleToCoord(angleStart, w, h, &sx, &sy);
+    AngleToCoord(angleStart, w, h, (jint *)&sx, (jint *)&sy);
     sx += x + w/2;
     sy += y + h/2;
-    AngleToCoord(angleEnd, w, h, &ex, &ey);
+    AngleToCoord(angleEnd, w, h, (jint *)&ex, (jint *)&ey);
     ex += x + w/2;
     ey += y + h/2;
     HDC hdc = wsdo->GetDC(env, wsdo, BRUSHONLY, NULL, clip, comp, color);

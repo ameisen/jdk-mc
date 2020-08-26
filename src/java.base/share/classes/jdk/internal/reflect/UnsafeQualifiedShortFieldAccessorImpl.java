@@ -75,9 +75,6 @@ class UnsafeQualifiedShortFieldAccessorImpl
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
-        if (isReadOnly) {
-            throwFinalFieldIllegalAccessException(value);
-        }
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -114,9 +111,6 @@ class UnsafeQualifiedShortFieldAccessorImpl
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
-        if (isReadOnly) {
-            throwFinalFieldIllegalAccessException(s);
-        }
         unsafe.putShortVolatile(obj, fieldOffset, s);
     }
 

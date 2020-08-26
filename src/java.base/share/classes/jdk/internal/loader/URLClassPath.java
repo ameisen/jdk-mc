@@ -92,6 +92,8 @@ public class URLClassPath {
     private static final boolean DISABLE_CP_URL_CHECK;
     private static final boolean DEBUG_CP_URL_CHECK;
 
+    public static final URLClassPath EMPTY = new URLClassPath(new URL[0], null, null);
+
     static {
         Properties props = GetPropertyAction.privilegedGetProperties();
         JAVA_VERSION = props.getProperty("java.version");

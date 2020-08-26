@@ -53,9 +53,8 @@ abstract class UnsafeFieldAccessorImpl extends FieldAccessorImpl {
     }
 
     protected void ensureObj(Object o) {
-        // NOTE: will throw NullPointerException, as specified, if o is null
-        if (!field.getDeclaringClass().isAssignableFrom(o.getClass())) {
-            throwSetIllegalArgumentException(o);
+        if (o == null) {
+            throw new NullPointerException();
         }
     }
 

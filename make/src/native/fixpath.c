@@ -48,7 +48,7 @@ void report_error(char const * msg)
 
   fprintf(stderr,
           "%s  Failed with error %d: %s\n",
-          msg, dw, lpMsgBuf);
+          msg, dw, (char *)lpMsgBuf);
 
   LocalFree(lpMsgBuf);
 }

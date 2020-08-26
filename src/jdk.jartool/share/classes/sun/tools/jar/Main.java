@@ -55,6 +55,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.CRC32;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -821,6 +822,7 @@ public class Main {
     void create(OutputStream out, Manifest manifest) throws IOException
     {
         try (ZipOutputStream zos = new JarOutputStream(out)) {
+            zos.setLevel(Deflater.BEST_COMPRESSION);
             if (flag0) {
                 zos.setMethod(ZipOutputStream.STORED);
             }
@@ -884,6 +886,7 @@ public class Main {
     {
         ZipInputStream zis = new ZipInputStream(in);
         ZipOutputStream zos = new JarOutputStream(out);
+        zos.setLevel(Deflater.BEST_COMPRESSION);
         ZipEntry e = null;
         boolean foundManifest = false;
         boolean updateOk = true;

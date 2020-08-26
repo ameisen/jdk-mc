@@ -223,10 +223,10 @@ const size_t minimumSymbolTableSize = 1024;
   product(bool, UseSHA, false,                                              \
           "Control whether SHA instructions are used when available")       \
                                                                             \
-  diagnostic(bool, UseGHASHIntrinsics, false,                               \
+  experimental(bool, UseGHASHIntrinsics, true,                              \
           "Use intrinsics for GHASH versions of crypto")                    \
                                                                             \
-  product(bool, UseBASE64Intrinsics, false,                                 \
+  product(bool, UseBASE64Intrinsics, true,                                  \
           "Use intrinsics for java.util.Base64")                            \
                                                                             \
   product(size_t, LargePageSizeInBytes, 0,                                  \
@@ -291,27 +291,27 @@ const size_t minimumSymbolTableSize = 1024;
   product(bool, UseInlineCaches, true,                                      \
           "Use Inline Caches for virtual calls ")                           \
                                                                             \
-  diagnostic(bool, InlineArrayCopy, true,                                   \
+  experimental(bool, InlineArrayCopy, true,                                 \
           "Inline arraycopy native that is known to be part of "            \
           "base library DLL")                                               \
                                                                             \
-  diagnostic(bool, InlineObjectHash, true,                                  \
+  experimental(bool, InlineObjectHash, true,                                \
           "Inline Object::hashCode() native that is known to be part "      \
           "of base library DLL")                                            \
                                                                             \
-  diagnostic(bool, InlineNatives, true,                                     \
+  experimental(bool, InlineNatives, true,                                   \
           "Inline natives that are known to be part of base library DLL")   \
                                                                             \
-  diagnostic(bool, InlineMathNatives, true,                                 \
+  experimental(bool, InlineMathNatives, true,                               \
           "Inline SinD, CosD, etc.")                                        \
                                                                             \
-  diagnostic(bool, InlineClassNatives, true,                                \
+  experimental(bool, InlineClassNatives, true,                              \
           "Inline Class.isInstance, etc")                                   \
                                                                             \
-  diagnostic(bool, InlineThreadNatives, true,                               \
+  experimental(bool, InlineThreadNatives, true,                             \
           "Inline Thread.currentThread, etc")                               \
                                                                             \
-  diagnostic(bool, InlineUnsafeOps, true,                                   \
+  experimental(bool, InlineUnsafeOps, true,                                 \
           "Inline memory ops (native methods) from Unsafe")                 \
                                                                             \
   product(bool, CriticalJNINatives, true,                                   \
@@ -320,34 +320,34 @@ const size_t minimumSymbolTableSize = 1024;
   notproduct(bool, StressCriticalJNINatives, false,                         \
           "Exercise register saving code in critical natives")              \
                                                                             \
-  diagnostic(bool, UseAESIntrinsics, false,                                 \
+  experimental(bool, UseAESIntrinsics, true,                                \
           "Use intrinsics for AES versions of crypto")                      \
                                                                             \
-  diagnostic(bool, UseAESCTRIntrinsics, false,                              \
+  experimental(bool, UseAESCTRIntrinsics, true,                             \
           "Use intrinsics for the paralleled version of AES/CTR crypto")    \
                                                                             \
-  diagnostic(bool, UseSHA1Intrinsics, false,                                \
+  experimental(bool, UseSHA1Intrinsics, true,                               \
           "Use intrinsics for SHA-1 crypto hash function. "                 \
           "Requires that UseSHA is enabled.")                               \
                                                                             \
-  diagnostic(bool, UseSHA256Intrinsics, false,                              \
+  experimental(bool, UseSHA256Intrinsics, true,                             \
           "Use intrinsics for SHA-224 and SHA-256 crypto hash functions. "  \
           "Requires that UseSHA is enabled.")                               \
                                                                             \
-  diagnostic(bool, UseSHA512Intrinsics, false,                              \
+  experimental(bool, UseSHA512Intrinsics, true,                             \
           "Use intrinsics for SHA-384 and SHA-512 crypto hash functions. "  \
           "Requires that UseSHA is enabled.")                               \
                                                                             \
-  diagnostic(bool, UseCRC32Intrinsics, false,                               \
+  experimental(bool, UseCRC32Intrinsics, true,                              \
           "use intrinsics for java.util.zip.CRC32")                         \
                                                                             \
-  diagnostic(bool, UseCRC32CIntrinsics, false,                              \
+  experimental(bool, UseCRC32CIntrinsics, true,                             \
           "use intrinsics for java.util.zip.CRC32C")                        \
                                                                             \
-  diagnostic(bool, UseAdler32Intrinsics, false,                             \
+  experimental(bool, UseAdler32Intrinsics, true,                            \
           "use intrinsics for java.util.zip.Adler32")                       \
                                                                             \
-  diagnostic(bool, UseVectorizedMismatchIntrinsic, false,                   \
+  experimental(bool, UseVectorizedMismatchIntrinsic, true,                  \
           "Enables intrinsification of ArraysSupport.vectorizedMismatch()") \
                                                                             \
   diagnostic(ccstrlist, DisableIntrinsic, "",                               \
@@ -411,14 +411,14 @@ const size_t minimumSymbolTableSize = 1024;
   product(bool, MaxFDLimit, true,                                           \
           "Bump the number of file descriptors to maximum in Solaris")      \
                                                                             \
-  diagnostic(bool, LogEvents, true,                                         \
+  experimental(bool, LogEvents, false,                                      \
           "Enable the various ring buffer event logs")                      \
                                                                             \
   diagnostic(uintx, LogEventsBufferEntries, 20,                             \
           "Number of ring buffer event logs")                               \
           range(1, NOT_LP64(1*K) LP64_ONLY(1*M))                            \
                                                                             \
-  diagnostic(bool, BytecodeVerificationRemote, true,                        \
+  experimental(bool, BytecodeVerificationRemote, true,                      \
           "Enable the Java bytecode verifier for remote classes")           \
                                                                             \
   diagnostic(bool, BytecodeVerificationLocal, false,                        \
@@ -642,10 +642,10 @@ const size_t minimumSymbolTableSize = 1024;
   develop(bool, PrintCodeCacheExtension, false,                             \
           "Print extension of code cache")                                  \
                                                                             \
-  develop(bool, UsePrivilegedStack, true,                                   \
+  develop(bool, UsePrivilegedStack, false,                                  \
           "Enable the security JVM functions")                              \
                                                                             \
-  develop(bool, ProtectionDomainVerification, true,                         \
+  develop(bool, ProtectionDomainVerification, false,                        \
           "Verify protection domain before resolution in system dictionary")\
                                                                             \
   product(bool, ClassUnloading, true,                                       \
@@ -971,7 +971,7 @@ const size_t minimumSymbolTableSize = 1024;
   product(bool, UseDynamicNumberOfCompilerThreads, true,                    \
           "Dynamically choose the number of parallel compiler threads")     \
                                                                             \
-  diagnostic(bool, ReduceNumberOfCompilerThreads, true,                     \
+  experimental(bool, ReduceNumberOfCompilerThreads, true,                   \
              "Reduce the number of parallel compiler threads when they "    \
              "are not used")                                                \
                                                                             \
@@ -1003,7 +1003,7 @@ const size_t minimumSymbolTableSize = 1024;
           "null (+offset) will not raise a SIGSEGV, i.e.,"                  \
           "ImplicitNullChecks don't work (PPC64).")                         \
                                                                             \
-  diagnostic(bool, EnableThreadSMRExtraValidityChecks, true,                \
+  experimental(bool, EnableThreadSMRExtraValidityChecks, false,             \
              "Enable Thread SMR extra validity checks")                     \
                                                                             \
   diagnostic(bool, EnableThreadSMRStatistics, trueInDebug,                  \
@@ -1177,7 +1177,7 @@ const size_t minimumSymbolTableSize = 1024;
   notproduct(bool, CollectIndexSetStatistics, false,                        \
           "Collect information about IndexSets")                            \
                                                                             \
-  develop(bool, UseLoopSafepoints, true,                                    \
+  experimental(bool, UseLoopSafepoints, true,                               \
           "Generate Safepoint nodes in every loop")                         \
                                                                             \
   develop(intx, FastAllocateSizeLimit, 128*K,                               \
@@ -1414,7 +1414,7 @@ const size_t minimumSymbolTableSize = 1024;
                                                                             \
   /* notice: the max range value here is max_jint, not max_intx  */         \
   /* because of overflow issue                                   */         \
-  diagnostic(intx, GuaranteedSafepointInterval, 1000,                       \
+  experimental(intx, GuaranteedSafepointInterval, 1000,                     \
           "Guarantee a safepoint (at least) every so many milliseconds "    \
           "(0 means none)")                                                 \
           range(0, max_jint)                                                \
@@ -2404,14 +2404,14 @@ const size_t minimumSymbolTableSize = 1024;
   experimental(bool, AlwaysAtomicAccesses, false,                           \
           "Accesses to all variables should always be atomic")              \
                                                                             \
-  diagnostic(bool, UseUnalignedAccesses, false,                             \
+  experimental(bool, UseUnalignedAccesses, false,                           \
           "Use unaligned memory accesses in Unsafe")                        \
                                                                             \
   product_pd(bool, PreserveFramePointer,                                    \
              "Use the FP register for holding the frame pointer "           \
              "and not as a general purpose register.")                      \
                                                                             \
-  diagnostic(bool, CheckIntrinsics, true,                                   \
+  experimental(bool, CheckIntrinsics, false,                                \
              "When a class C is loaded, check that "                        \
              "(1) all intrinsics defined by the VM for class C are present "\
              "in the loaded class file and are marked with the "            \

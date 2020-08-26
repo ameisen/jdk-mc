@@ -75,9 +75,6 @@ class UnsafeQualifiedByteFieldAccessorImpl
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
-        if (isReadOnly) {
-            throwFinalFieldIllegalAccessException(value);
-        }
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -98,9 +95,6 @@ class UnsafeQualifiedByteFieldAccessorImpl
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
-        if (isReadOnly) {
-            throwFinalFieldIllegalAccessException(b);
-        }
         unsafe.putByteVolatile(obj, fieldOffset, b);
     }
 

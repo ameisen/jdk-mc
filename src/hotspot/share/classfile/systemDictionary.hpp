@@ -686,9 +686,9 @@ protected:
   static void quick_resolve(InstanceKlass* klass, ClassLoaderData* loader_data, Handle domain, TRAPS) NOT_CDS_RETURN;
 
   // Class loader constraints
-  static void check_constraints(unsigned int hash,
+  static bool check_constraints(unsigned int hash,
                                 InstanceKlass* k, Handle loader,
-                                bool defining, TRAPS);
+                                bool defining, bool throws, TRAPS);
   static void update_dictionary(unsigned int d_hash,
                                 int p_index, unsigned int p_hash,
                                 InstanceKlass* k, Handle loader,

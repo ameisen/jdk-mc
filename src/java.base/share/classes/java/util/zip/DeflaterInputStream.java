@@ -42,6 +42,8 @@ import java.io.IOException;
  */
 
 public class DeflaterInputStream extends FilterInputStream {
+    private static final int BUFFER_SIZE = 0x1000; // was 512
+
     /** Compressor for this stream. */
     protected final Deflater def;
 
@@ -227,8 +229,8 @@ public class DeflaterInputStream extends FilterInputStream {
         ensureOpen();
 
         // Skip bytes by repeatedly decompressing small blocks
-        if (rbuf.length < 512)
-            rbuf = new byte[512];
+        if (rbuf.length < BUFFER_SIZE)
+            rbuf = new byte[BUFFER_SIZE];
 
         int total = (int)Math.min(n, Integer.MAX_VALUE);
         long cnt = 0;

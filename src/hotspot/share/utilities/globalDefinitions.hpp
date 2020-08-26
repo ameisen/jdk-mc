@@ -649,7 +649,15 @@ inline bool is_java_primitive(BasicType t) {
 
 inline bool is_subword_type(BasicType t) {
   // these guys are processed exactly like T_INT in calling sequences:
-  return (t == T_BOOLEAN || t == T_CHAR || t == T_BYTE || t == T_SHORT);
+  switch (t) {
+    case T_BOOLEAN:
+    case T_CHAR:
+    case T_BYTE:
+    case T_SHORT:
+      return true;
+    default:
+      return false;
+  }
 }
 
 inline bool is_signed_subword_type(BasicType t) {
@@ -856,12 +864,6 @@ inline BasicType as_BasicType(TosState state) {
     default   : return T_ILLEGAL;
   }
 }
-
-
-// Helper function to convert BasicType info into TosState
-// Note: Cannot define here as it uses global constant at the time being.
-TosState as_TosState(BasicType type);
-
 
 // JavaThreadState keeps track of which part of the code a thread is executing in. This
 // information is needed by the safepoint code.
@@ -1094,9 +1096,9 @@ inline intptr_t p2i(const void * p) {
 
 // swap a & b
 template<class T> static void swap(T& a, T& b) {
-  T tmp = a;
-  a = b;
-  b = tmp;
+  T tmp = std::move(a);
+  a = std::move(b);
+  b = std::move(tmp);
 }
 
 #define ARRAY_SIZE(array) (sizeof(array)/sizeof((array)[0]))

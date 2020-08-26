@@ -43,6 +43,8 @@ import jdk.internal.HotSpotIntrinsicCandidate;
 public class CRC32 implements Checksum {
     private int crc;
 
+    private static final int BUFFER_SIZE = 0x2000;
+
     /**
      * Creates a new CRC32 object.
      */
@@ -100,7 +102,7 @@ public class CRC32 implements Checksum {
         } else if (buffer.hasArray()) {
             crc = updateBytes(crc, buffer.array(), pos + buffer.arrayOffset(), rem);
         } else {
-            byte[] b = new byte[Math.min(buffer.remaining(), 4096)];
+            byte[] b = new byte[Math.min(buffer.remaining(), BUFFER_SIZE)];
             while (buffer.hasRemaining()) {
                 int length = Math.min(buffer.remaining(), b.length);
                 buffer.get(b, 0, length);

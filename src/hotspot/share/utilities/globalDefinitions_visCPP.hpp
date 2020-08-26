@@ -160,9 +160,22 @@ inline int g_isfinite(jdouble f)                 { return _finite(f); }
 // it only applies to member functions. There are reports though which pretend
 // that it also works for freestanding functions.
 #define NOINLINE     __declspec(noinline)
-#define ALWAYSINLINE __forceinline
+#define ALWAYSINLINE inline __forceinline
 
 // Alignment
 #define ATTRIBUTE_ALIGNED(x) __declspec(align(x))
+
+#define UNREACHABLE() __assume(0)
+
+#define ASSUME(expr) __assume(expr)
+
+#define EXPECT(expr, value) (expr)
+#define LIKELY(expr) (expr)
+#define UNLIKELY(expr) (expr)
+
+#define NORETURN __declspec(noreturn)
+
+#define PUREF __declspec(noalias)
+#define CONSTF __declspec(noalias)
 
 #endif // SHARE_UTILITIES_GLOBALDEFINITIONS_VISCPP_HPP

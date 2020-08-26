@@ -234,6 +234,7 @@ public final class HotSpotGraalRuntime implements HotSpotGraalRuntimeProvider {
         Parallel(true, "UseParallelGC", "UseParallelOldGC", "UseParNewGC"),
         CMS(true, "UseConcMarkSweepGC"),
         G1(true, "UseG1GC"),
+        Shenandoah(true, "UseShenandoahGC"),
 
         // Unsupported GCs
         Epsilon(false, "UseEpsilonGC"),
@@ -270,7 +271,7 @@ public final class HotSpotGraalRuntime implements HotSpotGraalRuntimeProvider {
         }
         // As of JDK 9, exactly one GC flag is guaranteed to be selected.
         // On JDK 8, the default GC is Serial when no GC flag is true.
-        return HotSpotGC.Serial;
+        return HotSpotGC.Shenandoah;
     }
 
     private HotSpotBackend registerBackend(HotSpotBackend backend) {

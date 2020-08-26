@@ -29,6 +29,7 @@ import java.lang.reflect.Constructor;
 import java.util.jar.JarOutputStream;
 import java.util.jar.JarEntry;
 import java.util.jar.Manifest;
+import java.util.zip.Deflater;
 import sun.jvm.hotspot.classfile.*;
 import sun.jvm.hotspot.memory.*;
 import sun.jvm.hotspot.oops.*;
@@ -69,6 +70,7 @@ public class ClassDump extends Tool {
 
     public void setJarOutput(String jarFileName) throws IOException {
         jarStream = new JarOutputStream(new FileOutputStream(jarFileName), new Manifest());
+        jarStream.setLevel(Deflater.BEST_COMPRESSION);
         outputDirectory = null;
     }
 

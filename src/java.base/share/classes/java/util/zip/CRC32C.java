@@ -48,6 +48,8 @@ import sun.nio.ch.DirectBuffer;
  */
 public final class CRC32C implements Checksum {
 
+    private static final int BUFFER_SIZE = 0x2000;
+
     /*
      * This CRC-32C implementation uses the 'slicing-by-8' algorithm described
      * in the paper "A Systematic Approach to Building High Performance
@@ -177,7 +179,7 @@ public final class CRC32C implements Checksum {
             crc = updateBytes(crc, buffer.array(), pos + buffer.arrayOffset(),
                               limit + buffer.arrayOffset());
         } else {
-            byte[] b = new byte[Math.min(buffer.remaining(), 4096)];
+            byte[] b = new byte[Math.min(buffer.remaining(), BUFFER_SIZE)];
             while (buffer.hasRemaining()) {
                 int length = Math.min(buffer.remaining(), b.length);
                 buffer.get(b, 0, length);

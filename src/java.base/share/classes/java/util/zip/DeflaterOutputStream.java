@@ -40,6 +40,8 @@ import java.io.IOException;
  * @since 1.1
  */
 public class DeflaterOutputStream extends FilterOutputStream {
+    private static final int BUFFER_SIZE = 0x1000; // was 512
+
     /**
      * Compressor for this stream.
      */
@@ -123,7 +125,7 @@ public class DeflaterOutputStream extends FilterOutputStream {
     public DeflaterOutputStream(OutputStream out,
                                 Deflater def,
                                 boolean syncFlush) {
-        this(out, def, 512, syncFlush);
+        this(out, def, BUFFER_SIZE, syncFlush);
     }
 
 
@@ -138,7 +140,7 @@ public class DeflaterOutputStream extends FilterOutputStream {
      * @param def the compressor ("deflater")
      */
     public DeflaterOutputStream(OutputStream out, Deflater def) {
-        this(out, def, 512, false);
+        this(out, def, BUFFER_SIZE, false);
     }
 
     boolean usesDefaultDeflater = false;
@@ -158,7 +160,7 @@ public class DeflaterOutputStream extends FilterOutputStream {
      * @since 1.7
      */
     public DeflaterOutputStream(OutputStream out, boolean syncFlush) {
-        this(out, new Deflater(), 512, syncFlush);
+        this(out, new Deflater(), BUFFER_SIZE, syncFlush);
         usesDefaultDeflater = true;
     }
 

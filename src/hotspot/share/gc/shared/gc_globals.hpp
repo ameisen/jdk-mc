@@ -155,7 +155,7 @@
   product(bool, UseSerialGC, false,                                         \
           "Use the Serial garbage collector")                               \
                                                                             \
-  product(bool, UseG1GC, false,                                             \
+  product(bool, UseG1GC, true,                                              \
           "Use the Garbage-First garbage collector")                        \
                                                                             \
   product(bool, UseParallelGC, false,                                       \
@@ -215,7 +215,7 @@
           "is active (as a percentage)")                                    \
           range(0, 100)                                                     \
                                                                             \
-  diagnostic(uintx, GCLockerRetryAllocationCount, 2,                        \
+  diagnostic(uintx, GCLockerRetryAllocationCount, 4,                        \
           "Number of times to retry allocations when "                      \
           "blocked by the GC locker")                                       \
           range(0, max_uintx)                                               \
@@ -608,7 +608,7 @@
   diagnostic(bool, VerifyRememberedSets, false,                             \
           "Verify GC remembered sets")                                      \
                                                                             \
-  diagnostic(bool, VerifyObjectStartArray, true,                            \
+  experimental(bool, VerifyObjectStartArray, true,                          \
           "Verify GC object start array if verify before/after")            \
                                                                             \
   product(bool, DisableExplicitGC, false,                                   \

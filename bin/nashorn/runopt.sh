@@ -127,7 +127,7 @@ $TIERED_COMPILATION_THRESOLD_FLAGS \
 $DISABLE_MATH_INTRINSICS_FLAGS \
 $PRINT_ASM_FLAGS \
 -Xbootclasspath/p:$NASHORN_JAR \
--Xms2G -Xmx2G \
+-Xms4G -Xmx4G \
 -XX:TypeProfileLevel=222 \
 -cp $CLASSPATH:../build/test/classes/ \
 jdk.nashorn.tools.Shell $ENABLE_TIME_FLAGS ${@}

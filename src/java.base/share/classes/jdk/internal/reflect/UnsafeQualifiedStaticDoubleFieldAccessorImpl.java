@@ -73,9 +73,6 @@ class UnsafeQualifiedStaticDoubleFieldAccessorImpl
     public void set(Object obj, Object value)
         throws IllegalArgumentException, IllegalAccessException
     {
-        if (isReadOnly) {
-            throwFinalFieldIllegalAccessException(value);
-        }
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -155,9 +152,6 @@ class UnsafeQualifiedStaticDoubleFieldAccessorImpl
     public void setDouble(Object obj, double d)
         throws IllegalArgumentException, IllegalAccessException
     {
-        if (isReadOnly) {
-            throwFinalFieldIllegalAccessException(d);
-        }
         unsafe.putDoubleVolatile(base, fieldOffset, d);
     }
 }

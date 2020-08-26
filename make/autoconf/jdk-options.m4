@@ -431,13 +431,13 @@ AC_DEFUN_ONCE([JDKOPT_SETUP_ADDRESS_SANITIZER],
       DESC: [enable AddressSanitizer],
       CHECK_AVAILABLE: [
         AC_MSG_CHECKING([if AddressSanitizer (asan) is available])
-        if test "x$TOOLCHAIN_TYPE" = "xgcc" ||
-            test "x$TOOLCHAIN_TYPE" = "xclang"; then
-          AC_MSG_RESULT([yes])
-        else
-          AC_MSG_RESULT([no])
-          AVAILABLE=false
-        fi
+        #if test "x$TOOLCHAIN_TYPE" = "xgcc" ||
+        #    test "x$TOOLCHAIN_TYPE" = "xclang"; then
+        #  AC_MSG_RESULT([yes])
+        #else
+        AC_MSG_RESULT([no])
+        AVAILABLE=false
+        #fi
       ],
       IF_ENABLED: [
         ASAN_CFLAGS="-fsanitize=address -fno-omit-frame-pointer"

@@ -1267,7 +1267,7 @@ void showProperty(NCRYPT_HANDLE hKey) {
     BCryptBuffer bb;
     bb.BufferType = NCRYPTBUFFER_PKCS_SECRET;
     bb.cbBuffer = 18;
-    bb.pvBuffer = L"changeit";
+    bb.pvBuffer = (PVOID)L"changeit";
     BCryptBufferDesc bbd;
     bbd.ulVersion = 0;
     bbd.cBuffers = 1;

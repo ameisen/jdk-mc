@@ -24,7 +24,7 @@
 #
 
 # All valid JVM variants
-VALID_JVM_VARIANTS="server client minimal core zero custom"
+VALID_JVM_VARIANTS="server client mc minimal core zero custom"
 
 ###############################################################################
 # Check if the specified JVM variant should be built. To be used in shell if
@@ -50,7 +50,7 @@ AC_DEFUN([HOTSPOT_CHECK_JVM_VARIANT],
 AC_DEFUN_ONCE([HOTSPOT_SETUP_JVM_VARIANTS],
 [
   AC_ARG_WITH([jvm-variants], [AS_HELP_STRING([--with-jvm-variants],
-      [JVM variants to build, separated by commas (server client minimal core
+      [JVM variants to build, separated by commas (server client mc minimal core
       zero custom) @<:@server@:>@])])
 
   if test "x$with_jvm_variants" = x; then

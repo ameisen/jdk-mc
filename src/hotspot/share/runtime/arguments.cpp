@@ -1262,6 +1262,11 @@ void Arguments::print_jvm_args_on(outputStream* st) {
 bool Arguments::process_argument(const char* arg,
                                  jboolean ignore_unrecognized,
                                  JVMFlag::Flags origin) {
+   bool commented = (arg[0] == '#');
+   if (commented) {
+     return true;
+   }
+                                   
   JDK_Version since = JDK_Version();
 
   if (parse_argument(arg, origin)) {
@@ -1332,11 +1337,11 @@ bool Arguments::process_argument(const char* arg,
       jio_fprintf(defaultStream::error_stream(), "%s", locked_message_buf);
     }
   } else {
+    jio_fprintf(defaultStream::error_stream(),
+                "Unrecognized VM option '%s'\n", argname);
     if (ignore_unrecognized) {
       return true;
     }
-    jio_fprintf(defaultStream::error_stream(),
-                "Unrecognized VM option '%s'\n", argname);
     JVMFlag* fuzzy_matched = JVMFlag::fuzzy_match((const char*)argname, arg_len, true);
     if (fuzzy_matched != NULL) {
       jio_fprintf(defaultStream::error_stream(),
@@ -1348,7 +1353,7 @@ bool Arguments::process_argument(const char* arg,
   }
 
   // allow for commandline "commenting out" options like -XX:#+Verbose
-  return arg[0] == '#';
+  return commented;
 }
 
 bool Arguments::process_settings_file(const char* file_name, bool should_exist, jboolean ignore_unrecognized) {
@@ -1931,8 +1936,16 @@ jint Arguments::set_aggressive_heap_flags() {
   // when using ISM).  This is the maximum; because adaptive sizing
   // is turned on below, the actual space used may be smaller.
 
-  initHeapSize = MIN2(total_memory / (julong) 2,
-          total_memory - (julong) 160 * M);
+  initHeapSize = total_memory;
+  if (initHeapSize < (julong)16 * G) {
+    initHeapSize = MAX2(
+      total_memory - (julong) 2,
+      total_memory - (julong) 160 * M
+    );
+  }
+  else {
+    initHeapSize = initHeapSize - ((julong)4 * G);
+  }
 
   initHeapSize = limit_by_allocatable_memory(initHeapSize);
 
@@ -1966,12 +1979,12 @@ jint Arguments::set_aggressive_heap_flags() {
   if (FLAG_SET_CMDLINE(BaseFootPrintEstimate, MaxHeapSize) != JVMFlag::SUCCESS) {
     return JNI_EINVAL;
   }
-  if (FLAG_SET_CMDLINE(ResizeTLAB, false) != JVMFlag::SUCCESS) {
-    return JNI_EINVAL;
-  }
-  if (FLAG_SET_CMDLINE(TLABSize, 256 * K) != JVMFlag::SUCCESS) {
-    return JNI_EINVAL;
-  }
+  //if (FLAG_SET_CMDLINE(ResizeTLAB, false) != JVMFlag::SUCCESS) {
+  //  return JNI_EINVAL;
+  //}
+  //if (FLAG_SET_CMDLINE(TLABSize, 256 * K) != JVMFlag::SUCCESS) {
+  //  return JNI_EINVAL;
+  //}
 
   // See the OldPLABSize comment below, but replace 'after promotion'
   // with 'after copying'.  YoungPLABSize is the size of the survivor
@@ -1998,19 +2011,19 @@ jint Arguments::set_aggressive_heap_flags() {
   }
 
   // Enable parallel GC and adaptive generation sizing
-  if (FLAG_SET_CMDLINE(UseParallelGC, true) != JVMFlag::SUCCESS) {
+  if (FLAG_SET_CMDLINE(UseShenandoahGC, true) != JVMFlag::SUCCESS) {
     return JNI_EINVAL;
   }
 
   // Encourage steady state memory management
-  if (FLAG_SET_CMDLINE(ThresholdTolerance, 100) != JVMFlag::SUCCESS) {
-    return JNI_EINVAL;
-  }
+  //if (FLAG_SET_CMDLINE(ThresholdTolerance, 100) != JVMFlag::SUCCESS) {
+  //  return JNI_EINVAL;
+  //}
 
   // This appears to improve mutator locality
-  if (FLAG_SET_CMDLINE(ScavengeBeforeFullGC, false) != JVMFlag::SUCCESS) {
-    return JNI_EINVAL;
-  }
+  //if (FLAG_SET_CMDLINE(ScavengeBeforeFullGC, false) != JVMFlag::SUCCESS) {
+  //  return JNI_EINVAL;
+  //}
 
   return JNI_OK;
 }
@@ -2835,7 +2848,7 @@ jint Arguments::parse_each_vm_init_arg(const JavaVMInitArgs* args, bool* patch_m
         if (FLAG_SET_CMDLINE(BytecodeVerificationRemote, false) != JVMFlag::SUCCESS) {
           return JNI_EINVAL;
         }
-        warning("Options -Xverify:none and -noverify were deprecated in JDK 13 and will likely be removed in a future release.");
+        //warning("Options -Xverify:none and -noverify were deprecated in JDK 13 and will likely be removed in a future release.");
       } else if (is_bad_option(option, args->ignoreUnrecognized, "verification")) {
         return JNI_EINVAL;
       }

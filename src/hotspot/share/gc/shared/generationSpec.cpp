@@ -35,17 +35,19 @@
 #endif
 
 Generation* GenerationSpec::init(ReservedSpace rs, CardTableRS* remset) {
-  switch (name()) {
 #if INCLUDE_SERIALGC
+  switch (name()) {
     case Generation::DefNew:
       return new DefNewGeneration(rs, _init_size, _min_size, _max_size);
 
     case Generation::MarkSweepCompact:
       return new TenuredGeneration(rs, _init_size, _min_size, _max_size, remset);
-#endif
-
+			
     default:
+#endif
       guarantee(false, "unrecognized GenerationName");
       return NULL;
+#if INCLUDE_SERIALGC
   }
+#endif
 }

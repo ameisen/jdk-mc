@@ -63,7 +63,12 @@ inline unsigned count_trailing_zeros(uintx x) {
   assert(x != 0, "precondition");
   unsigned long index;
 #ifdef _LP64
-  _BitScanForward64(&index, x);
+  if constexpr (sizeof(x) <= sizeof(unsigned long)) {
+    _BitScanForward(&index, x);
+  }
+  else {
+    _BitScanForward64(&index, x);
+  }
 #else
   _BitScanForward(&index, x);
 #endif

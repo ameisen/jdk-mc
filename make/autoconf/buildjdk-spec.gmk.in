@@ -94,9 +94,10 @@ ENABLE_DEBUG_SYMBOLS := false
 # Control whether Hotspot builds gtest tests
 BUILD_GTEST := false
 
-JVM_VARIANTS := server
+JVM_VARIANTS := server mc
 JVM_VARIANT_MAIN := server
-JVM_FEATURES_server := cds compiler1 compiler2 g1gc serialgc
+JVM_FEATURES_server := cds compiler1 compiler2 g1gc serialgc link-time-opt
+JVM_FEATURES_mc := cds compiler1 compiler2 jvmti services shenandoahgc zgc vm-structs nmt management g1gc link-time-opt aot
 
 # Some users still set EXTRA_*FLAGS on the make command line. Must
 # make sure to override that when building buildjdk.

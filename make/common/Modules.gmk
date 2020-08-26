@@ -68,6 +68,7 @@ BOOT_MODULES += \
     jdk.nio.mapmode \
     jdk.sctp \
     jdk.unsupported \
+    support.base \
     #
 
 # to be deprivileged

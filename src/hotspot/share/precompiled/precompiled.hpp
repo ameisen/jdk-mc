@@ -22,6 +22,9 @@
  *
  */
 
+// Always include this anyways.
+#include "../../../common.hpp"
+
 // Precompiled headers are turned off for Solaris Studio,
 // or if the user passes --disable-precompiled-headers to configure.
 

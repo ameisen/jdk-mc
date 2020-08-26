@@ -73,9 +73,6 @@ class UnsafeQualifiedStaticShortFieldAccessorImpl
     public void set(Object obj, Object value)
         throws IllegalArgumentException, IllegalAccessException
     {
-        if (isReadOnly) {
-            throwFinalFieldIllegalAccessException(value);
-        }
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -111,9 +108,6 @@ class UnsafeQualifiedStaticShortFieldAccessorImpl
     public void setShort(Object obj, short s)
         throws IllegalArgumentException, IllegalAccessException
     {
-        if (isReadOnly) {
-            throwFinalFieldIllegalAccessException(s);
-        }
         unsafe.putShortVolatile(base, fieldOffset, s);
     }
 

@@ -71,9 +71,6 @@ class UnsafeStaticByteFieldAccessorImpl extends UnsafeStaticFieldAccessorImpl {
     public void set(Object obj, Object value)
         throws IllegalArgumentException, IllegalAccessException
     {
-        if (isFinal) {
-            throwFinalFieldIllegalAccessException(value);
-        }
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -93,9 +90,6 @@ class UnsafeStaticByteFieldAccessorImpl extends UnsafeStaticFieldAccessorImpl {
     public void setByte(Object obj, byte b)
         throws IllegalArgumentException, IllegalAccessException
     {
-        if (isFinal) {
-            throwFinalFieldIllegalAccessException(b);
-        }
         unsafe.putByte(base, fieldOffset, b);
     }
 

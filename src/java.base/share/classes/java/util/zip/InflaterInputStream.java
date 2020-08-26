@@ -40,6 +40,8 @@ import java.io.EOFException;
  * @since 1.1
  */
 public class InflaterInputStream extends FilterInputStream {
+    private static final int BUFFER_SIZE = 0x1000; // was 512
+
     /**
      * Decompressor for this stream.
      */
@@ -95,7 +97,7 @@ public class InflaterInputStream extends FilterInputStream {
      * @param inf the decompressor ("inflater")
      */
     public InflaterInputStream(InputStream in, Inflater inf) {
-        this(in, inf, 512);
+        this(in, inf, BUFFER_SIZE);
     }
 
     boolean usesDefaultInflater = false;
@@ -188,7 +190,7 @@ public class InflaterInputStream extends FilterInputStream {
         }
     }
 
-    private byte[] b = new byte[512];
+    private byte[] b = new byte[BUFFER_SIZE];
 
     /**
      * Skips specified number of bytes of uncompressed data.

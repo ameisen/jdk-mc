@@ -44,6 +44,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.zip.Deflater;
 import javax.xml.XMLConstants;
 import javax.xml.catalog.CatalogFeatures;
 import jdk.xml.internal.JdkXmlFeatures;
@@ -938,6 +939,8 @@ public final class XSLTC {
         final File jarFile = new File(_destDir, _jarFileName);
         final JarOutputStream jos =
             new JarOutputStream(new FileOutputStream(jarFile), manifest);
+
+        jos.setLevel(Deflater.BEST_COMPRESSION);
 
         for (JavaClass clazz : _bcelClasses) {
             final String className = clazz.getClassName().replace('.', '/');

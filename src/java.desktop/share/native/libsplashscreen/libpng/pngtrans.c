@@ -41,6 +41,10 @@
 
 #include "pngpriv.h"
 
+#ifdef _MSC_VER
+#  include <stdlib.h>
+#endif
+
 #if defined(PNG_READ_SUPPORTED) || defined(PNG_WRITE_SUPPORTED)
 
 #if defined(PNG_READ_BGR_SUPPORTED) || defined(PNG_WRITE_BGR_SUPPORTED)
@@ -356,11 +360,13 @@ png_do_swap(png_row_infop row_info, png_bytep row)
 
       for (i = 0; i < istop; i++, rp += 2)
       {
-#ifdef PNG_BUILTIN_BSWAP16_SUPPORTED
+#if defined(PNG_BUILTIN_BSWAP16_SUPPORTED)
          /* Feature added to libpng-1.6.11 for testing purposes, not
           * enabled by default.
           */
          *(png_uint_16*)rp = __builtin_bswap16(*(png_uint_16*)rp);
+#elif defined(_MSC_VER)
+         *(png_uint_16*)rp = _byteswap_ushort(*(png_uint_16*)rp);
 #else
          png_byte t = *rp;
          *rp = *(rp + 1);

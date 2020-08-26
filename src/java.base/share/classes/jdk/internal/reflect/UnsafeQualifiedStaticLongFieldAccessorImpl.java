@@ -73,9 +73,6 @@ class UnsafeQualifiedStaticLongFieldAccessorImpl
     public void set(Object obj, Object value)
         throws IllegalArgumentException, IllegalAccessException
     {
-        if (isReadOnly) {
-            throwFinalFieldIllegalAccessException(value);
-        }
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -135,9 +132,6 @@ class UnsafeQualifiedStaticLongFieldAccessorImpl
     public void setLong(Object obj, long l)
         throws IllegalArgumentException, IllegalAccessException
     {
-        if (isReadOnly) {
-            throwFinalFieldIllegalAccessException(l);
-        }
         unsafe.putLongVolatile(base, fieldOffset, l);
     }
 

@@ -73,9 +73,6 @@ class UnsafeQualifiedStaticBooleanFieldAccessorImpl
     public void set(Object obj, Object value)
         throws IllegalArgumentException, IllegalAccessException
     {
-        if (isReadOnly) {
-            throwFinalFieldIllegalAccessException(value);
-        }
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -89,9 +86,6 @@ class UnsafeQualifiedStaticBooleanFieldAccessorImpl
     public void setBoolean(Object obj, boolean z)
         throws IllegalArgumentException, IllegalAccessException
     {
-        if (isReadOnly) {
-            throwFinalFieldIllegalAccessException(z);
-        }
         unsafe.putBooleanVolatile(base, fieldOffset, z);
     }
 

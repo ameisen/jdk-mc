@@ -52,6 +52,8 @@ public class GZIPInputStream extends InflaterInputStream {
      */
     protected boolean eos;
 
+    private static final int BUFFER_SIZE = 0x1000; // was 512
+
     private boolean closed = false;
 
     /**
@@ -88,7 +90,7 @@ public class GZIPInputStream extends InflaterInputStream {
      * @throws    IOException if an I/O error has occurred
      */
     public GZIPInputStream(InputStream in) throws IOException {
-        this(in, 512);
+        this(in, BUFFER_SIZE);
     }
 
     /**

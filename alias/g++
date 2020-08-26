@@ -1,0 +1,3 @@
+#!/mnt/b/java/mc/src/alias/rb.sh
+
+call(*ARGV)

@@ -73,9 +73,6 @@ class UnsafeCharacterFieldAccessorImpl extends UnsafeFieldAccessorImpl {
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
-        if (isFinal) {
-            throwFinalFieldIllegalAccessException(value);
-        }
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -102,9 +99,6 @@ class UnsafeCharacterFieldAccessorImpl extends UnsafeFieldAccessorImpl {
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
-        if (isFinal) {
-            throwFinalFieldIllegalAccessException(c);
-        }
         unsafe.putChar(obj, fieldOffset, c);
     }
 

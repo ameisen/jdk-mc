@@ -106,7 +106,7 @@ AC_DEFUN([FLAGS_SETUP_RCFLAGS],
 AC_DEFUN([FLAGS_SETUP_ASFLAGS],
 [
   if test "x$OPENJDK_TARGET_OS" = xmacosx; then
-    JVM_BASIC_ASFLAGS="-x assembler-with-cpp -mno-omit-leaf-frame-pointer -mstack-alignment=16"
+    JVM_BASIC_ASFLAGS="-x assembler-with-cpp -momit-leaf-frame-pointer -mstack-alignment=16"
   fi
 ])
 

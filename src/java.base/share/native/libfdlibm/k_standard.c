@@ -26,6 +26,10 @@
 #include "fdlibm.h"
 #include <errno.h>
 
+#ifdef _MSC_VER
+#	pragma warning(disable:4700)
+#endif
+
 #ifndef _USE_WRITE
 #include <stdio.h>                      /* fputs(), stderr */
 #define WRITE2(u,v)     fputs(u, stderr)
@@ -92,7 +96,7 @@ static double zero = 0.0;       /* used as const */
         double x,y; int type;
 #endif
 {
-        struct exception exc;
+        struct exception exc = exc;
 #ifndef HUGE_VAL        /* this is the only routine that uses HUGE_VAL */
 #define HUGE_VAL inf
         double inf = 0.0;
@@ -106,6 +110,7 @@ static double zero = 0.0;       /* used as const */
         exc.arg1 = x;
         exc.arg2 = y;
         switch(type) {
+            default:
             case 1:
                 /* acos(|x|>1) */
                 exc.type = DOMAIN;
@@ -742,3 +747,7 @@ static double zero = 0.0;       /* used as const */
         }
         return exc.retval;
 }
+
+#ifdef _MSC_VER
+#	pragma warning(default:4700)
+#endif

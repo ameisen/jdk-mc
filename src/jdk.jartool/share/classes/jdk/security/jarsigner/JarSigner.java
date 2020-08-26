@@ -50,6 +50,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -673,6 +674,7 @@ public final class JarSigner {
         }
 
         ZipOutputStream zos = new ZipOutputStream(os);
+        zos.setLevel(Deflater.BEST_COMPRESSION);
 
         Manifest manifest = new Manifest();
         byte[] mfRawBytes = null;

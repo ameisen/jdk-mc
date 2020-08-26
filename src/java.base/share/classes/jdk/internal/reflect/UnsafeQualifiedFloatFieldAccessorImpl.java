@@ -75,9 +75,6 @@ class UnsafeQualifiedFloatFieldAccessorImpl
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
-        if (isReadOnly) {
-            throwFinalFieldIllegalAccessException(value);
-        }
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -148,9 +145,6 @@ class UnsafeQualifiedFloatFieldAccessorImpl
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
-        if (isReadOnly) {
-            throwFinalFieldIllegalAccessException(f);
-        }
         unsafe.putFloatVolatile(obj, fieldOffset, f);
     }
 

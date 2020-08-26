@@ -73,9 +73,6 @@ class UnsafeQualifiedStaticFloatFieldAccessorImpl
     public void set(Object obj, Object value)
         throws IllegalArgumentException, IllegalAccessException
     {
-        if (isReadOnly) {
-            throwFinalFieldIllegalAccessException(value);
-        }
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -145,9 +142,6 @@ class UnsafeQualifiedStaticFloatFieldAccessorImpl
     public void setFloat(Object obj, float f)
         throws IllegalArgumentException, IllegalAccessException
     {
-        if (isReadOnly) {
-            throwFinalFieldIllegalAccessException(f);
-        }
         unsafe.putFloatVolatile(base, fieldOffset, f);
     }
 

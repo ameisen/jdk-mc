@@ -256,4 +256,22 @@ inline int wcslen(const jchar* x) { return wcslen((const wchar_t*)x); }
 //
 #define ATTRIBUTE_ALIGNED(x) __attribute__((aligned(x)))
 
+#define UNREACHABLE() __builtin_unreachable()
+
+#ifdef __clang__
+# define ASSUME(expr) __builtin_assume(expr)
+#else
+# define ASSUME(expr) do { if (!(expr)) __builtin_unreachable(); } while(0)
+#endif
+
+#define EXPECT(expr, value) (__builtin_expect(expr, value))
+#define LIKELY(expr) EXPECT(!!(expr), true)
+#define UNLIKELY(expr) EXPECT(!!(expr), false)
+
+#define NORETURN __attribute__ ((noreturn))
+
+#define PUREF __attribute__ ((pure))
+#define CONSTF __attribute__ ((const))
+
+
 #endif // SHARE_UTILITIES_GLOBALDEFINITIONS_GCC_HPP

@@ -71,9 +71,6 @@ class UnsafeStaticCharacterFieldAccessorImpl extends UnsafeStaticFieldAccessorIm
     public void set(Object obj, Object value)
         throws IllegalArgumentException, IllegalAccessException
     {
-        if (isFinal) {
-            throwFinalFieldIllegalAccessException(value);
-        }
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -99,9 +96,6 @@ class UnsafeStaticCharacterFieldAccessorImpl extends UnsafeStaticFieldAccessorIm
     public void setChar(Object obj, char c)
         throws IllegalArgumentException, IllegalAccessException
     {
-        if (isFinal) {
-            throwFinalFieldIllegalAccessException(c);
-        }
         unsafe.putChar(base, fieldOffset, c);
     }
 

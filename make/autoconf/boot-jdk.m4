@@ -364,6 +364,7 @@ AC_DEFUN_ONCE([BOOTJDK_SETUP_BOOT_JDK],
   # Try to enable CDS
   AC_MSG_CHECKING([for local Boot JDK Class Data Sharing (CDS)])
   BOOT_JDK_CDS_ARCHIVE=$CONFIGURESUPPORT_OUTPUTDIR/classes.jsa
+  BOOT_JDK_CDS_ARCHIVE=`if command -v cygpath > /dev/null; then cygpath -m "$BOOT_JDK_CDS_ARCHIVE"; else $ECHO -n "$BOOT_JDK_CDS_ARCHIVE"; fi`
   UTIL_ADD_JVM_ARG_IF_OK([-XX:+UnlockDiagnosticVMOptions -XX:-VerifySharedSpaces -XX:SharedArchiveFile=$BOOT_JDK_CDS_ARCHIVE],boot_jdk_cds_args,[$JAVA])
 
   if test "x$boot_jdk_cds_args" != x; then
@@ -436,7 +437,7 @@ AC_DEFUN_ONCE([BOOTJDK_SETUP_BOOT_JDK_ARGUMENTS],
   # Maximum amount of heap memory.
   JVM_HEAP_LIMIT_32="768"
   # Running a 64 bit JVM allows for and requires a bigger heap
-  JVM_HEAP_LIMIT_64="1600"
+  JVM_HEAP_LIMIT_64="3200"
   JVM_HEAP_LIMIT_GLOBAL=`expr $MEMORY_SIZE / 2`
   if test "$JVM_HEAP_LIMIT_GLOBAL" -lt "$JVM_HEAP_LIMIT_32"; then
     JVM_HEAP_LIMIT_32=$JVM_HEAP_LIMIT_GLOBAL
@@ -458,7 +459,7 @@ AC_DEFUN_ONCE([BOOTJDK_SETUP_BOOT_JDK_ARGUMENTS],
 
   AC_MSG_RESULT([$boot_jdk_jvmargs_big])
 
-  JAVA_FLAGS_BIG=$boot_jdk_jvmargs_big
+  JAVA_FLAGS_BIG="$boot_jdk_jvmargs_big -XX:+UnlockExperimentalVMOptions -XX:-UseZGC -XX:-UseShenandoahGC -XX:+UseG1GC -XX:-UseLargePages -XX:-UseLargePagesIndividualAllocation -XX:-UseLargePagesInMetaspace"
   AC_SUBST(JAVA_FLAGS_BIG)
 
   if test "x$OPENJDK_TARGET_CPU_BITS" = "x32"; then
@@ -467,6 +468,7 @@ AC_DEFUN_ONCE([BOOTJDK_SETUP_BOOT_JDK_ARGUMENTS],
     BOOTCYCLE_MAX_HEAP=$JVM_HEAP_LIMIT_64
   fi
   BOOTCYCLE_JVM_ARGS_BIG="$BOOTCYCLE_JVM_ARGS_BIG -Xmx${BOOTCYCLE_MAX_HEAP}M"
+	BOOTCYCLE_JVM_ARGS_BIG="$BOOTCYCLE_JVM_ARGS_BIG -XX:+UnlockExperimentalVMOptions -XX:-UseZGC -XX:-UseShenandoahGC -XX:+UseG1GC -XX:-UseLargePages -XX:-UseLargePagesIndividualAllocation -XX:-UseLargePagesInMetaspace"
   AC_MSG_CHECKING([flags for bootcycle boot jdk java command for big workloads])
   AC_MSG_RESULT([$BOOTCYCLE_JVM_ARGS_BIG])
   AC_SUBST(BOOTCYCLE_JVM_ARGS_BIG)
@@ -474,9 +476,9 @@ AC_DEFUN_ONCE([BOOTJDK_SETUP_BOOT_JDK_ARGUMENTS],
   AC_MSG_CHECKING([flags for boot jdk java command for small workloads])
 
   # Use serial gc for small short lived tools if possible
-  UTIL_ADD_JVM_ARG_IF_OK([-XX:+UseSerialGC],boot_jdk_jvmargs_small,[$JAVA])
+  #UTIL_ADD_JVM_ARG_IF_OK([-XX:+UseSerialGC],boot_jdk_jvmargs_small,[$JAVA])
   UTIL_ADD_JVM_ARG_IF_OK([-Xms32M],boot_jdk_jvmargs_small,[$JAVA])
-  UTIL_ADD_JVM_ARG_IF_OK([-Xmx512M],boot_jdk_jvmargs_small,[$JAVA])
+  UTIL_ADD_JVM_ARG_IF_OK([-Xmx1G],boot_jdk_jvmargs_small,[$JAVA])
   UTIL_ADD_JVM_ARG_IF_OK([-XX:TieredStopAtLevel=1],boot_jdk_jvmargs_small,[$JAVA])
 
   AC_MSG_RESULT([$boot_jdk_jvmargs_small])

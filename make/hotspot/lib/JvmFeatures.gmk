@@ -61,10 +61,11 @@ endif
 
 ifeq ($(call check-jvm-feature, minimal), true)
   JVM_CFLAGS_FEATURES += -DMINIMAL_JVM -DVMTYPE=\"Minimal\"
-  ifeq ($(call isTargetOs, linux), true)
-    # Override the default -g with a more liberal strip policy for the minimal JVM
-    JVM_STRIPFLAGS := --strip-unneeded
-  endif
+endif
+
+ifeq ($(call isTargetOs, linux), true)
+  # Override the default -g with a more liberal strip policy for the minimal JVM
+  JVM_STRIPFLAGS := --strip-unneeded
 endif
 
 ifeq ($(call check-jvm-feature, dtrace), true)
@@ -180,13 +181,61 @@ endif
 
 ################################################################################
 
+ifeq ($(TOOLCHAIN_TYPE), microsoft)
+  JVM_CFLAGS_FEATURES += /O2 /Ob3 /arch:AVX2 /favor:INTEL64 /fp:fast /GS- /Qpar /volatile:iso
+  JVM_CFLAGS_FEATURES += /Gw
+  JVM_CFLAGS_FEATURES += /Gy
+  JVM_CFLAGS_FEATURES += /MP
+  JVM_CFLAGS_FEATURES += /Zc:alignedNew /Zc:__cplusplus /Zc:forScope /Zc:threadSafeInit- /Zc:throwingNew
+  ifneq (,$(findstring clang,$(CC)))
+    JVM_CFLAGS_FEATURES += -m64 -Wno-narrowing -fms-compatibility -fms-extensions -fms-compatibility-version=19.26.28806
+  else
+    JVM_CFLAGS_FEATURES += /QIntel-jcc-erratum
+  endif
+  JVM_LDFLAGS_FEATURES += /LARGEADDRESSAWARE /OPT:REF /OPT:ICF
+  ifeq (,$(findstring lld,$(LD)))
+    JVM_LDFLAGS_FEATURES += /CGTHREADS:8
+  endif
+endif
+
 ifeq ($(call check-jvm-feature, link-time-opt), true)
   # NOTE: Disable automatic opimization level and let the explicit cflag control
   # optimization level instead. This activates O3 on slowdebug builds, just
   # like the old build, but it's probably not right.
   JVM_OPTIMIZATION :=
-  JVM_CFLAGS_FEATURES += -O3 -flto
-  JVM_LDFLAGS_FEATURES += -O3 -flto -fuse-linker-plugin -fno-strict-aliasing
+  ifeq ($(TOOLCHAIN_TYPE), microsoft)
+    ifneq (,$(findstring clang,$(CC)))
+      #JVM_CFLAGS_FEATURES += -flto=thin
+    else
+      JVM_CFLAGS_FEATURES += /GL
+      JVM_LDFLAGS_FEATURES += /LTCG
+    endif
+  else
+    ifeq ($(TOOLCHAIN_TYPE), clang)
+      JVM_CFLAGS_FEATURES += -flto=thin
+      JVM_LDFLAGS_FEATURES += -flto=thin
+    else
+      JVM_CFLAGS_FEATURES += -flto -fuse-linker-plugin
+      JVM_LDFLAGS_FEATURES += -flto -fuse-linker-plugin
+    endif
+  endif
+endif
+
+ifeq ($(TOOLCHAIN_TYPE), clang)
+  JVM_CFLAGS_FEATURES_ALL += -O3 -fno-strict-aliasing -std=gnu++17 -fPIC -march=native
+  JVM_CFLAGS_FEATURES_ALL += -Wno-assume -Wno-deprecated-copy -Wno-deprecated-volatile -Wno-deprecated-anon-enum-enum-conversion
+  JVM_CFLAGS_FEATURES_ALL += -Wno-ambiguous-reversed-operator -Wno-deprecated-enum-enum-conversion -Wno-misleading-indentation
+  JVM_CFLAGS_FEATURES_ALL += -Wno-deprecated-enum-float-conversion -Wno-maybe-uninitialized
+  JVM_CFLAGS_FEATURES_ALL += -Wno-error -Wno-unused-command-line-argument
+  JVM_CFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL)
+  JVM_LDFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL)
+else
+  ifeq ($(TOOLCHAIN_TYPE), gcc)
+    JVM_CFLAGS_FEATURES_ALL += -O3 -fno-strict-aliasing -std=gnu++17 -march=haswell -fmerge-all-constants -fno-threadsafe-statics
+    JVM_CFLAGS_FEATURES_ALL += -Wno-stringop-truncation -Wno-stringop-overflow -Wno-maybe-uninitialized
+    JVM_CFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL)
+    JVM_LDFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL) -Wl,--allow-multiple-definition -Wl,-O1 -Wl,--relax
+  endif
 endif
 
 ifeq ($(call check-jvm-feature, opt-size), true)

@@ -209,7 +209,6 @@ public:
   void record_unpin();
   size_t pin_count() const;
 
-private:
   static size_t RegionCount;
   static size_t RegionSizeBytes;
   static size_t RegionSizeWords;
@@ -221,6 +220,7 @@ private:
   static size_t HumongousThresholdWords;
   static size_t MaxTLABSizeBytes;
   static size_t MaxTLABSizeWords;
+private:
 
   // Never updated fields
   size_t const _index;

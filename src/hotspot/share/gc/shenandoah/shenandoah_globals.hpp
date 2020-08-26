@@ -288,7 +288,7 @@
           "Many heuristics automatically enable this. This option is "      \
           "similar to global ExplicitGCInvokesConcurrent.")                 \
                                                                             \
-  diagnostic(bool, ShenandoahHumongousMoves, true,                          \
+  experimental(bool, ShenandoahHumongousMoves, true,                        \
           "Allow moving humongous regions. This makes GC more resistant "   \
           "to external fragmentation that may otherwise fail other "        \
           "humongous allocations, at the expense of higher GC copying "     \
@@ -300,7 +300,7 @@
   diagnostic(bool, ShenandoahAllocFailureALot, false,                       \
           "Testing: make lots of artificial allocation failures.")          \
                                                                             \
-  diagnostic(bool, ShenandoahAlwaysPreTouch, false,                         \
+  experimental(bool, ShenandoahAlwaysPreTouch, true,                        \
           "Pre-touch heap memory, overrides global AlwaysPreTouch.")        \
                                                                             \
   experimental(intx, ShenandoahMarkScanPrefetch, 32,                        \

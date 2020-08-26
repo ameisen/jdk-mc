@@ -1,0 +1,11 @@
+Remove unnecessary temporary buffers
+  In classes like CheckedInputStream, temporary local buffers are used to skip data. This can be resolved by adding methods to things such as the Checksum interface which do not have to write to a buffer. Add a 'skip' method to InputStream (or streams in general) as well.
+  
+Make sure temporary buffers are actually being made local
+  Java can do fast allocation on small buffers. Our temporary buffers in the runtime are usually 512, 1024, 4Ki or 8Ki bytes.
+  
+DeflaterInputStream
+  Provide optimized single-byte read that doesn't perform an allocation.
+  
+All file streams
+  Add a heuristic to determine if we should open it with sequential, random access, or default semantics by default? Perhaps force it to use memory mapping underneath?

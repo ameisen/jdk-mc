@@ -30,6 +30,9 @@
 #include "hb.hh"
 #include "hb-null.hh"
 
+#if defined(_MSC_VER)
+# include <intrin.h>
+#endif
 
 /* Void! For when we need a expression-type of void. */
 typedef const struct _hb_void_t *hb_void_t;
@@ -54,6 +57,15 @@ hb_popcount (T v)
 
   if (sizeof (T) <= sizeof (unsigned long long))
     return __builtin_popcountll (v);
+#elif defined(_MSC_VER)
+  if (sizeof (T) <= sizeof (unsigned short))
+    return __popcnt16 ((unsigned short)v);
+
+  if (sizeof (T) <= sizeof (unsigned int))
+    return __popcnt ((unsigned int)v);
+
+  if (sizeof (T) <= sizeof (unsigned long long))
+    return __popcnt64 ((unsigned long)v);
 #endif
 
   if (sizeof (T) <= 4)

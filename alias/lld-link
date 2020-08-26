@@ -1,0 +1,22 @@
+#!rb.sh
+
+MSC_NAME = "Microsoft (R) Incremental Linker Version 14.26.28806.0"
+MSC_VER = "1926"
+
+if ARGV.empty?
+	puts MSC_NAME
+	exit 0	
+end
+
+nologo = false
+ARGV.each { |arg|
+	if arg[1..-1] == "nologo"
+		nologo = true
+		break
+	elsif arg == "--version"
+		exit 1
+	end
+}
+puts MSC_NAME unless nologo
+
+call(*ARGV)

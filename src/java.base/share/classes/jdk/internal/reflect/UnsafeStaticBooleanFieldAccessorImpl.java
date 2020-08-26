@@ -71,9 +71,6 @@ class UnsafeStaticBooleanFieldAccessorImpl extends UnsafeStaticFieldAccessorImpl
     public void set(Object obj, Object value)
         throws IllegalArgumentException, IllegalAccessException
     {
-        if (isFinal) {
-            throwFinalFieldIllegalAccessException(value);
-        }
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -87,9 +84,6 @@ class UnsafeStaticBooleanFieldAccessorImpl extends UnsafeStaticFieldAccessorImpl
     public void setBoolean(Object obj, boolean z)
         throws IllegalArgumentException, IllegalAccessException
     {
-        if (isFinal) {
-            throwFinalFieldIllegalAccessException(z);
-        }
         unsafe.putBoolean(base, fieldOffset, z);
     }
 

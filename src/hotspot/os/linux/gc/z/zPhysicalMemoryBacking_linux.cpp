@@ -681,7 +681,7 @@ size_t ZPhysicalMemoryBacking::uncommit(size_t offset, size_t length) {
 
   const ZErrno err = fallocate(true /* punch_hole */, offset, length);
   if (err) {
-    log_error(gc)("Failed to uncommit memory (%s)", err.to_string());
+    //log_error(gc)("Failed to uncommit memory (%s)", err.to_string());
     return 0;
   }
 

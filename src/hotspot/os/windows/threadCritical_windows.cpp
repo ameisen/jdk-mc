@@ -31,68 +31,24 @@
 # include <windows.h>
 # include <winbase.h>
 
-//
-// See threadCritical.hpp for details of this class.
-//
+namespace {
+  struct CriticalSection final {
+    CRITICAL_SECTION m_csec;
+    CriticalSection() noexcept {
+      ::InitializeCriticalSection(&m_csec);
+    }
+    ~CriticalSection() noexcept {
+      ::DeleteCriticalSection(&m_csec);
+    }
+  };
+}
 
-static bool initialized = false;
-static volatile int lock_count = -1;
-static HANDLE lock_event;
-static DWORD lock_owner = -1;
-
-//
-// Note that Microsoft's critical region code contains a race
-// condition, and is not suitable for use. A thread holding the
-// critical section cannot safely suspend a thread attempting
-// to enter the critical region. The failure mode is that both
-// threads are permanently suspended.
-//
-// I experiemented with the use of ordinary windows mutex objects
-// and found them ~30 times slower than the critical region code.
-//
+static CriticalSection lock_csec;
 
 ThreadCritical::ThreadCritical() {
-  DWORD current_thread = GetCurrentThreadId();
-
-  if (lock_owner != current_thread) {
-    // Grab the lock before doing anything.
-    while (Atomic::cmpxchg(&lock_count, -1, 0) != -1) {
-      if (initialized) {
-        DWORD ret = WaitForSingleObject(lock_event,  INFINITE);
-        assert(ret == WAIT_OBJECT_0, "unexpected return value from WaitForSingleObject");
-      }
-    }
-
-    // Make sure the event object is allocated.
-    if (!initialized) {
-      // Locking will not work correctly unless this is autoreset.
-      lock_event = CreateEvent(NULL, false, false, NULL);
-      initialized = true;
-    }
-
-    assert(lock_owner == -1, "Lock acquired illegally.");
-    lock_owner = current_thread;
-  } else {
-    // Atomicity isn't required. Bump the recursion count.
-    lock_count++;
-  }
-
-  assert(lock_owner == GetCurrentThreadId(), "Lock acquired illegally.");
+  ::EnterCriticalSection(&lock_csec.m_csec);
 }
 
 ThreadCritical::~ThreadCritical() {
-  assert(lock_owner == GetCurrentThreadId(), "unlock attempt by wrong thread");
-  assert(lock_count >= 0, "Attempt to unlock when already unlocked");
-
-  if (lock_count == 0) {
-    // We're going to unlock
-    lock_owner = -1;
-    lock_count = -1;
-    // No lost wakeups, lock_event stays signaled until reset.
-    DWORD ret = SetEvent(lock_event);
-    assert(ret != 0, "unexpected return value from SetEvent");
-  } else {
-    // Just unwinding a recursive lock;
-    lock_count--;
-  }
+  ::LeaveCriticalSection(&lock_csec.m_csec);
 }

@@ -221,6 +221,20 @@
 #define NOT_SHENANDOAHGC_RETURN_(code) { return code; }
 #endif // INCLUDE_SHENANDOAHGC
 
+#if INCLUDE_G1GC || INCLUDE_SHENANDOAHGC
+#define G1_SHENANDOAH_GC_ONLY(x) x
+#define G1_SHENANDOAH_GC_ONLY_ARG(arg) arg,
+#define NOT_G1_SHENANDOAH_GC(x)
+#define NOT_G1_SHENANDOAH_GC_RETURN        /* next token must be ; */
+#define NOT_G1_SHENANDOAH_GC_RETURN_(code) /* next token must be ; */
+#else
+#define G1_SHENANDOAH_GC_ONLY(x)
+#define G1_SHENANDOAH_GC_ONLY_ARG(arg)
+#define NOT_G1_SHENANDOAH_GC(x) x
+#define NOT_G1_SHENANDOAH_GC_RETURN        {}
+#define NOT_G1_SHENANDOAH_GC_RETURN_(code) { return code; }
+#endif
+
 #ifndef INCLUDE_ZGC
 #define INCLUDE_ZGC 1
 #endif // INCLUDE_ZGC

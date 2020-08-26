@@ -42,6 +42,8 @@ import java.io.OutputStream;
  */
 
 public class InflaterOutputStream extends FilterOutputStream {
+    private static final int BUFFER_SIZE = 0x1000; // was 512
+
     /** Decompressor for this stream. */
     protected final Inflater inf;
 
@@ -87,7 +89,7 @@ public class InflaterOutputStream extends FilterOutputStream {
      * @throws NullPointerException if {@code out} or {@code infl} is null
      */
     public InflaterOutputStream(OutputStream out, Inflater infl) {
-        this(out, infl, 512);
+        this(out, infl, BUFFER_SIZE);
     }
 
     /**

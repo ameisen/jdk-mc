@@ -129,6 +129,12 @@ module java.base {
     exports javax.security.auth.x500;
     exports javax.security.cert;
 
+    exports jdk.internal.module;
+    exports jdk.internal.loader;
+
+    opens jdk.internal.access;
+    opens jdk.internal.misc;
+
 
     // additional qualified exports may be inserted at build time
     // see make/gensrc/GenModuleInfo.gmk
@@ -160,10 +166,6 @@ module java.base {
         jdk.jlink;
     exports jdk.internal.jimage.decompressor to
         jdk.jlink;
-    exports jdk.internal.loader to
-        java.instrument,
-        java.logging,
-        java.naming;
     exports jdk.internal.jmod to
         jdk.compiler,
         jdk.jlink;
@@ -202,13 +204,6 @@ module java.base {
         jdk.unsupported,
         jdk.internal.vm.ci,
         jdk.incubator.foreign;
-    exports jdk.internal.module to
-        java.instrument,
-        java.management.rmi,
-        jdk.jartool,
-        jdk.jfr,
-        jdk.jlink,
-        jdk.incubator.jpackage;
     exports jdk.internal.perf to
         java.management,
         jdk.management.agent,

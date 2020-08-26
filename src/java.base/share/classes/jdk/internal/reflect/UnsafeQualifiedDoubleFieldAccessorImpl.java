@@ -75,9 +75,6 @@ class UnsafeQualifiedDoubleFieldAccessorImpl
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
-        if (isReadOnly) {
-            throwFinalFieldIllegalAccessException(value);
-        }
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -158,9 +155,6 @@ class UnsafeQualifiedDoubleFieldAccessorImpl
         throws IllegalArgumentException, IllegalAccessException
     {
         ensureObj(obj);
-        if (isReadOnly) {
-            throwFinalFieldIllegalAccessException(d);
-        }
         unsafe.putDoubleVolatile(obj, fieldOffset, d);
     }
 }

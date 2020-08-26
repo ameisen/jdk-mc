@@ -194,7 +194,9 @@ void GenCollectedHeap::post_initialize() {
                          _old_gen->capacity(),
                          def_new_gen->from()->capacity());
 
+#if INCLUDE_SERIALGC
   MarkSweep::initialize();
+#endif
 
   ScavengableNMethods::initialize(&_is_scavengable);
 }

@@ -54,6 +54,7 @@ public interface Checksum {
      *
      * @since 9
      */
+    @SuppressWarnings("TODO: Add a variant that only takes a length.")
     default public void update(byte[] b) {
         update(b, 0, b.length);
     }
@@ -65,6 +66,7 @@ public interface Checksum {
      * @param off the start offset of the data
      * @param len the number of bytes to use for the update
      */
+    @SuppressWarnings("TODO: Add a variant that does not require a buffer.")
     public void update(byte[] b, int off, int len);
 
     /**

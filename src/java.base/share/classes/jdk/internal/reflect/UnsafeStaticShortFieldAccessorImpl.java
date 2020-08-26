@@ -71,9 +71,6 @@ class UnsafeStaticShortFieldAccessorImpl extends UnsafeStaticFieldAccessorImpl {
     public void set(Object obj, Object value)
         throws IllegalArgumentException, IllegalAccessException
     {
-        if (isFinal) {
-            throwFinalFieldIllegalAccessException(value);
-        }
         if (value == null) {
             throwSetIllegalArgumentException(value);
         }
@@ -109,9 +106,6 @@ class UnsafeStaticShortFieldAccessorImpl extends UnsafeStaticFieldAccessorImpl {
     public void setShort(Object obj, short s)
         throws IllegalArgumentException, IllegalAccessException
     {
-        if (isFinal) {
-            throwFinalFieldIllegalAccessException(s);
-        }
         unsafe.putShort(base, fieldOffset, s);
     }
 

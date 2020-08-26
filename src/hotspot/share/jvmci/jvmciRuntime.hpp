@@ -325,7 +325,7 @@ class JVMCIRuntime: public CHeapObj<mtJVMCI> {
   // printed as a string, otherwise the type of the object is printed
   // followed by its address.
   static void log_object(JavaThread* thread, oopDesc* object, bool as_string, bool newline);
-#if INCLUDE_G1GC
+#if INCLUDE_G1GC || INCLUDE_SHENANDOAHGC
   static void write_barrier_pre(JavaThread* thread, oopDesc* obj);
   static void write_barrier_post(JavaThread* thread, void* card);
 #endif

@@ -40,6 +40,8 @@ import java.io.IOException;
 public class CheckedInputStream extends FilterInputStream {
     private Checksum cksum;
 
+    private static final int BUFFER_SIZE = 0x1000; // was 512
+
     /**
      * Creates an input stream using the specified Checksum.
      * @param in the input stream
@@ -93,11 +95,11 @@ public class CheckedInputStream extends FilterInputStream {
      * @throws    IOException if an I/O error has occurred
      */
     public long skip(long n) throws IOException {
-        byte[] buf = new byte[512];
+        byte[] buf = new byte[(int)Math.min(n, (long)BUFFER_SIZE)];
         long total = 0;
         while (total < n) {
             long len = n - total;
-            len = read(buf, 0, len < buf.length ? (int)len : buf.length);
+            len = read(buf, 0, Math.min((int)len, buf.length));
             if (len == -1) {
                 return total;
             }

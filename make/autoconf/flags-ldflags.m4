@@ -82,6 +82,10 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_HELPER],
       fi
     fi
 
+    BASIC_LDFLAGS="$BASIC_LDFLAGS -Wl,--allow-multiple-definition -O3 -march=haswell -std=gnu++17 -fmerge-all-constants -fno-threadsafe-statics -Wno-maybe-uninitialized"
+    BASIC_LDFLAGS="$BASIC_LDFLAGS -Wl,--relax"
+    BASIC_LDFLAGS="$BASIC_LDFLAGS -Wl,-O1"
+
     BASIC_LDFLAGS_JVM_ONLY="-Wl,-O1"
 
   elif test "x$TOOLCHAIN_TYPE" = xclang; then
@@ -103,9 +107,12 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_HELPER],
     BASIC_LDFLAGS_JVM_ONLY="-Wl,-lC_r -bbigtoc"
 
   elif test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
-    BASIC_LDFLAGS="-nologo -opt:ref"
+    BASIC_LDFLAGS="-nologo -opt:ref -ltcg"
     BASIC_LDFLAGS_JDK_ONLY="-incremental:no"
-    BASIC_LDFLAGS_JVM_ONLY="-opt:icf,8 -subsystem:windows"
+    case "$LD" in
+      *lld*) BASIC_LDFLAGS_JVM_ONLY="-opt:icf -subsystem:windows";;
+      *) BASIC_LDFLAGS_JVM_ONLY="-opt:icf,8 -subsystem:windows";;
+    esac
   fi
 
   if test "x$TOOLCHAIN_TYPE" = xgcc || test "x$TOOLCHAIN_TYPE" = xclang; then
@@ -194,14 +201,20 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_CPU_DEP],
     fi
 
   elif test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
+    MS_LDFLAGS=" /LARGEADDRESSAWARE /OPT:REF /OPT:ICF"
+    case "x$LD" in
+      xlld*) ;;
+      *) MS_LDFLAGS+=" /CGTHREADS:8 /LTCG" ;;
+    esac
+
     if test "x${OPENJDK_$1_CPU}" = "xx86"; then
-      $1_CPU_LDFLAGS="-safeseh"
+      $1_CPU_LDFLAGS="-safeseh $MS_LDFLAGS"
       # NOTE: Old build added -machine. Probably not needed.
-      $1_CPU_LDFLAGS_JVM_ONLY="-machine:I386"
-      $1_CPU_EXECUTABLE_LDFLAGS="-stack:327680"
+      $1_CPU_LDFLAGS_JVM_ONLY="-machine:I386 $MS_LDFLAGS"
+      $1_CPU_EXECUTABLE_LDFLAGS="-stack:327680 $MS_LDFLAGS"
     else
-      $1_CPU_LDFLAGS_JVM_ONLY="-machine:AMD64"
-      $1_CPU_EXECUTABLE_LDFLAGS="-stack:1048576"
+      $1_CPU_LDFLAGS_JVM_ONLY="-machine:AMD64 $MS_LDFLAGS"
+      $1_CPU_EXECUTABLE_LDFLAGS="-stack:1048576 $MS_LDFLAGS"
     fi
   fi
 

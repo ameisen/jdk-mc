@@ -159,7 +159,7 @@ AC_DEFUN_ONCE([JVM_FEATURES_PARSE_OPTIONS],
   # Likewise, check for deprecated arguments.
   m4_foreach(FEATURE, m4_split(jvm_features_deprecated), [
     AC_ARG_ENABLE(jvm-feature-FEATURE, AS_HELP_STRING(
-        [--enable-jvm-feature-FEATURE], 
+        [--enable-jvm-feature-FEATURE],
         [Deprecated. Option is kept for backwards compatibility and is ignored]))
 
     m4_define(FEATURE_SHELL, [enable_jvm_feature_]m4_translit(FEATURE, -, _))
@@ -496,6 +496,8 @@ AC_DEFUN([JVM_FEATURES_PREPARE_VARIANT],
         link-time-opt opt-size"
   elif test "x$variant" = "xzero"; then
     JVM_FEATURES_VARIANT_FILTER="jfr link-time-opt opt-size"
+  elif test "x$variant" = "xmc"; then
+    JVM_FEATURES_VARIANT_FILTER=""
   else
     JVM_FEATURES_VARIANT_FILTER="link-time-opt opt-size"
   fi
@@ -663,6 +665,7 @@ AC_DEFUN_ONCE([JVM_FEATURES_SETUP],
   AC_SUBST(JVM_FEATURES_core)
   AC_SUBST(JVM_FEATURES_zero)
   AC_SUBST(JVM_FEATURES_custom)
+  AC_SUBST(JVM_FEATURES_mc)
 
   AC_SUBST(ENABLE_AOT)
   AC_SUBST(INCLUDE_GRAAL)
