@@ -358,6 +358,16 @@ jdk.jartool_JAVAC_FLAGS += -XDstringConcat=inline
 
 ################################################################################
 
+jdk.scripting.nashorn_DISABLED_WARNINGS += overrides deprecation removal
+jdk.scripting.nashorn_COPY := .properties .js
+
+################################################################################
+
+jdk.scripting.nashorn.shell_DISABLED_WARNINGS += overrides deprecation removal
+jdk.scripting.nashorn.shell_COPY += .js .properties
+
+################################################################################
+
 # No SCTP implementation on Mac OS X or AIX. These classes should be excluded.
 SCTP_IMPL_CLASSES = \
     $(TOPDIR)/src/jdk.sctp/unix/classes/sun/nio/ch/sctp/AssociationChange.java \
@@ -674,6 +684,12 @@ ifneq ($(wildcard $(IMPORT_MODULE_DIR)), )
   # Add this dependency to avoid a race between compiling module-info.java and
   # importing the classes.
   $($(MODULE)_COMPILE_TARGET): $(JDK_OUTPUTDIR)/modules/$(MODULE)/_imported.marker
+endif
+
+################################################################################
+
+ifeq ($(MODULE), jdk.scripting.nashorn)
+  include CompileJavaModulesNashorn.gmk
 endif
 
 ################################################################################

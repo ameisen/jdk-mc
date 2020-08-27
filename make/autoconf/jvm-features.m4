@@ -497,7 +497,7 @@ AC_DEFUN([JVM_FEATURES_PREPARE_VARIANT],
   elif test "x$variant" = "xzero"; then
     JVM_FEATURES_VARIANT_FILTER="jfr link-time-opt opt-size"
   elif test "x$variant" = "xmc"; then
-    JVM_FEATURES_VARIANT_FILTER=""
+    JVM_FEATURES_VARIANT_FILTER="aot epsilongc graal jfr jni-check jvmci opt-size parallelgc serialgc"
   else
     JVM_FEATURES_VARIANT_FILTER="link-time-opt opt-size"
   fi

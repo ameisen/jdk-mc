@@ -283,7 +283,7 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 			"cds-archive",
 			"javac-server",
 			"precompiled-headers",
-			"aot=yes",
+			#"aot=yes",
 			"dtrace=no",
 			"unlimited-crypto"
 		]
@@ -390,7 +390,7 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 				]
 			end
 		end
-		
+
 		configure_add_env.call("_JAVA_BUILD_CFLAGS")
 		configure_add_env.call("_JAVA_BUILD_CXXFLAGS")
 		configure_add_env.call("_JAVA_BUILD_LDFLAGS")

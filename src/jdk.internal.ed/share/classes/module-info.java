@@ -33,7 +33,9 @@ module jdk.internal.ed {
 
     exports jdk.internal.editor.spi to
         jdk.editpad,
-        jdk.jshell;
+        jdk.jshell,
+        jdk.scripting.nashorn.shell;
     exports jdk.internal.editor.external to
-        jdk.jshell;
+        jdk.jshell,
+        jdk.scripting.nashorn.shell;
 }
