@@ -29,7 +29,7 @@ include LibCommon.gmk
 
 $(eval $(call SetupJdkLibrary, BUILD_LIBJAAS, \
     NAME := jaas, \
-    OPTIMIZATION := LOW, \
+    OPTIMIZATION := HIGH, \
     CFLAGS := $(CFLAGS_JDKLIB), \
     LDFLAGS := $(LDFLAGS_JDKLIB) \
         $(call SET_SHARED_LIBRARY_ORIGIN), \

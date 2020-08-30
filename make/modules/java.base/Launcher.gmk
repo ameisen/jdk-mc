@@ -61,7 +61,7 @@ ifeq ($(call isTargetOs, linux), true)
       NAME := jexec, \
       SRC := $(TOPDIR)/src/$(MODULE)/unix/native/launcher, \
       INCLUDE_FILES := jexec.c, \
-      OPTIMIZATION := LOW, \
+      OPTIMIZATION := HIGH, \
       CFLAGS := $(CFLAGS_JDKEXE) \
           -I$(TOPDIR)/src/$(MODULE)/share/native/libjli, \
       CFLAGS_linux := -fPIC, \
@@ -79,7 +79,7 @@ ifeq ($(call isTargetOs, macosx solaris aix linux), true)
   $(eval $(call SetupJdkExecutable, BUILD_JSPAWNHELPER, \
       NAME := jspawnhelper, \
       SRC := $(TOPDIR)/src/$(MODULE)/unix/native/jspawnhelper, \
-      OPTIMIZATION := LOW, \
+      OPTIMIZATION := HIGH, \
       CFLAGS := $(CFLAGS_JDKEXE) -I$(TOPDIR)/src/$(MODULE)/unix/native/libjava, \
       EXTRA_OBJECT_FILES := $(SUPPORT_OUTPUTDIR)/native/$(MODULE)/libjava/childproc.o, \
       LDFLAGS := $(LDFLAGS_JDKEXE), \

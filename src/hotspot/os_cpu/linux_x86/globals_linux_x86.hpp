@@ -28,7 +28,7 @@
 // Sets the default values for platform dependent flags used by the runtime system.
 // (see globals.hpp)
 
-define_pd_global(bool, DontYieldALot,            false);
+define_pd_global(bool, DontYieldALot,            true);
 #ifdef AMD64
 define_pd_global(intx, CompilerThreadStackSize,  1024);
 define_pd_global(intx, ThreadStackSize,          1024); // 0 => use system default

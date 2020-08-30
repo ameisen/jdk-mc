@@ -62,7 +62,7 @@ ifeq ($(call isTargetOs, aix), false)
   $(eval $(call SetupJdkLibrary, BUILD_LIBJSOUND, \
       NAME := jsound, \
       TOOLCHAIN := $(LIBJSOUND_TOOLCHAIN), \
-      OPTIMIZATION := LOW, \
+      OPTIMIZATION := HIGH, \
       CFLAGS := $(CFLAGS_JDKLIB) \
           $(LIBJSOUND_CFLAGS), \
       CXXFLAGS := $(CXXFLAGS_JDKLIB) $(LIBJSOUND_CFLAGS), \
@@ -91,7 +91,7 @@ ifeq ($(call isTargetOs, macosx), true)
 
   $(eval $(call SetupJdkLibrary, BUILD_LIBOSXAPP, \
       NAME := osxapp, \
-      OPTIMIZATION := LOW, \
+      OPTIMIZATION := HIGH, \
       CFLAGS := $(CFLAGS_JDKLIB), \
       DISABLED_WARNINGS_clang := objc-method-access objc-root-class \
           deprecated-declarations format-nonliteral, \
@@ -118,7 +118,7 @@ ifeq ($(call isTargetOs, macosx), true)
 
   $(eval $(call SetupJdkLibrary, BUILD_LIBOSX, \
       NAME := osx, \
-      OPTIMIZATION := LOW, \
+      OPTIMIZATION := HIGH, \
       CFLAGS := $(CFLAGS_JDKLIB), \
       EXTRA_HEADER_DIRS := libosxapp, \
       DISABLED_WARNINGS_clang := deprecated-declarations, \

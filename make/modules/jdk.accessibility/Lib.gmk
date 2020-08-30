@@ -39,7 +39,7 @@ ifeq ($(call isTargetOs, windows), true)
         NAME := javaaccessbridge$1, \
         SRC := libjavaaccessbridge, \
         EXTRA_SRC := common, \
-        OPTIMIZATION := LOW, \
+        OPTIMIZATION := HIGH, \
         DISABLED_WARNINGS_microsoft := 4311 4302 4312, \
         CFLAGS := $(filter-out -MD, $(CFLAGS_JDKLIB)) -MT \
             -DACCESSBRIDGE_ARCH_$2, \
@@ -67,7 +67,7 @@ ifeq ($(call isTargetOs, windows), true)
         NAME := windowsaccessbridge$1, \
         SRC := libwindowsaccessbridge, \
         EXTRA_SRC := common, \
-        OPTIMIZATION := LOW, \
+        OPTIMIZATION := HIGH, \
         DISABLED_WARNINGS_microsoft := 4311 4302 4312, \
         CFLAGS := $(CFLAGS_JDKLIB) \
             -DACCESSBRIDGE_ARCH_$2, \
@@ -90,7 +90,7 @@ ifeq ($(call isTargetOs, windows), true)
 
     $(call SetupJdkLibrary, BUILD_ACCESSBRIDGESYSINFO, \
         NAME := jabsysinfo, \
-        OPTIMIZATION := LOW, \
+        OPTIMIZATION := HIGH, \
         CFLAGS := $(CFLAGS_JDKLIB), \
         LDFLAGS := $(LDFLAGS_JDKLIB), \
         VERSIONINFO_RESOURCE := $(ROOT_SRCDIR)/common/AccessBridgeStatusWindow.rc, \

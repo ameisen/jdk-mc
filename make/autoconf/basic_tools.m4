@@ -141,6 +141,12 @@ AC_DEFUN([BASIC_CHECK_MAKE_VERSION],
           fi
           MAKE_BUILT_FOR=`$MAKE_CANDIDATE --version | $GREP -i 'built for'`
           IS_MAKE_CORRECT_ENV=`$ECHO $MAKE_BUILT_FOR | $GREP $MAKE_EXPECTED_ENV`
+          # Override, make 'cygwin' OK with 'msys'
+          if test "x$IS_MAKE_CORRECT_ENV" = x; then
+            MAKE_EXPECTED_ENV='msys'
+            MAKE_BUILT_FOR=`$MAKE_CANDIDATE --version | $GREP -i 'built for'`
+            IS_MAKE_CORRECT_ENV=`$ECHO $MAKE_BUILT_FOR | $GREP $MAKE_EXPECTED_ENV`
+          fi
         else
           # Not relevant for non-Windows
           IS_MAKE_CORRECT_ENV=true

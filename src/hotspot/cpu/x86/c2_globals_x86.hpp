@@ -79,22 +79,22 @@ define_pd_global(intx, RegisterCostAreaRatio,        16000);
 define_pd_global(bool, OptoPeephole,                 true);
 define_pd_global(bool, UseCISCSpill,                 true);
 define_pd_global(bool, OptoScheduling,               false);
-define_pd_global(bool, OptoBundling,                 false);
+define_pd_global(bool, OptoBundling,                 true);
 define_pd_global(bool, OptoRegScheduling,            true);
 define_pd_global(bool, SuperWordLoopUnrollAnalysis,  true);
 define_pd_global(bool, IdealizeClearArrayNode,       true);
 
-define_pd_global(uintx, ReservedCodeCacheSize,       48*M);
-define_pd_global(uintx, NonProfiledCodeHeapSize,     21*M);
-define_pd_global(uintx, ProfiledCodeHeapSize,        22*M);
-define_pd_global(uintx, NonNMethodCodeHeapSize,      5*M );
+define_pd_global(uintx, ReservedCodeCacheSize,       96*M);
+define_pd_global(uintx, NonProfiledCodeHeapSize,     64*M);
+define_pd_global(uintx, ProfiledCodeHeapSize,        32*M);
+define_pd_global(uintx, NonNMethodCodeHeapSize,      16*M );
 define_pd_global(uintx, CodeCacheMinBlockLength,     6);
 define_pd_global(uintx, CodeCacheMinimumUseSpace,    400*K);
 
 define_pd_global(bool,  TrapBasedRangeChecks,        false); // Not needed on x86.
 
 // Heap related flags
-define_pd_global(size_t, MetaspaceSize,              ScaleForWordSize(16*M));
+define_pd_global(size_t, MetaspaceSize,              ScaleForWordSize(24*M));
 
 // Ergonomics related flags
 define_pd_global(bool, NeverActAsServerClassMachine, false);

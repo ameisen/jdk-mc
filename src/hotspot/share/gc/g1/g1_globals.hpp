@@ -69,7 +69,7 @@
           "level for gc+remset")                                            \
           range(0, max_intx)                                                \
                                                                             \
-  product(double, G1ConcMarkStepDurationMillis, 10.0,                       \
+  product(double, G1ConcMarkStepDurationMillis, 5.0,                        \
           "Target duration of individual concurrent marking steps "         \
           "in milliseconds.")                                               \
           range(1.0, DBL_MAX)                                               \

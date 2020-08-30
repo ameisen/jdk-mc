@@ -37,7 +37,7 @@ endif
 LIBMANAGEMENT_EXT_OPTIMIZATION := HIGH
 ifeq ($(call isTargetOs, solaris linux), true)
   ifeq ($(COMPILE_WITH_DEBUG_SYMBOLS), true)
-    LIBMANAGEMENT_EXT_OPTIMIZATION := LOW
+    LIBMANAGEMENT_EXT_OPTIMIZATION := HIGH
   endif
 endif
 

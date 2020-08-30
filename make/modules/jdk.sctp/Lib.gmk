@@ -32,7 +32,7 @@ ifeq ($(call isTargetOsType, unix), true)
   ifeq ($(call isTargetOs, macosx aix), false)
     $(eval $(call SetupJdkLibrary, BUILD_LIBSCTP, \
         NAME := sctp, \
-        OPTIMIZATION := LOW, \
+        OPTIMIZATION := HIGH, \
         CFLAGS := $(CFLAGS_JDKLIB), \
         DISABLED_WARNINGS_gcc := undef, \
         DISABLED_WARNINGS_clang := undef, \

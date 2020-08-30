@@ -79,6 +79,7 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_HELPER],
         BASIC_LDFLAGS="$BASIC_LDFLAGS -Wl,--gc-sections -Wl,--print-gc-sections"
       else
         BASIC_LDFLAGS_JDK_ONLY="$BASIC_LDFLAGS_JDK_ONLY -Wl,--gc-sections"
+        BASIC_LDFLAGS="$BASIC_LDFLAGS -Wl,--gc-sections"
       fi
     fi
 

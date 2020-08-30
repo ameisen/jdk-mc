@@ -104,7 +104,8 @@ static const char* modules[] = {
   "jdk.compiler",
   "jdk.scripting.nashorn",
   "jdk.internal.vm.ci",
-  "jdk.internal.vm.compiler"
+  "jdk.internal.vm.compiler",
+  "support.base"
 };
 
 void AOTLoader::initialize() {

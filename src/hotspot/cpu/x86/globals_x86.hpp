@@ -87,7 +87,7 @@ define_pd_global(bool, CompactStrings, true);
 
 define_pd_global(bool, PreserveFramePointer, false);
 
-define_pd_global(intx, InitArrayShortSize, 8*BytesPerLong);
+define_pd_global(intx, InitArrayShortSize, 16*BytesPerLong);
 
 #define ARCH_FLAGS(develop, \
                    product, \
@@ -111,13 +111,13 @@ define_pd_global(intx, InitArrayShortSize, 8*BytesPerLong);
           "Highest supported AVX instructions set on x86/x64")              \
           range(0, 99)                                                      \
                                                                             \
-  product(bool, UseCLMUL, false,                                            \
+  product(bool, UseCLMUL, true,                                             \
           "Control whether CLMUL instructions can be used on x86/x64")      \
                                                                             \
   diagnostic(bool, UseIncDec, true,                                         \
           "Use INC, DEC instructions on x86")                               \
                                                                             \
-  product(bool, UseNewLongLShift, false,                                    \
+  product(bool, UseNewLongLShift, true,                                     \
           "Use optimized bitwise shift left")                               \
                                                                             \
   product(bool, UseAddressNop, false,                                       \
@@ -129,29 +129,29 @@ define_pd_global(intx, InitArrayShortSize, 8*BytesPerLong);
   product(bool, UseXmmRegToRegMoveAll, false,                               \
           "Copy all XMM register bits when moving value between registers") \
                                                                             \
-  product(bool, UseXmmI2D, false,                                           \
+  product(bool, UseXmmI2D, true,                                            \
           "Use SSE2 CVTDQ2PD instruction to convert Integer to Double")     \
                                                                             \
-  product(bool, UseXmmI2F, false,                                           \
+  product(bool, UseXmmI2F, true,                                            \
           "Use SSE2 CVTDQ2PS instruction to convert Integer to Float")      \
                                                                             \
-  product(bool, UseUnalignedLoadStores, false,                              \
+  product(bool, UseUnalignedLoadStores, true,                               \
           "Use SSE2 MOVDQU instruction for Arraycopy")                      \
                                                                             \
-  product(bool, UseXMMForObjInit, false,                                    \
+  product(bool, UseXMMForObjInit, true,                                     \
           "Use XMM/YMM MOVDQU instruction for Object Initialization")       \
                                                                             \
-  product(bool, UseFastStosb, false,                                        \
+  product(bool, UseFastStosb, true,                                         \
           "Use fast-string operation for zeroing: rep stosb")               \
                                                                             \
   /* Use Restricted Transactional Memory for lock eliding */                \
   product(bool, UseRTMLocking, false,                                       \
           "Enable RTM lock eliding for inflated locks in compiled code")    \
                                                                             \
-  experimental(bool, UseRTMForStackLocks, false,                            \
+  experimental(bool, UseRTMForStackLocks, true,                             \
           "Enable RTM lock eliding for stack locks in compiled code")       \
                                                                             \
-  product(bool, UseRTMDeopt, false,                                         \
+  product(bool, UseRTMDeopt, true,                                          \
           "Perform deopt and recompilation based on RTM abort ratio")       \
                                                                             \
   product(int, RTMRetryCount, 5,                                            \
@@ -188,35 +188,35 @@ define_pd_global(intx, InitArrayShortSize, 8*BytesPerLong);
           "Use RTM Xend instead of Xabort when lock busy")                  \
                                                                             \
   /* assembler */                                                           \
-  product(bool, UseCountLeadingZerosInstruction, false,                     \
+  product(bool, UseCountLeadingZerosInstruction, true,                      \
           "Use count leading zeros instruction")                            \
                                                                             \
-  product(bool, UseCountTrailingZerosInstruction, false,                    \
+  product(bool, UseCountTrailingZerosInstruction, true,                     \
           "Use count trailing zeros instruction")                           \
                                                                             \
-  product(bool, UseSSE42Intrinsics, false,                                  \
+  product(bool, UseSSE42Intrinsics, true,                                   \
           "SSE4.2 versions of intrinsics")                                  \
                                                                             \
-  product(bool, UseBMI1Instructions, false,                                 \
+  product(bool, UseBMI1Instructions, true,                                  \
           "Use BMI1 instructions")                                          \
                                                                             \
-  product(bool, UseBMI2Instructions, false,                                 \
+  product(bool, UseBMI2Instructions, true,                                  \
           "Use BMI2 instructions")                                          \
                                                                             \
-  diagnostic(bool, UseLibmIntrinsic, true,                                  \
+  experimental(bool, UseLibmIntrinsic, true,                                \
           "Use Libm Intrinsics")                                            \
                                                                             \
   /* Minimum array size in bytes to use AVX512 intrinsics */                \
   /* for copy, inflate and fill which don't bail out early based on any */  \
   /* condition. When this value is set to zero compare operations like */   \
   /* compare, vectorizedMismatch, compress can also use AVX512 intrinsics.*/\
-  diagnostic(int, AVX3Threshold, 4096,                                      \
+  experimental(int, AVX3Threshold, 4096,                                    \
              "Minimum array size in bytes to use AVX512 intrinsics"         \
              "for copy, inflate and fill. When this value is set as zero"   \
              "compare operations can also use AVX512 intrinsics.")          \
              range(0, max_jint)                                             \
                                                                             \
-  diagnostic(bool, IntelJccErratumMitigation, true,                         \
+  experimental(bool, IntelJccErratumMitigation, true,                       \
              "Turn off JVM mitigations related to Intel micro code "        \
              "mitigations for the Intel JCC erratum")
 

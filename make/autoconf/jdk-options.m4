@@ -117,11 +117,11 @@ AC_DEFUN_ONCE([JDKOPT_SETUP_JDK_OPTIONS],
   AC_SUBST(ENABLE_HEADLESS_ONLY)
 
   # should we linktime gc unused code sections in the JDK build ?
-  if test "x$OPENJDK_TARGET_OS" = "xlinux" && test "x$OPENJDK_TARGET_CPU" = xs390x; then
-    LINKTIME_GC_DEFAULT=true
-  else
-    LINKTIME_GC_DEFAULT=false
-  fi
+  #if test "x$OPENJDK_TARGET_OS" = "xlinux" && test "x$OPENJDK_TARGET_CPU" = xs390x; then
+  LINKTIME_GC_DEFAULT=true
+  #else
+  #  LINKTIME_GC_DEFAULT=false
+  #fi
 
   UTIL_ARG_ENABLE(NAME: linktime-gc, DEFAULT: $LINKTIME_GC_DEFAULT,
       DEFAULT_DESC: [auto], RESULT: ENABLE_LINKTIME_GC,

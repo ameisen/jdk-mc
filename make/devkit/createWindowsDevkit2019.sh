@@ -208,4 +208,5 @@ cp $0 $DEVKIT_ROOT/
 # Create bundle
 
 echo "Creating bundle: $DEVKIT_BUNDLE"
-(cd "$DEVKIT_ROOT" && tar zcf "$DEVKIT_BUNDLE" .)
+(cd $DEVKIT_ROOT && tar cf - . | $GZIP -9 - > "$DEVKIT_BUNDLE")
+#(cd "$DEVKIT_ROOT" && tar zcf "$DEVKIT_BUNDLE" .)

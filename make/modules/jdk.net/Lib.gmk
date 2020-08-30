@@ -31,7 +31,7 @@ ifeq ($(call isTargetOs, solaris linux macosx), true)
 
   $(eval $(call SetupJdkLibrary, BUILD_LIBEXTNET, \
       NAME := extnet, \
-      OPTIMIZATION := LOW, \
+      OPTIMIZATION := HIGH, \
       CFLAGS := $(CFLAGS_JDKLIB), \
       LDFLAGS := $(LDFLAGS_JDKLIB) \
           $(call SET_SHARED_LIBRARY_ORIGIN), \

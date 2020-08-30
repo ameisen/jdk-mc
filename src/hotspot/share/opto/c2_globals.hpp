@@ -75,7 +75,7 @@
           "actual size could be less depending on elements type")           \
           range(0, max_jint)                                                \
                                                                             \
-  product(bool, AlignVector, true,                                          \
+  product(bool, AlignVector, false,                                         \
           "Perform vector store/load alignment in loop")                    \
                                                                             \
   product(intx, NumberOfLoopInstrToAlign, 4,                                \
@@ -115,7 +115,7 @@
   notproduct(bool, VerifyOptoOopOffsets, false,                             \
           "Check types of base addresses in field references")              \
                                                                             \
-  develop(bool, IdealizedNumerics, false,                                   \
+  develop(bool, IdealizedNumerics, true,                                    \
           "Check performance difference allowing FP "                       \
           "associativity and commutativity...")                             \
                                                                             \
@@ -197,7 +197,7 @@
   product(bool, UseSubwordForMaxVector, true,                               \
           "Use Subword Analysis to set maximum vector size")                \
                                                                             \
-  product(bool, UseVectorCmov, false,                                       \
+  product(bool, UseVectorCmov, true,                                        \
           "Use Vectorized Cmov")                                            \
                                                                             \
   develop(intx, UnrollLimitForProfileCheck, 1,                              \
@@ -262,7 +262,7 @@
   product(bool, ReduceBulkZeroing, true,                                    \
           "When bulk-initializing, try to avoid needless zeroing")          \
                                                                             \
-  product(bool, UseFPUForSpilling, false,                                   \
+  product(bool, UseFPUForSpilling, true,                                    \
           "Spill integer registers to FPU instead of stack when possible")  \
                                                                             \
   develop_pd(intx, RegisterCostAreaRatio,                                   \
@@ -425,7 +425,7 @@
           "Target size of warm calls inlined between optimization passes")  \
           range(0, max_jint)                                                \
                                                                             \
-  develop(bool, InlineWarmCalls, false,                                     \
+  develop(bool, InlineWarmCalls, true,                                      \
           "Use a heat-based priority queue to govern inlining")             \
                                                                             \
   /* Max values must not exceed WarmCallInfo::MAX_VALUE(). */               \
@@ -508,7 +508,7 @@
   product(bool, EliminateAutoBox, true,                                     \
           "Control optimizations for autobox elimination")                  \
                                                                             \
-  product(intx, AutoBoxCacheMax, 128,                                       \
+  product(intx, AutoBoxCacheMax, 256,                                       \
           "Sets max value cached by the java.lang.Integer autobox cache")   \
           range(0, max_jint)                                                \
                                                                             \
@@ -537,7 +537,7 @@
   notproduct(bool, PrintEliminateAllocations, false,                        \
           "Print out when allocations are eliminated")                      \
                                                                             \
-  product(intx, EliminateAllocationArraySizeLimit, 64,                      \
+  product(intx, EliminateAllocationArraySizeLimit, 4096,                    \
           "Array size (number of elements) limit for scalar replacement")   \
           range(0, max_jint)                                                \
                                                                             \
@@ -654,7 +654,7 @@
   notproduct(bool, VerifyLoopOptimizations, false,                          \
           "verify major loop optimizations")                                \
                                                                             \
-  diagnostic(bool, ProfileDynamicTypes, true,                               \
+  experimental(bool, ProfileDynamicTypes, true,                             \
           "do extra type profiling and use it more aggressively")           \
                                                                             \
   develop(bool, TraceIterativeGVN, false,                                   \

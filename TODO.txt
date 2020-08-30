@@ -1,11 +1,161 @@
 Remove unnecessary temporary buffers
   In classes like CheckedInputStream, temporary local buffers are used to skip data. This can be resolved by adding methods to things such as the Checksum interface which do not have to write to a buffer. Add a 'skip' method to InputStream (or streams in general) as well.
-  
+
 Make sure temporary buffers are actually being made local
   Java can do fast allocation on small buffers. Our temporary buffers in the runtime are usually 512, 1024, 4Ki or 8Ki bytes.
-  
-DeflaterInputStream
+
+DeflaterInputStream -> FilterInputStream -> InputStream
   Provide optimized single-byte read that doesn't perform an allocation.
-  
+
 All file streams
   Add a heuristic to determine if we should open it with sequential, random access, or default semantics by default? Perhaps force it to use memory mapping underneath?
+
+ENABLE_LINKTIME_GC
+
+jlink - add better compression?
+
+the JDK seems to include its own version of ow2.asm. Reconcile this with our version in support.base. jdk.internal.org.objectweb.asm
+  Solution is probably to get rid of the internal module altogether, and remap all uses to the support.base one which uses the default namespace as it
+  entirely overrides ow2.asm.
+  
+ $ZIPEXE
+ $GZIP => -9
+ 
+ (cd "$DEVKIT_ROOT" && tar zcf "$DEVKIT_BUNDLE" .)
+ 
+ pigz => -11
+
+COMPILE_WITH_DEBUG_SYMBOLS
+
+UseTLAB
+ResizeTLAB
+AggressiveHeap
+AdaptiveSizeThroughPutPolicy
+PausePadding 1
+PromotedPadding 3
+SurvivorPadding 3
+MaxGCMinorPauseMillis
+BaseFootPrintEstimate (256M)
+UseGCOverheadLimit -> critical
+GCParallelVerificationEnabled
+UseCondCardMark
+DisableExplicitGC
+MaxHeapSize
+OldSize
+NewSize
+MinTLABSize
+ShenandoahTargetNumRegions
+ShenandoahGCMode satb vs iu
+ShenandoahSATBBufferFlushInterval
+ShenandoahOptimizeStaticFinals
+JVMCIThreads -> make 0 adaptive
+JVMCIHostThreads -> make 0 adaptive
+MaxVectorSize
+InteriorEntryAlignment
+OptoPeepholeAt
+OptoPeephole -> should be true?
+LoopUnrollLimit
+SuperWordLoopUnrollAnalysis -> 64?
+UseCountedLoopSafepoints
+UseFPUForSpilling -> true
+UseCISCSpill -> true?
+OptoScheduling
+OptoRegScheduling
+PartialPeelNewPhiDelta
+SuperWordRTDepCheck -> true?
+UseCMoveUnconditionally -> may make sense if predictions are going poorly.
+OptoBundling
+ConditionalMoveLimit
+LoopOptsCount -> why is 43 the limit?
+HotCallCountThreshold
+HotCallProfitThreshold
+AutoBoxCacheMax
+EscapeAnalysisTimeout -> make it perform a trivial C2 optimization, and then redo it if EA analysis takes too long.
+UseOptoBiasInlining -> false with shenandoah?
+BailoutToInterpreterForThrows -> eh?
+PoisonOSREntry -> eh?
+InlineAccessors -> make sure this is actually working right.
+SpecialStringEquals -> see what this does.
+AliasLevel -> unsure what this does.
+TrapBasedRangeChecks
+LoopStripMiningIter
+ExpandSubTypeCheckAtParseTime
+ObjectAlignmentInBytes -> should be 16?
+AlwaysSafeConstructors
+UseLargePages -> true
+UseLargePagesIndividualAllocation -> true
+UseLargePagesInMetaspace -> should be true, but have had stability issues
+UseNUMA -> make sure it isn't using NUMA if the CPU isn't NUMA-capable
+UseNUMAInterleaving -> posssssssibly true? This makes sense in cases where you cannot be smart about NUMA allocation.
+LargePageSizeInBytes -> verify it's doing this correctly. Should also verify it understands large vs huge pages.
+ForceTimeHighResolution -> make sure this isn't actually slower.
+BackgroundCompilation
+MethodFlushing -> make sure this doesn't remove methods that aren't actually zombie and re-entrant.
+InlineArrayCopy -> 'base library dll'. Thus, I should probably be adding more libraries to the base library DLL if they're necessary?
+UseOSErrorReporting
+NativeMemoryTracking (slower 5-10%)
+ClassUnloading
+ClassUnloadingWithConcurrentMark
+AllowParallelDefineClass -> do we need to register them as parallel capable?
+DontYieldALot
+hashCode -> 5 (can we do better?)
+FilterSpuriousWakeups -> ignored for windows?
+AllowUserSignalHandlers
+UseFastJNIAccessors -> validate optimization is happening.
+MaxJNILocalCapacity
+ContendedPaddingWidth -> make automatic.
+UseBiasedLocking -> disable for Shenandoah
+BiasedLockingStartupDelay -> why?
+CICompileOSR
+ReduceNumberOfCompilerThreads
+UseLoopSafepoints
+CompactStrings
+RewriteBytecodes
+RewriteFrequentPairs
+UseOnStackReplacement
+InlineIntrinsics
+CodeEntryAlignment
+TieredCompilation
+SurvivorAlignmentInBytes
+PreserveFramePointer
+InitArrayShortSize
+
+UseTypeProfile
+CSEArrayLength
+
+* Add a float autobox along with the integer one? Maybe a boolean one for true/false?
+
+PrefetchCopyIntervalInBytes
+PrefetchScanIntervalInBytes
+PrefetchFieldsAhead
+
+
+MaxVectorSize
+MultiArrayExpandLimit
+InsertMemBarAfterArraycopy
+EliminateAllocationArraySizeLimit
+MonomorphicArrayCheck
+UseCMoveUnconditionally
+PreferInterpreterNativeStubs
+ArrayAllocatorMallocLimit
+InlineArrayCopy
+AllocatePrefetchStepSize -> L1 size 64B
+CompilationMode
+MaxDirectMemorySize
+RequireSharedSpaces
+DynamicDumpSharedSpaces
+TrustFinalNonStaticFields
+SharedArchiveFile -> and all CDS stuff, really. Should be automagic.
+UseFastUnorderedTimeStamps
+AggressiveHeap
+GCPauseIntervalMillis
+
+LIRFillDelaySlots
+sizes to calibrate:
+InitialBootClassLoaderMetaspaceSize
+InitialCodeCacheSize
+MetaspaceSize
+OptoBlockListSize
+CSEArrayLength
+
+NeverActAsServerClassMachine

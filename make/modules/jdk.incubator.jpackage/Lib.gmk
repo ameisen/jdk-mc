@@ -52,7 +52,7 @@ $(eval $(call SetupJdkExecutable, BUILD_JPACKAGE_APPLAUNCHEREXE, \
     SYMBOLS_DIR := $(SUPPORT_OUTPUTDIR)/native/$(MODULE)/jpackageapplauncher, \
     SRC := $(JPACKAGE_APPLAUNCHER_SRC), \
     TOOLCHAIN := TOOLCHAIN_LINK_CXX, \
-    OPTIMIZATION := LOW, \
+    OPTIMIZATION := HIGH, \
     CXXFLAGS := $(call JpackageWithStaticCrt, $(CXXFLAGS_JDKEXE)) \
         $(addprefix -I, $(JPACKAGE_APPLAUNCHER_SRC)), \
     CXXFLAGS_windows := $(JPACKAGE_CXXFLAGS_windows), \
@@ -72,7 +72,7 @@ ifeq ($(call isTargetOs, windows), true)
 
   $(eval $(call SetupJdkLibrary, BUILD_LIB_JPACKAGE, \
       NAME := jpackage, \
-      OPTIMIZATION := LOW, \
+      OPTIMIZATION := HIGH, \
       EXTRA_SRC := jdk.incubator.jpackage:common, \
       CXXFLAGS := $(CXXFLAGS_JDKLIB) $(JPACKAGE_CXXFLAGS_windows), \
       LDFLAGS := $(LDFLAGS_JDKLIB) $(LDFLAGS_CXX_JDK) \
@@ -88,7 +88,7 @@ ifeq ($(call isTargetOs, windows), true)
       NAME := wixhelper, \
       OUTPUT_DIR := $(JPACKAGE_OUTPUT_DIR), \
       SYMBOLS_DIR := $(SUPPORT_OUTPUTDIR)/native/$(MODULE)/libwixhelper, \
-      OPTIMIZATION := LOW, \
+      OPTIMIZATION := HIGH, \
       CXXFLAGS := $(call JpackageWithStaticCrt, $(CXXFLAGS_JDKLIB)) \
           $(JPACKAGE_CXXFLAGS_windows), \
       LDFLAGS := $(LDFLAGS_JDKLIB) $(LDFLAGS_CXX_JDK), \

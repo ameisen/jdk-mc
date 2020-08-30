@@ -82,7 +82,7 @@ SetupBuildLauncher = $(NamedParamsMacroTemplate)
 define SetupBuildLauncherBody
   # Setup default values (unless overridden)
   ifeq ($$($1_OPTIMIZATION), )
-    $1_OPTIMIZATION := LOW
+    $1_OPTIMIZATION := HIGH
   endif
 
   ifeq ($$($1_MAIN_MODULE), )

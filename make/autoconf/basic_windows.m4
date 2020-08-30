@@ -48,14 +48,25 @@ AC_DEFUN([BASIC_CHECK_PATHS_WINDOWS],
     fi
     AC_MSG_CHECKING([cygwin root directory as unix-style path])
     # The cmd output ends with Windows line endings (CR/LF)
-    cygwin_winpath_root=`cd / ; cmd /c cd | $TR -d '\r\n'`
-    # Force cygpath to report the proper root by including a trailing space, and then stripping it off again.
-    CYGWIN_ROOT_PATH=`$CYGPATH -u "$cygwin_winpath_root " | $CUT -f 1 -d " "`
-    AC_MSG_RESULT([$CYGWIN_ROOT_PATH])
-    WINDOWS_ENV_ROOT_PATH="$CYGWIN_ROOT_PATH"
-    test_cygdrive_prefix=`$ECHO $CYGWIN_ROOT_PATH | $GREP ^/cygdrive/`
-    if test "x$test_cygdrive_prefix" = x; then
-      AC_MSG_ERROR([Your cygdrive prefix is not /cygdrive. This is currently not supported. Change with mount -c.])
+    CYGWIN_VERSION=`$UNAME -o`
+    if test "x$CYGWIN_VERSION" = "xMsys"; then
+      CYGWIN_OS="msys"
+    else
+      CYGWIN_OS="cygwin"
+    fi
+
+    if test "x$CYGWIN_OS" = "xmsys"; then
+      CYGWIN_ROOT_PATH="/cygdrive/"
+    else
+      cygwin_winpath_root=`cd / ; cmd /c cd | $TR -d '\r\n'`
+      # Force cygpath to report the proper root by including a trailing space, and then stripping it off again.
+      CYGWIN_ROOT_PATH=`$CYGPATH -u "$cygwin_winpath_root " | $CUT -f 1 -d " "`
+      AC_MSG_RESULT([$CYGWIN_ROOT_PATH])
+      WINDOWS_ENV_ROOT_PATH="$CYGWIN_ROOT_PATH"
+      test_cygdrive_prefix=`$ECHO $CYGWIN_ROOT_PATH | $GREP ^/cygdrive/`
+      if test "x$test_cygdrive_prefix" = x; then
+        AC_MSG_ERROR([Your cygdrive prefix is not /cygdrive. This is currently not supported. Change with mount -c.])
+      fi
     fi
   elif test "x$OPENJDK_BUILD_OS_ENV" = "xwindows.msys"; then
     AC_MSG_CHECKING([msys release])

@@ -29,7 +29,7 @@ include LibCommon.gmk
 
 $(eval $(call SetupJdkLibrary, BUILD_LIBDT_SOCKET, \
     NAME := dt_socket, \
-    OPTIMIZATION := LOW, \
+    OPTIMIZATION := HIGH, \
     CFLAGS := $(CFLAGS_JDKLIB) $(LIBDT_SOCKET_CPPFLAGS), \
     EXTRA_HEADER_DIRS := \
         include \
@@ -51,7 +51,7 @@ TARGETS += $(BUILD_LIBDT_SOCKET)
 # JDWP_LOGGING causes log messages to be compiled into the library.
 $(eval $(call SetupJdkLibrary, BUILD_LIBJDWP, \
     NAME := jdwp, \
-    OPTIMIZATION := LOW, \
+    OPTIMIZATION := HIGH, \
     CFLAGS := $(CFLAGS_JDKLIB) -DJDWP_LOGGING, \
     DISABLED_WARNINGS_gcc := unused-function, \
     DISABLED_WARNINGS_clang := sometimes-uninitialized format-nonliteral \

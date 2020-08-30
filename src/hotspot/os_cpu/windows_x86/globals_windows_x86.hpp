@@ -28,7 +28,7 @@
 // Sets the default values for platform dependent flags used by the runtime system.
 // (see globals.hpp)
 
-define_pd_global(bool, DontYieldALot,            false);
+define_pd_global(bool, DontYieldALot,            true);
 
 // Default stack size on Windows is determined by the executable (java.exe
 // has a default value of 320K/1MB [32bit/64bit]). Depending on Windows version, changing

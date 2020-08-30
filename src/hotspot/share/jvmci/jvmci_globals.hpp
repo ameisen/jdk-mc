@@ -60,7 +60,7 @@ class fileStream;
   experimental(bool, JVMCIPrintProperties, false,                           \
           "Prints properties used by the JVMCI compiler and exits")         \
                                                                             \
-  experimental(bool, BootstrapJVMCI, false,                                 \
+  experimental(bool, BootstrapJVMCI, true,                                  \
           "Bootstrap JVMCI before running Java main method. This "          \
           "initializes the compile queue with a small set of methods "      \
           "and processes the queue until it is empty. Combining this with " \
@@ -72,17 +72,17 @@ class fileStream;
   experimental(bool, PrintBootstrap, true,                                  \
           "Print JVMCI bootstrap progress and summary")                     \
                                                                             \
-  experimental(intx, JVMCIThreads, 1,                                       \
+  experimental(intx, JVMCIThreads, 4,                                       \
           "Force number of JVMCI compiler threads to use. Ignored if "      \
           "UseJVMCICompiler is false.")                                     \
           range(1, max_jint)                                                \
                                                                             \
-  experimental(intx, JVMCIHostThreads, 1,                                   \
+  experimental(intx, JVMCIHostThreads, 4,                                   \
           "Force number of C1 compiler threads. Ignored if "                \
           "UseJVMCICompiler is false.")                                     \
           range(1, max_jint)                                                \
                                                                             \
-  NOT_COMPILER2(product(intx, MaxVectorSize, 64,                            \
+  NOT_COMPILER2(product(intx, MaxVectorSize, 4096,                          \
           "Max vector size in bytes, "                                      \
           "actual size could be less depending on elements type")           \
           range(0, max_jint))                                               \
@@ -106,7 +106,7 @@ class fileStream;
   develop(bool, JVMCIUseFastLocking, true,                                  \
           "Use fast inlined locking code")                                  \
                                                                             \
-  experimental(intx, JVMCINMethodSizeLimit, (80*K)*wordSize,                \
+  experimental(intx, JVMCINMethodSizeLimit, (512*K)*wordSize,               \
           "Maximum size of a compiled method.")                             \
           range(0, max_jint)                                                \
                                                                             \
@@ -123,19 +123,19 @@ class fileStream;
           "on the HotSpot heap. Defaults to true if EnableJVMCIProduct is " \
           "true and a JVMCI native library is available.")                  \
                                                                             \
-  NOT_COMPILER2(diagnostic(bool, UseMultiplyToLenIntrinsic, false,          \
+  NOT_COMPILER2(diagnostic(bool, UseMultiplyToLenIntrinsic, true,           \
           "Enables intrinsification of BigInteger.multiplyToLen()"))        \
                                                                             \
-  NOT_COMPILER2(diagnostic(bool, UseSquareToLenIntrinsic, false,            \
+  NOT_COMPILER2(diagnostic(bool, UseSquareToLenIntrinsic, true,             \
           "Enables intrinsification of BigInteger.squareToLen()"))          \
                                                                             \
-  NOT_COMPILER2(diagnostic(bool, UseMulAddIntrinsic, false,                 \
+  NOT_COMPILER2(diagnostic(bool, UseMulAddIntrinsic, true,                  \
           "Enables intrinsification of BigInteger.mulAdd()"))               \
                                                                             \
-  NOT_COMPILER2(diagnostic(bool, UseMontgomeryMultiplyIntrinsic, false,     \
+  NOT_COMPILER2(diagnostic(bool, UseMontgomeryMultiplyIntrinsic, true,      \
           "Enables intrinsification of BigInteger.montgomeryMultiply()"))   \
                                                                             \
-  NOT_COMPILER2(diagnostic(bool, UseMontgomerySquareIntrinsic, false,       \
+  NOT_COMPILER2(diagnostic(bool, UseMontgomerySquareIntrinsic, true,        \
           "Enables intrinsification of BigInteger.montgomerySquare()"))
 
 // The base name for the shared library containing the JVMCI based compiler

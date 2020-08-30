@@ -36,7 +36,7 @@ endif
 
 $(eval $(call SetupJdkLibrary, BUILD_LIBATTACH, \
     NAME := attach, \
-    OPTIMIZATION := LOW, \
+    OPTIMIZATION := HIGH, \
     CFLAGS := $(CFLAGS_JDKLIB) $(LIBATTACH_CFLAGS), \
     CFLAGS_windows := /Gy, \
     LDFLAGS := $(LDFLAGS_JDKLIB) \

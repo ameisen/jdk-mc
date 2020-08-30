@@ -31,7 +31,7 @@ ifeq ($(call isTargetOs, windows), true)
 
   $(eval $(call SetupJdkLibrary, BUILD_LIBDT_SHMEM, \
       NAME := dt_shmem, \
-      OPTIMIZATION := LOW, \
+      OPTIMIZATION := HIGH, \
       CFLAGS := $(CFLAGS_JDKLIB), \
       EXTRA_HEADER_DIRS := \
           jdk.jdwp.agent:include \

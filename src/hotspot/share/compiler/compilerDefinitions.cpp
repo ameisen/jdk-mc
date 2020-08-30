@@ -130,6 +130,7 @@ intx CompilerConfig::scaled_freq_log(intx freq_log, double scale) {
 
 #ifdef TIERED
 void set_client_compilation_mode() {
+#if 0
   Compilation_mode = CompMode_client;
   CompLevel_highest_tier = CompLevel_simple;
   FLAG_SET_ERGO(TieredCompilation, false);
@@ -179,6 +180,7 @@ void set_client_compilation_mode() {
   if (FLAG_IS_DEFAULT(CICompilerCount)) {
     FLAG_SET_ERGO(CICompilerCount, 1);
   }
+#endif
 }
 
 bool compilation_mode_selected() {

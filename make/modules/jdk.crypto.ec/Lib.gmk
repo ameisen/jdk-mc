@@ -31,7 +31,7 @@ ifeq ($(ENABLE_INTREE_EC), true)
   $(eval $(call SetupJdkLibrary, BUILD_LIBSUNEC, \
       NAME := sunec, \
       TOOLCHAIN := TOOLCHAIN_LINK_CXX, \
-      OPTIMIZATION := LOW, \
+      OPTIMIZATION := HIGH, \
       CFLAGS := $(CFLAGS_JDKLIB) \
           -DMP_API_COMPATIBLE -DNSS_ECC_MORE_THAN_SUITE_B, \
       CXXFLAGS := $(CXXFLAGS_JDKLIB), \

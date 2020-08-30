@@ -206,7 +206,7 @@
   product(bool, ScavengeBeforeFullGC, true,                                 \
           "Scavenge youngest generation before each full GC.")              \
                                                                             \
-  product(bool, ExplicitGCInvokesConcurrent, false,                         \
+  product(bool, ExplicitGCInvokesConcurrent, true,                          \
           "A System.gc() request invokes a concurrent collection; "         \
           "(effective only when using concurrent collectors)")              \
                                                                             \
@@ -243,7 +243,7 @@
           range(1, max_jint/3)                                              \
                                                                             \
                                                                             \
-  product(bool, AlwaysPreTouch, false,                                      \
+  product(bool, AlwaysPreTouch, true,                                       \
           "Force all freshly committed pages to be pre-touched")            \
                                                                             \
   product(size_t, PreTouchParallelChunkSize, 1 * G,                         \
@@ -266,7 +266,7 @@
           range(ReferenceProcessor::DiscoveryPolicyMin,                     \
                 ReferenceProcessor::DiscoveryPolicyMax)                     \
                                                                             \
-  product(bool, ParallelRefProcEnabled, false,                              \
+  product(bool, ParallelRefProcEnabled, true,                               \
           "Enable parallel reference processing whenever possible")         \
                                                                             \
   product(bool, ParallelRefProcBalancingEnabled, true,                      \
@@ -417,7 +417,7 @@
   product(bool, UseAdaptiveGenerationSizePolicyAtMajorCollection, true,     \
           "Use adaptive young-old sizing policies at major collections")    \
                                                                             \
-  product(bool, UseAdaptiveSizePolicyWithSystemGC, false,                   \
+  product(bool, UseAdaptiveSizePolicyWithSystemGC, true,                    \
           "Include statistics from System.gc() for adaptive size policy")   \
                                                                             \
   develop(intx, PSAdaptiveSizePolicyResizeVirtualSpaceAlot, -1,             \
@@ -495,7 +495,7 @@
           "Decay factor to TenuredGenerationSizeIncrement")                 \
           range(1, max_uintx)                                               \
                                                                             \
-  product(uintx, MaxGCPauseMillis, max_uintx - 1,                           \
+  product(uintx, MaxGCPauseMillis, 5,                                       \
           "Adaptive size policy maximum GC pause time goal in millisecond, "\
           "or (G1 Only) the maximum GC time per MMU time slice")            \
           range(1, max_uintx - 1)                                           \
@@ -505,7 +505,7 @@
           "Time slice for MMU specification")                               \
           constraint(GCPauseIntervalMillisConstraintFunc,AfterErgo)         \
                                                                             \
-  product(uintx, MaxGCMinorPauseMillis, max_uintx,                          \
+  product(uintx, MaxGCMinorPauseMillis, 3,                                  \
           "Adaptive size policy maximum GC minor pause time goal "          \
           "in millisecond")                                                 \
           range(0, max_uintx)                                               \
@@ -525,11 +525,11 @@
           "Time scale over which major costs decay")                        \
           range(0, max_uintx)                                               \
                                                                             \
-  product(uintx, MinSurvivorRatio, 3,                                       \
+  product(uintx, MinSurvivorRatio, 5,                                       \
           "Minimum ratio of young generation/survivor space size")          \
           range(3, max_uintx)                                               \
                                                                             \
-  product(uintx, InitialSurvivorRatio, 8,                                   \
+  product(uintx, InitialSurvivorRatio, 10,                                  \
           "Initial ratio of young generation/survivor space size")          \
           range(0, max_uintx)                                               \
                                                                             \
@@ -537,16 +537,16 @@
           "Estimate of footprint other than Java Heap")                     \
           range(0, max_uintx)                                               \
                                                                             \
-  product(bool, UseGCOverheadLimit, true,                                   \
+  product(bool, UseGCOverheadLimit, false,                                  \
           "Use policy to limit of proportion of time spent in GC "          \
           "before an OutOfMemory error is thrown")                          \
                                                                             \
-  product(uintx, GCTimeLimit, 98,                                           \
+  product(uintx, GCTimeLimit, 100,                                          \
           "Limit of the proportion of time spent in GC before "             \
           "an OutOfMemoryError is thrown (used with GCHeapFreeLimit)")      \
           range(0, 100)                                                     \
                                                                             \
-  product(uintx, GCHeapFreeLimit, 2,                                        \
+  product(uintx, GCHeapFreeLimit, 0,                                        \
           "Minimum percentage of free space after a full GC before an "     \
           "OutOfMemoryError is thrown (used with GCTimeLimit)")             \
           range(0, 100)                                                     \
@@ -602,13 +602,13 @@
           "When +ReduceInitialCardMarks, explicitly defer any that "        \
           "may arise from new_pre_store_barrier")                           \
                                                                             \
-  product(bool, UseCondCardMark, false,                                     \
+  product(bool, UseCondCardMark, true,                                      \
           "Check for already marked card before updating card table")       \
                                                                             \
   diagnostic(bool, VerifyRememberedSets, false,                             \
           "Verify GC remembered sets")                                      \
                                                                             \
-  experimental(bool, VerifyObjectStartArray, true,                          \
+  experimental(bool, VerifyObjectStartArray, false,                         \
           "Verify GC object start array if verify before/after")            \
                                                                             \
   product(bool, DisableExplicitGC, false,                                   \
@@ -649,7 +649,7 @@
           "Initial heap size (in bytes); zero means use ergonomics")        \
           constraint(InitialHeapSizeConstraintFunc,AfterErgo)               \
                                                                             \
-  product(size_t, MaxHeapSize, ScaleForWordSize(96*M),                      \
+  product(size_t, MaxHeapSize, ScaleForWordSize(2*G),                       \
           "Maximum heap size (in bytes)")                                   \
           constraint(MaxHeapSizeConstraintFunc,AfterErgo)                   \
                                                                             \
@@ -657,11 +657,11 @@
           "Soft limit for maximum heap size (in bytes)")                    \
           constraint(SoftMaxHeapSizeConstraintFunc,AfterMemoryInit)         \
                                                                             \
-  product(size_t, OldSize, ScaleForWordSize(4*M),                           \
+  product(size_t, OldSize, ScaleForWordSize(400*M),                         \
           "Initial tenured generation size (in bytes)")                     \
           range(0, max_uintx)                                               \
                                                                             \
-  product(size_t, NewSize, ScaleForWordSize(1*M),                           \
+  product(size_t, NewSize, ScaleForWordSize(100*M),                         \
           "Initial new generation size (in bytes)")                         \
           constraint(NewSizeConstraintFunc,AfterErgo)                       \
                                                                             \
@@ -702,7 +702,7 @@
                                                                             \
   /* Limit the lower bound of this flag to 1 as it is used  */              \
   /* in a division expression.                              */              \
-  product(uintx, TLABWasteTargetPercent, 1,                                 \
+  product(uintx, TLABWasteTargetPercent, 10,                                \
           "Percentage of Eden that can be wasted")                          \
           range(1, 100)                                                     \
                                                                             \
