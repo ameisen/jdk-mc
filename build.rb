@@ -2,21 +2,32 @@
 
 require File.join(__dir__, "rb", "runtime.rb")
 
+require 'sys/cpu'
+require 'pp'
+include Sys
+
 CONFIG_NAME = "mc"
 
 BUILD_PLATFORM = System::build_platform
 TARGET_PLATFORM = BUILD_PLATFORM
 
 DEFAULT_GNU_CFLAGS = [
+	"-O3",
+	"-fmerge-all-constants"
 ]
 
 DEFAULT_GNU_CXXFLAGS = DEFAULT_GNU_CFLAGS + [
+	"-fno-threadsafe-statics"
 ]
 
 DEFAULT_GNU_LDFLAGS = [
+	"-Wl,--relax",
+	"-Wl,-O1"
 ]
 
 DEFAULT_LLVM_CFLAGS = [
+	"-O3",
+	"-fmerge-all-constants"
 ]
 
 DEFAULT_LLVM_CXXFLAGS = DEFAULT_LLVM_CFLAGS + [
@@ -26,15 +37,29 @@ DEFAULT_LLVM_LDFLAGS = [
 ]
 
 DEFAULT_MSVC_CFLAGS = [
-	"msvc_cflag"
+	"/O2",
+	"/Ob3",
+	"/fp:fast",
+	"/GS-",
+	"/Qpar",
+	"/volatile:iso",
+	"/Gw",
+	"/Gy",
+	"/MP",
+	"/Zc:alignedNew",
+	"/Zc:__cplusplus",
+	"/Zc:forScope",
+	"/Zc:threadSafeInit-",
+	"/Zc:throwingNew"
 ]
 
 DEFAULT_MSVC_CXXFLAGS = DEFAULT_MSVC_CFLAGS + [
-	"msvc_cxxflag"
+	"/std:c++17"
 ]
 
 DEFAULT_MSVC_LDFLAGS = [
-	"msvc_ldflag"
+	"/OPT:REF",
+	"/OPT:ICF"
 ]
 
 # Include the global configuration file if there is one
@@ -44,6 +69,21 @@ if File.exist?(GLOBAL_BUILD_CFG_PATH)
 	INCLUDED_GLOBAL_BUILD_CFG = true
 else
 	INCLUDED_GLOBAL_BUILD_CFG = false
+end
+
+module Architecture
+	NATIVE = "Native".upcase
+	HASWELL = "Haswell".upcase
+	SKYLAKE = "Skylake".upcase
+	SKYLAKE_X = "Skylake-X".upcase
+	INTEL = "Intel".upcase
+	ZEN_1 = "Zen 1".upcase
+	ZEN_2 = "Zen 2".upcase
+	K10 = "K10".upcase
+	AMD = "AMD".upcase
+	DEFAULT = "Default".upcase
+
+	include AutoInstance(self)
 end
 
 module Toolchains
@@ -61,6 +101,51 @@ module Toolchains
 		end
 	end
 
+	def self.get_arch(toolchain, architecture)
+		case toolchain
+		when MSVC
+			bias = "Intel"
+			isa = "AVX" # AVX2 AVX512
+			case architecture
+			when Architecture::NATIVE
+				bias = CPU.model.downcase.include?("intel") ? "Intel" : "AMD"
+				# TODO fixme
+				# We don't set AVX512 or AVX2 because, well, that's generally a not good idea due to downclocking.
+				isa = "AVX"
+			when Architecture::ZEN_1, Architecture::ZEN_2
+				bias = "AMD"
+				isa = "AVX"
+			when Architecture::K10, Architecture::AMD
+				bias = "AMD"
+				isa = nil
+			when Architecture::DEFAULT
+				isa = nil
+			end
+			extras = []
+			if bias == "Intel"
+				extras = ["/QIntel-jcc-erratum"]
+			end
+			if isa.nil?
+				return ["/favor:#{(bias == "Intel") ? "INTEL64" : "AMD64"}"] + extras
+			else
+				return ["/arch:#{isa}", "/favor:#{(bias == "Intel") ? "INTEL64" : "AMD64"}"] + extras
+			end
+		when GNU, LLVM
+			return {
+				Architecture::NATIVE => ["--march=native"],
+				Architecture::HASWELL => ["--march=haswell"],
+				Architecture::SKYLAKE => ["--march=skylake"],
+				Architecture::SKYLAKE_X => ["--march=skylake-avx512"],
+				Architecture::INTEL => ["--mtune=nehalem"],
+				Architecture::ZEN_1 => ["--march=znver1"],
+				Architecture::ZEN_2 => ["--march=znver2"],
+				Architecture::K10 => ["--march=amdfam10"],
+				Architecture::AMD => ["--mtune=amdfam10"],
+				Architecture::DEFAULT => ["--mtune=core2"],
+			}[architecture]
+		end
+	end
+
 	include AutoInstance(self)
 end
 
@@ -71,6 +156,7 @@ module Options
 	@cflags = nil
 	@cxxflags = nil
 	@ldflags = nil
+	@arch = Architecture::HASWELL
 
 	module Pass
 		@cleared = false
@@ -143,6 +229,9 @@ cmd_arguments = {
 	"native" => [ Argument::FLAG, proc { |name, flag|
 		Options::native = flag ? Toolchains::LLVM : Toolchains::get_default
 	} ],
+	"arch" => [ Argument::FUNCTION, proc { |cmd, arg|
+		Options::arch = arg.upcase
+	} ],
 }
 
 Argument.process(ARGV, cmd_arguments)
@@ -153,9 +242,22 @@ Options::cflags, Options::cxxflags, Options::ldflags = *{
 	Toolchains::MSVC => [DEFAULT_MSVC_CFLAGS, DEFAULT_MSVC_CXXFLAGS, DEFAULT_MSVC_LDFLAGS]
 }[Options::toolchain]
 
-ENV["_JAVA_BUILD_CFLAGS"] = Options::cflags.join(" ")
-ENV["_JAVA_BUILD_CXXFLAGS"] = Options::cxxflags.join(" ")
-ENV["_JAVA_BUILD_LDFLAGS"] = Options::ldflags.join(" ")
+architecture_flags = Toolchains::get_arch(Options::toolchain, Options::arch)
+Options::cflags += architecture_flags
+Options::cxxflags += architecture_flags
+
+def WriteEchoFile(path, str)
+	File.open(path, 'w') { |file|
+		file.write(str);
+	}
+	# TODO use FileUtils.chmod
+	`chmod +x #{path}`
+end
+
+FileUtils.mkdir_p(Directory::build_root)
+WriteEchoFile(File.join(Directory::build_root, "cflags"), Options::cflags.join(" "))
+WriteEchoFile(File.join(Directory::build_root, "cxxflags"), Options::cxxflags.join(" "))
+WriteEchoFile(File.join(Directory::build_root, "ldflags"), Options::ldflags.join(" "))
 
 if (Options::Pass::clear_term)
 	puts "\e[H\e[2J"
@@ -390,10 +492,6 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 				]
 			end
 		end
-
-		configure_add_env.call("_JAVA_BUILD_CFLAGS")
-		configure_add_env.call("_JAVA_BUILD_CXXFLAGS")
-		configure_add_env.call("_JAVA_BUILD_LDFLAGS")
 
 		configure_flags << "--with-extra-cflags=#{extra_cflags.join(" ")}" unless extra_cflags.empty?
 

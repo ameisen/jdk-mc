@@ -182,17 +182,11 @@ endif
 ################################################################################
 
 ifeq ($(TOOLCHAIN_TYPE), microsoft)
-  JVM_CFLAGS_FEATURES += /O2 /Ob3 /arch:AVX2 /favor:INTEL64 /fp:fast /GS- /Qpar /volatile:iso
-  JVM_CFLAGS_FEATURES += /Gw
-  JVM_CFLAGS_FEATURES += /Gy
-  JVM_CFLAGS_FEATURES += /MP
-  JVM_CFLAGS_FEATURES += /Zc:alignedNew /Zc:__cplusplus /Zc:forScope /Zc:threadSafeInit- /Zc:throwingNew
+  JVM_CFLAGS_FEATURES += $(shell cat $(TOPDIR)/cxxflags)
   ifneq (,$(findstring clang,$(CC)))
     JVM_CFLAGS_FEATURES += -m64 -Wno-narrowing -fms-compatibility -fms-extensions -fms-compatibility-version=19.26.28806
-  else
-    JVM_CFLAGS_FEATURES += /QIntel-jcc-erratum
   endif
-  JVM_LDFLAGS_FEATURES += /LARGEADDRESSAWARE /OPT:REF /OPT:ICF
+  JVM_LDFLAGS_FEATURES += /LARGEADDRESSAWARE $(shell cat $(TOPDIR)/ldflags)
   ifeq (,$(findstring lld,$(LD)))
     JVM_LDFLAGS_FEATURES += /CGTHREADS:8
   endif
@@ -222,19 +216,19 @@ ifeq ($(call check-jvm-feature, link-time-opt), true)
 endif
 
 ifeq ($(TOOLCHAIN_TYPE), clang)
-  JVM_CFLAGS_FEATURES_ALL += -O3 -fno-strict-aliasing -std=gnu++17 -fPIC -march=native
+  JVM_CFLAGS_FEATURES_ALL += -fno-strict-aliasing -std=gnu++17 -fPIC $(shell cat $(TOPDIR)/cxxflags)
   JVM_CFLAGS_FEATURES_ALL += -Wno-assume -Wno-deprecated-copy -Wno-deprecated-volatile -Wno-deprecated-anon-enum-enum-conversion
   JVM_CFLAGS_FEATURES_ALL += -Wno-ambiguous-reversed-operator -Wno-deprecated-enum-enum-conversion -Wno-misleading-indentation
   JVM_CFLAGS_FEATURES_ALL += -Wno-deprecated-enum-float-conversion -Wno-maybe-uninitialized
   JVM_CFLAGS_FEATURES_ALL += -Wno-error -Wno-unused-command-line-argument
   JVM_CFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL)
-  JVM_LDFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL)
+  JVM_LDFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL) $(shell cat $(TOPDIR)/ldflags)
 else
   ifeq ($(TOOLCHAIN_TYPE), gcc)
-    JVM_CFLAGS_FEATURES_ALL += -O3 -fno-strict-aliasing -std=gnu++17 -march=haswell -fmerge-all-constants -fno-threadsafe-statics
+    JVM_CFLAGS_FEATURES_ALL += -fno-strict-aliasing -std=gnu++17 $(shell cat $(TOPDIR)/cxxflags)
     JVM_CFLAGS_FEATURES_ALL += -Wno-stringop-truncation -Wno-stringop-overflow -Wno-maybe-uninitialized
     JVM_CFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL)
-    JVM_LDFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL) -Wl,--allow-multiple-definition -Wl,-O1 -Wl,--relax
+    JVM_LDFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL) -Wl,--allow-multiple-definition $(shell cat $(TOPDIR)/ldflags)
   endif
 endif
 

@@ -16,3 +16,6 @@ NashornProfile.txt
 src/utils/LogCompilation/
 *.args
 .build.rb
+cflags
+cxxflags
+ldflags

@@ -174,8 +174,9 @@ AC_DEFUN([FLAGS_SETUP_WARNINGS],
           -Wunused-function -Wundef -Wunused-value -Wreturn-type \
           -Wtrampolines"
       WARNINGS_ENABLE_ADDITIONAL_CXX="-Woverloaded-virtual -Wreorder"
-      WARNINGS_ENABLE_ALL_CFLAGS="-march=haswell -O3 -fmerge-all-constants -fmerge-all-constants -Wall -Wextra -Wformat=2 $WARNINGS_ENABLE_ADDITIONAL -Wno-shift-negative-value -Wno-error=cpp -Wno-cpp -Wno-maybe-uninitialized"
-      WARNINGS_ENABLE_ALL_CXXFLAGS="-std=gnu++17 $WARNINGS_ENABLE_ALL_CFLAGS $WARNINGS_ENABLE_ADDITIONAL_CXX -Wno-deprecated-copy -fno-threadsafe-statics"
+
+      WARNINGS_ENABLE_ALL_CFLAGS="esyscmd(cat ./cflags) -Wall -Wextra -Wformat=2 $WARNINGS_ENABLE_ADDITIONAL -Wno-shift-negative-value -Wno-error=cpp -Wno-cpp -Wno-maybe-uninitialized"
+      WARNINGS_ENABLE_ALL_CXXFLAGS="-std=gnu++17 esyscmd(cat ./cxxflags) $WARNINGS_ENABLE_ALL_CFLAGS $WARNINGS_ENABLE_ADDITIONAL_CXX -Wno-deprecated-copy"
 
 
       DISABLED_WARNINGS="unused-parameter unused"
@@ -265,7 +266,7 @@ AC_DEFUN([FLAGS_SETUP_OPTIMIZATION],
     fi
   elif test "x$TOOLCHAIN_TYPE" = xgcc; then
     C_O_COMMON_FLAGS="-Wno-maybe-uninitialized"
-    C_O_COMMON_FLAGS_OPT="-O3 -march=haswell -fmerge-all-constants $C_O_COMMON_FLAGS"
+    C_O_COMMON_FLAGS_OPT="esyscmd(cat ./cflags) $C_O_COMMON_FLAGS"
 
     C_O_FLAG_HIGHEST_JVM="$C_O_COMMON_FLAGS_OPT"
     C_O_FLAG_HIGHEST="$C_O_COMMON_FLAGS_OPT"
@@ -318,12 +319,9 @@ AC_DEFUN([FLAGS_SETUP_OPTIMIZATION],
     C_O_FLAG_DEBUG_JVM=""
     C_O_FLAG_NONE="-qnoopt"
   elif test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
-    MS_CFLAGS=" /O2 /Ob3 /arch:AVX2 /favor:INTEL64 /fp:fast /GS- /Qpar /volatile:iso"
-    MS_CFLAGS+=" /Gw /Gy /MP"
-    MS_CFLAGS+=" /Zc:alignedNew /Zc:__cplusplus /Zc:forScope /Zc:threadSafeInit- /Zc:throwingNew"
+    MS_CFLAGS="esyscmd(cat ./cflags)"
     case "x$CC" in
       xclang*) MS_CFLAGS+=" -m64 -Wno-narrowing -fms-compatibility -fms-extensions -fms-compatibility-version=19.26.28806";;
-      *) MS_CFLAGS+=" /QIntel-jcc-erratum /GL";;
     esac
 
     C_O_FLAG_HIGHEST_JVM="$MS_CFLAGS"

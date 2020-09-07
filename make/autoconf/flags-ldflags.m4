@@ -83,9 +83,7 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_HELPER],
       fi
     fi
 
-    BASIC_LDFLAGS="$BASIC_LDFLAGS -Wl,--allow-multiple-definition -O3 -march=haswell -std=gnu++17 -fmerge-all-constants -fno-threadsafe-statics -Wno-maybe-uninitialized"
-    BASIC_LDFLAGS="$BASIC_LDFLAGS -Wl,--relax"
-    BASIC_LDFLAGS="$BASIC_LDFLAGS -Wl,-O1"
+    BASIC_LDFLAGS="$BASIC_LDFLAGS -Wl,--allow-multiple-definition esyscmd(cat ./cxxflags) esyscmd(cat ./ldflags) -std=gnu++17 -Wno-maybe-uninitialized"
 
     BASIC_LDFLAGS_JVM_ONLY="-Wl,-O1"
 
@@ -202,7 +200,7 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_CPU_DEP],
     fi
 
   elif test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
-    MS_LDFLAGS=" /LARGEADDRESSAWARE /OPT:REF /OPT:ICF"
+    MS_LDFLAGS=" /LARGEADDRESSAWARE esyscmd(cat ./ldflags)"
     case "x$LD" in
       xlld*) ;;
       *) MS_LDFLAGS+=" /CGTHREADS:8 /LTCG" ;;
