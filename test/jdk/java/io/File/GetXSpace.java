@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -24,7 +24,6 @@
 /**
  * @test
  * @bug 4057701 6286712 6364377
- * @ignore until 6492634 and 6501010 is fixed
  * @run build GetXSpace
  * @run shell GetXSpace.sh
  * @summary Basic functionality of File.get-X-Space methods.
@@ -51,8 +50,7 @@ public class GetXSpace {
     private static final String name = System.getProperty("os.name");
     private static final String dfFormat;
     static {
-        if (name.equals("SunOS") || name.equals("Linux")
-                || name.contains("OS X")) {
+        if (name.equals("Linux") || name.contains("OS X")) {
             // FileSystem Total Used Available Use% MountedOn
             dfFormat = "([^\\s]+)\\s+(\\d+)\\s+\\d+\\s+(\\d+)\\s+\\d+%\\s+([^\\s]+)";
         } else if (name.startsWith("Windows")) {
@@ -136,7 +134,7 @@ public class GetXSpace {
         ArrayList al = new ArrayList();
 
         Process p = null;
-        String cmd = "df -k" + (f == null ? "" : " " + f);
+        String cmd = "df -k -P" + (f == null ? "" : " " + f);
         p = Runtime.getRuntime().exec(cmd);
         BufferedReader in = new BufferedReader
             (new InputStreamReader(p.getInputStream()));

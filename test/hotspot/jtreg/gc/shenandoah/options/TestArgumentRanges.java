@@ -25,8 +25,7 @@
 /*
  * @test TestArgumentRanges
  * @summary Test that Shenandoah arguments are checked for ranges where applicable
- * @key gc
- * @requires vm.gc.Shenandoah & !vm.graal.enabled
+ * @requires vm.gc.Shenandoah
  * @library /test/lib
  * @modules java.base/jdk.internal.misc
  *          java.management

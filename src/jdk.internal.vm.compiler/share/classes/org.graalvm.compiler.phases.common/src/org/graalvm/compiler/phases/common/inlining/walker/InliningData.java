@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -146,7 +146,7 @@ public class InliningData {
         if (method == null) {
             return "the method is not resolved";
         } else if (method.isNative() && !(Intrinsify.getValue(options) &&
-                        context.getReplacements().getSubstitution(method, invokeBci, rootGraph.trackNodeSourcePosition(), null, options) != null)) {
+                        context.getReplacements().getSubstitution(method, invokeBci, rootGraph.trackNodeSourcePosition(), null, rootGraph.allowAssumptions(), options) != null)) {
             // We have conditional intrinsic, e.g., String.intern, which may not have inlineable
             // graph depending on the context. The getSubstitution test ensures the inlineable
             // graph is present.
@@ -235,17 +235,19 @@ public class InliningData {
             }
         }
 
-        AssumptionResult<ResolvedJavaType> leafConcreteSubtype = holder.findLeafConcreteSubtype();
-        if (leafConcreteSubtype != null) {
-            ResolvedJavaMethod resolvedMethod = leafConcreteSubtype.getResult().resolveConcreteMethod(targetMethod, contextType);
-            if (resolvedMethod != null && leafConcreteSubtype.canRecordTo(callTarget.graph().getAssumptions())) {
-                return getAssumptionInlineInfo(invoke, resolvedMethod, leafConcreteSubtype);
+        if (invokeKind != InvokeKind.Interface) {
+            AssumptionResult<ResolvedJavaType> leafConcreteSubtype = holder.findLeafConcreteSubtype();
+            if (leafConcreteSubtype != null) {
+                ResolvedJavaMethod resolvedMethod = leafConcreteSubtype.getResult().resolveConcreteMethod(targetMethod, contextType);
+                if (resolvedMethod != null && leafConcreteSubtype.canRecordTo(callTarget.graph().getAssumptions())) {
+                    return getAssumptionInlineInfo(invoke, resolvedMethod, leafConcreteSubtype);
+                }
             }
-        }
 
-        AssumptionResult<ResolvedJavaMethod> concrete = holder.findUniqueConcreteMethod(targetMethod);
-        if (concrete != null && concrete.canRecordTo(callTarget.graph().getAssumptions())) {
-            return getAssumptionInlineInfo(invoke, concrete.getResult(), concrete);
+            AssumptionResult<ResolvedJavaMethod> concrete = holder.findUniqueConcreteMethod(targetMethod);
+            if (concrete != null && concrete.canRecordTo(callTarget.graph().getAssumptions())) {
+                return getAssumptionInlineInfo(invoke, concrete.getResult(), concrete);
+            }
         }
 
         // type check based inlining

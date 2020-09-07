@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,6 +26,7 @@
 #include "classfile/stringTable.hpp"
 #include "classfile/symbolTable.hpp"
 #include "code/codeCache.hpp"
+#include "compiler/compileTask.hpp"
 #include "memory/oopFactory.hpp"
 #include "memory/resourceArea.hpp"
 #include "memory/universe.hpp"
@@ -49,6 +50,7 @@ JVMCICompileState::JVMCICompileState(CompileTask* task):
   _jvmti_can_access_local_variables     = JvmtiExport::can_access_local_variables() ? 1 : 0;
   _jvmti_can_post_on_exceptions         = JvmtiExport::can_post_on_exceptions() ? 1 : 0;
   _jvmti_can_pop_frame                  = JvmtiExport::can_pop_frame() ? 1 : 0;
+  _target_method_is_old                 = _task != NULL && _task->method()->is_old();
 }
 
 bool JVMCICompileState::jvmti_state_changed() const {
@@ -619,23 +621,10 @@ const char* JVMCIEnv::as_utf8_string(JVMCIObject str) {
   } else {
     JNIAccessMark jni(this);
     int length = jni()->GetStringLength(str.as_jstring());
-    char* result = NEW_RESOURCE_ARRAY(char, length + 1);
+    int utf8_length = jni()->GetStringUTFLength(str.as_jstring());
+    char* result = NEW_RESOURCE_ARRAY(char, utf8_length + 1);
     jni()->GetStringUTFRegion(str.as_jstring(), 0, length, result);
     return result;
-  }
-}
-
-char* JVMCIEnv::as_utf8_string(JVMCIObject str, char* buf, int buflen) {
-  if (is_hotspot()) {
-    return java_lang_String::as_utf8_string(HotSpotJVMCI::resolve(str), buf, buflen);
-  } else {
-    JNIAccessMark jni(this);
-    int length = jni()->GetStringLength(str.as_jstring());
-    if (length >= buflen) {
-      length = buflen;
-    }
-    jni()->GetStringUTFRegion(str.as_jstring(), 0, length, buf);
-    return buf;
   }
 }
 

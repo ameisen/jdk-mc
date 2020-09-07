@@ -25,8 +25,7 @@
 /*
  * @test TestThreadCounts
  * @summary Test that Shenandoah GC thread counts are handled well
- * @key gc
- * @requires vm.gc.Shenandoah & !vm.graal.enabled
+ * @requires vm.gc.Shenandoah
  * @library /test/lib
  * @modules java.base/jdk.internal.misc
  *          java.management

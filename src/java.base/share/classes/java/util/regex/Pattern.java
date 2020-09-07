@@ -395,7 +395,7 @@ import jdk.internal.util.ArraysSupport;
  *
  * <p> Backslashes within string literals in Java source code are interpreted
  * as required by
- * <cite>The Java&trade; Language Specification</cite>
+ * <cite>The Java Language Specification</cite>
  * as either Unicode escapes (section 3.3) or other character escapes (section 3.10.6)
  * It is therefore necessary to double backslashes in string
  * literals that represent regular expressions to protect them from
@@ -544,7 +544,7 @@ import jdk.internal.util.ArraysSupport;
  * <p>
  * <b>Unicode escape sequences</b> such as <code>&#92;u2014</code> in Java source code
  * are processed as described in section 3.3 of
- * <cite>The Java&trade; Language Specification</cite>.
+ * <cite>The Java Language Specification</cite>.
  * Such escape sequences are also implemented directly by the regular-expression
  * parser so that Unicode escapes can be used in expressions that are read from
  * files or from the keyboard.  Thus the strings <code>"&#92;u2014"</code> and
@@ -760,7 +760,7 @@ import jdk.internal.util.ArraysSupport;
  *
  * <p> For a more precise description of the behavior of regular expression
  * constructs, please see <a href="http://www.oreilly.com/catalog/regex3/">
- * <i>Mastering Regular Expressions, 3nd Edition</i>, Jeffrey E. F. Friedl,
+ * <i>Mastering Regular Expressions, 3rd Edition</i>, Jeffrey E. F. Friedl,
  * O'Reilly and Associates, 2006.</a>
  * </p>
  *
@@ -1681,7 +1681,7 @@ loop:   for(int x=0, offset=0; x<nCodePoints; x++, offset+=len) {
         try {
             newTempLen = Math.addExact(j + 2, Math.multiplyExact(3, pLen - i));
         } catch (ArithmeticException ae) {
-            throw new OutOfMemoryError();
+            throw new OutOfMemoryError("Required pattern length too large");
         }
         int[] newtemp = new int[newTempLen];
         System.arraycopy(temp, 0, newtemp, 0, j);

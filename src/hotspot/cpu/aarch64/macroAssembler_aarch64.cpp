@@ -60,12 +60,10 @@
 
 #ifdef PRODUCT
 #define BLOCK_COMMENT(str) /* nothing */
-#define STOP(error) stop(error)
 #else
 #define BLOCK_COMMENT(str) block_comment(str)
-#define STOP(error) block_comment(error); stop(error)
 #endif
-
+#define STOP(str) stop(str);
 #define BIND(label) bind(label); BLOCK_COMMENT(#label ":")
 
 // Patch any kind of instruction; there may be several instructions.
@@ -1332,7 +1330,7 @@ void MacroAssembler::verify_oop(Register reg, const char* s) {
   stp(rscratch2, lr, Address(pre(sp, -2 * wordSize)));
 
   mov(r0, reg);
-  mov(rscratch1, (address)b);
+  movptr(rscratch1, (uintptr_t)(address)b);
 
   // call indirectly to solve generation ordering problem
   lea(rscratch2, ExternalAddress(StubRoutines::verify_oop_subroutine_entry_address()));
@@ -1368,7 +1366,7 @@ void MacroAssembler::verify_oop_addr(Address addr, const char* s) {
   } else {
     ldr(r0, addr);
   }
-  mov(rscratch1, (address)b);
+  movptr(rscratch1, (uintptr_t)(address)b);
 
   // call indirectly to solve generation ordering problem
   lea(rscratch2, ExternalAddress(StubRoutines::verify_oop_subroutine_entry_address()));
@@ -2135,20 +2133,34 @@ int MacroAssembler::push_fp(unsigned int bitset, Register stack) {
       regs[count++] = reg;
     bitset >>= 1;
   }
-  regs[count++] = zr->encoding_nocheck();
-  count &= ~1;  // Only push an even number of regs
+
+  if (count == 0) {
+    return 0;
+  }
+
+  if (count == 1) {
+    strq(as_FloatRegister(regs[0]), Address(pre(stack, -wordSize * 2)));
+    return 1;
+  }
+
+  bool odd = (count & 1) == 1;
+  int push_slots = count + (odd ? 1 : 0);
 
   // Always pushing full 128 bit registers.
-  if (count) {
-    stpq(as_FloatRegister(regs[0]), as_FloatRegister(regs[1]), Address(pre(stack, -count * wordSize * 2)));
-    words_pushed += 2;
-  }
-  for (int i = 2; i < count; i += 2) {
+  stpq(as_FloatRegister(regs[0]), as_FloatRegister(regs[1]), Address(pre(stack, -push_slots * wordSize * 2)));
+  words_pushed += 2;
+
+  for (int i = 2; i + 1 < count; i += 2) {
     stpq(as_FloatRegister(regs[i]), as_FloatRegister(regs[i+1]), Address(stack, i * wordSize * 2));
     words_pushed += 2;
   }
 
-  assert(words_pushed == count, "oops, pushed != count");
+  if (odd) {
+    strq(as_FloatRegister(regs[count - 1]), Address(stack, (count - 1) * wordSize * 2));
+    words_pushed++;
+  }
+
+  assert(words_pushed == count, "oops, pushed(%d) != count(%d)", words_pushed, count);
   return count;
 }
 
@@ -2163,19 +2175,33 @@ int MacroAssembler::pop_fp(unsigned int bitset, Register stack) {
       regs[count++] = reg;
     bitset >>= 1;
   }
-  regs[count++] = zr->encoding_nocheck();
-  count &= ~1;
 
-  for (int i = 2; i < count; i += 2) {
+  if (count == 0) {
+    return 0;
+  }
+
+  if (count == 1) {
+    ldrq(as_FloatRegister(regs[0]), Address(post(stack, wordSize * 2)));
+    return 1;
+  }
+
+  bool odd = (count & 1) == 1;
+  int push_slots = count + (odd ? 1 : 0);
+
+  if (odd) {
+    ldrq(as_FloatRegister(regs[count - 1]), Address(stack, (count - 1) * wordSize * 2));
+    words_pushed++;
+  }
+
+  for (int i = 2; i + 1 < count; i += 2) {
     ldpq(as_FloatRegister(regs[i]), as_FloatRegister(regs[i+1]), Address(stack, i * wordSize * 2));
     words_pushed += 2;
   }
-  if (count) {
-    ldpq(as_FloatRegister(regs[0]), as_FloatRegister(regs[1]), Address(post(stack, count * wordSize * 2)));
-    words_pushed += 2;
-  }
 
-  assert(words_pushed == count, "oops, pushed != count");
+  ldpq(as_FloatRegister(regs[0]), as_FloatRegister(regs[1]), Address(post(stack, push_slots * wordSize * 2)));
+  words_pushed += 2;
+
+  assert(words_pushed == count, "oops, pushed(%d) != count(%d)", words_pushed, count);
 
   return count;
 }
@@ -2223,22 +2249,9 @@ void MacroAssembler::resolve_jobject(Register value, Register thread, Register t
 }
 
 void MacroAssembler::stop(const char* msg) {
-  address ip = pc();
-  pusha();
-  mov(c_rarg0, (address)msg);
-  mov(c_rarg1, (address)ip);
-  mov(c_rarg2, sp);
-  mov(c_rarg3, CAST_FROM_FN_PTR(address, MacroAssembler::debug64));
-  blr(c_rarg3);
-  hlt(0);
-}
-
-void MacroAssembler::warn(const char* msg) {
-  pusha();
-  mov(c_rarg0, (address)msg);
-  mov(lr, CAST_FROM_FN_PTR(address, warning));
-  blr(lr);
-  popa();
+  BLOCK_COMMENT(msg);
+  dcps1(0xdeae);
+  emit_int64((uintptr_t)msg);
 }
 
 void MacroAssembler::unimplemented(const char* what) {

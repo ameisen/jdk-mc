@@ -327,7 +327,8 @@ class Compile : public Phase {
   VectorSet             _dead_node_list;        // Set of dead nodes
   uint                  _dead_node_count;       // Number of dead nodes; VectorSet::Size() is O(N).
                                                 // So use this to keep count and make the call O(1).
-  DEBUG_ONLY( Unique_Node_List* _modified_nodes; )  // List of nodes which inputs were modified
+  DEBUG_ONLY(Unique_Node_List* _modified_nodes;)   // List of nodes which inputs were modified
+  DEBUG_ONLY(bool       _phase_optimize_finished;) // Used for live node verification while creating new nodes
 
   debug_only(static int _debug_idx;)            // Monotonic counter (not reset), use -XX:BreakAtNode=<idx>
   Arena                 _node_arena;            // Arena for new-space Nodes
@@ -631,25 +632,7 @@ class Compile : public Phase {
 #endif
   }
 
-  void print_method(CompilerPhaseType cpt, int level = 1, int idx = 0) {
-    EventCompilerPhase event;
-    if (event.should_commit()) {
-      CompilerEvent::PhaseEvent::post(event, C->_latest_stage_start_counter, cpt, C->_compile_id, level);
-    }
-
-#ifndef PRODUCT
-    if (should_print(level)) {
-      char output[1024];
-      if (idx != 0) {
-        jio_snprintf(output, sizeof(output), "%s:%d", CompilerPhaseTypeHelper::to_string(cpt), idx);
-      } else {
-        jio_snprintf(output, sizeof(output), "%s", CompilerPhaseTypeHelper::to_string(cpt));
-      }
-      _printer->print_method(output, level);
-    }
-#endif
-    C->_latest_stage_start_counter.stamp();
-  }
+  void print_method(CompilerPhaseType cpt, int level = 1, int idx = 0);
 
 #ifndef PRODUCT
   void igv_print_method_to_file(const char* phase_name = "Debug", bool append = false);
@@ -658,18 +641,7 @@ class Compile : public Phase {
   static IdealGraphPrinter* debug_network_printer() { return _debug_network_printer; }
 #endif
 
-  void end_method(int level = 1) {
-    EventCompilerPhase event;
-    if (event.should_commit()) {
-      CompilerEvent::PhaseEvent::post(event, C->_latest_stage_start_counter, PHASE_END, C->_compile_id, level);
-    }
-
-#ifndef PRODUCT
-    if (_printer && _printer->should_print(level)) {
-      _printer->end_method();
-    }
-#endif
-  }
+  void end_method(int level = 1);
 
   int           macro_count()             const { return _macro_nodes->length(); }
   int           predicate_count()         const { return _predicate_opaqs->length();}
@@ -803,6 +775,8 @@ class Compile : public Phase {
             return (uint) val;
                                            }
 #ifdef ASSERT
+  void         set_phase_optimize_finished() { _phase_optimize_finished = true; }
+  bool         phase_optimize_finished() const { return _phase_optimize_finished; }
   uint         count_live_nodes_by_graph_walk();
   void         print_missing_nodes();
 #endif

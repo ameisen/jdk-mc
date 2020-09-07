@@ -30,10 +30,10 @@ import java.util.Set;
 import java.util.HashSet;
 
 /**
- * Source versions of the Java&trade; programming language.
+ * Source versions of the Java programming language.
  *
  * See the appropriate edition of
- * <cite>The Java&trade; Language Specification</cite>
+ * <cite>The Java Language Specification</cite>
  * for information about a particular source version.
  *
  * <p>Note that additional source version constants will be added to
@@ -62,14 +62,14 @@ public enum SourceVersion {
      *  13: no changes (switch expressions and text blocks in preview)
      *  14: switch expressions (pattern matching and records in
      *      preview, text blocks in preview again)
-     *  15: TBD
+     *  15: text blocks (records and pattern matching in preview again)
      */
 
     /**
      * The original version.
      *
      * The language described in
-     * <cite>The Java&trade; Language Specification, First Edition</cite>.
+     * <cite>The Java Language Specification, First Edition</cite>.
      */
     RELEASE_0,
 
@@ -77,7 +77,7 @@ public enum SourceVersion {
      * The version recognized by the Java Platform 1.1.
      *
      * The language is {@code RELEASE_0} augmented with nested classes as described in the 1.1 update to
-     * <cite>The Java&trade; Language Specification, First Edition</cite>.
+     * <cite>The Java Language Specification, First Edition</cite>.
      */
     RELEASE_1,
 
@@ -86,7 +86,7 @@ public enum SourceVersion {
      * v 1.2.
      *
      * The language described in
-     * <cite>The Java&trade; Language Specification,
+     * <cite>The Java Language Specification,
      * Second Edition</cite>, which includes the {@code
      * strictfp} modifier.
      */
@@ -113,7 +113,7 @@ public enum SourceVersion {
      * Edition 5.0.
      *
      * The language described in
-     * <cite>The Java&trade; Language Specification,
+     * <cite>The Java Language Specification,
      * Third Edition</cite>.  First release to support
      * generics, annotations, autoboxing, var-args, enhanced {@code
      * for} loop, and hexadecimal floating-point literals.
@@ -210,6 +210,8 @@ public enum SourceVersion {
     /**
      * The version recognized by the Java Platform, Standard Edition
      * 15.
+     *
+     * Additions in this release include text blocks.
      *
      * @since 15
      */
@@ -418,6 +420,10 @@ public enum SourceVersion {
 
         case "_":
             return version.compareTo(RELEASE_9) >= 0;
+
+     // case "non-sealed": can be added once it is a keyword only
+     // dependent on release and not also preview features being
+     // enabled.
 
             // Keywords common across versions
 

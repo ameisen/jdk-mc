@@ -25,8 +25,7 @@
 /*
  * @test TestHeuristicsUnlock
  * @summary Test that Shenandoah heuristics are unlocked properly
- * @key gc
- * @requires vm.gc.Shenandoah & !vm.graal.enabled
+ * @requires vm.gc.Shenandoah
  * @library /test/lib
  * @modules java.base/jdk.internal.misc
  *          java.management
@@ -52,7 +51,7 @@ public class TestHeuristicsUnlock {
     }
 
     private static void testWith(String h, Mode mode) throws Exception {
-        if (false) { // When ShenandoahGC is experimental flag, this makes no sense to test
+        {
             ProcessBuilder pb = ProcessTools.createJavaProcessBuilder(
                     "-XX:-UnlockDiagnosticVMOptions",
                     "-XX:-UnlockExperimentalVMOptions",
@@ -72,7 +71,7 @@ public class TestHeuristicsUnlock {
             }
         }
 
-        if (false) { // When ShenandoahGC is experimental flag, this makes no sense to test
+        {
             ProcessBuilder pb = ProcessTools.createJavaProcessBuilder(
                     "-XX:+UnlockDiagnosticVMOptions",
                     "-XX:-UnlockExperimentalVMOptions",
