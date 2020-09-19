@@ -155,7 +155,7 @@ class XAtomList {
     }
 
     public String toString() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("[");
         Iterator<XAtom> iter = atoms.iterator();
         while (iter.hasNext()) {

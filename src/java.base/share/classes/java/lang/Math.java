@@ -1541,15 +1541,17 @@ public final class Math {
      */
     @HotSpotIntrinsicCandidate
     public static float max(float a, float b) {
-        if (a != a)
-            return a;   // a is NaN
-        if ((a == 0.0f) &&
-            (b == 0.0f) &&
-            (Float.floatToRawIntBits(a) == negativeZeroFloatBits)) {
-            // Raw conversion ok since NaN can't map to -0.0.
-            return b;
-        }
-        return (a >= b) ? a : b;
+        //if (a != a)
+        //    return a;   // a is NaN
+
+        // is necessary?
+        //if ((a == 0.0f) &&
+        //    (b == 0.0f) &&
+        //    (Float.floatToRawIntBits(a) == negativeZeroFloatBits)) {
+        //    // Raw conversion ok since NaN can't map to -0.0.
+        //    return b;
+        //}
+        return (a <= b) ? b : a;
     }
 
     /**
@@ -1568,15 +1570,16 @@ public final class Math {
      */
     @HotSpotIntrinsicCandidate
     public static double max(double a, double b) {
-        if (a != a)
-            return a;   // a is NaN
-        if ((a == 0.0d) &&
-            (b == 0.0d) &&
-            (Double.doubleToRawLongBits(a) == negativeZeroDoubleBits)) {
-            // Raw conversion ok since NaN can't map to -0.0.
-            return b;
-        }
-        return (a >= b) ? a : b;
+        //if (a != a)
+        //    return a;   // a is NaN
+
+        //if ((a == 0.0d) &&
+        //    (b == 0.0d) &&
+        //    (Double.doubleToRawLongBits(a) == negativeZeroDoubleBits)) {
+        //    // Raw conversion ok since NaN can't map to -0.0.
+        //    return b;
+        //}
+        return (a <= b) ? b : a;
     }
 
     /**
@@ -1624,15 +1627,16 @@ public final class Math {
      */
     @HotSpotIntrinsicCandidate
     public static float min(float a, float b) {
-        if (a != a)
-            return a;   // a is NaN
-        if ((a == 0.0f) &&
-            (b == 0.0f) &&
-            (Float.floatToRawIntBits(b) == negativeZeroFloatBits)) {
+        //if (a != a)
+        //    return a;   // a is NaN
+
+        //if ((a == 0.0f) &&
+        //    (b == 0.0f) &&
+        //    (Float.floatToRawIntBits(b) == negativeZeroFloatBits)) {
             // Raw conversion ok since NaN can't map to -0.0.
-            return b;
-        }
-        return (a <= b) ? a : b;
+        //    return b;
+        //}
+        return (a >= b) ? b : a;
     }
 
     /**
@@ -1651,15 +1655,15 @@ public final class Math {
      */
     @HotSpotIntrinsicCandidate
     public static double min(double a, double b) {
-        if (a != a)
-            return a;   // a is NaN
-        if ((a == 0.0d) &&
-            (b == 0.0d) &&
-            (Double.doubleToRawLongBits(b) == negativeZeroDoubleBits)) {
+        //if (a != a)
+        //    return a;   // a is NaN
+        //if ((a == 0.0d) &&
+        //    (b == 0.0d) &&
+        //    (Double.doubleToRawLongBits(b) == negativeZeroDoubleBits)) {
             // Raw conversion ok since NaN can't map to -0.0.
-            return b;
-        }
-        return (a <= b) ? a : b;
+        //    return b;
+        //}
+        return (a >= b) ? b : a;
     }
 
     /**

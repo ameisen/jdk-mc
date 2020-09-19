@@ -215,9 +215,13 @@ const char* Method::external_name(Klass* klass, Symbol* method_name, Symbol* sig
 }
 
 void Method::print_external_name(outputStream *os, Klass* klass, Symbol* method_name, Symbol* signature) {
-  signature->print_as_signature_external_return_type(os);
-  os->print(" %s.%s(", klass->external_name(), method_name->as_C_string());
-  signature->print_as_signature_external_parameters(os);
+  if (signature) {
+    signature->print_as_signature_external_return_type(os);
+  }
+  os->print(" %s.%s(", klass ? klass->external_name() : "<unknown>", method_name ? method_name->as_C_string() : "<unknown>");
+  if (signature) {
+    signature->print_as_signature_external_parameters(os);
+  }
   os->print(")");
 }
 

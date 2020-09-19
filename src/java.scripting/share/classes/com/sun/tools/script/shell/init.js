@@ -561,7 +561,7 @@ var months = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun",
  * @private
  */
 function printFile(f) {
-    var sb = new java.lang.StringBuffer();
+    var sb = new java.lang.StringBuilder();
     sb.append(f.isDirectory()? "d" : "-");
     sb.append(f.canRead() ? "r": "-" );
     sb.append(f.canWrite() ? "w": "-" );
@@ -579,7 +579,7 @@ function printFile(f) {
 
     // to get fixed length 'length' field
     var fieldlen = 8;
-    var len = new java.lang.StringBuffer();
+    var len = new java.lang.StringBuilder();
     for(var j=0; j<fieldlen; j++)
         len.append(" ");
     len.insert(0, java.lang.Long.toString(f.length()));
@@ -876,13 +876,13 @@ function echo(x) {
 
 if (typeof(printf) == 'undefined') {
     /**
-     * This is C-like printf 
+     * This is C-like printf
      *
      * @param format string to format the rest of the print items
      * @param args variadic argument list
      */
-    this.printf = function (format, args/*, more args*/) {  
-        var array = java.lang.reflect.Array.newInstance(java.lang.Object, 
+    this.printf = function (format, args/*, more args*/) {
+        var array = java.lang.reflect.Array.newInstance(java.lang.Object,
                     arguments.length - 1);
         for (var i = 0; i < array.length; i++) {
             array[i] = arguments[i+1];
@@ -924,4 +924,3 @@ if (typeof(println) == 'undefined') {
     // just synonym to print
     this.println = print;
 }
-

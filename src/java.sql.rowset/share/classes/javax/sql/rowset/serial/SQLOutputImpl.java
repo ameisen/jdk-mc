@@ -328,7 +328,7 @@ public class SQLOutputImpl implements SQLOutput {
              int i;
              while( (i = bufReader.read()) != -1 ) {
                 char ch = (char)i;
-                StringBuffer strBuf = new StringBuffer();
+                StringBuilder strBuf = new StringBuilder();
                 strBuf.append(ch);
 
                 String str = new String(strBuf);
@@ -359,7 +359,7 @@ public class SQLOutputImpl implements SQLOutput {
                while( (i=bufReader.read()) != -1 ) {
                 char ch = (char)i;
 
-                StringBuffer strBuf = new StringBuffer();
+                StringBuilder strBuf = new StringBuilder();
                 strBuf.append(ch);
 
                 String str = new String(strBuf);
@@ -389,7 +389,7 @@ public class SQLOutputImpl implements SQLOutput {
              while( (i=bufReader.read()) != -1 ) {
                 char ch = (char)i;
 
-                StringBuffer strBuf = new StringBuffer();
+                StringBuilder strBuf = new StringBuilder();
                 strBuf.append(ch);
 
                 String str = new String(strBuf);

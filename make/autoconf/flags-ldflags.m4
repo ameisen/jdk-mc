@@ -83,7 +83,7 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_HELPER],
       fi
     fi
 
-    BASIC_LDFLAGS="$BASIC_LDFLAGS -Wl,--allow-multiple-definition esyscmd(cat ./cxxflags) esyscmd(cat ./ldflags) -std=gnu++17 -Wno-maybe-uninitialized"
+    BASIC_LDFLAGS="$BASIC_LDFLAGS -Wl,--allow-multiple-definition esyscmd(cat ./cxxflags) esyscmd(cat ./ldflags) -std=gnu++2a -Wno-maybe-uninitialized"
 
     BASIC_LDFLAGS_JVM_ONLY="-Wl,-O1"
 

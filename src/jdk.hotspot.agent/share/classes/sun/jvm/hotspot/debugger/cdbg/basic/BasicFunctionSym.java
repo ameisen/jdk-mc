@@ -53,7 +53,7 @@ public class BasicFunctionSym extends BasicBlockSym implements FunctionSym {
       return null;
     }
 
-    StringBuffer res = new StringBuffer();
+    StringBuilder res = new StringBuilder();
     res.append(getName());
     res.append("(");
     FunctionType type = (FunctionType) getType();

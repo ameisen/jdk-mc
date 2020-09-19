@@ -231,7 +231,7 @@ public abstract class X11InputMethod extends X11InputMethodBase {
 
         // Replace control character with a square box
         if (chgText != null) {
-            StringBuffer newChgText = new StringBuffer();
+            StringBuilder newChgText = new StringBuilder();
             for (int i=0; i < chgText.length(); i++){
                 char c = chgText.charAt(i);
                 if (Character.isISOControl(c)){

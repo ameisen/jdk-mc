@@ -1,3 +1,19 @@
+We really need global defines for these:
+	LogEvents
+
+EliminateAllocationArraySizeLimit
+  We have increased this from 64 to 4096. This also likely has the effect of causing bytecode sizes to inflate dramatically, which impacts things such as inlining.
+
+build-performance.m4 precompiled headers
+  Make sure that it is using precompiled headers with MSVC.
+
+Symbol* box_classes[]
+  Minecraft types like position.
+  Maybe add a Char cache? /Character$CharacterCache
+
+Clamp
+  Add a clamp method to counterpart min/max
+
 Remove unnecessary temporary buffers
   In classes like CheckedInputStream, temporary local buffers are used to skip data. This can be resolved by adding methods to things such as the Checksum interface which do not have to write to a buffer. Add a 'skip' method to InputStream (or streams in general) as well.
 
@@ -17,15 +33,25 @@ jlink - add better compression?
 the JDK seems to include its own version of ow2.asm. Reconcile this with our version in support.base. jdk.internal.org.objectweb.asm
   Solution is probably to get rid of the internal module altogether, and remap all uses to the support.base one which uses the default namespace as it
   entirely overrides ow2.asm.
-  
+
  $ZIPEXE
  $GZIP => -9
- 
+
  (cd "$DEVKIT_ROOT" && tar zcf "$DEVKIT_BUNDLE" .)
- 
+
  pigz => -11
 
 COMPILE_WITH_DEBUG_SYMBOLS
+
+_max
+_min
+_clamp
+make sure all likely functions are being used as intrinsics
+
+check over strictmath stuff
+
+change Random to use a different generator
+
 
 UseTLAB
 ResizeTLAB

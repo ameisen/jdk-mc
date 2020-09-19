@@ -183,7 +183,7 @@ public class LineReaderImpl implements LineReader, Flushable
     protected Map<Integer, String> modifiedHistory = new HashMap<>();
     protected Buffer historyBuffer = null;
     protected CharSequence searchBuffer;
-    protected StringBuffer searchTerm = null;
+    protected StringBuilder searchTerm = null;
     protected boolean searchFailing;
     protected boolean searchBackward;
     protected int searchIndex = -1;
@@ -2597,7 +2597,7 @@ public class LineReaderImpl implements LineReader, Flushable
 
         Buffer originalBuffer = buf.copy();
         searchIndex = -1;
-        searchTerm = new StringBuffer();
+        searchTerm = new StringBuilder();
         searchBackward = backward;
         searchFailing = false;
         post = () -> new AttributedString((searchFailing ? "failing" + " " : "")

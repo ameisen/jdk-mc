@@ -893,7 +893,7 @@ class FileSystemPreferences extends AbstractPreferences {
         if (dirName.charAt(0) != '_')
             return dirName;
         byte a[] = Base64.altBase64ToByteArray(dirName.substring(1));
-        StringBuffer result = new StringBuffer(a.length/2);
+        StringBuilder result = new StringBuilder(a.length/2);
         for (int i = 0; i < a.length; ) {
             int highByte = a[i++] & 0xff;
             int lowByte =  a[i++] & 0xff;

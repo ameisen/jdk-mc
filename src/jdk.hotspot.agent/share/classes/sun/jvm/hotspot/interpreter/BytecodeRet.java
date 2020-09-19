@@ -61,7 +61,7 @@ public class BytecodeRet extends BytecodeWideable {
   }
 
   public String toString() {
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     buf.append("ret");
     buf.append(spaces);
     buf.append('#');

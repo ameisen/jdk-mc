@@ -69,7 +69,7 @@ public class BytecodeMultiANewArray extends BytecodeWithKlass {
   }
 
   public String toString() {
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     buf.append(super.toString());
     buf.append(spaces);
     buf.append(Integer.toString(getDimension()));

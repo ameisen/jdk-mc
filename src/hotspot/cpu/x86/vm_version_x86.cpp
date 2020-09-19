@@ -888,7 +888,7 @@ void VM_Version::get_processor_features() {
       UseCLMUL = true;
     }
   } else if (UseCLMUL) {
-    if (!FLAG_IS_DEFAULT(UseCLMUL))
+    //if (!FLAG_IS_DEFAULT(UseCLMUL))
        //warning("CLMUL instructions not available on this CPU (AVX may also be required)");
     FLAG_SET_DEFAULT(UseCLMUL, false);
   }
@@ -898,7 +898,7 @@ void VM_Version::get_processor_features() {
       UseCRC32Intrinsics = true;
     }
   } else if (UseCRC32Intrinsics) {
-    if (!FLAG_IS_DEFAULT(UseCRC32Intrinsics))
+    //if (!FLAG_IS_DEFAULT(UseCRC32Intrinsics))
        //warning("CRC32 Intrinsics requires CLMUL instructions (not available on this CPU)");
     FLAG_SET_DEFAULT(UseCRC32Intrinsics, false);
   }
@@ -920,7 +920,7 @@ void VM_Version::get_processor_features() {
       UseGHASHIntrinsics = true;
     }
   } else if (UseGHASHIntrinsics) {
-    if (!FLAG_IS_DEFAULT(UseGHASHIntrinsics))
+    //if (!FLAG_IS_DEFAULT(UseGHASHIntrinsics))
        //warning("GHASH intrinsic requires CLMUL and SSE2 instructions on this CPU");
     FLAG_SET_DEFAULT(UseGHASHIntrinsics, false);
   }
@@ -931,7 +931,7 @@ void VM_Version::get_processor_features() {
       UseBASE64Intrinsics = true;
     }
   } else if (UseBASE64Intrinsics) {
-     if (!FLAG_IS_DEFAULT(UseBASE64Intrinsics))
+     //if (!FLAG_IS_DEFAULT(UseBASE64Intrinsics))
        //warning("Base64 intrinsic requires EVEX instructions on this CPU");
     FLAG_SET_DEFAULT(UseBASE64Intrinsics, false);
   }
@@ -1413,7 +1413,7 @@ void VM_Version::get_processor_features() {
       UseVectorizedMismatchIntrinsic = true;
     }
   } else if (UseVectorizedMismatchIntrinsic) {
-    if (!FLAG_IS_DEFAULT(UseVectorizedMismatchIntrinsic))
+    //if (!FLAG_IS_DEFAULT(UseVectorizedMismatchIntrinsic))
        //warning("vectorizedMismatch intrinsics are not available on this CPU");
     FLAG_SET_DEFAULT(UseVectorizedMismatchIntrinsic, false);
   }

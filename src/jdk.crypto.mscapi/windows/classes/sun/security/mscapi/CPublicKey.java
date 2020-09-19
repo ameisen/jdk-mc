@@ -107,7 +107,7 @@ public abstract class CPublicKey extends CKey implements PublicKey {
         }
 
         public String toString() {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             sb.append(algorithm + "PublicKey [size=").append(keyLength)
                     .append("]\n  ECPoint: ").append(getW())
                     .append("\n  params: ").append(getParams());
@@ -126,7 +126,7 @@ public abstract class CPublicKey extends CKey implements PublicKey {
         }
 
         public String toString() {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             sb.append(algorithm + "PublicKey [size=").append(keyLength)
                     .append(" bits, type=");
             if (handles.hCryptKey != 0) {

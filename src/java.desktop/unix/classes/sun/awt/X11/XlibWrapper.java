@@ -610,7 +610,7 @@ static native String XSetLocaleModifiers(String modifier_list);
     }
 
     static String hintsToString(long flags) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         if ((flags & XUtilConstants.PMaxSize) != 0) {
             buf.append("PMaxSize ");
         }

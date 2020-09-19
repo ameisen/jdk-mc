@@ -81,7 +81,7 @@ public class XCreateWindowParams extends HashMap<Object, Object> {
         return this;
     }
     public String toString() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         Iterator<Map.Entry<Object, Object>> eIter = entrySet().iterator();
         while (eIter.hasNext()) {
             Map.Entry<Object, Object> entry = eIter.next();

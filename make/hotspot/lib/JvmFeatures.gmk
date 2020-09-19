@@ -213,7 +213,7 @@ ifeq ($(call check-jvm-feature, link-time-opt), true)
 endif
 
 ifeq ($(TOOLCHAIN_TYPE), clang)
-  JVM_CFLAGS_FEATURES_ALL += -fno-strict-aliasing -std=gnu++17 -fPIC $(shell cat $(TOPDIR)/cxxflags)
+  JVM_CFLAGS_FEATURES_ALL += -fno-strict-aliasing -std=gnu++2a -fPIC $(shell cat $(TOPDIR)/cxxflags)
   JVM_CFLAGS_FEATURES_ALL += -Wno-assume -Wno-deprecated-copy -Wno-deprecated-volatile -Wno-deprecated-anon-enum-enum-conversion
   JVM_CFLAGS_FEATURES_ALL += -Wno-ambiguous-reversed-operator -Wno-deprecated-enum-enum-conversion -Wno-misleading-indentation
   JVM_CFLAGS_FEATURES_ALL += -Wno-deprecated-enum-float-conversion -Wno-maybe-uninitialized
@@ -222,7 +222,7 @@ ifeq ($(TOOLCHAIN_TYPE), clang)
   JVM_LDFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL) $(shell cat $(TOPDIR)/ldflags)
 else
   ifeq ($(TOOLCHAIN_TYPE), gcc)
-    JVM_CFLAGS_FEATURES_ALL += -fno-strict-aliasing -std=gnu++17 $(shell cat $(TOPDIR)/cxxflags)
+    JVM_CFLAGS_FEATURES_ALL += -fno-strict-aliasing -std=gnu++2a $(shell cat $(TOPDIR)/cxxflags)
     JVM_CFLAGS_FEATURES_ALL += -Wno-stringop-truncation -Wno-stringop-overflow -Wno-maybe-uninitialized
     JVM_CFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL)
     JVM_LDFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL) -Wl,--allow-multiple-definition $(shell cat $(TOPDIR)/ldflags)

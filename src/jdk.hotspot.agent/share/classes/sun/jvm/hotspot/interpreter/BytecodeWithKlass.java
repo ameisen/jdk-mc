@@ -41,7 +41,7 @@ public class BytecodeWithKlass extends BytecodeWithCPIndex {
   }
 
   public String toString() {
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     buf.append(getJavaBytecodeName());
     buf.append(spaces);
     buf.append('#');

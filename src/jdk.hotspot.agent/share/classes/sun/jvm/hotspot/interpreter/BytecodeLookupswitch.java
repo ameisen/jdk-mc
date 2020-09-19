@@ -78,7 +78,7 @@ public class BytecodeLookupswitch extends Bytecode {
   }
 
   public String toString() {
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     buf.append("lookupswitch");
     buf.append(spaces);
     buf.append("default: ");

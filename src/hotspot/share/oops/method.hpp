@@ -81,8 +81,9 @@ class Method : public Metadata {
                                                  // note: can have vtables with >2**16 elements (because of inheritance)
   u2                _intrinsic_id;               // vmSymbols::intrinsic_id (0 == _none)
 
+public:
   // Flags
-  enum Flags {
+  enum Flags : u2 {
     _caller_sensitive      = 1 << 0,
     _force_inline          = 1 << 1,
     _dont_inline           = 1 << 2,
@@ -90,8 +91,10 @@ class Method : public Metadata {
     _has_injected_profile  = 1 << 4,
     _running_emcp          = 1 << 5,
     _intrinsic_candidate   = 1 << 6,
-    _reserved_stack_access = 1 << 7
+    _reserved_stack_access = 1 << 7,
+    _dont_precompile       = 1 << 8,
   };
+private:
   mutable u2 _flags;
 
   JFR_ONLY(DEFINE_TRACE_FLAG;)
@@ -798,11 +801,11 @@ public:
     // pool might be different.
     // If a breakpoint is set in a redefined method, its EMCP methods that are
     // still running must have a breakpoint also.
-    return (_flags & _running_emcp) != 0;
+    return carbide::utility::flags::is_set(_flags, _running_emcp);
   }
 
   void set_running_emcp(bool x) {
-    _flags = x ? (_flags | _running_emcp) : (_flags & ~_running_emcp);
+    _flags = carbide::utility::flags::set_conditional(x, _flags, _running_emcp);
   }
 
   bool on_stack() const                             { return access_flags().on_stack(); }
@@ -871,55 +874,60 @@ public:
   void init_intrinsic_id();     // updates from _none if a match
   static vmSymbols::SID klass_id_for_intrinsics(const Klass* holder);
 
-  bool caller_sensitive() {
-    return (_flags & _caller_sensitive) != 0;
+  bool caller_sensitive() const {
+    return carbide::utility::flags::is_set(_flags, _caller_sensitive);
   }
   void set_caller_sensitive(bool x) {
-    _flags = x ? (_flags | _caller_sensitive) : (_flags & ~_caller_sensitive);
+    _flags = carbide::utility::flags::set_conditional(x, _flags, _caller_sensitive);
   }
 
-  bool force_inline() {
-    return (_flags & _force_inline) != 0;
+  bool force_inline() const {
+    return carbide::utility::flags::is_set(_flags, _force_inline);
   }
   void set_force_inline(bool x) {
-    _flags = x ? (_flags | _force_inline) : (_flags & ~_force_inline);
+    _flags = carbide::utility::flags::set_conditional(x, _flags, _force_inline);
   }
 
-  bool dont_inline() {
-    return (_flags & _dont_inline) != 0;
+  bool dont_inline() const {
+    return carbide::utility::flags::is_set(_flags, _dont_inline);
   }
   void set_dont_inline(bool x) {
-    _flags = x ? (_flags | _dont_inline) : (_flags & ~_dont_inline);
+    _flags = carbide::utility::flags::set_conditional(x, _flags, _dont_inline);
   }
 
   bool is_hidden() const {
-    return (_flags & _hidden) != 0;
+    return carbide::utility::flags::is_set(_flags, _hidden);
   }
-
   void set_hidden(bool x) {
-    _flags = x ? (_flags | _hidden) : (_flags & ~_hidden);
+    _flags = carbide::utility::flags::set_conditional(x, _flags, _hidden);
   }
 
-  bool intrinsic_candidate() {
-    return (_flags & _intrinsic_candidate) != 0;
+  bool intrinsic_candidate() const {
+    return carbide::utility::flags::is_set(_flags, _intrinsic_candidate);
   }
   void set_intrinsic_candidate(bool x) {
-    _flags = x ? (_flags | _intrinsic_candidate) : (_flags & ~_intrinsic_candidate);
+    _flags = carbide::utility::flags::set_conditional(x, _flags, _intrinsic_candidate);
   }
 
-  bool has_injected_profile() {
-    return (_flags & _has_injected_profile) != 0;
+  bool has_injected_profile() const {
+    return carbide::utility::flags::is_set(_flags, _has_injected_profile);
   }
   void set_has_injected_profile(bool x) {
-    _flags = x ? (_flags | _has_injected_profile) : (_flags & ~_has_injected_profile);
+    _flags = carbide::utility::flags::set_conditional(x, _flags, _has_injected_profile);
   }
 
-  bool has_reserved_stack_access() {
-    return (_flags & _reserved_stack_access) != 0;
+  bool has_reserved_stack_access() const {
+    return carbide::utility::flags::is_set(_flags, _reserved_stack_access);
   }
-
   void set_has_reserved_stack_access(bool x) {
-    _flags = x ? (_flags | _reserved_stack_access) : (_flags & ~_reserved_stack_access);
+    _flags = carbide::utility::flags::set_conditional(x, _flags, _reserved_stack_access);
+  }
+
+  bool has_dont_precompile() const {
+    return carbide::utility::flags::is_set(_flags, _dont_precompile);
+  }
+  void set_dont_precompile(bool x) {
+    _flags = carbide::utility::flags::set_conditional(x, _flags, _dont_precompile);
   }
 
   JFR_ONLY(DEFINE_TRACE_FLAG_ACCESSOR;)

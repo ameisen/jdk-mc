@@ -787,7 +787,7 @@ public abstract class X11InputMethodBase extends InputMethodAdapter {
         }
 
         public String toString() {
-            StringBuffer s = new StringBuffer();
+            StringBuilder s = new StringBuilder();
             for (int i = 0; i < size;) {
                 s.append(intArray[i++]);
                 if (i < size)

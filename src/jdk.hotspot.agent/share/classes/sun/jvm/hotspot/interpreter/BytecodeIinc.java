@@ -66,7 +66,7 @@ public class BytecodeIinc extends BytecodeWideable {
   }
 
   public String toString() {
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     buf.append("iinc");
     buf.append(spaces);
     buf.append('#');

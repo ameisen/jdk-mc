@@ -2,6 +2,8 @@
 
 require File.join(__dir__, "rb", "runtime.rb")
 
+require 'etc'
+require 'open3'
 require 'sys/cpu'
 require 'pp'
 include Sys
@@ -11,18 +13,35 @@ CONFIG_NAME = "mc"
 BUILD_PLATFORM = System::build_platform
 TARGET_PLATFORM = BUILD_PLATFORM
 
-DEFAULT_GNU_CFLAGS = [
+DEFAULT_GNU_C_OPTFLAGS = [
 	"-O3",
-	"-fmerge-all-constants"
+	"-fmerge-all-constants",
+	"-fomit-frame-pointer",
+	"-fipa-pta"
+]
+
+DEFAULT_GNU_CFLAGS = DEFAULT_GNU_C_OPTFLAGS + [
+	"-Wno-unused-function",
+	"-pipe",
+	"-flto",
+	"-fuse-linker-plugin",
+	"-fdevirtualize-speculatively",
+	"-fdevirtualize-at-ltrans"
 ]
 
 DEFAULT_GNU_CXXFLAGS = DEFAULT_GNU_CFLAGS + [
-	"-fno-threadsafe-statics"
+	"-fno-threadsafe-statics",
+	"-Wno-volatile",
+	"-Wno-attributes",
 ]
 
 DEFAULT_GNU_LDFLAGS = [
 	"-Wl,--relax",
-	"-Wl,-O1"
+	"-Wl,-O1",
+	"-pipe",
+	"-flto",
+	"-fuse-linker-plugin",
+	"-fipa-pta"
 ]
 
 DEFAULT_LLVM_CFLAGS = [
@@ -36,9 +55,12 @@ DEFAULT_LLVM_CXXFLAGS = DEFAULT_LLVM_CFLAGS + [
 DEFAULT_LLVM_LDFLAGS = [
 ]
 
-DEFAULT_MSVC_CFLAGS = [
+DEFAULT_MSVC_C_OPTFLAGS = [
 	"/O2",
 	"/Ob3",
+]
+
+DEFAULT_MSVC_CFLAGS = DEFAULT_MSVC_C_OPTFLAGS + [
 	"/fp:fast",
 	"/GS-",
 	"/Qpar",
@@ -50,17 +72,113 @@ DEFAULT_MSVC_CFLAGS = [
 	"/Zc:__cplusplus",
 	"/Zc:forScope",
 	"/Zc:threadSafeInit-",
-	"/Zc:throwingNew"
+	"/Zc:throwingNew",
+	"/Zc:strictStrings-",
+	"/GL"
 ]
 
 DEFAULT_MSVC_CXXFLAGS = DEFAULT_MSVC_CFLAGS + [
-	"/std:c++17"
+	"/std:c++latest"
 ]
 
 DEFAULT_MSVC_LDFLAGS = [
+	"/LARGEADDRESSAWARE",
 	"/OPT:REF",
 	"/OPT:ICF"
 ]
+
+def debug_ccflags(flags)
+	gcc = false
+
+	flags = flags.map { |f|
+		if DEFAULT_GNU_C_OPTFLAGS.include?(f)
+			gcc = true
+			nil
+		elsif DEFAULT_MSVC_C_OPTFLAGS.include?(f)
+			gcc = false
+			nil
+		else
+			case f
+			when "-flto", /\-flto=.*/
+				"-fno-lto"
+			when "/O2"
+				"/O0"
+			when "/Ob3"
+				nil
+			else
+				f
+			end
+		end
+	}.filter { |f|
+		!(f.nil?)
+	}
+
+	if gcc
+		flags += [
+			"-fno-omit-frame-pointer",
+			"-O0",
+			"-ggdb",
+			"-fno-eliminate-unused-debug-symbols",
+			"-fvar-tracking",
+			"-gdescribe-dies",
+			"-gpubnames",
+			"-ggnu-pubnames",
+		]
+	else
+		flags += [
+			"/O0"
+		]
+	end
+
+	return flags
+end
+
+def debug_ldflags(flags)
+	return flags.map { |f|
+		case f
+		when "-O3"
+			"-O0"
+		when "-Wl,-O1"
+			nil
+		else
+			f
+		end
+	}.filter { |f|
+		!(f.nil?)
+	}
+end
+
+def executable_exists?(name)
+	stdout, status = Open3.capture2e("which", name)
+	return name if status.success?
+end
+
+SUPPORT_MAKEPP = false
+
+$makes_makepp = SUPPORT_MAKEPP ? [ "makepp", "make++" ] : []
+$makes_remake = [ "remake" ]
+$makes_gnumake = [ "make", "gmake" ]
+$makes_bsdmake = [ "make", "bmake" ]
+
+$sys_makepp = nil
+$sys_remake = nil
+$sys_make = nil
+
+($makes_remake + $makes_gnumake + $makes_bsdmake).uniq.compact.each { |mk|
+	if executable_exists?(mk)
+		# TODO fix this for BSD?
+		$sys_makepp = mk if ($sys_makepp.nil? && $makes_makepp.include?(mk))
+		$sys_remake = mk if ($sys_remake.nil? && $makes_remake.include?(mk))
+		$sys_make = mk if ($sys_make.nil? && $makes_gnumake.include?(mk))
+	end
+}
+
+def get_best_make
+	[$sys_makepp, $sys_remake, $sys_make].each { |mk|
+		return mk unless mk.nil?
+	}
+	return nil
+end
 
 # Include the global configuration file if there is one
 GLOBAL_BUILD_CFG_PATH = File.join(Dir.pwd, ".build.rb")
@@ -69,21 +187,6 @@ if File.exist?(GLOBAL_BUILD_CFG_PATH)
 	INCLUDED_GLOBAL_BUILD_CFG = true
 else
 	INCLUDED_GLOBAL_BUILD_CFG = false
-end
-
-module Architecture
-	NATIVE = "Native".upcase
-	HASWELL = "Haswell".upcase
-	SKYLAKE = "Skylake".upcase
-	SKYLAKE_X = "Skylake-X".upcase
-	INTEL = "Intel".upcase
-	ZEN_1 = "Zen 1".upcase
-	ZEN_2 = "Zen 2".upcase
-	K10 = "K10".upcase
-	AMD = "AMD".upcase
-	DEFAULT = "Default".upcase
-
-	include AutoInstance(self)
 end
 
 module Toolchains
@@ -102,52 +205,25 @@ module Toolchains
 	end
 
 	def self.get_arch(toolchain, architecture)
+		flags = []
+
 		case toolchain
 		when MSVC
-			bias = "Intel"
-			isa = "AVX" # AVX2 AVX512
-			case architecture
-			when Architecture::NATIVE
-				bias = CPU.model.downcase.include?("intel") ? "Intel" : "AMD"
-				# TODO fixme
-				# We don't set AVX512 or AVX2 because, well, that's generally a not good idea due to downclocking.
-				isa = "AVX"
-			when Architecture::ZEN_1, Architecture::ZEN_2
-				bias = "AMD"
-				isa = "AVX"
-			when Architecture::K10, Architecture::AMD
-				bias = "AMD"
-				isa = nil
-			when Architecture::DEFAULT
-				isa = nil
+			if architecture.manufacturer == Architectures::Manufacturers::INTEL
+				flags << "/QIntel-jcc-erratum"
 			end
-			extras = []
-			if bias == "Intel"
-				extras = ["/QIntel-jcc-erratum"]
-			end
-			if isa.nil?
-				return ["/favor:#{(bias == "Intel") ? "INTEL64" : "AMD64"}"] + extras
-			else
-				return ["/arch:#{isa}", "/favor:#{(bias == "Intel") ? "INTEL64" : "AMD64"}"] + extras
-			end
+			flags += architecture.cc_flags(gcc: false)
 		when GNU, LLVM
-			return {
-				Architecture::NATIVE => ["--march=native"],
-				Architecture::HASWELL => ["--march=haswell"],
-				Architecture::SKYLAKE => ["--march=skylake"],
-				Architecture::SKYLAKE_X => ["--march=skylake-avx512"],
-				Architecture::INTEL => ["--mtune=nehalem"],
-				Architecture::ZEN_1 => ["--march=znver1"],
-				Architecture::ZEN_2 => ["--march=znver2"],
-				Architecture::K10 => ["--march=amdfam10"],
-				Architecture::AMD => ["--mtune=amdfam10"],
-				Architecture::DEFAULT => ["--mtune=core2"],
-			}[architecture]
+			flags += architecture.cc_flags(gcc: true)
 		end
+
+		return flags
 	end
 
 	include AutoInstance(self)
 end
+
+$DEFAULT_MAKE = get_best_make()
 
 module Options
 	@toolchain = Toolchains::get_default
@@ -156,7 +232,10 @@ module Options
 	@cflags = nil
 	@cxxflags = nil
 	@ldflags = nil
-	@arch = Architecture::HASWELL
+	@arch = Architectures::Intel::HASWELL
+	@debug = false
+	@jobs = Etc.nprocessors
+	@make = $DEFAULT_MAKE
 
 	module Pass
 		@cleared = false
@@ -217,6 +296,9 @@ cmd_arguments = {
 		Options::Pass::clear if flag
 		Options::Pass::install = flag
 	} ],
+	"debug" => [ Argument::FLAG, proc { |name, flag|
+		Options::debug = flag
+	} ],
 	"clear" => [ Argument::FLAG, proc { |name, flag|
 		Options::Pass::clear_term = flag
 	} ],
@@ -232,6 +314,34 @@ cmd_arguments = {
 	"arch" => [ Argument::FUNCTION, proc { |cmd, arg|
 		Options::arch = arg.upcase
 	} ],
+	"jobs" => [ Argument::FUNCTION, proc { |cmd, arg|
+		arg = arg.downcase
+		if arg == "auto"
+			Options::jobs = Etc.nprocessors
+		elsif arg == "none"
+			Options::jobs = 1
+		else
+			jobs = arg.to_i
+			if jobs == 0
+				Options::jobs = 1
+			elsif jobs < 0
+				jobs = -jobs
+				jobs = [Etc.nprocessors - jobs, 1].max
+				Options::jobs = jobs
+			else
+				Options::jobs = jobs
+			end
+		end
+	} ],
+	"with-make" => [ Argument::FUNCTION, proc { |cmd, arg|
+		Options::make = $sys_make if flag
+	} ],
+	"with-remake" => [ Argument::FLAG, proc { |name, flag|
+		Options::make = $sys_remake if flag
+	} ],
+	"with-makepp" => [ Argument::FLAG, proc { |name, flag|
+		Options::make = $sys_makepp if flag
+	} ],
 }
 
 Argument.process(ARGV, cmd_arguments)
@@ -241,6 +351,30 @@ Options::cflags, Options::cxxflags, Options::ldflags = *{
 	Toolchains::LLVM => [DEFAULT_LLVM_CFLAGS, DEFAULT_LLVM_CXXFLAGS, DEFAULT_LLVM_LDFLAGS],
 	Toolchains::MSVC => [DEFAULT_MSVC_CFLAGS, DEFAULT_MSVC_CXXFLAGS, DEFAULT_MSVC_LDFLAGS]
 }[Options::toolchain]
+
+[Options::cflags, Options::cxxflags, Options::ldflags].each {|flags|
+	flags.map!{ |flag|
+		case flag
+		when "-flto"
+			(Options::toolchain == Toolchains::GNU) ? "-flto=#{Options::jobs}" : "-flto=thin"
+			#(Options::toolchain == Toolchains::GNU) ? "-flto=1" : "-flto=thin"
+		else
+			flag
+		end
+	}
+}
+
+if Options::debug
+	Options::cflags = debug_ccflags(Options::cflags)
+	Options::cxxflags = debug_ccflags(Options::cxxflags)
+	Options::ldflags = debug_ldflags(Options::ldflags)
+end
+
+if Options::arch.is_a?(String)
+	arch_name = Options::arch
+	Options::arch = Architectures::get(arch_name)
+	raise "Unknown Architecture: #{arch_name}"
+end
 
 architecture_flags = Toolchains::get_arch(Options::toolchain, Options::arch)
 Options::cflags += architecture_flags
@@ -279,9 +413,100 @@ TARGET_NAME = {
 	"MSys" => "windows"
 }[TARGET_PLATFORM.name]
 
+def parse_jdk_version_file(path)
+	lines = []
+	File.open(path).each { |line|
+		quote = nil
+		escape = false
+		comment = false
+
+		lines << ""
+
+		line.each_char { |c|
+			break if comment
+
+			escaped = escape
+
+			out_char = nil
+
+			case c
+			when quote
+				if escape
+					out_char = c
+				else
+					quote = nil
+				end
+			when '\"', '\''
+				if quote.nil?
+					out_char = c
+				else
+					quote = c
+				end
+			when '\\'
+				if escape || quote.nil?
+					out_char = '\\'
+				else
+					escape = true
+				end
+			when '#'
+					if !(quote.nil?) || escape
+						out_char = '#'
+					else
+						comment = true
+					end
+			else
+				out_char = c
+			end
+
+			break if comment
+
+			escape = false if escaped
+
+			next if c.nil?
+			lines[-1] += c
+		}
+
+		lines[-1].strip!
+
+		raise "unterminated quote in '#{line}'" unless quote.nil?
+		raise "escape without determiner in '#{line}'" if escape
+	}
+
+	result = Hash.new
+
+	lines.each { |line|
+		next if line.empty?
+
+		line = line.split("=", 2)
+
+		raise "invalid config line: '#{line}'" if (line.size != 2)
+
+		key = line[0].strip
+		value = line[1].strip
+
+		result[key] = value
+	}
+
+	return result
+end
+
+JDK_VERSION_HASH = parse_jdk_version_file(File.join(Directory::build_root, "make", "autoconf", "version-numbers"))
+
+JDK_VERSION_HASH.each { |key, value|
+	puts "\t'#{key}'' = '#{value}''"
+}
+
+puts "\tArchitecture: #{Options::arch.to_s}"
+puts "\tManufacturer: #{Options::arch.manufacturer.to_s}"
+puts "\tcflags: #{Options::cflags.to_s}"
+puts "\tcxxflags: #{Options::cxxflags.to_s}"
+puts "\tldflags: #{Options::ldflags.to_s}"
+
 TARGET_ARCH = "x86_64"
 
-FULL_CONFIG_NAME = "#{TARGET_NAME}-#{TARGET_ARCH}-#{CONFIG_NAME}-release"
+CONFIG_TYPE = Options::debug ? "slowdebug" : "release"
+
+FULL_CONFIG_NAME = "#{TARGET_NAME}-#{TARGET_ARCH}-#{CONFIG_NAME}-#{CONFIG_TYPE}"
 
 puts "Building: '#{FULL_CONFIG_NAME}'"
 
@@ -305,6 +530,7 @@ IN_BUILD_ROOT = Directory.same?(Directory::build, Directory::build_root)
 
 ExecutePass("Cleaning Pass", Error::Flag::CLEAN) {
 	Directory.delete(File.join(Directory::build, FULL_CONFIG_NAME), recursive: true)
+	Directory.delete(File.join(Directory::build, ".configure-support"), recursive: true)
 	Directory.make(Directory::build) if IN_BUILD_ROOT
 	File.delete(File.join(Directory::build, "#{FULL_CONFIG_NAME}.config.cache"))
 	File.delete(File.join(Directory::build_root, "#{FULL_CONFIG_NAME}.config.cache"))
@@ -402,13 +628,13 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 
 		with_flags = [
 			"target-bits=64",
-			"debug-level=release",
+			"debug-level=#{CONFIG_TYPE}",
 			"jvm-variants=#{CONFIG_NAME}",
 			"vendor-name=Digital Carbide",
 			"vendor-url=https://www.digitalcarbide.com/",
-			"version-pre=Minecraft",
+			"version-pre=#{JDK_VERSION_HASH["DEFAULT_VERSION_PATCH"]}-mc",
 			"version-opt=#{DateTime.now.strftime("%y.%m.%d.%H.%M")}",
-			"native-debug-symbols=none"
+			"native-debug-symbols=#{(Options::debug ? "internal" : "none")}"
 		]
 
 		if (TARGET_PLATFORM.is?(System::Platforms::WINDOWS))
@@ -444,7 +670,7 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 
 		llvm = (Options::toolchain == Toolchains::LLVM)
 
-		ENV["PATH"] = File.join(__dir__, "alias", "interpreter") + ":" + ENV["PATH"]
+		ENV["PATH"] = File.join(Directory::build_root, "alias", "interpreter") + ":" + ENV["PATH"]
 
 		extra_cflags = []
 
@@ -473,9 +699,12 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 				ENV["SYMBOLIZER"] = "llvm-symbolizer"
 			end
 		else
-			ENV["CC"] = File.join(__dir__, "alias", llvm ? "clang" : "gcc")
-			ENV["CXX"] = File.join(__dir__, "alias", llvm ? "clang++" : "g++")
-			ENV["CPP"] = File.join(__dir__, "alias", llvm ? "clang-cpp" : "cpp")
+			ENV["CC"] = File.join(Directory::build_root, "alias", llvm ? "clang" : "gcc")
+			ENV["CXX"] = File.join(Directory::build_root, "alias", llvm ? "clang++" : "g++")
+			ENV["CPP"] = File.join(Directory::build_root, "alias", llvm ? "clang-cpp" : "cpp")
+			ENV["NM"] = File.join(Directory::build_root, "alias", llvm ? "llvm-nm" : "nm")
+			ENV["AR"] = File.join(Directory::build_root, "alias", llvm ? "llvm-ar" : "ar")
+			ENV["RANLIB"] = File.join(Directory::build_root, "alias", llvm ? "llvm-ranlib" : "ranlib")
 
 			configure_add_env.call("NM")
 			configure_add_env.call("AR")
@@ -514,7 +743,7 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 			)
 		end
 
-		execute("bash", "configure", *configure_flags)
+		execute("bash", "configure", "MAKE=#{Options::make}",*configure_flags)
 	}
 } if Options::Pass::configure
 
@@ -522,9 +751,12 @@ ExecutePass("Build Pass", Error::Flag::BUILD) {
 	Directory.make(Directory::build)
 
 	Directory.enter(Directory::build_root, must: true) {
-		jobs = Etc.nprocessors
-
-		execute("make", "JOBS=#{jobs}", "CONF=#{FULL_CONFIG_NAME}", Options::project ? "hotspot-ide-project" : "images")
+		execute(
+			Options::make,
+			"JOBS=#{Options::jobs}",
+			"CONF=#{FULL_CONFIG_NAME}",
+			Options::project ? "hotspot-ide-project" : "images"
+		)
 	}
 } if Options::Pass::build
 

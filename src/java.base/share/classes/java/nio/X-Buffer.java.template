@@ -1369,7 +1369,7 @@ public abstract class $Type$Buffer
         super.position(newPosition);
         return this;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -1382,12 +1382,12 @@ public abstract class $Type$Buffer
         super.limit(newLimit);
         return this;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public 
+    public
 #if[!byte]
     final
 #end[!byte]
@@ -1400,7 +1400,7 @@ public abstract class $Type$Buffer
      * {@inheritDoc}
      */
     @Override
-    public 
+    public
 #if[!byte]
     final
 #end[!byte]
@@ -1413,7 +1413,7 @@ public abstract class $Type$Buffer
      * {@inheritDoc}
      */
     @Override
-    public 
+    public
 #if[!byte]
     final
 #end[!byte]
@@ -1426,7 +1426,7 @@ public abstract class $Type$Buffer
      * {@inheritDoc}
      */
     @Override
-    public 
+    public
 #if[!byte]
     final
 #end[!byte]
@@ -1439,7 +1439,7 @@ public abstract class $Type$Buffer
      * {@inheritDoc}
      */
     @Override
-    public 
+    public
 #if[!byte]
     final
 #end[!byte]
@@ -1519,7 +1519,7 @@ public abstract class $Type$Buffer
      * @return  A summary string
      */
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(getClass().getName());
         sb.append("[pos=");
         sb.append(position());
@@ -1975,7 +1975,7 @@ public abstract class $Type$Buffer
      * <blockquote><pre>
      * alignmentOffset(index + (unitSize - value), unitSize) == 0</pre></blockquote>
      * must hold.
-     * 
+     *
      * @apiNote
      * This method may be utilized to determine if unit size bytes from an
      * index can be accessed atomically, if supported by the native platform.

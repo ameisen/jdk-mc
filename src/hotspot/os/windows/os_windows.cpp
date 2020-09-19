@@ -4348,17 +4348,17 @@ static void set_path_prefix(char* buf, LPWSTR* prefix, int* prefix_off, bool* ne
   *needs_fullpath = true;
 
   if (::isalpha(buf[0]) && !::IsDBCSLeadByte(buf[0]) && buf[1] == ':' && buf[2] == '\\') {
-    *prefix = L"\\\\?\\";
+    *prefix = LPWSTR(L"\\\\?\\");
   } else if (buf[0] == '\\' && buf[1] == '\\') {
     if (buf[2] == '?' && buf[3] == '\\') {
-      *prefix = L"";
+      *prefix = LPWSTR(L"");
       *needs_fullpath = false;
     } else {
-      *prefix = L"\\\\?\\UNC";
+      *prefix = LPWSTR(L"\\\\?\\UNC");
       *prefix_off = 1; // Overwrite the first char with the prefix, so \\share\path becomes \\?\UNC\share\path
     }
   } else {
-    *prefix = L"\\\\?\\";
+    *prefix = LPWSTR(L"\\\\?\\");
   }
 }
 

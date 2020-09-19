@@ -25,6 +25,7 @@
 #ifndef SHARE_UTILITIES_DEBUG_HPP
 #define SHARE_UTILITIES_DEBUG_HPP
 
+#include "../../../common"
 #include "utilities/breakpoint.hpp"
 #include "utilities/compilerWarnings.hpp"
 #include "utilities/macros.hpp"
@@ -91,12 +92,19 @@ do {                                                                           \
 // For backward compatibility.
 #define assert_status(p, status, msg) vmassert_status(p, status, msg)
 
+#ifndef ASSERT
+# define _debug_unreachable _unreachable
+#else
+# define _debug_unreachable do {} while (0)
+#endif
+
 // guarantee is like vmassert except it's always executed -- use it for
 // cheap tests that catch errors that would otherwise be hard to find.
 // guarantee is also used for Verify options.
 #define guarantee(p, ...)                                                         \
 do {                                                                              \
   if (!(p)) {                                                                     \
+    _debug_unreachable; \
     TOUCH_ASSERT_POISON;                                                          \
     report_vm_error(__FILE__, __LINE__, "guarantee(" #p ") failed", __VA_ARGS__); \
     BREAKPOINT;                                                                   \
@@ -105,6 +113,7 @@ do {                                                                            
 
 #define fatal(...)                                                                \
 do {                                                                              \
+  _debug_unreachable; \
   TOUCH_ASSERT_POISON;                                                            \
   report_fatal(__FILE__, __LINE__, __VA_ARGS__);                                  \
   BREAKPOINT;                                                                     \
@@ -113,12 +122,14 @@ do {                                                                            
 // out of memory
 #define vm_exit_out_of_memory(size, vm_err_type, ...)                             \
 do {                                                                              \
+  _debug_unreachable; \
   report_vm_out_of_memory(__FILE__, __LINE__, size, vm_err_type, __VA_ARGS__);    \
   BREAKPOINT;                                                                     \
 } while (0)
 
 #define ShouldNotCallThis()                                                       \
 do {                                                                              \
+  _debug_unreachable; \
   TOUCH_ASSERT_POISON;                                                            \
   report_should_not_call(__FILE__, __LINE__);                                     \
   BREAKPOINT;                                                                     \
@@ -126,6 +137,7 @@ do {                                                                            
 
 #define ShouldNotReachHere()                                                      \
 do {                                                                              \
+  _debug_unreachable; \
   TOUCH_ASSERT_POISON;                                                            \
   report_should_not_reach_here(__FILE__, __LINE__);                               \
   BREAKPOINT;                                                                     \
@@ -133,6 +145,7 @@ do {                                                                            
 
 #define Unimplemented()                                                           \
 do {                                                                              \
+  _debug_unreachable; \
   TOUCH_ASSERT_POISON;                                                            \
   report_unimplemented(__FILE__, __LINE__);                                       \
   BREAKPOINT;                                                                     \

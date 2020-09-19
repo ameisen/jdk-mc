@@ -1,0 +1,8 @@
+#pragma once
+
+#ifndef _SRC_COMMON_INCLUDE
+#	define _SRC_COMMON_INCLUDE
+
+#	include "src.common/common.h"
+
+#endif // _SRC_COMMON_INCLUDE

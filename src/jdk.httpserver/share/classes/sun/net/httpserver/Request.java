@@ -58,7 +58,7 @@ class Request {
 
     char[] buf = new char [BUF_LEN];
     int pos;
-    StringBuffer lineBuf;
+    StringBuilder lineBuf;
 
     public InputStream inputStream () {
         return is;
@@ -75,7 +75,7 @@ class Request {
 
     public String readLine () throws IOException {
         boolean gotCR = false, gotLF = false;
-        pos = 0; lineBuf = new StringBuffer();
+        pos = 0; lineBuf = new StringBuilder();
         while (!gotLF) {
             int c = is.read();
             if (c == -1) {

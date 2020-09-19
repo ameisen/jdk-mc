@@ -789,6 +789,8 @@ AC_DEFUN_ONCE([TOOLCHAIN_DETECT_TOOLCHAIN_CORE],
     AC_CHECK_PROG([AR], [lib$EXE_SUFFIX],[lib$EXE_SUFFIX],,,)
   elif test "x$TOOLCHAIN_TYPE" = xgcc; then
     UTIL_CHECK_TOOLS(AR, gcc-ar ar)
+  elif test "x$TOOLCHAIN_TYPE" = xclang; then
+    UTIL_CHECK_TOOLS(NM, llvm-ar ar)
   else
     UTIL_CHECK_TOOLS(AR, ar)
   fi
@@ -832,6 +834,8 @@ AC_DEFUN_ONCE([TOOLCHAIN_DETECT_TOOLCHAIN_EXTRA],
     UTIL_FIXUP_EXECUTABLE(STRIP)
     if test "x$TOOLCHAIN_TYPE" = xgcc; then
       UTIL_CHECK_TOOLS(NM, gcc-nm nm)
+    elif test "x$TOOLCHAIN_TYPE" = xclang; then
+      UTIL_CHECK_TOOLS(NM, llvm-nm nm)
     else
       UTIL_CHECK_TOOLS(NM, nm)
     fi

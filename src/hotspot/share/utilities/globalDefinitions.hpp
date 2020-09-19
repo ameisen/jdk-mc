@@ -960,17 +960,20 @@ inline intptr_t bitfield(intptr_t x, int start_bit_no, int field_length) {
 #undef min
 #endif
 
+#include <algorithm>
+#include <initializer_list>
+
 // It is necessary to use templates here. Having normal overloaded
 // functions does not work because it is necessary to provide both 32-
 // and 64-bit overloaded functions, which does not work, and having
 // explicitly-typed versions of these routines (i.e., MAX2I, MAX2L)
 // will be even more error-prone than macros.
-template<class T> inline T MAX2(T a, T b)           { return (a > b) ? a : b; }
-template<class T> inline T MIN2(T a, T b)           { return (a < b) ? a : b; }
-template<class T> inline T MAX3(T a, T b, T c)      { return MAX2(MAX2(a, b), c); }
-template<class T> inline T MIN3(T a, T b, T c)      { return MIN2(MIN2(a, b), c); }
-template<class T> inline T MAX4(T a, T b, T c, T d) { return MAX2(MAX3(a, b, c), d); }
-template<class T> inline T MIN4(T a, T b, T c, T d) { return MIN2(MIN3(a, b, c), d); }
+template<class T> inline T MAX2(T a, T b)           { return std::max(a, b); }
+template<class T> inline T MIN2(T a, T b)           { return std::min(a, b); }
+template<class T> inline T MAX3(T a, T b, T c)      { return std::max({a, b, c}); }
+template<class T> inline T MIN3(T a, T b, T c)      { return std::min({a, b, c}); }
+template<class T> inline T MAX4(T a, T b, T c, T d) { return std::max({a, b, c, d}); }
+template<class T> inline T MIN4(T a, T b, T c, T d) { return std::min({a, b, c, d}); }
 
 template<class T> inline T ABS(T x)                 { return (x > 0) ? x : -x; }
 

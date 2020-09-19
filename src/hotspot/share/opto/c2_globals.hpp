@@ -180,7 +180,7 @@
            "Map number of unrolls for main loop via "                       \
            "Superword Level Parallelism analysis")                          \
                                                                             \
-  experimental(bool, PostLoopMultiversioning, false,                        \
+  experimental(bool, PostLoopMultiversioning, true,                         \
            "Multi versioned post loops to eliminate range checks")          \
                                                                             \
   notproduct(bool, TraceSuperWordLoopUnrollAnalysis, false,                 \
@@ -207,7 +207,7 @@
           "unrolling. Zero acts as a very large value." )                   \
           range(0, max_intx)                                                \
                                                                             \
-  product(intx, MultiArrayExpandLimit, 6,                                   \
+  product(intx, MultiArrayExpandLimit, 8,                                   \
           "Maximum number of individual allocations in an inline-expanded " \
           "multianewarray instruction")                                     \
           range(0, max_jint)                                                \
@@ -531,7 +531,7 @@
   notproduct(bool, PrintEliminateAllocations, false,                        \
           "Print out when allocations are eliminated")                      \
                                                                             \
-  product(intx, EliminateAllocationArraySizeLimit, 4096,                    \
+  product(intx, EliminateAllocationArraySizeLimit, 8192,                    \
           "Array size (number of elements) limit for scalar replacement")   \
           range(0, max_jint)                                                \
                                                                             \
@@ -541,7 +541,7 @@
   notproduct(bool, PrintOptimizePtrCompare, false,                          \
           "Print information about optimized pointers compare")             \
                                                                             \
-  notproduct(bool, VerifyConnectionGraph , true,                            \
+  notproduct(bool, VerifyConnectionGraph , false,                           \
           "Verify Connection Graph construction in Escape Analysis")        \
                                                                             \
   product(bool, UseOptoBiasInlining, true,                                  \
@@ -683,7 +683,7 @@
           "compiler")                                                       \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, MaxRecursiveInlineLevel, 1,                                 \
+  product(intx, MaxRecursiveInlineLevel, 8,                                 \
           "maximum number of nested recursive calls that are inlined by "   \
           "high tier compiler")                                             \
           range(0, max_jint)                                                \

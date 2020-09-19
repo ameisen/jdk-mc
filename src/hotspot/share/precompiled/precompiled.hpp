@@ -27,7 +27,7 @@
 
 
 // Always include this anyways.
-#include "../../../common.hpp"
+#include "../../../common"
 #ifndef DONT_USE_PRECOMPILED_HEADER
 
 // These header files are included in at least 130 C++ files, as of

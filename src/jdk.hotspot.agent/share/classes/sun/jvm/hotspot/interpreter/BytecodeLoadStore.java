@@ -32,7 +32,7 @@ public abstract class BytecodeLoadStore extends BytecodeWideable {
   }
 
   public String toString() {
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     buf.append(getJavaBytecodeName());
     buf.append(spaces);
     buf.append('#');

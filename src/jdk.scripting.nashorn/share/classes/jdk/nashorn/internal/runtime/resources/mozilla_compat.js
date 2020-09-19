@@ -168,7 +168,7 @@ Object.defineProperty(Object.prototype, "toSource", {
             return "{}";
         }
         state.add(this);
-        var str = new java.lang.StringBuffer('({');
+        var str = new java.lang.StringBuilder('({');
         for (i in this) {
             str.append(i);
             str.append(':');

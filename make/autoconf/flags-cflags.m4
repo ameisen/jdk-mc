@@ -147,7 +147,7 @@ AC_DEFUN([FLAGS_SETUP_WARNINGS],
       WARNINGS_ENABLE_ADDITIONAL_CXX="-Woverloaded-virtual -Wreorder"
 
       WARNINGS_ENABLE_ALL_CFLAGS="esyscmd(cat ./cflags) -Wall -Wextra -Wformat=2 $WARNINGS_ENABLE_ADDITIONAL -Wno-shift-negative-value -Wno-error=cpp -Wno-cpp -Wno-maybe-uninitialized"
-      WARNINGS_ENABLE_ALL_CXXFLAGS="-std=gnu++17 esyscmd(cat ./cxxflags) $WARNINGS_ENABLE_ALL_CFLAGS $WARNINGS_ENABLE_ADDITIONAL_CXX -Wno-deprecated-copy"
+      WARNINGS_ENABLE_ALL_CXXFLAGS="-std=gnu++2a esyscmd(cat ./cxxflags) $WARNINGS_ENABLE_ALL_CFLAGS $WARNINGS_ENABLE_ADDITIONAL_CXX -Wno-deprecated-copy"
 
 
       DISABLED_WARNINGS="unused-parameter unused"
@@ -468,7 +468,7 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_HELPER],
   if test "x$TOOLCHAIN_TYPE" = xgcc || test "x$TOOLCHAIN_TYPE" = xclang; then
     # COMMON to gcc and clang
     TOOLCHAIN_CFLAGS_JVM="-pipe -fno-rtti -fno-exceptions \
-        -fvisibility=hidden -fno-strict-aliasing -fomit-frame-pointer"
+        -fvisibility=hidden -fno-strict-aliasing"
   fi
 
   if test "x$TOOLCHAIN_TYPE" = xgcc; then
@@ -720,7 +720,7 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_CPU_DEP],
       $1_CFLAGS_CPU_JDK="${$1_CFLAGS_CPU_JDK} -fno-omit-frame-pointer"
     fi
 
-    $1_CXXSTD_CXXFLAG="-std=gnu++17"
+    $1_CXXSTD_CXXFLAG="-std=gnu++2a"
     FLAGS_CXX_COMPILER_CHECK_ARGUMENTS(ARGUMENT: [${$1_CXXSTD_CXXFLAG}],
         PREFIX: $3, IF_FALSE: [$1_CXXSTD_CXXFLAG=""])
     $1_TOOLCHAIN_CFLAGS_JDK_CXXONLY="${$1_CXXSTD_CXXFLAG}"
@@ -752,7 +752,7 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_CPU_DEP],
       fi
     fi
 
-    $1_CXXSTD_CXXFLAG="-std:c++17 -D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS=1"
+    $1_CXXSTD_CXXFLAG="-std:c++latest -D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS=1"
     $1_TOOLCHAIN_CFLAGS_JDK_CXXONLY="${$1_CXXSTD_CXXFLAG}"
     $1_TOOLCHAIN_CFLAGS_JVM="${$1_TOOLCHAIN_CFLAGS_JVM} ${$1_CXXSTD_CXXFLAG}"
     $2ADLC_CXXFLAG="${$1_CXXSTD_CXXFLAG}"

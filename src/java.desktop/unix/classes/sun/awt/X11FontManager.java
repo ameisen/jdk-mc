@@ -487,8 +487,8 @@ public final class X11FontManager extends FcFontManager {
             return name; // what else can we do?
         }
 
-        StringBuffer sb =
-            new StringBuffer(name.substring(hPos[FAMILY_NAME_FIELD-1],
+        StringBuilder sb =
+            new StringBuilder(name.substring(hPos[FAMILY_NAME_FIELD-1],
                                             hPos[SETWIDTH_NAME_FIELD]));
         sb.append(name.substring(hPos[CHARSET_REGISTRY_FIELD-1]));
         String retval = sb.toString().toLowerCase (Locale.ENGLISH);
@@ -536,8 +536,8 @@ public final class X11FontManager extends FcFontManager {
             && encoding.equals("fontspecific")){
             registry = "adobe";
         }
-        StringBuffer sb =
-            new StringBuffer(name.substring(hPos[FAMILY_NAME_FIELD-1],
+        StringBuilder sb =
+            new StringBuilder(name.substring(hPos[FAMILY_NAME_FIELD-1],
                                             hPos[SLANT_FIELD-1]+1));
         sb.append(slant);
         sb.append(name.substring(hPos[SLANT_FIELD],

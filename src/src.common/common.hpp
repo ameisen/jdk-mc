@@ -59,7 +59,32 @@ namespace carbide {
 		}
 	}
 
-	template <typename T> using arg_type = std::conditional_t<detail::passing::by_value<T>, T, const T & __restrict>;
+	// Chooses the best type (by reference or by value) for the given type based upon its size and the system ABI.
+	template <typename T> using arg_t = std::conditional_t<detail::passing::by_value<T>, T, const T & __restrict>;
 }
 
+#if _HAS_INT128
+namespace carbide {
+	using int128_t = __int128;
+	using uint128_t = unsigned __int128;
+
+	template <typename T>
+	static constexpr T make_int128(std::uint64_t high, std::uint64_t low) {
+		return T((uint128_t(high) << 64) | uint128_t(low));
+	}
+}
+#endif
+
+#include "spec_helpers.hpp"
+#include "c_ext.hpp"
+#include "utility.hpp"
+#include "hashing.hpp"
+#include "dump/dump.hpp"
+#include "string_switch.hpp"
+#include "method_overrides.hpp"
+
+#include "Locks.hpp"
+#include "Sizes.hpp"
+
 using namespace carbide;
+using namespace carbide::sizes;

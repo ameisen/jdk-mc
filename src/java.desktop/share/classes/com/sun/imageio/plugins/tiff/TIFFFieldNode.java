@@ -122,7 +122,7 @@ public class TIFFFieldNode extends IIOMetadataNode {
                 child = new IIOMetadataNode("TIFFUndefined");
 
                 byte[] data = field.getAsBytes();
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < count; i++) {
                     sb.append(Integer.toString(data[i] & 0xff));
                     if (i < count - 1) {

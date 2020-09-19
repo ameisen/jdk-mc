@@ -35,7 +35,7 @@ public abstract class BytecodeJmp extends Bytecode {
   public abstract int getTargetBCI();
 
   public String toString() {
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     buf.append(getJavaBytecodeName());
     buf.append(spaces);
     buf.append(Integer.toString(getTargetBCI()));

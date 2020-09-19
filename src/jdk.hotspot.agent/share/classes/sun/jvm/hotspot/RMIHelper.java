@@ -93,7 +93,7 @@ public class RMIHelper {
         // we have to transform this as //host[:port]/<serverNamePrefix>['_'<unique_id>]
 
         int index = debugServerID.indexOf('@');
-        StringBuffer nameBuf = new StringBuffer("//");
+        StringBuilder nameBuf = new StringBuilder("//");
         String uniqueID = null;
         if (index != -1) {
             nameBuf.append(debugServerID.substring(index + 1));

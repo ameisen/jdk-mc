@@ -575,7 +575,7 @@ class HTMLCodec extends InputStream {
         if (n >= 0 && len < width) {
             char[] array = new char[width - len];
             Arrays.fill(array, '0');
-            StringBuffer buffer = new StringBuffer(width);
+            StringBuilder buffer = new StringBuilder(width);
             buffer.append(array);
             buffer.append(string);
             string = buffer.toString();

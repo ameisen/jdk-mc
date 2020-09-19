@@ -466,8 +466,8 @@ public class SearchFilter implements AttrFilter {
         return answer;
     }
 
-    // Writes the hex representation of a byte to a StringBuffer.
-    private static void hexDigit(StringBuffer buf, byte x) {
+    // Writes the hex representation of a byte to a StringBuilder.
+    private static void hexDigit(StringBuilder buf, byte x) {
         char c;
 
         c = (char) ((x >> 4) & 0xf);
@@ -507,7 +507,7 @@ public class SearchFilter implements AttrFilter {
         if (obj instanceof byte[]) {
             // binary data must be encoded as \hh where hh is a hex char
             byte[] bytes = (byte[])obj;
-            StringBuffer b1 = new StringBuffer(bytes.length*3);
+            StringBuilder b1 = new StringBuilder(bytes.length*3);
             for (int i = 0; i < bytes.length; i++) {
                 b1.append('\\');
                 hexDigit(b1, bytes[i]);

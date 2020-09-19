@@ -105,7 +105,7 @@ public class Bytecode {
   }
 
   public String toString() {
-    StringBuffer buf = new StringBuffer(getJavaBytecodeName());
+    StringBuilder buf = new StringBuilder(getJavaBytecodeName());
     if (code() != javaCode()) {
        buf.append(spaces);
        buf.append('[');

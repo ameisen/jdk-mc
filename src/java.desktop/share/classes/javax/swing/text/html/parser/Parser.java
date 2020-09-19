@@ -1616,7 +1616,7 @@ class Parser implements DTDConstants {
      *         otherwise {@code false}
      * @throws IOException if an I/O error occurs
      */
-    protected boolean parseMarkupDeclarations(StringBuffer strBuff) throws IOException {
+    protected boolean parseMarkupDeclarations(StringBuilder strBuff) throws IOException {
 
         /* Currently handles only the DOCTYPE */
         if ((strBuff.length() == "DOCTYPE".length()) &&
@@ -1711,7 +1711,7 @@ class Parser implements DTDConstants {
 
               default:
                 // deal with marked sections
-                StringBuffer strBuff = new StringBuffer();
+                StringBuilder strBuff = new StringBuilder();
                 while (true) {
                     strBuff.append((char)ch);
                     if (parseMarkupDeclarations(strBuff)) {

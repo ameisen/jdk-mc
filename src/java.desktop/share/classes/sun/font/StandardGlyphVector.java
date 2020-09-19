@@ -1821,9 +1821,9 @@ public class StandardGlyphVector extends GlyphVector {
         return appendString(null).toString();
     }
 
-    StringBuffer appendString(StringBuffer buf) {
+    StringBuilder appendString(StringBuilder buf) {
         if (buf == null) {
-            buf = new StringBuffer();
+            buf = new StringBuilder();
         }
         try {
             buf.append("SGV{font: ");
@@ -1904,9 +1904,9 @@ public class StandardGlyphVector extends GlyphVector {
             return toStringBuffer(null).toString();
         }
 
-        protected StringBuffer toStringBuffer(StringBuffer result) {
+        protected StringBuilder toStringBuffer(StringBuilder result) {
             if (result == null) {
-                result = new StringBuffer();
+                result = new StringBuilder();
             }
             result.append("ax: ");
             result.append(ascentX);

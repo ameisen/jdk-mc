@@ -13,3 +13,6 @@ require 'etc'
 require 'fileutils'
 require 'open3'
 require 'date'
+
+# build system specific
+_runtime_require 'architecture.rb'

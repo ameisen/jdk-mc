@@ -36,6 +36,8 @@
 #include "jvmci/jvmciCompiler.hpp"
 #endif
 
+#include <atomic>
+
 class nmethod;
 class nmethodLocker;
 
@@ -153,10 +155,10 @@ class CompileBroker: AllStatic {
 
  private:
   static bool _initialized;
-  static volatile bool _should_block;
+  static std::atomic_bool _should_block;
 
   // This flag can be used to stop compilation or turn it back on
-  static volatile jint _should_compile_new_jobs;
+  static std::atomic<jint> _should_compile_new_jobs;
 
   // The installed compiler(s)
   static AbstractCompiler* _compilers[2];
@@ -171,8 +173,8 @@ class CompileBroker: AllStatic {
   static CompileLog **_compiler1_logs, **_compiler2_logs;
 
   // These counters are used for assigning id's to each compilation
-  static volatile jint _compilation_id;
-  static volatile jint _osr_compilation_id;
+  static std::atomic<jint> _compilation_id;
+  static std::atomic<jint> _osr_compilation_id;
 
   static CompileQueue* _c2_compile_queue;
   static CompileQueue* _c1_compile_queue;
@@ -224,7 +226,7 @@ class CompileBroker: AllStatic {
   static int _sum_nmethod_code_size;
   static long _peak_compilation_time;
 
-  static volatile int _print_compilation_warning;
+  static std::atomic_int _print_compilation_warning;
 
   static Handle create_thread_oop(const char* name, TRAPS);
   static JavaThread* make_thread(jobject thread_oop, CompileQueue* queue, AbstractCompiler* comp, Thread* THREAD);
@@ -325,7 +327,7 @@ public:
   // Call this from the compiler at convenient points, to poll for _should_block.
   static void maybe_block();
 
-  enum CompilerActivity {
+  enum CompilerActivit : jint {
     // Flags for toggling compiler activity
     stop_compilation     = 0,
     run_compilation      = 1,
@@ -333,11 +335,11 @@ public:
   };
 
   static jint get_compilation_activity_mode() { return _should_compile_new_jobs; }
-  static bool should_compile_new_jobs() { return UseCompiler && (_should_compile_new_jobs == run_compilation); }
+  static bool should_compile_new_jobs() { return _likely(UseCompiler) && (_should_compile_new_jobs.load() == run_compilation); }
   static bool set_should_compile_new_jobs(jint new_state) {
     // Return success if the current caller set it
-    jint old = Atomic::cmpxchg(&_should_compile_new_jobs, 1-new_state, new_state);
-    bool success = (old == (1-new_state));
+    int expected = 1 - new_state;
+    bool success = _should_compile_new_jobs.compare_exchange_strong(expected, new_state);
     if (success) {
       if (new_state == run_compilation) {
         _total_compiler_restarted_count++;
@@ -351,17 +353,17 @@ public:
   static void disable_compilation_forever() {
     UseCompiler               = false;
     AlwaysCompileLoopMethods  = false;
-    Atomic::xchg(&_should_compile_new_jobs, jint(shutdown_compilation));
+    _should_compile_new_jobs = shutdown_compilation;
   }
 
   static bool is_compilation_disabled_forever() {
-    return _should_compile_new_jobs == shutdown_compilation;
+    return _should_compile_new_jobs.load() == shutdown_compilation;
   }
   static void handle_full_code_cache(int code_blob_type);
   // Ensures that warning is only printed once.
   static bool should_print_compiler_warning() {
-    jint old = Atomic::cmpxchg(&_print_compilation_warning, 0, 1);
-    return old == 0;
+    int expected = 0;
+    return _print_compilation_warning.compare_exchange_strong(expected, 1);
   }
   // Return total compilation ticks
   static jlong total_compilation_ticks() {

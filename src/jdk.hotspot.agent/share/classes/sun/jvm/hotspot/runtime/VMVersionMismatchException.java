@@ -34,7 +34,7 @@ public class VMVersionMismatchException extends RuntimeException {
     }
 
     public String getMessage() {
-        StringBuffer msg = new StringBuffer();
+        StringBuilder msg = new StringBuilder();
         msg.append("Supported versions are ");
         msg.append(supportedVersions);
         msg.append(". Target VM is ");

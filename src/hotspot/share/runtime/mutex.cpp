@@ -32,6 +32,8 @@
 #include "utilities/events.hpp"
 #include "utilities/macros.hpp"
 
+#include <cstdlib>
+
 #ifdef ASSERT
 void Mutex::check_block_state(Thread* thread) {
   if (!_allow_vm_block && thread->is_VM_thread()) {
@@ -102,7 +104,7 @@ void Mutex::lock_contended(Thread* self) {
 void Mutex::lock(Thread* self) {
   check_safepoint_state(self);
 
-  assert(_owner != self, "invariant");
+  assert(_owner.load() != self, "invariant");
 
   if (!_lock.try_lock()) {
     // The lock is contended, use contended slow-path function to lock
@@ -125,7 +127,7 @@ void Mutex::lock() {
 
 void Mutex::lock_without_safepoint_check(Thread * self) {
   check_no_safepoint_state(self);
-  assert(_owner != self, "invariant");
+  assert(_owner.load() != self, "invariant");
   _lock.lock();
   assert_owner(NULL);
   set_owner(self);
@@ -264,22 +266,37 @@ bool Monitor::wait(long timeout, bool as_suspend_equivalent) {
 
 Mutex::~Mutex() {
   assert_owner(NULL);
+  free((char *)_name);
 }
 
 // Only Threads_lock, Heap_lock and SR_lock may be safepoint_check_sometimes.
-bool is_sometimes_ok(const char* name) {
-  return (strcmp(name, "Threads_lock") == 0 || strcmp(name, "Heap_lock") == 0 || strcmp(name, "SR_lock") == 0);
+#ifdef ASSERT
+static bool is_sometimes_ok(const char* name) {
+  string_switch(name) {
+    string_case("Threads_lock"):
+    string_case("Heap_lock"):
+    string_case("SR_lock"):
+      return true;
+  }
+  return false;
+}
+#endif
+
+static const char * GetName(const char * __restrict name) {
+  if (name == nullptr) {
+    return "UNKNOWN";
+  }
+
+  const size_t len = strlen(name);
+  char *newName = (char *)malloc(sizeof(char) * (len + 1));
+  memcpy(newName, name, len);
+  newName[len] = '\0';
+  return newName;
 }
 
 Mutex::Mutex(int Rank, const char * name, bool allow_vm_block,
-             SafepointCheckRequired safepoint_check_required) : _owner(NULL) {
+             SafepointCheckRequired safepoint_check_required) : _owner(nullptr), _name(GetName(name)) {
   assert(os::mutex_init_done(), "Too early!");
-  if (name == NULL) {
-    strcpy(_name, "UNKNOWN");
-  } else {
-    strncpy(_name, name, MUTEX_NAME_LEN - 1);
-    _name[MUTEX_NAME_LEN - 1] = '\0';
-  }
 #ifdef ASSERT
   _allow_vm_block  = allow_vm_block;
   _rank            = Rank;
@@ -298,13 +315,13 @@ Monitor::Monitor(int Rank, const char * name, bool allow_vm_block,
   Mutex(Rank, name, allow_vm_block, safepoint_check_required) {}
 
 bool Mutex::owned_by_self() const {
-  return _owner == Thread::current();
+  return _owner.load() == Thread::current();
 }
 
 void Mutex::print_on_error(outputStream* st) const {
   st->print("[" PTR_FORMAT, p2i(this));
   st->print("] %s", _name);
-  st->print(" - owner thread: " PTR_FORMAT, p2i(_owner));
+  st->print(" - owner thread: " PTR_FORMAT, p2i(_owner.load()));
 }
 
 // ----------------------------------------------------------------------------------
@@ -322,7 +339,7 @@ const char* print_safepoint_check(Mutex::SafepointCheckRequired safepoint_check)
 
 void Mutex::print_on(outputStream* st) const {
   st->print("Mutex: [" PTR_FORMAT "] %s - owner: " PTR_FORMAT,
-            p2i(this), _name, p2i(_owner));
+            p2i(this), _name, p2i(_owner.load()));
   if (_allow_vm_block) {
     st->print("%s", " allow_vm_block");
   }
@@ -340,9 +357,9 @@ void Mutex::assert_owner(Thread * expected) {
   else if (expected == Thread::current()) {
     msg = "should be owned by current thread";
   }
-  assert(_owner == expected,
+  assert(_owner.load() == expected,
          "%s: owner=" INTPTR_FORMAT ", should be=" INTPTR_FORMAT,
-         msg, p2i(_owner), p2i(expected));
+         msg, p2i(_owner.load()), p2i(expected));
 }
 
 Mutex* Mutex::get_least_ranked_lock(Mutex* locks) {
@@ -431,8 +448,10 @@ void Mutex::set_owner_implementation(Thread *new_owner) {
     // the thread is acquiring this lock
 
     assert(new_owner == Thread::current(), "Should I be doing this?");
-    assert(_owner == NULL, "setting the owner thread of an already owned mutex");
-    _owner = new_owner; // set the owner
+    Thread *expected = nullptr;
+    if (!_owner.compare_exchange_strong(expected, new_owner)) {
+       assert(false, "setting the owner thread of an already owned mutex");
+    }
 
     // link "this" into the owned locks list
 
@@ -467,7 +486,7 @@ void Mutex::set_owner_implementation(Thread *new_owner) {
   } else {
     // the thread is releasing this lock
 
-    Thread* old_owner = _owner;
+    Thread* old_owner = _owner.load();
     _last_owner = old_owner;
 
     assert(old_owner != NULL, "removing the owner thread of an unowned mutex");

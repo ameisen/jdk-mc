@@ -65,7 +65,7 @@ public class BytecodeBipush extends Bytecode {
   }
 
   public String toString() {
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     buf.append("bipush");
     buf.append(spaces);
     buf.append(Byte.toString(getValue()));

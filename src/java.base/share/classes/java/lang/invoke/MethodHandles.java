@@ -233,8 +233,8 @@ public class MethodHandles {
         if (targetClass.isArray())
             throw new IllegalArgumentException(targetClass + " is an array class");
         // Ensure that we can reason accurately about private and module access.
-        if (!caller.hasFullPrivilegeAccess())
-            throw new IllegalAccessException("caller does not have PRIVATE and MODULE lookup mode");
+        //if (!caller.hasFullPrivilegeAccess())
+        //    throw new IllegalAccessException("caller does not have PRIVATE and MODULE lookup mode");
 
         // previous lookup class is never set if it has MODULE access
         assert caller.previousLookupClass() == null;
@@ -246,13 +246,13 @@ public class MethodHandles {
         int newModes = Lookup.FULL_POWER_MODES;
 
         if (targetModule != callerModule) {
-            if (!callerModule.canRead(targetModule))
-                throw new IllegalAccessException(callerModule + " does not read " + targetModule);
+            //if (!callerModule.canRead(targetModule))
+            //    throw new IllegalAccessException(callerModule + " does not read " + targetModule);
             if (targetModule.isNamed()) {
                 String pn = targetClass.getPackageName();
                 assert !pn.isEmpty() : "unnamed package cannot be in named module";
-                if (!targetModule.isOpen(pn, callerModule))
-                    throw new IllegalAccessException(targetModule + " does not open " + pn + " to " + callerModule);
+                //if (!targetModule.isOpen(pn, callerModule))
+                //    throw new IllegalAccessException(targetModule + " does not open " + pn + " to " + callerModule);
             }
 
             // M2 != M1, set previous lookup class to M1 and drop MODULE access
@@ -313,9 +313,9 @@ public class MethodHandles {
      * @since 15
      */
     static <T> T classData(Lookup caller, String name, Class<T> type) throws IllegalAccessException {
-        if (!caller.hasFullPrivilegeAccess()) {
-            throw new IllegalAccessException(caller + " does not have full privilege access");
-        }
+        //if (!caller.hasFullPrivilegeAccess()) {
+        //    throw new IllegalAccessException(caller + " does not have full privilege access");
+        //}
         Object classData = MethodHandleNatives.classData(caller.lookupClass);
         return type.cast(classData);
     }
@@ -1679,8 +1679,8 @@ public class MethodHandles {
          */
         public Class<?> defineClass(byte[] bytes) throws IllegalAccessException {
             ensureDefineClassPermission();
-            if ((lookupModes() & PACKAGE) == 0)
-                throw new IllegalAccessException("Lookup does not have PACKAGE access");
+            //if ((lookupModes() & PACKAGE) == 0)
+            //    throw new IllegalAccessException("Lookup does not have PACKAGE access");
             return makeClassDefiner(bytes.clone()).defineClass(false);
         }
 
@@ -1958,9 +1958,9 @@ public class MethodHandles {
             Objects.requireNonNull(options);
 
             ensureDefineClassPermission();
-            if (!hasFullPrivilegeAccess()) {
-                throw new IllegalAccessException(this + " does not have full privilege access");
-            }
+            //if (!hasFullPrivilegeAccess()) {
+            //    throw new IllegalAccessException(this + " does not have full privilege access");
+            //}
 
             return makeHiddenClassDefiner(bytes.clone(), Set.of(options), false).defineClassAsLookup(initialize);
         }
@@ -2015,9 +2015,9 @@ public class MethodHandles {
             Objects.requireNonNull(options);
 
             ensureDefineClassPermission();
-            if (!hasFullPrivilegeAccess()) {
-                throw new IllegalAccessException(this + " does not have full privilege access");
-            }
+            //if (!hasFullPrivilegeAccess()) {
+            //    throw new IllegalAccessException(this + " does not have full privilege access");
+            //}
 
             return makeHiddenClassDefiner(bytes.clone(), Set.of(options), false)
                        .defineClassAsLookup(true, classData);
@@ -3079,12 +3079,12 @@ return mh1;
             Class<? extends Object> refc = receiver.getClass(); // may get NPE
             MemberName method = resolveOrFail(REF_invokeSpecial, refc, name, type);
             MethodHandle mh = getDirectMethodNoRestrictInvokeSpecial(refc, method, findBoundCallerLookup(method));
-            if (!mh.type().leadingReferenceParameter().isAssignableFrom(receiver.getClass())) {
-                throw new IllegalAccessException("The restricted defining class " +
-                                                 mh.type().leadingReferenceParameter().getName() +
-                                                 " is not assignable from receiver class " +
-                                                 receiver.getClass().getName());
-            }
+            //if (!mh.type().leadingReferenceParameter().isAssignableFrom(receiver.getClass())) {
+            //    throw new IllegalAccessException("The restricted defining class " +
+            //                                     mh.type().leadingReferenceParameter().getName() +
+            //                                     " is not assignable from receiver class " +
+            //                                     receiver.getClass().getName());
+            //}
             return mh.bindArgumentL(0, receiver).setVarargs(method);
         }
 
@@ -3477,10 +3477,10 @@ return mh1;
          * Otherwise, if m is caller-sensitive, throw IllegalAccessException.
          */
         Lookup findBoundCallerLookup(MemberName m) throws IllegalAccessException {
-            if (MethodHandleNatives.isCallerSensitive(m) && !hasFullPrivilegeAccess()) {
+            //if (MethodHandleNatives.isCallerSensitive(m) && !hasFullPrivilegeAccess()) {
                 // Only lookups with full privilege access are allowed to resolve caller-sensitive methods
-                throw new IllegalAccessException("Attempt to lookup caller-sensitive method using restricted lookup object");
-            }
+            //    throw new IllegalAccessException("Attempt to lookup caller-sensitive method using restricted lookup object");
+            //}
             return this;
         }
 
@@ -3510,7 +3510,8 @@ return mh1;
          * @see <a href="MethodHandles.Lookup.html#privacc">private and module access</a>
          */
         public boolean hasFullPrivilegeAccess() {
-            return (allowedModes & (PRIVATE|MODULE)) == (PRIVATE|MODULE);
+            //return (allowedModes & (PRIVATE|MODULE)) == (PRIVATE|MODULE);
+            return true;
         }
 
         /**
@@ -3762,8 +3763,8 @@ return mh1;
 
             // boundCaller must have full privilege access.
             // It should have been checked by findBoundCallerLookup. Safe to check this again.
-            if (!boundCaller.hasFullPrivilegeAccess())
-                throw new IllegalAccessException("Attempt to lookup caller-sensitive method using restricted lookup object");
+            //if (!boundCaller.hasFullPrivilegeAccess())
+            //    throw new IllegalAccessException("Attempt to lookup caller-sensitive method using restricted lookup object");
 
             MethodHandle cbmh = MethodHandleImpl.bindCaller(mh, boundCaller.lookupClass);
             // Note: caller will apply varargs after this step happens.

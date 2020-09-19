@@ -327,7 +327,7 @@ public class TIFFImageMetadata extends IIOMetadata {
         if (times == 1) {
             return s;
         }
-        StringBuffer sb = new StringBuffer((s.length() + 1)*times - 1);
+        StringBuilder sb = new StringBuilder((s.length() + 1)*times - 1);
         sb.append(s);
         for (int i = 1; i < times; i++) {
             sb.append(" ");
@@ -422,7 +422,7 @@ public class TIFFImageMetadata extends IIOMetadata {
                 bitsPerSample = new int[] {1};
             }
         }
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < bitsPerSample.length; i++) {
             if (i > 0) {
                 sb.append(" ");
@@ -441,7 +441,7 @@ public class TIFFImageMetadata extends IIOMetadata {
         f = getTIFFField(BaselineTIFFTagSet.TAG_FILL_ORDER);
         int fillOrder = f != null ?
             f.getAsInt(0) : BaselineTIFFTagSet.FILL_ORDER_LEFT_TO_RIGHT;
-        sb = new StringBuffer();
+        sb = new StringBuilder();
         for (int i = 0; i < bitsPerSample.length; i++) {
             if (i > 0) {
                 sb.append(" ");
@@ -1229,7 +1229,7 @@ public class TIFFImageMetadata extends IIOMetadata {
                         String minute = getAttribute(child, "minute");
                         String second = getAttribute(child, "second");
 
-                        StringBuffer sb = new StringBuffer();
+                        StringBuilder sb = new StringBuilder();
                         sb.append(year);
                         sb.append(":");
                         if(month.length() == 1) {

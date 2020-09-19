@@ -43,7 +43,7 @@ public class StreamMonitor implements Runnable {
   private String  prefixString;
   private boolean printContents;
 
-  private StringBuffer captureBuffer;
+  private StringBuilder captureBuffer;
 
   class Trigger {
     private String[] triggerStrings;
@@ -167,7 +167,7 @@ public class StreamMonitor implements Runnable {
   }
 
   public synchronized void startCapture() {
-    captureBuffer = new StringBuffer();
+    captureBuffer = new StringBuilder();
   }
 
   public synchronized String stopCapture() {

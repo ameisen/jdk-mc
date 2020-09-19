@@ -3179,10 +3179,10 @@ public abstract class ResourceBundle {
                         // either class-based or properties-based, the resource
                         // bundle must be opened unconditionally,
                         // same rule as accessing a resource file.
-                        if (m.isNamed() && !m.isOpen(bundleClass.getPackageName())) {
-                            throw new IllegalAccessException("unnamed module can't load " +
-                                bundleClass.getName() + " in " + m.toString());
-                        }
+                        //if (m.isNamed() && !m.isOpen(bundleClass.getPackageName())) {
+                        //    throw new IllegalAccessException("unnamed module can't load " +
+                        //        bundleClass.getName() + " in " + m.toString());
+                        //}
                         try {
                             Constructor<ResourceBundle> ctor = AccessController.doPrivileged(
                                 new PrivilegedExceptionAction<>() {
@@ -3191,10 +3191,10 @@ public abstract class ResourceBundle {
                                         return bundleClass.getDeclaredConstructor();
                                     }
                                 });
-                            if (!Modifier.isPublic(ctor.getModifiers())) {
-                                throw new IllegalAccessException("no-arg constructor in " +
-                                    bundleClass.getName() + " is not publicly accessible.");
-                            }
+                            //if (!Modifier.isPublic(ctor.getModifiers())) {
+                            //    throw new IllegalAccessException("no-arg constructor in " +
+                            //        bundleClass.getName() + " is not publicly accessible.");
+                            //}
 
                             // java.base may not be able to read the bundleClass's module.
                             PrivilegedAction<Void> pa1 = () -> { ctor.setAccessible(true); return null; };

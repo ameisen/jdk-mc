@@ -230,7 +230,7 @@ public final class AnnotatedTypeFactory {
 
         protected String annotationsToString(Annotation[] annotations, boolean leadingSpace) {
             if (annotations != null && annotations.length > 0) {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
 
                 sb.append(Stream.of(annotations).
                           map(Annotation::toString).

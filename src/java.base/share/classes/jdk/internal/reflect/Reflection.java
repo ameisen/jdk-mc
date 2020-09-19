@@ -131,9 +131,9 @@ public class Reflection {
             return true;
         }
 
-        if (!verifyModuleAccess(currentClass.getModule(), memberClass)) {
-            return false;
-        }
+        //if (!verifyModuleAccess(currentClass.getModule(), memberClass)) {
+        //    return false;
+        //}
 
         boolean gotIsSameClassPackage = false;
         boolean isSameClassPackage = false;
@@ -226,6 +226,8 @@ public class Reflection {
      * package to currentModule.
      */
     public static boolean verifyModuleAccess(Module currentModule, Class<?> memberClass) {
+        return true;
+        /*
         Module memberModule = memberClass.getModule();
         if (currentModule == memberModule) {
             // same module (named or unnamed) or both null if called
@@ -236,6 +238,7 @@ public class Reflection {
             String pkg = memberClass.getPackageName();
             return memberModule.isExported(pkg, currentModule);
         }
+        */
     }
 
     /**

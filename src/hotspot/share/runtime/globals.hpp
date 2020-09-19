@@ -973,7 +973,7 @@ const size_t minimumSymbolTableSize = 1024;
   product(bool, UseDynamicNumberOfCompilerThreads, true,                    \
           "Dynamically choose the number of parallel compiler threads")     \
                                                                             \
-  experimental(bool, ReduceNumberOfCompilerThreads, true,                   \
+  experimental(bool, ReduceNumberOfCompilerThreads, false,                  \
              "Reduce the number of parallel compiler threads when they "    \
              "are not used")                                                \
                                                                             \
@@ -984,7 +984,7 @@ const size_t minimumSymbolTableSize = 1024;
           "Inject thread creation failures for "                            \
           "UseDynamicNumberOfCompilerThreads")                              \
                                                                             \
-  develop(bool, UseStackBanging, true,                                      \
+  develop(bool, UseStackBanging, false,                                     \
           "use stack banging for stack overflow checks (required for "      \
           "proper StackOverflow handling; disable only to measure cost "    \
           "of stackbanging)")                                               \
@@ -1360,7 +1360,7 @@ const size_t minimumSymbolTableSize = 1024;
           "Maximum number of nested calls that are analyzed by BC EA")      \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, MaxBCEAEstimateSize, 150,                                   \
+  product(intx, MaxBCEAEstimateSize, 600,                                   \
           "Maximum bytecode size of a method to be analyzed by BC EA")      \
           range(0, max_jint)                                                \
                                                                             \
@@ -1612,7 +1612,7 @@ const size_t minimumSymbolTableSize = 1024;
           " of size 4KB. If pages are bigger reserved zone is aligned up.") \
           range(MIN_STACK_RESERVED_PAGES, (DEFAULT_STACK_RESERVED_PAGES+10))\
                                                                             \
-  product(bool, RestrictReservedStack, true,                                \
+  product(bool, RestrictReservedStack, false,                               \
           "Restrict @ReservedStackAccess to trusted classes")               \
                                                                             \
   /* greater stack shadow pages can't generate instruction to bang stack */ \
@@ -1959,39 +1959,39 @@ const size_t minimumSymbolTableSize = 1024;
           "Back edge threshold at which tier 2 compilation is invoked")     \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, Tier3InvocationThreshold, 200,                              \
+  product(intx, Tier3InvocationThreshold, 2,                               \
           "Compile if number of method invocations crosses this "           \
           "threshold")                                                      \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, Tier3MinInvocationThreshold, 100,                           \
+  product(intx, Tier3MinInvocationThreshold, 2,                             \
           "Minimum invocation to compile at tier 3")                        \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, Tier3CompileThreshold, 2000,                                \
+  product(intx, Tier3CompileThreshold, 200,                                 \
           "Threshold at which tier 3 compilation is invoked (invocation "   \
           "minimum must be satisfied)")                                     \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, Tier3BackEdgeThreshold,  60000,                             \
+  product(intx, Tier3BackEdgeThreshold,  6000,                              \
           "Back edge threshold at which tier 3 OSR compilation is invoked") \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, Tier3AOTInvocationThreshold, 10000,                         \
+  product(intx, Tier3AOTInvocationThreshold, 1000,                          \
           "Compile if number of method invocations crosses this "           \
           "threshold if coming from AOT")                                   \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, Tier3AOTMinInvocationThreshold, 1000,                       \
+  product(intx, Tier3AOTMinInvocationThreshold, 100,                        \
           "Minimum invocation to compile at tier 3 if coming from AOT")     \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, Tier3AOTCompileThreshold, 15000,                            \
+  product(intx, Tier3AOTCompileThreshold, 1500,                             \
           "Threshold at which tier 3 compilation is invoked (invocation "   \
           "minimum must be satisfied) if coming from AOT")                  \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, Tier3AOTBackEdgeThreshold,  120000,                         \
+  product(intx, Tier3AOTBackEdgeThreshold,  12000,                          \
           "Back edge threshold at which tier 3 OSR compilation is invoked " \
           "if coming from AOT")                                             \
           range(0, max_jint)                                                \
@@ -2025,21 +2025,21 @@ const size_t minimumSymbolTableSize = 1024;
           "CompilationMode=high-only|high-only-quick-internal)")            \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, Tier4InvocationThreshold, 5000,                             \
+  product(intx, Tier4InvocationThreshold, 100,                              \
           "Compile if number of method invocations crosses this "           \
           "threshold")                                                      \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, Tier4MinInvocationThreshold, 600,                           \
+  product(intx, Tier4MinInvocationThreshold, 100,                           \
           "Minimum invocation to compile at tier 4")                        \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, Tier4CompileThreshold, 15000,                               \
+  product(intx, Tier4CompileThreshold, 1500,                                \
           "Threshold at which tier 4 compilation is invoked (invocation "   \
           "minimum must be satisfied)")                                     \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, Tier4BackEdgeThreshold, 40000,                              \
+  product(intx, Tier4BackEdgeThreshold, 4000,                               \
           "Back edge threshold at which tier 4 OSR compilation is invoked") \
           range(0, max_jint)                                                \
                                                                             \
@@ -2246,7 +2246,7 @@ const size_t minimumSymbolTableSize = 1024;
           "shared spaces, and dumps the shared spaces to a file to be "     \
           "used in future JVM runs")                                        \
                                                                             \
-  product(bool, DynamicDumpSharedSpaces, true,                              \
+  product(bool, DynamicDumpSharedSpaces, false,                             \
           "Dynamic archive")                                                \
                                                                             \
   product(bool, PrintSharedArchiveAndExit, false,                           \

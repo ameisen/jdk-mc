@@ -53,7 +53,7 @@ public class LogStream extends PrintStream {
     private OutputStreamWriter logWriter;
 
     /** string buffer used for constructing log message prefixes */
-    private StringBuffer buffer = new StringBuffer();
+    private StringBuilder buffer = new StringBuilder();
 
     /** stream used for buffering lines */
     private ByteArrayOutputStream bufOut;

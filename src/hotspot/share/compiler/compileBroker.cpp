@@ -77,6 +77,9 @@
 #include "opto/c2compiler.hpp"
 #endif
 
+#include <algorithm>
+#include <initializer_list>
+
 #ifdef DTRACE_ENABLED
 
 // Only bother with this argument setup if dtrace is available
@@ -112,10 +115,12 @@
 
 #endif // ndef DTRACE_ENABLED
 
+#include <atomic>
+
 bool CompileBroker::_initialized = false;
-volatile bool CompileBroker::_should_block = false;
-volatile int  CompileBroker::_print_compilation_warning = 0;
-volatile jint CompileBroker::_should_compile_new_jobs = run_compilation;
+std::atomic_bool CompileBroker::_should_block(false);
+std::atomic_int  CompileBroker::_print_compilation_warning(0);
+std::atomic<jint> CompileBroker::_should_compile_new_jobs(run_compilation);
 
 // The installed compiler(s)
 AbstractCompiler* CompileBroker::_compilers[2];
@@ -132,8 +137,8 @@ CompileLog** CompileBroker::_compiler1_logs = NULL;
 CompileLog** CompileBroker::_compiler2_logs = NULL;
 
 // These counters are used to assign an unique ID to each compilation.
-volatile jint CompileBroker::_compilation_id     = 0;
-volatile jint CompileBroker::_osr_compilation_id = 0;
+std::atomic<jint> CompileBroker::_compilation_id(0);
+std::atomic<jint> CompileBroker::_osr_compilation_id(0);
 
 // Performance counters
 PerfCounter* CompileBroker::_perf_total_compilation = NULL;
@@ -186,7 +191,7 @@ CompileQueue* CompileBroker::_c1_compile_queue     = NULL;
 
 
 
-class CompilationLog : public StringEventLog {
+class CompilationLog final : public StringEventLog {
  public:
   CompilationLog() : StringEventLog("Compilation events", "jit") {
   }
@@ -227,7 +232,7 @@ class CompilationLog : public StringEventLog {
 static CompilationLog* _compilation_log = NULL;
 
 bool compileBroker_init() {
-  if (LogEvents) {
+  if _unlikely_if(LogEvents) {
     _compilation_log = new CompilationLog();
   }
 
@@ -253,14 +258,14 @@ CompileTaskWrapper::CompileTaskWrapper(CompileTask* task) {
   }
 #endif
   CompileLog*     log  = thread->log();
-  if (log != NULL && !task->is_unloaded())  task->log_task_start(log);
+  if _unlikely_if(log != NULL && !task->is_unloaded())  task->log_task_start(log);
 }
 
 CompileTaskWrapper::~CompileTaskWrapper() {
   CompilerThread* thread = CompilerThread::current();
   CompileTask* task = thread->task();
   CompileLog*  log  = thread->log();
-  if (log != NULL && !task->is_unloaded())  task->log_task_done(log);
+  if _unlikely_if(log != NULL && !task->is_unloaded())  task->log_task_done(log);
   thread->set_task(NULL);
   task->set_code_handle(NULL);
   thread->set_env(NULL);
@@ -302,7 +307,7 @@ CompileTaskWrapper::~CompileTaskWrapper() {
  */
 bool CompileBroker::can_remove(CompilerThread *ct, bool do_it) {
   assert(UseDynamicNumberOfCompilerThreads, "or shouldn't be here");
-  if (!ReduceNumberOfCompilerThreads) return false;
+  if _likely_if(!ReduceNumberOfCompilerThreads) return false;
 
   AbstractCompiler *compiler = ct->compiler();
   int compiler_count = compiler->num_compiler_threads();
@@ -312,7 +317,7 @@ bool CompileBroker::can_remove(CompilerThread *ct, bool do_it) {
   if (compiler_count < 2) return false;
 
   // Keep thread alive for at least some time.
-  if (ct->idle_time_millis() < (c1 ? 500 : 100)) return false;
+  if _unlikely_if(ct->idle_time_millis() < (c1 ? 500 : 100)) return false;
 
 #if INCLUDE_JVMCI
   if (compiler->is_jvmci()) {
@@ -372,11 +377,11 @@ void CompileQueue::add(CompileTask* task) {
   // Mark the method as being in the compile queue.
   task->method()->set_queued_for_compilation();
 
-  if (CIPrintCompileQueue) {
+  if _unlikely_if(CIPrintCompileQueue) {
     print_tty();
   }
 
-  if (LogCompilation && xtty != NULL) {
+  if _unlikely_if(LogCompilation && xtty != NULL) {
     task->log_task_queued();
   }
 
@@ -429,7 +434,7 @@ CompileTask* CompileQueue::get() {
   // compilation.
   while (_first == NULL) {
     // Exit loop if compilation is disabled forever
-    if (CompileBroker::is_compilation_disabled_forever()) {
+    if _unlikely_if(CompileBroker::is_compilation_disabled_forever()) {
       return NULL;
     }
 
@@ -450,7 +455,7 @@ CompileTask* CompileQueue::get() {
     }
   }
 
-  if (CompileBroker::is_compilation_disabled_forever()) {
+  if _unlikely_if(CompileBroker::is_compilation_disabled_forever()) {
     return NULL;
   }
 
@@ -629,7 +634,7 @@ void register_jfr_phasetype_serializer(CompilerType compiler_type) {
 // Initialize the Compilation object
 void CompileBroker::compilation_init_phase1(Thread* THREAD) {
   // No need to initialize compilation system if we do not use it.
-  if (!UseCompiler) {
+  if _unlikely_if(!UseCompiler) {
     return;
   }
   // Set the interface to the current compiler(s).
@@ -803,13 +808,14 @@ Handle CompileBroker::create_thread_oop(const char* name, TRAPS) {
                        CHECK_NH);
 }
 
+static constexpr const int DefaultCompilerThreadPriority = MinPriority; // NearMaxPriority
 
 JavaThread* CompileBroker::make_thread(jobject thread_handle, CompileQueue* queue, AbstractCompiler* comp, Thread* THREAD) {
   JavaThread* new_thread = NULL;
   {
     MutexLocker mu(THREAD, Threads_lock);
     if (comp != NULL) {
-      if (!InjectCompilerCreationFailure || comp->num_compiler_threads() == 0) {
+      if (_likely(!InjectCompilerCreationFailure) || comp->num_compiler_threads() == 0) {
         CompilerCounters* counters = new CompilerCounters();
         new_thread = new CompilerThread(queue, counters);
       }
@@ -837,7 +843,7 @@ JavaThread* CompileBroker::make_thread(jobject thread_handle, CompileQueue* queu
       // definition is limited to Java priorities and not OS priorities.
       // The os-priority is set in the CompilerThread startup code itself
 
-      java_lang_Thread::set_priority(JNIHandles::resolve_non_null(thread_handle), NearMaxPriority);
+      java_lang_Thread::set_priority(JNIHandles::resolve_non_null(thread_handle), MinPriority);
 
       // Note that we cannot call os::set_priority because it expects Java
       // priorities and we are *explicitly* using OS priorities so that it's
@@ -846,10 +852,10 @@ JavaThread* CompileBroker::make_thread(jobject thread_handle, CompileQueue* queu
 
       int native_prio = CompilerThreadPriority;
       if (native_prio == -1) {
-        if (UseCriticalCompilerThreadPriority) {
+        if _unlikely_if(UseCriticalCompilerThreadPriority) {
           native_prio = os::java_to_os_priority[CriticalPriority];
         } else {
-          native_prio = os::java_to_os_priority[NearMaxPriority];
+          native_prio = os::java_to_os_priority[DefaultCompilerThreadPriority];
         }
       }
       os::set_native_priority(new_thread, native_prio);
@@ -965,22 +971,48 @@ void CompileBroker::init_compiler_sweeper_threads() {
   }
 }
 
+namespace CompileBrokerConstants {
+  namespace C1 {
+    static constexpr const int ThreadsPerJob = 2; // 4
+    namespace MemoryUsage {
+      static constexpr const size_t OS = MiB<100>;
+      static constexpr const size_t Profiled = KiB<128>;
+    }
+  }
+
+  namespace C2 {
+    static constexpr const int ThreadsPerJob = 1; // 2
+    namespace MemoryUsage {
+      static constexpr const size_t OS = MiB<200>;
+      static constexpr const size_t NonProfiled = KiB<128>;
+    }
+  }
+}
+
+using namespace CompileBrokerConstants;
+
 void CompileBroker::possibly_add_compiler_threads(Thread* THREAD) {
+  // Only do attempt to start additional threads if the lock is free.
+  ScopedTryLock lock(CompileThread_lock);
+  if (!lock) {
+    return;
+  }
 
   julong available_memory = os::available_memory();
-  // If SegmentedCodeCache is off, both values refer to the single heap (with type CodeBlobType::All).
-  size_t available_cc_np  = CodeCache::unallocated_capacity(CodeBlobType::MethodNonProfiled),
-         available_cc_p   = CodeCache::unallocated_capacity(CodeBlobType::MethodProfiled);
-
-  // Only do attempt to start additional threads if the lock is free.
-  if (!CompileThread_lock->try_lock()) return;
 
   if (_c2_compile_queue != NULL) {
+    size_t available_cc_np = CodeCache::unallocated_capacity(CodeBlobType::MethodNonProfiled);
+
     int old_c2_count = _compilers[1]->num_compiler_threads();
-    int new_c2_count = MIN4(_c2_count,
-        _c2_compile_queue->size() / 2,
-        (int)(available_memory / (200*M)),
-        (int)(available_cc_np / (128*K)));
+    int new_c2_count = std::min({
+      _c2_count,
+      _c2_compile_queue->size() / C2::ThreadsPerJob,
+      (int)(available_memory / C2::MemoryUsage::OS),
+      (int)(available_cc_np / C2::MemoryUsage::NonProfiled),
+      os::active_processor_count()
+    });
+
+    new_c2_count = MAX2(1, new_c2_count);
 
     for (int i = old_c2_count; i < new_c2_count; i++) {
 #if INCLUDE_JVMCI
@@ -997,7 +1029,7 @@ void CompileBroker::possibly_add_compiler_threads(Thread* THREAD) {
         Handle thread_oop;
         {
           // We have to give up the lock temporarily for the Java calls.
-          MutexUnlocker mu(CompileThread_lock);
+          ScopedUnlocker mu(CompileThread_lock);
           thread_oop = create_thread_oop(name_buffer, THREAD);
         }
         if (HAS_PENDING_EXCEPTION) {
@@ -1017,9 +1049,9 @@ void CompileBroker::possibly_add_compiler_threads(Thread* THREAD) {
       }
 #endif
       JavaThread *ct = make_thread(compiler2_object(i), _c2_compile_queue, _compilers[1], THREAD);
-      if (ct == NULL) break;
+      if _unlikely_if(ct == NULL) break;
       _compilers[1]->set_num_compiler_threads(i + 1);
-      if (TraceCompilerThreads) {
+      if _unlikely_if(TraceCompilerThreads) {
         ResourceMark rm;
         MutexLocker mu(Threads_lock);
         tty->print_cr("Added compiler thread %s (available memory: %dMB, available non-profiled code cache: %dMB)",
@@ -1029,17 +1061,23 @@ void CompileBroker::possibly_add_compiler_threads(Thread* THREAD) {
   }
 
   if (_c1_compile_queue != NULL) {
+    size_t available_cc_p = CodeCache::unallocated_capacity(CodeBlobType::MethodProfiled);
+
     int old_c1_count = _compilers[0]->num_compiler_threads();
-    int new_c1_count = MIN4(_c1_count,
-        _c1_compile_queue->size() / 4,
-        (int)(available_memory / (100*M)),
-        (int)(available_cc_p / (128*K)));
+    int new_c1_count = std::min({
+      _c1_count,
+      _c1_compile_queue->size() / C1::ThreadsPerJob,
+      (int)(available_memory / C1::MemoryUsage::OS),
+      (int)(available_cc_p / C1::MemoryUsage::Profiled),
+      os::active_processor_count()
+    });
+    new_c1_count = MAX2(1, new_c1_count);
 
     for (int i = old_c1_count; i < new_c1_count; i++) {
       JavaThread *ct = make_thread(compiler1_object(i), _c1_compile_queue, _compilers[0], THREAD);
-      if (ct == NULL) break;
+      if _unlikely_if(ct == NULL) break;
       _compilers[0]->set_num_compiler_threads(i + 1);
-      if (TraceCompilerThreads) {
+      if _unlikely_if(TraceCompilerThreads) {
         ResourceMark rm;
         MutexLocker mu(Threads_lock);
         tty->print_cr("Added compiler thread %s (available memory: %dMB, available profiled code cache: %dMB)",
@@ -1047,10 +1085,7 @@ void CompileBroker::possibly_add_compiler_threads(Thread* THREAD) {
       }
     }
   }
-
-  CompileThread_lock->unlock();
 }
-
 
 /**
  * Set the methods on the stack as on_stack so that redefine classes doesn't
@@ -1087,7 +1122,7 @@ void CompileBroker::compile_method_base(const methodHandle& method,
          "method holder must be initialized");
   assert(!method->is_method_handle_intrinsic(), "do not enqueue these guys");
 
-  if (CIPrintRequests) {
+  if _unlikely_if(CIPrintRequests) {
     tty->print("request: ");
     method->print_short_name(tty);
     if (osr_bci != InvocationEntryBci) {
@@ -1135,7 +1170,7 @@ void CompileBroker::compile_method_base(const methodHandle& method,
     return;
   }
 
-  if (TieredCompilation) {
+  if _likely_if(TieredCompilation) {
     // Tiered policy requires MethodCounters to exist before adding a method to
     // the queue. Create if we don't have them yet.
     method->get_method_counters(thread);
@@ -1263,7 +1298,7 @@ nmethod* CompileBroker::compile_method(const methodHandle& method, int osr_bci,
                                        CompileTask::CompileReason compile_reason,
                                        Thread* THREAD) {
   // Do nothing if compilebroker is not initalized or compiles are submitted on level none
-  if (!_initialized || comp_level == CompLevel_none) {
+  if _unlikely_if(!_initialized || comp_level == CompLevel_none) {
     return NULL;
   }
 
@@ -1296,7 +1331,7 @@ nmethod* CompileBroker::compile_method(const methodHandle& method, int osr_bci,
   // lock, make sure that the compilation
   // isn't prohibited in a straightforward way.
   AbstractCompiler* comp = CompileBroker::compiler(comp_level);
-  if (comp == NULL || !comp->can_compile_method(method) ||
+  if _unlikely_if(comp == NULL || !comp->can_compile_method(method) ||
       compilation_is_prohibited(method, osr_bci, comp_level, directive->ExcludeOption)) {
     return NULL;
   }
@@ -1496,7 +1531,7 @@ bool CompileBroker::compilation_is_prohibited(const methodHandle& method, int os
 
   // The method may be explicitly excluded by the user.
   double scale;
-  if (excluded || (CompilerOracle::has_option_value(method, "CompileThresholdScaling", scale) && scale == 0)) {
+  if _unlikely_if(excluded || (CompilerOracle::has_option_value(method, "CompileThresholdScaling", scale) && scale == 0)) {
     bool quietly = CompilerOracle::should_exclude_quietly();
     if (PrintCompilation && !quietly) {
       // This does not happen quietly...
@@ -1526,14 +1561,14 @@ int CompileBroker::assign_compile_id(const methodHandle& method, int osr_bci) {
     assert(!is_osr, "can't be osr");
     // Adapters, native wrappers and method handle intrinsics
     // should be generated always.
-    return Atomic::add(&_compilation_id, 1);
+    return ++_compilation_id;
   } else if (CICountOSR && is_osr) {
-    id = Atomic::add(&_osr_compilation_id, 1);
+    id = ++_osr_compilation_id;
     if (CIStartOSR <= id && id < CIStopOSR) {
       return id;
     }
   } else {
-    id = Atomic::add(&_compilation_id, 1);
+    id = ++_compilation_id;
     if (CIStart <= id && id < CIStop) {
       return id;
     }
@@ -1545,7 +1580,7 @@ int CompileBroker::assign_compile_id(const methodHandle& method, int osr_bci) {
 #else
   // CICountOSR is a develop flag and set to 'false' by default. In a product built,
   // only _compilation_id is incremented.
-  return Atomic::add(&_compilation_id, 1);
+  return ++_compilation_id;
 #endif
 }
 
@@ -1642,7 +1677,7 @@ bool CompileBroker::wait_for_jvmci_completion(JVMCICompiler* jvmci, CompileTask*
  *  Wait for the compilation task to complete.
  */
 void CompileBroker::wait_for_completion(CompileTask* task) {
-  if (CIPrintCompileQueue) {
+  if _unlikely_if(CIPrintCompileQueue) {
     ttyLocker ttyl;
     tty->print_cr("BLOCKING FOR COMPILE");
   }
@@ -1669,7 +1704,7 @@ void CompileBroker::wait_for_completion(CompileTask* task) {
   }
 
   if (free_task) {
-    if (is_compilation_disabled_forever()) {
+    if _unlikely_if(is_compilation_disabled_forever()) {
       CompileTask::free(task);
       return;
     }
@@ -1715,7 +1750,7 @@ bool CompileBroker::init_compiler_runtime() {
     comp->initialize();
   }
 
-  if (comp->is_failed()) {
+  if _unlikely_if(comp->is_failed()) {
     disable_compilation_forever();
     // If compiler initialization failed, no compiler thread that is specific to a
     // particular compiler runtime will ever start to compile methods.
@@ -1724,7 +1759,7 @@ bool CompileBroker::init_compiler_runtime() {
   }
 
   // C1 specific check
-  if (comp->is_c1() && (thread->get_buffer_blob() == NULL)) {
+  if _unlikely_if(comp->is_c1() && (thread->get_buffer_blob() == NULL)) {
     warning("Initialization of %s thread failed (no space to run compilers)", thread->name());
     return false;
   }
@@ -1777,7 +1812,7 @@ void CompileBroker::shutdown_compiler_runtime(AbstractCompiler* comp, CompilerTh
  * Helper function to create new or reuse old CompileLog.
  */
 CompileLog* CompileBroker::get_log(CompilerThread* ct) {
-  if (!LogCompilation) return NULL;
+  if _likely_if(!LogCompilation) return NULL;
 
   AbstractCompiler *compiler = ct->compiler();
   bool c1 = compiler->is_c1();
@@ -1839,7 +1874,7 @@ void CompileBroker::compiler_thread_loop() {
 
   // Open a log.
   CompileLog* log = get_log(thread);
-  if (log != NULL) {
+  if _unlikely_if(log != NULL) {
     log->begin_elem("start_compile_thread name='%s' thread='" UINTX_FORMAT "' process='%d'",
                     thread->name(),
                     os::current_thread_id(),
@@ -1849,7 +1884,7 @@ void CompileBroker::compiler_thread_loop() {
   }
 
   // If compiler thread/runtime initialization fails, exit the compiler thread
-  if (!init_compiler_runtime()) {
+  if _unlikely_if(!init_compiler_runtime()) {
     return;
   }
 
@@ -1860,7 +1895,7 @@ void CompileBroker::compiler_thread_loop() {
   // compiler runtimes. This, in turn, should not happen. The only known case
   // when compiler runtime initialization fails is if there is not enough free
   // space in the code cache to generate the necessary stubs, etc.
-  while (!is_compilation_disabled_forever()) {
+  while _likely_if(!is_compilation_disabled_forever()) {
     // We need this HandleMark to avoid leaking VM handles.
     HandleMark hm(thread);
 
@@ -1870,7 +1905,7 @@ void CompileBroker::compiler_thread_loop() {
         // Access compiler_count under lock to enforce consistency.
         MutexLocker only_one(CompileThread_lock);
         if (can_remove(thread, true)) {
-          if (TraceCompilerThreads) {
+          if _unlikely_if(TraceCompilerThreads) {
             tty->print_cr("Removing compiler thread %s after " JLONG_FORMAT " ms idle time",
                           thread->name(), thread->idle_time_millis());
           }
@@ -1962,10 +1997,10 @@ void CompileBroker::init_compiler_thread_log() {
 void CompileBroker::log_metaspace_failure() {
   const char* message = "some methods may not be compiled because metaspace "
                         "is out of memory";
-  if (_compilation_log != NULL) {
+  if _unlikely_if(_compilation_log != NULL) {
     _compilation_log->log_metaspace_failure(message);
   }
-  if (PrintCompilation) {
+  if _unlikely_if(PrintCompilation) {
     tty->print_cr("COMPILE PROFILING SKIPPED: %s", message);
   }
 }
@@ -2041,12 +2076,12 @@ static void codecache_print(outputStream* out, bool detailed) {
 
 void CompileBroker::post_compile(CompilerThread* thread, CompileTask* task, bool success, ciEnv* ci_env,
                                  int compilable, const char* failure_reason) {
-  if (success) {
+  if _likely_if(success) {
     task->mark_success();
     if (ci_env != NULL) {
       task->set_num_inlined_bytecodes(ci_env->num_inlined_bytecodes());
     }
-    if (_compilation_log != NULL) {
+    if _unlikely_if(_compilation_log != NULL) {
       nmethod* code = task->code();
       if (code != NULL) {
         _compilation_log->log_nmethod(thread, code);
@@ -2088,7 +2123,7 @@ CompilerDirectives* DirectivesStack::_bottom = NULL;
 //
 void CompileBroker::invoke_compiler_on_method(CompileTask* task) {
   task->print_ul();
-  if (PrintCompilation) {
+  if _unlikely_if(PrintCompilation) {
     ResourceMark rm;
     task->print_tty();
   }
@@ -2097,7 +2132,7 @@ void CompileBroker::invoke_compiler_on_method(CompileTask* task) {
   CompilerThread* thread = CompilerThread::current();
   ResourceMark rm(thread);
 
-  if (LogEvents) {
+  if _unlikely_if(LogEvents) {
     _compilation_log->log_compile(thread, task);
   }
 
@@ -2131,7 +2166,7 @@ void CompileBroker::invoke_compiler_on_method(CompileTask* task) {
   }
 
   should_break = directive->BreakAtExecuteOption || task->check_break_at_flags();
-  if (should_log && !directive->LogOption) {
+  if _unlikely_if(should_log && !directive->LogOption) {
     should_log = false;
   }
 
@@ -2186,7 +2221,7 @@ void CompileBroker::invoke_compiler_on_method(CompileTask* task) {
     if (should_break) {
       ci_env.set_break_at_compile(true);
     }
-    if (should_log) {
+    if _unlikely_if(should_log) {
       ci_env.set_log(thread->log());
     }
     assert(thread->env() == &ci_env, "set by ci_env");
@@ -2285,7 +2320,7 @@ void CompileBroker::invoke_compiler_on_method(CompileTask* task) {
     LogStream ls(log.debug());
     codecache_print(&ls, /* detailed= */ false);
   }
-  if (PrintCodeCacheOnCompilation) {
+  if _unlikely_if(PrintCodeCacheOnCompilation) {
     codecache_print(/* detailed= */ false);
   }
   // Disable compilation, if required.
@@ -2322,7 +2357,7 @@ void CompileBroker::invoke_compiler_on_method(CompileTask* task) {
  */
 void CompileBroker::handle_full_code_cache(int code_blob_type) {
   UseInterpreter = true;
-  if (UseCompiler || AlwaysCompileLoopMethods ) {
+  if _likely_if(UseCompiler || AlwaysCompileLoopMethods ) {
     if (xtty != NULL) {
       ResourceMark rm;
       stringStream s;

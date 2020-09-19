@@ -630,8 +630,8 @@ ifeq ($(TARGET), $(HOST))
 	ln -s $(TARGET)-$* $@
 
   missing-links := $(addprefix $(PREFIX)/bin/, \
-      addr2line ar as c++ c++filt dwp elfedit g++ gcc gcc-$(GCC_VER) gprof ld ld.bfd \
-      ld.gold nm objcopy objdump ranlib readelf size strings strip)
+      addr2line gcc-ar ar as c++ c++filt dwp elfedit g++ gcc gcc-$(GCC_VER) gprof ld ld.bfd \
+      ld.gold gcc-nm nm objcopy objdump gcc-ranlib ranlib readelf size strings strip)
 endif
 
 ##########################################################################################
