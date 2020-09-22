@@ -61,11 +61,17 @@
 
 #include "hsdis.h"
 
-#ifndef bool
-#define bool int
-#define true 1
-#define false 0
-#endif /*bool*/
+#ifndef __cplusplus
+# ifndef bool
+#   if (__STDC_VERSION__ >= 199901L) || defined(_MSC_VER)
+#     include <stdbool.h>
+#   else
+#     define bool int
+#     define true 1
+#     define false 0
+#   endif
+# endif /*bool*/
+#endif
 
 /* short names for stuff in hsdis.h */
 typedef decode_instructions_event_callback_ftype  event_callback_t;

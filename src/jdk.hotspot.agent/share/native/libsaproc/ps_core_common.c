@@ -214,7 +214,7 @@ map_info* core_lookup(struct ps_prochandle *ph, uintptr_t addr) {
 // PROT_READ pages. These pages are not dumped into core dump.
 // With this workaround, these pages are read from classes.jsa.
 
-static bool read_jboolean(struct ps_prochandle* ph, uintptr_t addr, jboolean* pvalue) {
+static proc_bool read_jboolean(struct ps_prochandle* ph, uintptr_t addr, jboolean* pvalue) {
   jboolean i;
   if (ps_pread(ph, (psaddr_t) addr, &i, sizeof(i)) == PS_OK) {
     *pvalue = i;
@@ -224,7 +224,7 @@ static bool read_jboolean(struct ps_prochandle* ph, uintptr_t addr, jboolean* pv
   }
 }
 
-static bool read_pointer(struct ps_prochandle* ph, uintptr_t addr, uintptr_t* pvalue) {
+static proc_bool read_pointer(struct ps_prochandle* ph, uintptr_t addr, uintptr_t* pvalue) {
   uintptr_t uip;
   if (ps_pread(ph, (psaddr_t) addr, (char *)&uip, sizeof(uip)) == PS_OK) {
     *pvalue = uip;
@@ -235,7 +235,7 @@ static bool read_pointer(struct ps_prochandle* ph, uintptr_t addr, uintptr_t* pv
 }
 
 // used to read strings from debuggee
-bool read_string(struct ps_prochandle* ph, uintptr_t addr, char* buf, size_t size) {
+proc_bool read_string(struct ps_prochandle* ph, uintptr_t addr, char* buf, size_t size) {
   size_t i = 0;
   char  c = ' ';
 
@@ -271,7 +271,7 @@ bool read_string(struct ps_prochandle* ph, uintptr_t addr, char* buf, size_t siz
 #define LIBJVM_NAME "/libjvm.dylib"
 #endif
 
-bool init_classsharing_workaround(struct ps_prochandle* ph) {
+proc_bool init_classsharing_workaround(struct ps_prochandle* ph) {
   lib_info* lib = ph->libs;
   while (lib != NULL) {
     // we are iterating over shared objects from the core dump. look for
@@ -298,7 +298,7 @@ bool init_classsharing_workaround(struct ps_prochandle* ph) {
 
       // Hotspot vm types are not exported to build this library. So
       // using equivalent type jboolean to read the value of
-      // UseSharedSpaces which is same as hotspot type "bool".
+      // UseSharedSpaces which is same as hotspot type "proc_bool".
       if (read_jboolean(ph, useSharedSpacesAddr, &useSharedSpaces) != true) {
         print_debug("can't read the value of 'UseSharedSpaces' flag\n");
         return false;

@@ -1,3 +1,5 @@
+require 'stringio'
+
 $TAB = "\t"
 
 class File
@@ -171,6 +173,10 @@ class Object
 		return false
 	end
 
+	def safe_freeze
+		return self.nil? ? self : self.freeze
+	end
+
 	def _false; return false; end
 	def _true; return true; end
 
@@ -316,12 +322,12 @@ class Object
 	end
 end
 
-def stream_stream(in_stream, out_stream, lock)
+def stream_stream(stream_in:, stream_out:, lock:)
 	return Thread.new {
 		begin
-			in_stream.each {|l|
+			stream_in.each {|l|
 				lock.maybe_synchronize {
-					out_stream.puts l
+					stream_out.puts l
 				}
 			}
 		rescue
@@ -329,17 +335,20 @@ def stream_stream(in_stream, out_stream, lock)
 	}
 end
 
-def execute(*cmd)
-		Open3.popen3(*cmd) { |stdin, stdout, stderr, wait_thr|
-			io_lock = Mutex.new
-
-			thread_stdout = stream_stream(stdout, STDOUT, io_lock)
-			thread_stdin = stream_stream(stderr, STDERR, io_lock)
-
-			stdin.close
-
-			thread_stdout.join
-			thread_stdin.join
-			wait_thr.value
-		}
+def stream_capture(stream_in:, stream_out:, lock:)
+	stream_out = [ stream_out ] unless stream_out.is_a?(Array)
+	stream_out.uniq!
+	stream_out.compact!
+	return Thread.new {
+		begin
+			stream_in.each {|l|
+				lock.maybe_synchronize {
+					stream_out.each { |stream|
+						stream.puts l
+					}
+				}
+			}
+		rescue
+		end
+	}
 end

@@ -125,13 +125,14 @@ override_features_myanmar (hb_ot_shape_planner_t *plan)
   plan->map.disable_feature (HB_TAG('l','i','g','a'));
 }
 
-
+namespace {
 enum syllable_type_t {
   consonant_syllable,
   punctuation_cluster,
   broken_cluster,
   non_myanmar_cluster,
 };
+}
 
 #include "hb-ot-shape-complex-myanmar-machine.hh"
 

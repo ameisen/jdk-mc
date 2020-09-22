@@ -43,11 +43,13 @@ typedef enum ps_err_e {
 #define psaddr_t uintptr_t
 #endif
 
-#ifndef bool
-typedef int bool;
-#define true  1
-#define false 0
-#endif  // bool
+#ifndef proc_bool
+typedef int proc_bool;
+#ifndef __cplusplus
+# define true  1
+# define false 0
+#endif
+#endif  // proc_bool
 
 #ifndef lwpid_t
 #define lwpid_t uintptr_t
@@ -60,11 +62,13 @@ typedef int bool;
 #include <machine/reg.h>
 #include <proc_service.h>
 
-// This C bool type must be int for compatibility with BSD calls and
-// it would be a mistake to equivalence it to C++ bool on many platforms
-typedef int bool;
-#define true  1
-#define false 0
+// This C proc_bool type must be int for compatibility with BSD calls and
+// it would be a mistake to equivalence it to C++ proc_bool on many platforms
+typedef int proc_bool;
+#ifndef __cplusplus
+# define true  1
+# define false 0
+#endif
 
 #endif // __APPLE__
 
@@ -112,7 +116,7 @@ void Prelease(struct ps_prochandle* ph);
 
 // initialize libproc (call this only once per app)
 // pass true to make library verbose
-bool init_libproc(bool verbose);
+proc_bool init_libproc(proc_bool verbose);
 
 // get number of threads
 int get_num_threads(struct ps_prochandle* ph);
@@ -121,7 +125,7 @@ int get_num_threads(struct ps_prochandle* ph);
 lwpid_t get_lwp_id(struct ps_prochandle* ph, int index);
 
 // get regs for a given lwp
-bool get_lwp_regs(struct ps_prochandle* ph, lwpid_t lid, struct reg* regs);
+proc_bool get_lwp_regs(struct ps_prochandle* ph, lwpid_t lid, struct reg* regs);
 
 // get number of shared objects
 int get_num_libs(struct ps_prochandle* ph);
@@ -133,7 +137,7 @@ const char* get_lib_name(struct ps_prochandle* ph, int index);
 uintptr_t get_lib_base(struct ps_prochandle* ph, int index);
 
 // returns true if given library is found in lib list
-bool find_lib(struct ps_prochandle* ph, const char *lib_name);
+proc_bool find_lib(struct ps_prochandle* ph, const char *lib_name);
 
 // symbol lookup
 uintptr_t lookup_symbol(struct ps_prochandle* ph,  const char* object_name,

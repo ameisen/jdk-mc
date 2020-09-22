@@ -33,7 +33,7 @@
 int read_elf_header(int fd, ELF_EHDR* ehdr);
 
 // is given file descriptor corresponds to an ELF file?
-bool is_elf_file(int fd);
+proc_bool is_elf_file(int fd);
 
 // read program header table of an ELF file. caller has to
 // free the result pointer after use. NULL on failure.

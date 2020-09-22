@@ -228,11 +228,13 @@ data_destroy_khmer (void *data)
 }
 
 
+namespace {
 enum syllable_type_t {
   consonant_syllable,
   broken_cluster,
   non_khmer_cluster,
 };
+}
 
 #include "hb-ot-shape-complex-khmer-machine.hh"
 

@@ -29,7 +29,7 @@
 #include "libproc_impl.h"
 
 /* from read_leb128() in dwarf.c in binutils */
-uintptr_t DwarfParser::read_leb(bool sign) {
+uintptr_t DwarfParser::read_leb(proc_bool sign) {
   uintptr_t result = 0L;
   unsigned char b;
   unsigned int shift = 0;
@@ -60,7 +60,7 @@ uint64_t DwarfParser::get_entry_length() {
   return length;
 }
 
-bool DwarfParser::process_cie(unsigned char *start_of_entry, uint32_t id) {
+proc_bool DwarfParser::process_cie(unsigned char *start_of_entry, uint32_t id) {
   unsigned char *orig_pos = _buf;
   _buf = start_of_entry - id;
 
@@ -74,7 +74,7 @@ bool DwarfParser::process_cie(unsigned char *start_of_entry, uint32_t id) {
   _buf++;    // Skip version (assume to be "1")
 
   char *augmentation_string = reinterpret_cast<char *>(_buf);
-  bool has_ehdata = (strcmp("eh", augmentation_string) == 0);
+  proc_bool has_ehdata = (strcmp("eh", augmentation_string) == 0);
   _buf += strlen(augmentation_string) + 1; // includes '\0'
   if (has_ehdata) {
     _buf += sizeof(void *); // Skip EH data
@@ -289,7 +289,7 @@ unsigned int DwarfParser::get_pc_range() {
   return static_cast<unsigned int>(result);
 }
 
-bool DwarfParser::process_dwarf(const uintptr_t pc) {
+proc_bool DwarfParser::process_dwarf(const uintptr_t pc) {
   // https://refspecs.linuxfoundation.org/LSB_3.0.0/LSB-PDA/LSB-PDA/ehframechpt.html
   _buf = _lib->eh_frame.data;
   unsigned char *end = _lib->eh_frame.data + _lib->eh_frame.size;

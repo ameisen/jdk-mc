@@ -82,7 +82,7 @@ int pathmap_open(const char* name) {
   return -1;
 }
 
-static bool _libsaproc_debug;
+static proc_bool _libsaproc_debug;
 
 void print_debug(const char* format,...) {
   if (_libsaproc_debug) {
@@ -103,13 +103,13 @@ void print_error(const char* format,...) {
   va_end(alist);
 }
 
-bool is_debug() {
+proc_bool is_debug() {
   return _libsaproc_debug;
 }
 
 #ifdef __APPLE__
 // get arch offset in file
-bool get_arch_off(int fd, cpu_type_t cputype, off_t *offset) {
+proc_bool get_arch_off(int fd, cpu_type_t cputype, off_t *offset) {
   struct fat_header fatheader;
   struct fat_arch fatarch;
   off_t img_start = 0;
@@ -139,7 +139,7 @@ bool get_arch_off(int fd, cpu_type_t cputype, off_t *offset) {
   return true;
 }
 
-bool is_macho_file(int fd) {
+proc_bool is_macho_file(int fd) {
   mach_header_64 fhdr;
   off_t x86_64_off;
 
@@ -166,7 +166,7 @@ bool is_macho_file(int fd) {
 #endif //__APPLE__
 
 // initialize libproc
-bool init_libproc(bool debug) {
+proc_bool init_libproc(proc_bool debug) {
    _libsaproc_debug = debug;
 #ifndef __APPLE__
    // initialize the thread_db library
@@ -363,7 +363,7 @@ static int thread_db_callback(const td_thrhandle_t *th_p, void *data) {
 }
 
 // read thread_info using libthread_db
-bool read_thread_info(struct ps_prochandle* ph, thread_info_callback cb) {
+proc_bool read_thread_info(struct ps_prochandle* ph, thread_info_callback cb) {
   struct thread_db_client_data mydata;
   td_thragent_t* thread_agent = NULL;
   if (td_ta_new(ph, &thread_agent) != TD_OK) {
@@ -410,7 +410,7 @@ lwpid_t get_lwp_id(struct ps_prochandle* ph, int index) {
 
 #ifdef __APPLE__
 // set lwp_id of n'th thread
-bool set_lwp_id(struct ps_prochandle* ph, int index, lwpid_t lwpid) {
+proc_bool set_lwp_id(struct ps_prochandle* ph, int index, lwpid_t lwpid) {
   int count = 0;
   sa_thread_info* thr = ph->threads;
   while (thr) {
@@ -425,7 +425,7 @@ bool set_lwp_id(struct ps_prochandle* ph, int index, lwpid_t lwpid) {
 }
 
 // get regs of n-th thread, only used in fillThreads the first time called
-bool get_nth_lwp_regs(struct ps_prochandle* ph, int index, struct reg* regs) {
+proc_bool get_nth_lwp_regs(struct ps_prochandle* ph, int index, struct reg* regs) {
   int count = 0;
   sa_thread_info* thr = ph->threads;
   while (thr) {
@@ -445,7 +445,7 @@ bool get_nth_lwp_regs(struct ps_prochandle* ph, int index, struct reg* regs) {
 #endif // __APPLE__
 
 // get regs for a given lwp
-bool get_lwp_regs(struct ps_prochandle* ph, lwpid_t lwp_id, struct reg* regs) {
+proc_bool get_lwp_regs(struct ps_prochandle* ph, lwpid_t lwp_id, struct reg* regs) {
   return ph->ops->get_lwp_regs(ph, lwp_id, regs);
 }
 
@@ -482,7 +482,7 @@ uintptr_t get_lib_base(struct ps_prochandle* ph, int index) {
   return (uintptr_t)NULL;
 }
 
-bool find_lib(struct ps_prochandle* ph, const char *lib_name) {
+proc_bool find_lib(struct ps_prochandle* ph, const char *lib_name) {
   lib_info *p = ph->libs;
   while (p) {
     if (strcmp(p->name, lib_name) == 0) {

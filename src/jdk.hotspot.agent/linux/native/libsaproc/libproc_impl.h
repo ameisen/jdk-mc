@@ -75,13 +75,13 @@ typedef struct ps_prochandle_ops {
    // "derived class" clean-up
    void (*release)(struct ps_prochandle* ph);
    // read from debuggee
-   bool (*p_pread)(struct ps_prochandle *ph,
+   proc_bool (*p_pread)(struct ps_prochandle *ph,
             uintptr_t addr, char *buf, size_t size);
    // write into debuggee
-   bool (*p_pwrite)(struct ps_prochandle *ph,
+   proc_bool (*p_pwrite)(struct ps_prochandle *ph,
             uintptr_t addr, const char *buf , size_t size);
    // get integer regset of a thread
-   bool (*get_lwp_regs)(struct ps_prochandle* ph, lwpid_t lwp_id, struct user_regs_struct* regs);
+   proc_bool (*get_lwp_regs)(struct ps_prochandle* ph, lwpid_t lwp_id, struct user_regs_struct* regs);
 } ps_prochandle_ops;
 
 // the ps_prochandle
@@ -120,7 +120,7 @@ int pathmap_open(const char* name);
 
 void print_debug(const char* format,...);
 void print_error(const char* format,...);
-bool is_debug();
+proc_bool is_debug();
 
 // deletes a thread from the thread list
 void delete_thread_info(struct ps_prochandle* ph, thread_info* thr);
@@ -136,7 +136,7 @@ lib_info* add_lib_info_fd(struct ps_prochandle* ph, const char* libname, int fd,
 thread_info* add_thread_info(struct ps_prochandle* ph, lwpid_t lwp_id);
 
 // a test for ELF signature without using libelf
-bool is_elf_file(int fd);
+proc_bool is_elf_file(int fd);
 
 #ifdef __cplusplus
 }

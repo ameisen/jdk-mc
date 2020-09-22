@@ -59,7 +59,7 @@ static int core_cmp_mapping(const void *lhsp, const void *rhsp)
 
 // we sort map_info by starting virtual address so that we can do
 // binary search to read from an address.
-static bool sort_map_array(struct ps_prochandle* ph) {
+static proc_bool sort_map_array(struct ps_prochandle* ph) {
   size_t num_maps = ph->core->num_maps;
   map_info* map = ph->core->maps;
   int i = 0;
@@ -105,7 +105,7 @@ static bool sort_map_array(struct ps_prochandle* ph) {
 #define MIN(x, y) (((x) < (y))? (x): (y))
 #endif
 
-static bool core_read_data(struct ps_prochandle* ph, uintptr_t addr, char *buf, size_t size) {
+static proc_bool core_read_data(struct ps_prochandle* ph, uintptr_t addr, char *buf, size_t size) {
    ssize_t resid = size;
    int page_size=sysconf(_SC_PAGE_SIZE);
    while (resid != 0) {
@@ -156,12 +156,12 @@ static bool core_read_data(struct ps_prochandle* ph, uintptr_t addr, char *buf, 
 }
 
 // null implementation for write
-static bool core_write_data(struct ps_prochandle* ph,
+static proc_bool core_write_data(struct ps_prochandle* ph,
                              uintptr_t addr, const char *buf , size_t size) {
    return false;
 }
 
-static bool core_get_lwp_regs(struct ps_prochandle* ph, lwpid_t lwp_id,
+static proc_bool core_get_lwp_regs(struct ps_prochandle* ph, lwpid_t lwp_id,
                           struct user_regs_struct* regs) {
    // for core we have cached the lwp regs from NOTE section
    thread_info* thr = ph->threads;
@@ -183,7 +183,7 @@ static ps_prochandle_ops core_ops = {
 };
 
 // read regs and create thread from NT_PRSTATUS entries from core file
-static bool core_handle_prstatus(struct ps_prochandle* ph, const char* buf, size_t nbytes) {
+static proc_bool core_handle_prstatus(struct ps_prochandle* ph, const char* buf, size_t nbytes) {
    // we have to read prstatus_t from buf
    // assert(nbytes == sizeof(prstaus_t), "size mismatch on prstatus_t");
    prstatus_t* prstat = (prstatus_t*) buf;
@@ -248,7 +248,7 @@ static bool core_handle_prstatus(struct ps_prochandle* ph, const char* buf, size
 #define ROUNDUP(x, y)  ((((x)+((y)-1))/(y))*(y))
 
 // read NT_PRSTATUS entries from core NOTE segment
-static bool core_handle_note(struct ps_prochandle* ph, ELF_PHDR* note_phdr) {
+static proc_bool core_handle_note(struct ps_prochandle* ph, ELF_PHDR* note_phdr) {
    char* buf = NULL;
    char* p = NULL;
    size_t size = note_phdr->p_filesz;
@@ -309,7 +309,7 @@ err:
 }
 
 // read all segments from core file
-static bool read_core_segments(struct ps_prochandle* ph, ELF_EHDR* core_ehdr) {
+static proc_bool read_core_segments(struct ps_prochandle* ph, ELF_EHDR* core_ehdr) {
    int i = 0;
    ELF_PHDR* phbuf = NULL;
    ELF_PHDR* core_php = NULL;
@@ -368,7 +368,7 @@ err:
 }
 
 // read segments of a shared object
-static bool read_lib_segments(struct ps_prochandle* ph, int lib_fd, ELF_EHDR* lib_ehdr, uintptr_t lib_base) {
+static proc_bool read_lib_segments(struct ps_prochandle* ph, int lib_fd, ELF_EHDR* lib_ehdr, uintptr_t lib_base) {
   int i = 0;
   ELF_PHDR* phbuf;
   ELF_PHDR* lib_php = NULL;
@@ -427,7 +427,7 @@ err:
 }
 
 // process segments from interpreter (ld.so or ld-linux.so)
-static bool read_interp_segments(struct ps_prochandle* ph) {
+static proc_bool read_interp_segments(struct ps_prochandle* ph) {
   ELF_EHDR interp_ehdr;
 
   if (read_elf_header(ph->core->interp_fd, &interp_ehdr) != true) {
@@ -444,7 +444,7 @@ static bool read_interp_segments(struct ps_prochandle* ph) {
 }
 
 // process segments of a a.out
-static bool read_exec_segments(struct ps_prochandle* ph, ELF_EHDR* exec_ehdr) {
+static proc_bool read_exec_segments(struct ps_prochandle* ph, ELF_EHDR* exec_ehdr) {
   int i = 0;
   ELF_PHDR* phbuf = NULL;
   ELF_PHDR* exec_php = NULL;
@@ -567,7 +567,7 @@ static uintptr_t calc_prelinked_load_address(struct ps_prochandle* ph, int lib_f
 
 // read shared library info from runtime linker's data structures.
 // This work is done by librtlb_db in Solaris
-static bool read_shared_lib_info(struct ps_prochandle* ph) {
+static proc_bool read_shared_lib_info(struct ps_prochandle* ph) {
   uintptr_t addr = ph->core->dynamic_addr;
   uintptr_t debug_base;
   uintptr_t first_link_map_addr;

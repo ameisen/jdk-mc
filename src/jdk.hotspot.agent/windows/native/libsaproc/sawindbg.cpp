@@ -324,7 +324,7 @@ STDMETHODIMP SAOutputCallbacks::Output(THIS_
   return S_OK;
 }
 
-static bool getWindbgInterfaces(JNIEnv* env, jobject obj) {
+static proc_bool getWindbgInterfaces(JNIEnv* env, jobject obj) {
   // get windbg interfaces ..
 
   IDebugClient* ptrIDebugClient = 0;
@@ -369,7 +369,7 @@ static bool getWindbgInterfaces(JNIEnv* env, jobject obj) {
   return true;
 }
 
-static bool setImageAndSymbolPath(JNIEnv* env, jobject obj) {
+static proc_bool setImageAndSymbolPath(JNIEnv* env, jobject obj) {
   jclass clazz = env->GetObjectClass(obj);
   CHECK_EXCEPTION_(false);
   jstring path;
@@ -411,7 +411,7 @@ static HRESULT WaitForEvent(IDebugControl *ptrIDebugControl) {
   return hr;
 }
 
-static bool openDumpFile(JNIEnv* env, jobject obj, jstring coreFileName) {
+static proc_bool openDumpFile(JNIEnv* env, jobject obj, jstring coreFileName) {
   // open the dump file
   AutoJavaString coreFile(env, coreFileName);
   CHECK_EXCEPTION_(false);
@@ -433,7 +433,7 @@ static bool openDumpFile(JNIEnv* env, jobject obj, jstring coreFileName) {
 }
 
 
-static bool attachToProcess(JNIEnv* env, jobject obj, jint pid) {
+static proc_bool attachToProcess(JNIEnv* env, jobject obj, jint pid) {
   if (!setImageAndSymbolPath(env, obj)) {
      return false;
   }
@@ -470,7 +470,7 @@ static bool attachToProcess(JNIEnv* env, jobject obj, jint pid) {
 }
 
 
-static bool addLoadObjects(JNIEnv* env, jobject obj) {
+static proc_bool addLoadObjects(JNIEnv* env, jobject obj) {
   IDebugSymbols* ptrIDebugSymbols = (IDebugSymbols*) env->GetLongField(obj,
                                                       ptrIDebugSymbols_ID);
   CHECK_EXCEPTION_(false);
@@ -504,7 +504,7 @@ static bool addLoadObjects(JNIEnv* env, jobject obj) {
   return true;
 }
 
-static bool addThreads(JNIEnv* env, jobject obj) {
+static proc_bool addThreads(JNIEnv* env, jobject obj) {
   IDebugSystemObjects* ptrIDebugSystemObjects = (IDebugSystemObjects*) env->GetLongField(obj,
                                                       ptrIDebugSystemObjects_ID);
   CHECK_EXCEPTION_(false);
@@ -697,7 +697,7 @@ JNIEXPORT void JNICALL Java_sun_jvm_hotspot_debugger_windbg_WindbgDebuggerLocal_
     } \
   } while (false)
 
-static bool releaseWindbgInterfaces(JNIEnv* env, jobject obj) {
+static proc_bool releaseWindbgInterfaces(JNIEnv* env, jobject obj) {
   RELEASE(ptrIDebugDataSpaces_ID);
   RELEASE(ptrIDebugOutputCallbacks_ID);
   RELEASE(ptrIDebugAdvanced_ID);

@@ -228,8 +228,13 @@ module Architectures
 		include AutoInstance(self)
 	end
 
+	@@list = []
+	def self.list
+    @@list
+  end
+
 	# TODO improve me regarding sets and flags
-	NATIVE = Architecture.new(
+	list << NATIVE = Architecture.new(
 		name: "Native",
 		manufacturer: Manufacturers::get(Sys::CPU.model),
 		sets: [InstructionSets::X86_64, InstructionSets::SSE3],
@@ -239,7 +244,7 @@ module Architectures
 	# Intel
 	module Intel
 		def self.arch(name:, sets:, slow_avx: false, fast_avx: false, fast_avx2: false, fast_avx512: false, gcc_flags: nil, msvc_flags: nil)
-			return Architecture.new(
+			Architecture.new(
 				name: name,
 				manufacturer: Manufacturers::INTEL,
 				sets: sets,
@@ -252,7 +257,7 @@ module Architectures
 			)
 		end
 
-		SKYLAKE_X = arch(
+		Architectures.list << SKYLAKE_X = arch(
 			name: "Skylake-X",
 			sets: [
 				InstructionSets::SSE3,
@@ -268,7 +273,7 @@ module Architectures
 			],
 			gcc_flags: ["-march=skylake-avx512"]
 		)
-		SKYLAKE = arch(
+		Architectures::list << SKYLAKE = arch(
 			name: "Skylake",
 			sets: [
 				InstructionSets::SSE3,
@@ -281,7 +286,7 @@ module Architectures
 			],
 			gcc_flags: ["-march=skylake"]
 		)
-		BROADWELL = arch(
+		Architectures::list << BROADWELL = arch(
 			name: "Broadwell",
 			sets: [
 				InstructionSets::SSE3,
@@ -294,7 +299,7 @@ module Architectures
 			],
 			gcc_flags: ["-march=broadwell"]
 		)
-		HASWELL = arch(
+		Architectures::list << HASWELL = arch(
 			name: "Haswell",
 			sets: [
 				InstructionSets::SSE3,
@@ -308,7 +313,7 @@ module Architectures
 			slow_avx: true, # Haswell downclocks _all_ cores
 			gcc_flags: ["-march=haswell"]
 		)
-		GENERIC = arch(
+		Architectures::list << GENERIC = arch(
 			name: "Intel",
 			sets: [
 				InstructionSets::X86_64,
@@ -338,7 +343,7 @@ module Architectures
 			)
 		end
 
-		ZEN_2 = arch(
+		Architectures::list << ZEN_2 = arch(
 			name: "Zen2",
 			sets: [
 				InstructionSets::SSE3,
@@ -354,7 +359,7 @@ module Architectures
 			gcc_flags: ["-march=znver2"]
 		)
 
-		ZEN_1 = arch(
+		Architectures::list << ZEN_1 = arch(
 			name: "Zen1",
 			sets: [
 				InstructionSets::SSE3,
@@ -370,7 +375,7 @@ module Architectures
 			gcc_flags: ["-march=znver1"]
 		)
 
-		K10 = arch(
+		Architectures::list << K10 = arch(
 			name: "K10",
 			sets: [
 				InstructionSets::SSE3,
@@ -380,7 +385,7 @@ module Architectures
 			gcc_flags: ["-march=amdfam10"]
 		)
 
-		GENERIC = arch(
+		Architectures::list << GENERIC = arch(
 			name: "AMD",
 			sets: [
 				InstructionSets::X86_64,
@@ -393,7 +398,7 @@ module Architectures
 	end
 
 	# Generic
-	DEFAULT = Architecture.new(
+	Architectures::list << DEFAULT = Architecture.new(
 		name: "Default",
 		manufacturer: Manufacturers::GENERIC,
 		sets: [InstructionSets::X86_64, InstructionSets::SSE3],
@@ -402,14 +407,8 @@ module Architectures
 
 	def self.get(name)
 		name = name.downcase
-		Architectures.instance_variables.each { |arch|
-			return arch if arch.downcase == name
-		}
-		Architectures::Intel.instance_variables.each { |arch|
-			return arch if arch.downcase == name
-		}
-		Architectures::AMD.instance_variables.each { |arch|
-			return arch if arch.downcase == name
+		Architectures::list.each { |arch|
+			return arch if arch.to_s.downcase == name
 		}
 		return nil
 	end

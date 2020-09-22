@@ -46,10 +46,11 @@ module Directory
 	end
 
 	@root = canonical(__dir__, "..")
+	@up_root = canonical(@root, "..")
 	@source = @root
 	@build_root = @source
 	@build = File.join(@build_root, "build")
-	@install = File.join(Dir.pwd, "install")
+	@install = File.join(@up_root, "install")
 	@java = nil #ENV["JAVA_HOME"]
 	@vc_root = ENV["VC_ROOT"]
 	@vc_bin = nil

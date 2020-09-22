@@ -218,7 +218,7 @@ static int open_file_from_debug_link(const char *name,
   return -1;
 }
 
-static struct symtab* build_symtab_internal(int fd, const char *filename, bool try_debuginfo);
+static struct symtab* build_symtab_internal(int fd, const char *filename, proc_bool try_debuginfo);
 
 /* Look for a ".gnu_debuglink" section.  If one exists, try to open a
    suitable debuginfo file and read a symbol table from it.  */
@@ -290,7 +290,7 @@ static struct symtab* build_symtab_from_build_id(Elf64_Nhdr *note)
 
 // read symbol table from given fd.  If try_debuginfo) is true, also
 // try to open an associated debuginfo file
-static struct symtab* build_symtab_internal(int fd, const char *filename, bool try_debuginfo) {
+static struct symtab* build_symtab_internal(int fd, const char *filename, proc_bool try_debuginfo) {
   ELF_EHDR ehdr;
   char *names = NULL;
   struct symtab* symtab = NULL;

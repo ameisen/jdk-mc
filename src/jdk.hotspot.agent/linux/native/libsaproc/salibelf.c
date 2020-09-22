@@ -39,7 +39,7 @@ int read_elf_header(int fd, ELF_EHDR* ehdr) {
    return 1;
 }
 
-bool is_elf_file(int fd) {
+proc_bool is_elf_file(int fd) {
    ELF_EHDR ehdr;
    return read_elf_header(fd, &ehdr);
 }

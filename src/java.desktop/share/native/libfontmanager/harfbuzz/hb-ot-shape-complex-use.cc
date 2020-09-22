@@ -243,6 +243,7 @@ data_destroy_use (void *data)
   free (data);
 }
 
+namespace {
 enum syllable_type_t {
   independent_cluster,
   virama_terminated_cluster,
@@ -253,6 +254,7 @@ enum syllable_type_t {
   broken_cluster,
   non_cluster,
 };
+}
 
 #include "hb-ot-shape-complex-use-machine.hh"
 

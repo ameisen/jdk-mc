@@ -88,7 +88,7 @@ int pathmap_open(const char* name) {
   return -1;
 }
 
-static bool _libsaproc_debug;
+static proc_bool _libsaproc_debug;
 
 void print_debug(const char* format,...) {
    if (_libsaproc_debug) {
@@ -109,13 +109,13 @@ void print_error(const char* format,...) {
   va_end(alist);
 }
 
-bool is_debug() {
+proc_bool is_debug() {
    return _libsaproc_debug;
 }
 
 // initialize libproc
-JNIEXPORT bool JNICALL
-init_libproc(bool debug) {
+JNIEXPORT proc_bool JNICALL
+init_libproc(proc_bool debug) {
    // init debug mode
    _libsaproc_debug = debug;
    return true;
@@ -159,7 +159,7 @@ lib_info* add_lib_info(struct ps_prochandle* ph, const char* libname, uintptr_t 
    return add_lib_info_fd(ph, libname, -1, base);
 }
 
-static bool fill_instr_info(lib_info* lib) {
+static proc_bool fill_instr_info(lib_info* lib) {
   off_t current_pos;
   ELF_EHDR ehdr;
   ELF_PHDR* phbuf = NULL;
@@ -203,7 +203,7 @@ static bool fill_instr_info(lib_info* lib) {
 
 }
 
-bool read_eh_frame(struct ps_prochandle* ph, lib_info* lib) {
+proc_bool read_eh_frame(struct ps_prochandle* ph, lib_info* lib) {
   off_t current_pos = -1;
   ELF_EHDR ehdr;
   ELF_SHDR* shbuf = NULL;
@@ -394,7 +394,7 @@ lwpid_t get_lwp_id(struct ps_prochandle* ph, int index) {
 }
 
 // get regs for a given lwp
-bool get_lwp_regs(struct ps_prochandle* ph, lwpid_t lwp_id, struct user_regs_struct* regs) {
+proc_bool get_lwp_regs(struct ps_prochandle* ph, lwpid_t lwp_id, struct user_regs_struct* regs) {
   return ph->ops->get_lwp_regs(ph, lwp_id, regs);
 }
 
@@ -431,7 +431,7 @@ uintptr_t get_lib_base(struct ps_prochandle* ph, int index) {
    return (uintptr_t)NULL;
 }
 
-bool find_lib(struct ps_prochandle* ph, const char *lib_name) {
+proc_bool find_lib(struct ps_prochandle* ph, const char *lib_name) {
   lib_info *p = ph->libs;
   while (p) {
     if (strcmp(p->name, lib_name) == 0) {
@@ -515,4 +515,3 @@ ps_lgetregs(struct ps_prochandle *ph, lwpid_t lid, prgregset_t gregset) {
   print_debug("ps_lgetfpregs not implemented\n");
   return PS_OK;
 }
-

@@ -68,7 +68,7 @@ static jmethodID createLoadObject_ID = 0;
 static jmethodID getJavaThreadsInfo_ID = 0;
 
 // indicator if thread id (lwpid_t) was set
-static bool _threads_filled = false;
+static proc_bool _threads_filled = false;
 
 // mach_exc_server defined in the generated mach_excServer.c
 extern boolean_t mach_exc_server(mach_msg_header_t *input_msg_hdr,
@@ -441,7 +441,7 @@ Java_sun_jvm_hotspot_debugger_bsd_BsdDebuggerLocal_readBytesFromProcess0(
   * The work cannot be done at init0 since Threads is not available yet(VM not initialized yet).
   * This function should be called only once if succeeded
   */
-bool fill_java_threads(JNIEnv* env, jobject this_obj, struct ps_prochandle* ph) {
+proc_bool fill_java_threads(JNIEnv* env, jobject this_obj, struct ps_prochandle* ph) {
   int n = 0, i = 0, j;
   struct reg regs;
 
@@ -681,30 +681,30 @@ Java_sun_jvm_hotspot_debugger_bsd_BsdDebuggerLocal_getThreadIntegerRegisterSet0(
  */
 JNIEXPORT jint JNICALL
 Java_sun_jvm_hotspot_debugger_macosx_MacOSXDebuggerLocal_translateTID0(
-  JNIEnv *env, jobject this_obj, jint tid) 
+  JNIEnv *env, jobject this_obj, jint tid)
 {
   print_debug("translateTID0 called on tid = 0x%x\n", (int)tid);
 
   kern_return_t result;
   thread_t foreign_tid, usable_tid;
   mach_msg_type_name_t type;
-  
+
   foreign_tid = tid;
-    
+
   task_t gTask = getTask(env, this_obj);
-  result = mach_port_extract_right(gTask, foreign_tid, 
-				   MACH_MSG_TYPE_COPY_SEND, 
+  result = mach_port_extract_right(gTask, foreign_tid,
+				   MACH_MSG_TYPE_COPY_SEND,
 				   &usable_tid, &type);
   if (result != KERN_SUCCESS)
     return -1;
-    
+
   print_debug("translateTID0: 0x%x -> 0x%x\n", foreign_tid, usable_tid);
-    
+
   return (jint) usable_tid;
 }
 
 // attach to a process/thread specified by "pid"
-static bool ptrace_attach(pid_t pid) {
+static proc_bool ptrace_attach(pid_t pid) {
   errno = 0;
   ptrace(PT_ATTACHEXC, pid, 0, 0);
 
@@ -759,7 +759,7 @@ kern_return_t catch_mach_exception_raise_state_identity(
 }
 
 // wait to receive an exception message
-static bool wait_for_exception() {
+static proc_bool wait_for_exception() {
   kern_return_t result;
 
   result = mach_msg(&exc_msg.header,
@@ -986,7 +986,7 @@ Java_sun_jvm_hotspot_debugger_bsd_BsdDebuggerLocal_attach0__Ljava_lang_String_2L
   fillLoadObjects(env, this_obj, ph);
 }
 
-static void detach_cleanup(task_t gTask, JNIEnv *env, jobject this_obj, bool throw_exception) {
+static void detach_cleanup(task_t gTask, JNIEnv *env, jobject this_obj, proc_bool throw_exception) {
   mach_port_deallocate(mach_task_self(), tgt_exception_port);
   mach_port_deallocate(mach_task_self(), gTask);
 

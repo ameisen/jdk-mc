@@ -115,7 +115,7 @@ struct symtab* build_symtab(int fd) {
   symtab_command symtabcmd;
   nlist_64 lentry;
 
-  bool lcsymtab_exist = false;
+  proc_bool lcsymtab_exist = false;
 
   long filepos = ltell(fd);
   for (i = 0; i < header.ncmds; i++) {

@@ -8,6 +8,8 @@ _runtime_require 'system.rb'
 _runtime_require 'error.rb'
 _runtime_require 'extensions.rb'
 _runtime_require 'argument.rb'
+_runtime_require 'executable.rb'
+_runtime_require 'compressors.rb'
 
 require 'etc'
 require 'fileutils'

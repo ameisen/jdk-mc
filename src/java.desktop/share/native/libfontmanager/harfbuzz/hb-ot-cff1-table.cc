@@ -206,24 +206,26 @@ struct bounds_t
   point_t max;
 };
 
-struct extents_param_t
-{
-  void init (const OT::cff1::accelerator_t *_cff)
+namespace {
+  struct extents_param_t
   {
-    path_open = false;
-    cff = _cff;
-    bounds.init ();
-  }
+    void init (const OT::cff1::accelerator_t *_cff)
+    {
+      path_open = false;
+      cff = _cff;
+      bounds.init ();
+    }
 
-  void start_path ()         { path_open = true; }
-  void end_path ()           { path_open = false; }
-  bool is_path_open () const { return path_open; }
+    void start_path ()         { path_open = true; }
+    void end_path ()           { path_open = false; }
+    bool is_path_open () const { return path_open; }
 
-  bool    path_open;
-  bounds_t  bounds;
+    bool    path_open;
+    bounds_t  bounds;
 
-  const OT::cff1::accelerator_t *cff;
-};
+    const OT::cff1::accelerator_t *cff;
+  };
+}
 
 struct cff1_path_procs_extents_t : path_procs_t<cff1_path_procs_extents_t, cff1_cs_interp_env_t, extents_param_t>
 {

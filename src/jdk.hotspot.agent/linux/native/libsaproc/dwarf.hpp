@@ -73,11 +73,11 @@ class DwarfParser {
     int _cfa_offset;
     int _ra_cfa_offset;
     int _bp_cfa_offset;
-    bool _bp_offset_available;
+    proc_bool _bp_offset_available;
 
-    uintptr_t read_leb(bool sign);
+    uintptr_t read_leb(proc_bool sign);
     uint64_t get_entry_length();
-    bool process_cie(unsigned char *start_of_entry, uint32_t id);
+    proc_bool process_cie(unsigned char *start_of_entry, uint32_t id);
     void parse_dwarf_instructions(uintptr_t begin, uintptr_t pc, const unsigned char *end);
     uint32_t get_decoded_value();
     unsigned int get_pc_range();
@@ -97,18 +97,18 @@ class DwarfParser {
                                  _bp_offset_available(false) {};
 
     ~DwarfParser() {}
-    bool process_dwarf(const uintptr_t pc);
+    proc_bool process_dwarf(const uintptr_t pc);
     enum DWARF_Register get_cfa_register() { return _cfa_reg; }
     int get_cfa_offset() { return _cfa_offset; }
     int get_ra_cfa_offset() { return _ra_cfa_offset; }
     int get_bp_cfa_offset() { return _bp_cfa_offset; }
-    bool is_bp_offset_available() { return _bp_offset_available; }
+    proc_bool is_bp_offset_available() { return _bp_offset_available; }
 
-    bool is_in(long pc) {
+    proc_bool is_in(long pc) {
       return (_lib->exec_start <= pc) && (pc < _lib->exec_end);
     }
 
-    bool is_parseable() {
+    proc_bool is_parseable() {
       return _lib->eh_frame.data != NULL;
     }
 };

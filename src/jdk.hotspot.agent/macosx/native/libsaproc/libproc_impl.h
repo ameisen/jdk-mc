@@ -119,15 +119,15 @@ typedef struct ps_prochandle_ops {
    // "derived class" clean-up
    void (*release)(struct ps_prochandle* ph);
    // read from debuggee
-   bool (*p_pread)(struct ps_prochandle *ph,
+   proc_bool (*p_pread)(struct ps_prochandle *ph,
             uintptr_t addr, char *buf, size_t size);
    // write into debuggee
-   bool (*p_pwrite)(struct ps_prochandle *ph,
+   proc_bool (*p_pwrite)(struct ps_prochandle *ph,
             uintptr_t addr, const char *buf , size_t size);
    // get integer regset of a thread
-   bool (*get_lwp_regs)(struct ps_prochandle* ph, lwpid_t lwp_id, struct reg* regs);
+   proc_bool (*get_lwp_regs)(struct ps_prochandle* ph, lwpid_t lwp_id, struct reg* regs);
    // get info on thread
-   bool (*get_lwp_info)(struct ps_prochandle *ph, lwpid_t lwp_id, void *linfo);
+   proc_bool (*get_lwp_info)(struct ps_prochandle *ph, lwpid_t lwp_id, void *linfo);
 } ps_prochandle_ops;
 
 // the ps_prochandle
@@ -162,12 +162,12 @@ struct ps_prochandle {
 int pathmap_open(const char* name);
 void print_debug(const char* format,...);
 void print_error(const char* format,...);
-bool is_debug();
+proc_bool is_debug();
 
-typedef bool (*thread_info_callback)(struct ps_prochandle* ph, pthread_t pid, lwpid_t lwpid);
+typedef proc_bool (*thread_info_callback)(struct ps_prochandle* ph, pthread_t pid, lwpid_t lwpid);
 
 // reads thread info using libthread_db and calls above callback for each thread
-bool read_thread_info(struct ps_prochandle* ph, thread_info_callback cb);
+proc_bool read_thread_info(struct ps_prochandle* ph, thread_info_callback cb);
 
 // adds a new shared object to lib list, returns NULL on failure
 lib_info* add_lib_info(struct ps_prochandle* ph, const char* libname, uintptr_t base);
@@ -181,17 +181,17 @@ sa_thread_info* add_thread_info(struct ps_prochandle* ph, pthread_t pthread_id, 
 
 #ifdef __APPLE__
 // a test for Mach-O signature
-bool is_macho_file(int fd);
+proc_bool is_macho_file(int fd);
 // skip fat head to get image start offset of cpu_type_t
 // return false if any error happens, else value in offset.
-bool get_arch_off(int fd, cpu_type_t cputype, off_t *offset);
+proc_bool get_arch_off(int fd, cpu_type_t cputype, off_t *offset);
 #else
-bool is_elf_file(int fd);
+proc_bool is_elf_file(int fd);
 #endif // __APPLE__
 
 lwpid_t get_lwp_id(struct ps_prochandle* ph, int index);
-bool set_lwp_id(struct ps_prochandle* ph, int index, lwpid_t lwpid);
-bool get_nth_lwp_regs(struct ps_prochandle* ph, int index, struct reg* regs);
+proc_bool set_lwp_id(struct ps_prochandle* ph, int index, lwpid_t lwpid);
+proc_bool get_nth_lwp_regs(struct ps_prochandle* ph, int index, struct reg* regs);
 
 // ps_pglobal_lookup() looks up the symbol sym_name in the symbol table
 // of the load object object_name in the target process identified by ph.

@@ -47,8 +47,8 @@
 
 // This C bool type must be int for compatibility with Linux calls and
 // it would be a mistake to equivalence it to C++ bool on many platforms
+typedef int proc_bool;
 #ifndef __cplusplus
-typedef int bool;
 #define true  1
 #define false 0
 #endif
@@ -76,8 +76,8 @@ Prelease(struct ps_prochandle* ph);
 
 // initialize libproc (call this only once per app)
 // pass true to make library verbose
-JNIEXPORT bool JNICALL
-init_libproc(bool verbose);
+JNIEXPORT proc_bool JNICALL
+init_libproc(proc_bool verbose);
 
 // get number of threads
 int get_num_threads(struct ps_prochandle* ph);
@@ -86,7 +86,7 @@ int get_num_threads(struct ps_prochandle* ph);
 lwpid_t get_lwp_id(struct ps_prochandle* ph, int index);
 
 // get regs for a given lwp
-bool get_lwp_regs(struct ps_prochandle* ph, lwpid_t lid, struct user_regs_struct* regs);
+proc_bool get_lwp_regs(struct ps_prochandle* ph, lwpid_t lid, struct user_regs_struct* regs);
 
 // get number of shared objects
 int get_num_libs(struct ps_prochandle* ph);
@@ -98,7 +98,7 @@ const char* get_lib_name(struct ps_prochandle* ph, int index);
 uintptr_t get_lib_base(struct ps_prochandle* ph, int index);
 
 // returns true if given library is found in lib list
-bool find_lib(struct ps_prochandle* ph, const char *lib_name);
+proc_bool find_lib(struct ps_prochandle* ph, const char *lib_name);
 
 // returns lib which contains pc
 struct lib_info *find_lib_by_address(struct ps_prochandle* ph, uintptr_t pc);

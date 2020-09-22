@@ -6,6 +6,8 @@ module Error
 		CLEAN = -3
 		CONFIGURE = -4
 		BUILD = -5
+		PACKAGE = -6
+		INSTALL = -7
 	end
 
 	@flag_stack = [ Flag::GENERAL ]
@@ -31,5 +33,7 @@ module Error
 		def clean(*str); _error(Flag::CLEAN, *str); end
 		def configure(*str); _error(Flag::CONFIGURE, *str); end
 		def build(*str); _error(Flag::BUILD, *str); end
+		def package(*str); _error(Flag::PACKAGE, *str); end
+		def install(*str); _error(Flag::INSTALL, *str); end
 	end
 end

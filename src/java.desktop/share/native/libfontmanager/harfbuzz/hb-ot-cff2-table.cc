@@ -29,35 +29,37 @@
 
 using namespace CFF;
 
-struct extents_param_t
-{
-  void init ()
+namespace {
+  struct extents_param_t
   {
-    path_open = false;
-    min_x.set_int (0x7FFFFFFF);
-    min_y.set_int (0x7FFFFFFF);
-    max_x.set_int (-0x80000000);
-    max_y.set_int (-0x80000000);
-  }
+    void init ()
+    {
+      path_open = false;
+      min_x.set_int (0x7FFFFFFF);
+      min_y.set_int (0x7FFFFFFF);
+      max_x.set_int (-0x80000000);
+      max_y.set_int (-0x80000000);
+    }
 
-  void start_path ()         { path_open = true; }
-  void end_path ()           { path_open = false; }
-  bool is_path_open () const { return path_open; }
+    void start_path ()         { path_open = true; }
+    void end_path ()           { path_open = false; }
+    bool is_path_open () const { return path_open; }
 
-  void update_bounds (const point_t &pt)
-  {
-    if (pt.x < min_x) min_x = pt.x;
-    if (pt.x > max_x) max_x = pt.x;
-    if (pt.y < min_y) min_y = pt.y;
-    if (pt.y > max_y) max_y = pt.y;
-  }
+    void update_bounds (const point_t &pt)
+    {
+      if (pt.x < min_x) min_x = pt.x;
+      if (pt.x > max_x) max_x = pt.x;
+      if (pt.y < min_y) min_y = pt.y;
+      if (pt.y > max_y) max_y = pt.y;
+    }
 
-  bool  path_open;
-  number_t min_x;
-  number_t min_y;
-  number_t max_x;
-  number_t max_y;
-};
+    bool  path_open;
+    number_t min_x;
+    number_t min_y;
+    number_t max_x;
+    number_t max_y;
+  };
+}
 
 struct cff2_path_procs_extents_t : path_procs_t<cff2_path_procs_extents_t, cff2_cs_interp_env_t, extents_param_t>
 {

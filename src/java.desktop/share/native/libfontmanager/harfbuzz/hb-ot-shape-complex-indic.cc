@@ -361,6 +361,7 @@ consonant_position_from_face (const indic_shape_plan_t *indic_plan,
 }
 
 
+namespace {
 enum syllable_type_t {
   consonant_syllable,
   vowel_syllable,
@@ -369,6 +370,7 @@ enum syllable_type_t {
   broken_cluster,
   non_indic_cluster,
 };
+}
 
 #include "hb-ot-shape-complex-indic-machine.hh"
 

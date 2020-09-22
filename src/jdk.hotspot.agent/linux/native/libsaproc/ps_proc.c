@@ -66,7 +66,7 @@ static inline uintptr_t align(uintptr_t ptr, size_t size) {
 // unaligned address - alignment check, if required, should be done
 // before calling process_read_data.
 
-static bool process_read_data(struct ps_prochandle* ph, uintptr_t addr, char *buf, size_t size) {
+static proc_bool process_read_data(struct ps_prochandle* ph, uintptr_t addr, char *buf, size_t size) {
   long rslt;
   size_t i, words;
   uintptr_t end_addr = addr + size;
@@ -116,13 +116,13 @@ static bool process_read_data(struct ps_prochandle* ph, uintptr_t addr, char *bu
 }
 
 // null implementation for write
-static bool process_write_data(struct ps_prochandle* ph,
+static proc_bool process_write_data(struct ps_prochandle* ph,
                              uintptr_t addr, const char *buf , size_t size) {
   return false;
 }
 
 // "user" should be a pointer to a user_regs_struct
-static bool process_get_lwp_regs(struct ps_prochandle* ph, pid_t pid, struct user_regs_struct *user) {
+static proc_bool process_get_lwp_regs(struct ps_prochandle* ph, pid_t pid, struct user_regs_struct *user) {
   // we have already attached to all thread 'pid's, just use ptrace call
   // to get regset now. Note that we don't cache regset upfront for processes.
 // Linux on x86 and sparc are different.  On x86 ptrace(PTRACE_GETREGS, ...)
@@ -160,7 +160,7 @@ static bool process_get_lwp_regs(struct ps_prochandle* ph, pid_t pid, struct use
 
 }
 
-static bool ptrace_continue(pid_t pid, int signal) {
+static proc_bool ptrace_continue(pid_t pid, int signal) {
   // pass the signal to the process so we don't swallow it
   if (ptrace(PTRACE_CONT, pid, NULL, signal) < 0) {
     print_debug("ptrace(PTRACE_CONT, ..) failed for %d\n", pid);
@@ -224,7 +224,7 @@ static attach_state_t ptrace_waitpid(pid_t pid) {
 // "S (sleeping)", "D (disk sleep)", "T (stopped)", "T (tracing stop)",
 // "Z (zombie)", or "X (dead)"." Assumes that the thread is dead if we
 // don't find the status file or if the status is 'X' or 'Z'.
-static bool process_doesnt_exist(pid_t pid) {
+static proc_bool process_doesnt_exist(pid_t pid) {
   char fname[32];
   char buf[30];
   FILE *fp = NULL;
@@ -237,7 +237,7 @@ static bool process_doesnt_exist(pid_t pid) {
     // Assume the thread does not exist anymore.
     return true;
   }
-  bool found_state = false;
+  proc_bool found_state = false;
   size_t state_len = strlen(state_string);
   while (fgets(buf, sizeof(buf), fp) != NULL) {
     char *state = NULL;
@@ -335,7 +335,7 @@ static char * fgets_no_cr(char * buf, int n, FILE *fp)
    return rslt;
 }
 
-static bool read_lib_info(struct ps_prochandle* ph) {
+static proc_bool read_lib_info(struct ps_prochandle* ph) {
   char fname[32];
   char buf[PATH_MAX];
   FILE *fp = NULL;
@@ -403,7 +403,7 @@ static bool read_lib_info(struct ps_prochandle* ph) {
 }
 
 // detach a given pid
-static bool ptrace_detach(pid_t pid) {
+static proc_bool ptrace_detach(pid_t pid) {
   if (pid && ptrace(PTRACE_DETACH, pid, NULL, NULL) < 0) {
     print_debug("ptrace(PTRACE_DETACH, ..) failed for %d\n", pid);
     return false;
