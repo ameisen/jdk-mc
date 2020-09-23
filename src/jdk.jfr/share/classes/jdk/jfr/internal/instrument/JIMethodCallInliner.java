@@ -28,13 +28,13 @@ package jdk.jfr.internal.instrument;
 import java.util.ArrayList;
 import java.util.List;
 
-import jdk.internal.org.objectweb.asm.Label;
-import jdk.internal.org.objectweb.asm.MethodVisitor;
-import jdk.internal.org.objectweb.asm.Opcodes;
-import jdk.internal.org.objectweb.asm.commons.LocalVariablesSorter;
-import jdk.internal.org.objectweb.asm.commons.Remapper;
-import jdk.internal.org.objectweb.asm.commons.SimpleRemapper;
-import jdk.internal.org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.commons.Remapper;
+import org.objectweb.asm.commons.SimpleRemapper;
+import org.objectweb.asm.tree.MethodNode;
 import jdk.jfr.internal.LogLevel;
 import jdk.jfr.internal.LogTag;
 import jdk.jfr.internal.Logger;
@@ -70,7 +70,7 @@ final class JIMethodCallInliner extends LocalVariablesSorter {
      */
     public JIMethodCallInliner(int access, String desc, MethodVisitor mv,
             MethodNode inlineTarget, String oldClass, String newClass) {
-        super(Opcodes.ASM7, access, desc, mv);
+        super(Opcodes.ASM_CURRENT, access, desc, mv);
         this.oldClass = oldClass;
         this.newClass = newClass;
         this.inlineTarget = inlineTarget;

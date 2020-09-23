@@ -141,7 +141,7 @@ public final class InterfaceMethodHandleTest extends GraalCompilerTest {
     private final AsmLoader loader;
 
     public InterfaceMethodHandleTest() {
-        exportPackage(JAVA_BASE, "jdk.internal.org.objectweb.asm");
+        exportPackage(JAVA_BASE, "org.objectweb.asm");
         loader = new AsmLoader(UnbalancedMonitorsTest.class.getClassLoader());
     }
 

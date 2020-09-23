@@ -25,12 +25,12 @@
 
 package jdk.jfr.internal;
 
-import jdk.internal.org.objectweb.asm.commons.Method;
+import org.objectweb.asm.commons.Method;
 import jdk.jfr.internal.EventInstrumentation.FieldInfo;
 
 public enum EventWriterMethod {
 
-    BEGIN_EVENT("(" + jdk.internal.org.objectweb.asm.Type.getType(PlatformEventType.class).getDescriptor() + ")Z", "???", "beginEvent"),
+    BEGIN_EVENT("(" + org.objectweb.asm.Type.getType(PlatformEventType.class).getDescriptor() + ")Z", "???", "beginEvent"),
     END_EVENT("()Z", "???", "endEvent"),
     PUT_BYTE("(B)V", "byte", "putByte"),
     PUT_SHORT("(S)V", "short", "putShort"),

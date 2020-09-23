@@ -1028,12 +1028,6 @@ jdk.internal.dynalink.beans
 jdk.internal.dynalink.linker
 jdk.internal.dynalink.support
 jdk.internal.instrumentation
-jdk.internal.org.objectweb.asm
-jdk.internal.org.objectweb.asm.commons
-jdk.internal.org.objectweb.asm.signature
-jdk.internal.org.objectweb.asm.tree
-jdk.internal.org.objectweb.asm.tree.analysis
-jdk.internal.org.objectweb.asm.util
 jdk.internal.org.xml.sax
 jdk.internal.org.xml.sax.helpers
 jdk.internal.util.xml

@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import jdk.internal.org.objectweb.asm.Type;
+import org.objectweb.asm.Type;
 import jdk.nashorn.internal.tools.nasgen.MemberInfo.Kind;
 
 import static jdk.nashorn.internal.tools.nasgen.StringConstants.OBJ_ANNO_PKG;

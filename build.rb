@@ -783,13 +783,13 @@ ExecutePass("Build Pass", Error::Flag::BUILD) {
 			Options::project ? "hotspot-ide-project" : "images"
 		)
 
-		if (success)
-			build_root = File.join(Directory::build_root, "build")
-			source = File.join(build_root, FULL_CONFIG_NAME)
-			dest = File.join(build_root, FULL_CONFIG_NAME_WITH_ARCH)
-			FileUtils.rm_rf(dest)
-			FileUtils.mv(source, dest)
-		end
+		#if (success)
+			#build_root = File.join(Directory::build_root, "build")
+			#source = File.join(build_root, FULL_CONFIG_NAME)
+			#dest = File.join(build_root, FULL_CONFIG_NAME_WITH_ARCH)
+			#FileUtils.rm_rf(dest)
+			#FileUtils.mv(source, dest)
+		#end
 	}
 } if Options::Pass::build
 
@@ -798,7 +798,7 @@ ExecutePass("Package Pass", Error::Flag::PACKAGE) {
 	Directory.make(builds_root)
 
 	build_root = File.join(Directory::build_root, "build")
-	source = File.join(build_root, FULL_CONFIG_NAME_WITH_ARCH, "images", "jdk")
+	source = File.join(build_root, FULL_CONFIG_NAME, "images", "jdk")
 	Error::error("Package source '#{source}' does not exist or is not accessible") unless File.directory?(source)
 	dest = File.join(builds_root, FULL_CONFIG_NAME_WITH_ARCH)
 

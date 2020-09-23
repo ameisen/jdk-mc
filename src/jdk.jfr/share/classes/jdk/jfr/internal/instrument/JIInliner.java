@@ -29,13 +29,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
 
-import jdk.internal.org.objectweb.asm.ClassReader;
-import jdk.internal.org.objectweb.asm.ClassVisitor;
-import jdk.internal.org.objectweb.asm.MethodVisitor;
-import jdk.internal.org.objectweb.asm.Opcodes;
-import jdk.internal.org.objectweb.asm.Type;
-import jdk.internal.org.objectweb.asm.tree.ClassNode;
-import jdk.internal.org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
 import jdk.jfr.internal.LogLevel;
 import jdk.jfr.internal.LogTag;
 import jdk.jfr.internal.Logger;
@@ -60,7 +60,7 @@ final class JIInliner extends ClassVisitor {
         this.instrumentationClassName = instrumentationClassName;
         this.instrumentationMethods = instrumentationMethods;
 
-        ClassNode cn = new ClassNode(Opcodes.ASM7);
+        ClassNode cn = new ClassNode(Opcodes.ASM_CURRENT);
         targetClassReader.accept(cn, ClassReader.EXPAND_FRAMES);
         this.targetClassNode = cn;
     }

@@ -29,12 +29,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import jdk.internal.org.objectweb.asm.ClassReader;
-import jdk.internal.org.objectweb.asm.ClassVisitor;
-import jdk.internal.org.objectweb.asm.ClassWriter;
-import jdk.internal.org.objectweb.asm.MethodVisitor;
-import jdk.internal.org.objectweb.asm.Opcodes;
-import jdk.internal.org.objectweb.asm.Type;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 final class ConstructorTracerWriter extends ClassVisitor {
 
@@ -50,7 +50,7 @@ final class ConstructorTracerWriter extends ClassVisitor {
     }
 
     private ConstructorTracerWriter(ClassVisitor cv, Class<?> classToChange) {
-        super(Opcodes.ASM7, cv);
+        super(Opcodes.ASM_CURRENT, cv);
         useInputParameter = new ConstructorWriter(classToChange, true);
         noUseInputParameter = new ConstructorWriter(classToChange, false);
     }

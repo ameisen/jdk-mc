@@ -150,7 +150,7 @@ suite = {
       ],
       "imports" : [
         "jdk.internal.misc",
-        "jdk.internal.org.objectweb.asm",
+        "org.objectweb.asm",
       ],
       "checkstyle" : "jdk.vm.ci.services",
       "javaCompliance" : "9+",

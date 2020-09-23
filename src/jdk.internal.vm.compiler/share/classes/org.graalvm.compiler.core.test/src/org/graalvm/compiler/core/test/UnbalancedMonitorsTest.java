@@ -55,7 +55,7 @@ public class UnbalancedMonitorsTest extends GraalCompilerTest {
     private static final String INNER_CLASS_NAME_INTERNAL = INNER_CLASS_NAME.replace('.', '/');
 
     public UnbalancedMonitorsTest() {
-        exportPackage(JAVA_BASE, "jdk.internal.org.objectweb.asm");
+        exportPackage(JAVA_BASE, "org.objectweb.asm");
     }
 
     private static AsmLoader LOADER = new AsmLoader(UnbalancedMonitorsTest.class.getClassLoader());

@@ -25,12 +25,12 @@
 
 package jdk.jfr.internal.instrument;
 
-import jdk.internal.org.objectweb.asm.Label;
-import jdk.internal.org.objectweb.asm.Opcodes;
-import jdk.internal.org.objectweb.asm.Type;
-import jdk.internal.org.objectweb.asm.commons.LocalVariablesSorter;
-import jdk.internal.org.objectweb.asm.commons.Remapper;
-import jdk.internal.org.objectweb.asm.commons.RemappingMethodAdapter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.commons.Remapper;
+import org.objectweb.asm.commons.RemappingMethodAdapter;
 
 @Deprecated
 final class JIMethodInliningAdapter extends RemappingMethodAdapter {

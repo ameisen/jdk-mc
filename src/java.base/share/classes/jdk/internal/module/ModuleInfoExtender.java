@@ -34,15 +34,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import jdk.internal.org.objectweb.asm.Attribute;
-import jdk.internal.org.objectweb.asm.ClassReader;
-import jdk.internal.org.objectweb.asm.ClassVisitor;
-import jdk.internal.org.objectweb.asm.ClassWriter;
-import jdk.internal.org.objectweb.asm.ModuleVisitor;
-import jdk.internal.org.objectweb.asm.Opcodes;
-import jdk.internal.org.objectweb.asm.commons.ModuleHashesAttribute;
-import jdk.internal.org.objectweb.asm.commons.ModuleResolutionAttribute;
-import jdk.internal.org.objectweb.asm.commons.ModuleTargetAttribute;
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.ModuleVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.ModuleHashesAttribute;
+import org.objectweb.asm.commons.ModuleResolutionAttribute;
+import org.objectweb.asm.commons.ModuleTargetAttribute;
 
 /**
  * Utility class to extend a module-info.class with additional attributes.
@@ -153,7 +153,7 @@ public final class ModuleInfoExtender {
 
         ClassReader cr = new ClassReader(in);
 
-        ClassVisitor cv = new ClassVisitor(Opcodes.ASM7, cw) {
+        ClassVisitor cv = new ClassVisitor(Opcodes.ASM_CURRENT, cw) {
             @Override
             public ModuleVisitor visitModule(String name, int flags, String version) {
                 Version v = ModuleInfoExtender.this.version;
@@ -172,7 +172,7 @@ public final class ModuleInfoExtender {
                             .forEach(pn -> mv.visitPackage(pn.replace('.', '/')));
                 }
 
-                return new ModuleVisitor(Opcodes.ASM7, mv) {
+                return new ModuleVisitor(Opcodes.ASM_CURRENT, mv) {
                     public void visitMainClass(String existingMainClass) {
                         // skip main class if there is a new value
                         if (mainClass == null) {

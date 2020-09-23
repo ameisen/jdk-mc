@@ -25,10 +25,10 @@
 
 package java.lang.reflect;
 
-import jdk.internal.org.objectweb.asm.ClassWriter;
-import jdk.internal.org.objectweb.asm.Label;
-import jdk.internal.org.objectweb.asm.MethodVisitor;
-import jdk.internal.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import sun.security.action.GetBooleanAction;
 
 import java.io.IOException;
@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import static jdk.internal.org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.*;
 
 /**
  * ProxyGenerator contains the code to generate a dynamic proxy class
@@ -446,7 +446,7 @@ final class ProxyGenerator extends ClassWriter {
      * class file generation process.
      */
     private byte[] generateClassFile() {
-        visit(V14, accessFlags, dotToSlash(className), null,
+        visit(V_CURRENT, accessFlags, dotToSlash(className), null,
                 JLR_PROXY, typeNames(interfaces));
 
         /*

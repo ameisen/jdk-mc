@@ -25,7 +25,7 @@
 
 package sun.tools.jar;
 
-import jdk.internal.org.objectweb.asm.*;
+import org.objectweb.asm.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -244,7 +244,7 @@ final class FingerPrint {
         private final Set<Method> methods = new HashSet<>();
 
         public ClassAttributes() {
-            super(Opcodes.ASM7);
+            super(Opcodes.ASM_CURRENT);
         }
 
         private boolean isPublic(int access) {

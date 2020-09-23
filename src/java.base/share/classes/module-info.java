@@ -76,6 +76,13 @@
  */
 module java.base {
 
+    exports org.objectweb.asm;
+		exports org.objectweb.asm.commons;
+		exports org.objectweb.asm.signature;
+		exports org.objectweb.asm.tree;
+		exports org.objectweb.asm.tree.analysis;
+		exports org.objectweb.asm.util;
+
     exports java.io;
     exports java.lang;
     exports java.lang.annotation;
@@ -171,22 +178,6 @@ module java.base {
         jdk.jlink;
     exports jdk.internal.logger to
         java.logging;
-    exports jdk.internal.org.objectweb.asm to
-        jdk.jartool,
-        jdk.jfr,
-        jdk.jlink,
-        jdk.scripting.nashorn;
-    exports jdk.internal.org.objectweb.asm.tree to
-        jdk.jfr,
-        jdk.jlink;
-    exports jdk.internal.org.objectweb.asm.util to
-        jdk.jfr,
-        jdk.scripting.nashorn;
-    exports jdk.internal.org.objectweb.asm.commons to
-        jdk.jfr,
-        jdk.scripting.nashorn;
-    exports jdk.internal.org.objectweb.asm.signature to
-        jdk.scripting.nashorn;
     exports jdk.internal.org.xml.sax to
         jdk.jfr;
     exports jdk.internal.org.xml.sax.helpers to

@@ -69,13 +69,13 @@ import jdk.internal.module.ModuleReferenceImpl;
 import jdk.internal.module.ModuleResolution;
 import jdk.internal.module.ModuleTarget;
 
-import jdk.internal.org.objectweb.asm.ClassReader;
-import jdk.internal.org.objectweb.asm.ClassVisitor;
-import jdk.internal.org.objectweb.asm.ClassWriter;
-import jdk.internal.org.objectweb.asm.MethodVisitor;
-import jdk.internal.org.objectweb.asm.ModuleVisitor;
-import jdk.internal.org.objectweb.asm.Opcodes;
-import static jdk.internal.org.objectweb.asm.Opcodes.*;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.ModuleVisitor;
+import org.objectweb.asm.Opcodes;
+import static org.objectweb.asm.Opcodes.*;
 
 import jdk.tools.jlink.internal.ModuleSorter;
 import jdk.tools.jlink.plugin.Plugin;
@@ -436,12 +436,12 @@ public final class SystemModulesPlugin implements Plugin {
 
         boolean hasModulePackages() throws IOException {
             Set<String> packages = new HashSet<>();
-            ClassVisitor cv = new ClassVisitor(Opcodes.ASM7) {
+            ClassVisitor cv = new ClassVisitor(Opcodes.ASM_CURRENT) {
                 @Override
                 public ModuleVisitor visitModule(String name,
                                                  int flags,
                                                  String version) {
-                    return new ModuleVisitor(Opcodes.ASM7) {
+                    return new ModuleVisitor(Opcodes.ASM_CURRENT) {
                         @Override
                         public void visitPackage(String pn) {
                             packages.add(pn);
@@ -609,7 +609,7 @@ public final class SystemModulesPlugin implements Plugin {
         public ClassWriter getClassWriter(Configuration cf) {
             ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS
                                              + ClassWriter.COMPUTE_FRAMES);
-            cw.visit(Opcodes.V1_8,
+            cw.visit(Opcodes.V_CURRENT,
                      ACC_FINAL+ACC_SUPER,
                      className,
                      null,
@@ -1728,7 +1728,7 @@ public final class SystemModulesPlugin implements Plugin {
                                             ResourcePoolBuilder out) {
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS
                                          + ClassWriter.COMPUTE_FRAMES);
-        cw.visit(Opcodes.V1_8,
+        cw.visit(Opcodes.V_CURRENT,
                  ACC_FINAL+ACC_SUPER,
                  SYSTEM_MODULES_MAP_CLASS,
                  null,

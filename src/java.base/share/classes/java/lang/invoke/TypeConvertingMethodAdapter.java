@@ -25,9 +25,9 @@
 
 package java.lang.invoke;
 
-import jdk.internal.org.objectweb.asm.MethodVisitor;
-import jdk.internal.org.objectweb.asm.Opcodes;
-import jdk.internal.org.objectweb.asm.Type;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import sun.invoke.util.BytecodeDescriptor;
 import sun.invoke.util.Wrapper;
 import static sun.invoke.util.Wrapper.*;
@@ -35,7 +35,7 @@ import static sun.invoke.util.Wrapper.*;
 class TypeConvertingMethodAdapter extends MethodVisitor {
 
     TypeConvertingMethodAdapter(MethodVisitor mv) {
-        super(Opcodes.ASM7, mv);
+        super(Opcodes.ASM_CURRENT, mv);
     }
 
     private static final int NUM_WRAPPERS = Wrapper.COUNT;

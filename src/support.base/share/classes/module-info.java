@@ -32,10 +32,4 @@
  * @since 9
  */
 module support.base {
-    exports org.objectweb.asm;
-		exports org.objectweb.asm.commons;
-		exports org.objectweb.asm.signature;
-		exports org.objectweb.asm.tree;
-		exports org.objectweb.asm.tree.analysis;
-		exports org.objectweb.asm.util;
 }

@@ -31,12 +31,12 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import jdk.internal.org.objectweb.asm.ClassWriter;
-import jdk.internal.org.objectweb.asm.ModuleVisitor;
-import jdk.internal.org.objectweb.asm.Opcodes;
-import jdk.internal.org.objectweb.asm.commons.ModuleResolutionAttribute;
-import jdk.internal.org.objectweb.asm.commons.ModuleTargetAttribute;
-import static jdk.internal.org.objectweb.asm.Opcodes.*;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.ModuleVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.ModuleResolutionAttribute;
+import org.objectweb.asm.commons.ModuleTargetAttribute;
+import static org.objectweb.asm.Opcodes.*;
 
 /**
  * Utility class to write a ModuleDescriptor as a module-info.class.
@@ -83,7 +83,7 @@ public final class ModuleInfoWriter {
                                        ModuleResolution mres,
                                        ModuleTarget target) {
         ClassWriter cw = new ClassWriter(0);
-        cw.visit(Opcodes.V10, ACC_MODULE, "module-info", null, null, null);
+        cw.visit(Opcodes.V_CURRENT, ACC_MODULE, "module-info", null, null, null);
 
         int moduleFlags = md.modifiers().stream()
                 .map(MODULE_MODS_TO_FLAGS::get)

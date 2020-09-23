@@ -32,8 +32,8 @@ import static jdk.nashorn.internal.tools.nasgen.StringConstants.SCRIPTS_PKG;
 import static jdk.nashorn.internal.tools.nasgen.StringConstants.STRING_DESC;
 import static jdk.nashorn.internal.tools.nasgen.StringConstants.TYPE_SYMBOL;
 
-import jdk.internal.org.objectweb.asm.Opcodes;
-import jdk.internal.org.objectweb.asm.Type;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 /**
  * Details about a Java method or field annotated with any of the field/method

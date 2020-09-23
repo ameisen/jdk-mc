@@ -25,7 +25,7 @@
 
 package java.lang.invoke;
 
-import jdk.internal.org.objectweb.asm.*;
+import org.objectweb.asm.*;
 import sun.invoke.util.BytecodeDescriptor;
 import sun.security.action.GetPropertyAction;
 import sun.security.action.GetBooleanAction;
@@ -44,7 +44,7 @@ import java.util.Set;
 
 import static java.lang.invoke.MethodHandles.Lookup.ClassOption.NESTMATE;
 import static java.lang.invoke.MethodHandles.Lookup.ClassOption.STRONG;
-import static jdk.internal.org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.*;
 
 /**
  * Lambda metafactory implementation which dynamically creates an

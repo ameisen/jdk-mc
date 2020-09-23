@@ -25,10 +25,10 @@
 
 package jdk.nashorn.internal.tools.nasgen;
 
-import static jdk.internal.org.objectweb.asm.Opcodes.ACC_FINAL;
-import static jdk.internal.org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static jdk.internal.org.objectweb.asm.Opcodes.H_INVOKESTATIC;
-import static jdk.internal.org.objectweb.asm.Opcodes.V1_7;
+import static org.objectweb.asm.Opcodes.ACC_FINAL;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.H_INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.V_CURRENT;
 import static jdk.nashorn.internal.tools.nasgen.StringConstants.CONSTRUCTOR_SUFFIX;
 import static jdk.nashorn.internal.tools.nasgen.StringConstants.DEFAULT_INIT_DESC;
 import static jdk.nashorn.internal.tools.nasgen.StringConstants.INIT;
@@ -53,7 +53,7 @@ import static jdk.nashorn.internal.tools.nasgen.StringConstants.SCRIPTOBJECT_TYP
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
-import jdk.internal.org.objectweb.asm.Handle;
+import org.objectweb.asm.Handle;
 
 /**
  * This class generates constructor class for a @ScriptClass annotated class.
@@ -78,7 +78,7 @@ public class ConstructorGenerator extends ClassGenerator {
     byte[] getClassBytes() {
         // new class extending from ScriptObject
         final String superClass = (constructor != null)? SCRIPTFUNCTION_TYPE : SCRIPTOBJECT_TYPE;
-        cw.visit(V1_7, ACC_FINAL, className, null, superClass, null);
+        cw.visit(V_CURRENT, ACC_FINAL, className, null, superClass, null);
         if (memberCount > 0) {
             // add fields
             emitFields();

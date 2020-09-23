@@ -27,11 +27,11 @@ package jdk.tools.jlink.internal.plugins;
 
 import java.util.Map;
 
-import jdk.internal.org.objectweb.asm.ClassReader;
-import jdk.internal.org.objectweb.asm.ClassVisitor;
-import jdk.internal.org.objectweb.asm.ClassWriter;
-import jdk.internal.org.objectweb.asm.MethodVisitor;
-import jdk.internal.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import jdk.tools.jlink.plugin.Plugin;
 import jdk.tools.jlink.plugin.ResourcePool;
 import jdk.tools.jlink.plugin.ResourcePoolBuilder;
@@ -118,7 +118,7 @@ abstract class VersionPropsPlugin implements Plugin {
         var cr = new ClassReader(classFile);
         var cw = new ClassWriter(0);
 
-        cr.accept(new ClassVisitor(Opcodes.ASM7, cw) {
+        cr.accept(new ClassVisitor(Opcodes.ASM_CURRENT, cw) {
 
                 @Override
                 public MethodVisitor visitMethod(int access,
@@ -128,7 +128,7 @@ abstract class VersionPropsPlugin implements Plugin {
                                                  String[] xs)
                 {
                     if (name.equals("<clinit>"))
-                        return new MethodVisitor(Opcodes.ASM7,
+                        return new MethodVisitor(Opcodes.ASM_CURRENT,
                                                  super.visitMethod(access,
                                                                    name,
                                                                    desc,
