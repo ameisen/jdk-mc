@@ -777,6 +777,7 @@ ExecutePass("Build Pass", Error::Flag::BUILD) {
 		if Options::Pass::clean
 			execute(
 				Options::make,
+				"CONF_NAME=#{FULL_CONFIG_NAME}",
 				"clean"
 			)
 		end
