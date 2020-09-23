@@ -360,7 +360,7 @@ module Architectures
 		)
 
 		Architectures::list << ZEN_1 = arch(
-			name: "Zen1",
+			name: "Zen",
 			sets: [
 				InstructionSets::SSE3,
 				InstructionSets::SSSE3,
@@ -399,7 +399,7 @@ module Architectures
 
 	# Generic
 	Architectures::list << DEFAULT = Architecture.new(
-		name: "Default",
+		name: "Generic",
 		manufacturer: Manufacturers::GENERIC,
 		sets: [InstructionSets::X86_64, InstructionSets::SSE3],
 		gcc_flags: ["-mtune=core2"]
