@@ -234,7 +234,7 @@ module Options
 	module Pass
 		@cleared = false
 		@fetch = false
-		@clean = false
+		@clean = true
 		@configure = true
 		@build = true
 		@package = true
