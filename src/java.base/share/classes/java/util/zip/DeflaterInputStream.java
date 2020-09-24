@@ -80,6 +80,11 @@ public class DeflaterInputStream extends FilterInputStream {
         usesDefaultDeflater = true;
     }
 
+    public DeflaterInputStream(InputStream in, int level) {
+        this(in, new Deflater(level));
+        usesDefaultDeflater = true;
+    }
+
     /**
      * Creates a new input stream with the specified compressor and a
      * default buffer size.

@@ -92,7 +92,7 @@ public class GZIPOutputStream extends DeflaterOutputStream {
      * @throws    IllegalArgumentException if {@code size <= 0}
      */
     public GZIPOutputStream(OutputStream out, int size, int level) throws IOException {
-        this(out, size, false, level);
+        this(out, (size != -1) ? size : DEFAULT_BUFFER_SIZE, false, level);
     }
 
     /**

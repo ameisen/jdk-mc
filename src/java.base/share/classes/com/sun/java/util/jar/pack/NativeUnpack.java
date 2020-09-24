@@ -317,7 +317,7 @@ class NativeUnpack {
             crc32.update(_buf, 0, size);
             z.setCrc(crc32.getValue());
         } else {
-            z.setMethod(Deflater.DEFLATED);
+            z.setMethod(Deflater.BEST_COMPRESSION);
             z.setSize(size);
         }
 

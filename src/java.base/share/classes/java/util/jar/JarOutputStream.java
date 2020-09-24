@@ -54,7 +54,7 @@ public class JarOutputStream extends ZipOutputStream {
      * @throws    IOException if an I/O error has occurred
      */
     public JarOutputStream(OutputStream out, Manifest man) throws IOException {
-        super(out);
+        super(out, Deflater.BEST_COMPRESSION);
         if (man == null) {
             throw new NullPointerException("man");
         }
@@ -70,7 +70,7 @@ public class JarOutputStream extends ZipOutputStream {
      * @throws    IOException if an I/O error has occurred
      */
     public JarOutputStream(OutputStream out) throws IOException {
-        super(out);
+        super(out, Deflater.BEST_COMPRESSION);
     }
 
     /**

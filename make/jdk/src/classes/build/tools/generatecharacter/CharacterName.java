@@ -122,16 +122,29 @@ public class CharacterName {
             byte[] namePoolBytes = namePool.toString().getBytes("ASCII");
             int cpLen = cpBB.position();
             int total = cpLen + namePoolBytes.length;
-            DataOutputStream dos = new DataOutputStream(
-                                       new DeflaterOutputStream(
-                                           new FileOutputStream(args[1])));
-            dos.writeInt(total);  // total
-            dos.writeInt(bkNum);  // bkNum;
-            dos.writeInt(cpNum);  // cpNum
-            dos.writeInt(cpLen);  // nameOff
-            dos.write(cpPoolBytes, 0, cpLen);
-            dos.write(namePoolBytes);
-            dos.close();
+            Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION);
+            try {
+                DeflaterOutputStream deflateStream = new DeflaterOutputStream(
+                    new FileOutputStream(args[1]),
+                    deflater
+                );
+                try {
+                    DataOutputStream dos = new DataOutputStream(deflateStream);
+                    dos.writeInt(total);  // total
+                    dos.writeInt(bkNum);  // bkNum;
+                    dos.writeInt(cpNum);  // cpNum
+                    dos.writeInt(cpLen);  // nameOff
+                    dos.write(cpPoolBytes, 0, cpLen);
+                    dos.write(namePoolBytes);
+                    dos.close();
+                }
+                finally {
+                    deflateStream.close();
+                }
+            }
+            finally {
+                deflater.end();
+            }
 
         } catch (Throwable e) {
             System.out.println("Unexpected exception:");

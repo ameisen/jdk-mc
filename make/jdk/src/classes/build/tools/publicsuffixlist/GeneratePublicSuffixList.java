@@ -74,11 +74,12 @@ public final class GeneratePublicSuffixList {
         if (args.length != 2) {
             throw new Exception("2 args required: input_file output_file");
         }
+
         try (FileInputStream fis = new FileInputStream(args[0]);
-             ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(args[1])))
-        {
+             ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(args[1]))
+        ) {
             zos.setLevel(Deflater.BEST_COMPRESSION);
-          
+
             BufferedReader br =
                 new BufferedReader(new InputStreamReader(fis, "UTF-8"));
 

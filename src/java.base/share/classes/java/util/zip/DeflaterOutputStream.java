@@ -164,6 +164,11 @@ public class DeflaterOutputStream extends FilterOutputStream {
         usesDefaultDeflater = true;
     }
 
+    public DeflaterOutputStream(OutputStream out, boolean syncFlush, int level) {
+        this(out, new Deflater(level), BUFFER_SIZE, syncFlush);
+        usesDefaultDeflater = true;
+    }
+
     /**
      * Creates a new output stream with a default compressor and buffer size.
      *
@@ -177,6 +182,10 @@ public class DeflaterOutputStream extends FilterOutputStream {
         usesDefaultDeflater = true;
     }
 
+    public DeflaterOutputStream(OutputStream out, int level) {
+        this(out, false, level);
+        usesDefaultDeflater = true;
+    }
     /**
      * Writes a byte to the compressed output stream. This method will
      * block until the byte can be written.

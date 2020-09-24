@@ -12,6 +12,8 @@ module Executable
 	end
 
 	def self.execute!(name, *args)
+		puts([name, *args].join(" "))
+
 		Open3.popen3(name, *args) { |stdin, stdout, stderr, wait_thr|
 			io_lock = Mutex.new
 

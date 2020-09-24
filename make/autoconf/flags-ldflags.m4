@@ -65,8 +65,8 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_HELPER],
     # If this is a --hash-style=gnu system, use --hash-style=both, why?
     # We have previously set HAS_GNU_HASH if this is the case
     if test -n "$HAS_GNU_HASH"; then
-      BASIC_LDFLAGS="-Wl,--hash-style=both"
-      LIBJSIG_HASHSTYLE_LDFLAGS="-Wl,--hash-style=both"
+      BASIC_LDFLAGS="-Wl,--hash-style=gnu"
+      LIBJSIG_HASHSTYLE_LDFLAGS="-Wl,--hash-style=gnu"
     fi
 
     # Add -z,defs, to forbid undefined symbols in object files.

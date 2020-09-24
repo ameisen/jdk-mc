@@ -11,41 +11,134 @@ CONFIG_NAME = "mc"
 BUILD_PLATFORM = System::build_platform
 TARGET_PLATFORM = BUILD_PLATFORM
 
+# /usr/lib/gcc/x86_64-linux-gnu/10/libstdc++.a(eh_throw.o)(.note.stapsdt+0x14): error: relocation refers to local symbol "" [4], which is defined in a discarded section
+PREFERRED_GNU_LINKER = "bfd"
+
+module GNU
+	def self.prefix_opt(opt, prefix:, enable: true)
+		return "-#{prefix}#{enable ? "" : "no-"}#{opt}"
+	end
+
+	def self.opt(opt, enable: true)
+		return prefix_opt(opt, prefix: "", enable: enable)
+	end
+
+	def self.f_opt(opt, enable: true)
+		return prefix_opt(opt, prefix: "f", enable: enable)
+	end
+
+	def self.m_opt(opt, enable: true)
+		return prefix_opt(opt, prefix: "m", enable: enable)
+	end
+
+	def self.warn(opt, enable: true)
+		return prefix_opt(opt, prefix: "W", enable: enable)
+	end
+
+	def self.warns(*opts, enable: true)
+		return opts.map { |opt|
+			warn(opt, enable: enable)
+		}
+	end
+
+	def self.linker(*opts)
+		return opts.map { |opt|
+			"-Wl,#{opt}"
+		}
+	end
+end
+
 DEFAULT_GNU_C_OPTFLAGS = [
 	"-O3",
-	"-fmerge-all-constants",
-	"-fomit-frame-pointer",
-	"-fipa-pta"
+	GNU::f_opt("merge-all-constants"),
+	GNU::f_opt("omit-frame-pointer"),
+	GNU::f_opt("ipa-pta"),
+	GNU::f_opt("tree-loop-im"),
+	GNU::f_opt("tree-loop-ivcanon"),
+	GNU::f_opt("ivopts"),
+	GNU::f_opt("graphite-identity"),
+	GNU::f_opt("loop-nest-optimize"),
+	GNU::f_opt("tree-vectorize"),
+	GNU::f_opt("allow-store-data-races"), # worrying
+	GNU::f_opt("web"),
+	GNU::f_opt("fast-math"),
+	GNU::f_opt("associative-math"),
+	GNU::f_opt("reciprocal-math"),
+	#GNU::f_opt("single-precision-constant"),
+	GNU::f_opt("rename-registers"),
+	GNU::f_opt("split-loops"),
+	GNU::f_opt("unswitch-loops"),
+	GNU::f_opt("function-sections"),
+	GNU::f_opt("data-sections"),
+	GNU::f_opt("stdarg-opt")
+	#function-sections
+	#data-sections
+	#-fvariable-expansion-in-unroller
 ]
 
 DEFAULT_GNU_CFLAGS = DEFAULT_GNU_C_OPTFLAGS + [
-	"-fuse-ld=gold",
-	"-Wno-unused-function",
+	#GNU::f_opt("exceptions", enable: false),
+	GNU::warn("unused-function", enable: false),
 	"-pipe",
-	"-flto",
-	"-fuse-linker-plugin",
-	"-fdevirtualize-speculatively",
-	"-fdevirtualize-at-ltrans"
+	GNU::f_opt("lto"),
+	GNU::f_opt("use-linker-plugin"),
+	GNU::f_opt("devirtualize-speculatively"),
+	GNU::f_opt("devirtualize-at-ltrans"),
 ]
 
 DEFAULT_GNU_CXXFLAGS = DEFAULT_GNU_CFLAGS + [
-	"-fno-threadsafe-statics",
-	"-Wno-volatile",
-	"-Wno-attributes",
+	GNU::f_opt("threadsafe-statics", enable: false),
+	GNU::f_opt("rtti", enable: false),
+	*GNU::warns("volatile", "attributes", enable: false),
+]
+
+DEFAULT_GNU_BFD_FLAGS = [
+	*GNU::linker(
+		"--enable-non-contiguous-regions",
+		"--no-omagic",
+		"-O1",
+		# non-debug only
+	)
+]
+
+DEFAULT_GNU_GOLD_FLAGS = [
+	*GNU::linker(
+		"--icf=all", # none,all,safe
+		"--icf-iterations=8", # default 3
+		"-O,3",
+		#"--preread-archive-symbols",
+		#"--threads",
+		#"-z,text-unlikely-segment",
+
+		# non-debug only
+		# debug only
+		# --gdb-index
+	)
 ]
 
 DEFAULT_GNU_LDFLAGS = [
-	"-Wl,--relax",
-	"-Wl,-O1",
+	*GNU::linker(
+		"--relax",
+		"--gc-sections",
+		"--allow-multiple-definition",
+		"--as-needed",
+		"--compress-debug-sections=zlib",
+		"--hash-style=gnu",
+
+		# non-debug only
+		"--discard-all", # --discard-locals
+		"--strip-all", # --strip-debug
+	),
+
 	"-pipe",
-	"-flto",
-	"-fuse-linker-plugin",
-	"-fipa-pta"
+	GNU::f_opt("lto"),
+	GNU::f_opt("use-linker-plugin"),
+	GNU::f_opt("ipa-pta"),
 ]
 
 DEFAULT_LLVM_CFLAGS = [
 	"-O3",
-	"-fmerge-all-constants"
+	GNU::f_opt("merge-all-constants"),
 ]
 
 DEFAULT_LLVM_CXXFLAGS = DEFAULT_LLVM_CFLAGS + [
@@ -83,7 +176,8 @@ DEFAULT_MSVC_CXXFLAGS = DEFAULT_MSVC_CFLAGS + [
 DEFAULT_MSVC_LDFLAGS = [
 	"/LARGEADDRESSAWARE",
 	"/OPT:REF",
-	"/OPT:ICF"
+	"/OPT:ICF=8", # default 1
+	"/CGTHREADS:#{[Etc.nprocessors, 8].min}",
 ]
 
 def debug_ccflags(flags)
@@ -221,6 +315,7 @@ $DEFAULT_MAKE = get_best_make()
 
 module Options
 	@toolchain = Toolchains::get_default
+	@linker = nil
 	@project = false
 	@native = false
 	@cflags = nil
@@ -230,6 +325,9 @@ module Options
 	@debug = false
 	@jobs = Etc.nprocessors
 	@make = $DEFAULT_MAKE
+
+	def self.all_flags; return [@cflags, @cxxflags, @ldflags]; end
+	def self.compile_flags; return [@cflags, @cxxflags]; end
 
 	module Pass
 		@cleared = false
@@ -333,8 +431,11 @@ cmd_arguments = {
 			end
 		end
 	} ],
+	"with-linker" => [ Argument::FUNCTION, proc { |cmd, arg|
+		Options::linker = arg.downcase
+	} ],
 	"with-make" => [ Argument::FUNCTION, proc { |cmd, arg|
-		Options::make = $sys_make if flag
+		Options::make = arg.downcase
 	} ],
 	"with-remake" => [ Argument::FLAG, proc { |name, flag|
 		Options::make = $sys_remake if flag
@@ -346,13 +447,24 @@ cmd_arguments = {
 
 Argument.process(ARGV, cmd_arguments)
 
+Options::linker = {
+	Toolchains::GNU => PREFERRED_GNU_LINKER,
+	Toolchains::LLVM => PREFERRED_GNU_LINKER,
+	Toolchains::MSVC => "link"
+}[Options::toolchain] if Options::linker.nil?
+
+ADDITIONAL_LD_FLAGS = {
+	"gold" => DEFAULT_GNU_GOLD_FLAGS,
+	"bfd" => DEFAULT_GNU_BFD_FLAGS
+}.fetch(Options::linker, [])
+
 Options::cflags, Options::cxxflags, Options::ldflags = *{
-	Toolchains::GNU  => [DEFAULT_GNU_CFLAGS, DEFAULT_GNU_CXXFLAGS, DEFAULT_GNU_LDFLAGS],
-	Toolchains::LLVM => [DEFAULT_LLVM_CFLAGS, DEFAULT_LLVM_CXXFLAGS, DEFAULT_LLVM_LDFLAGS],
-	Toolchains::MSVC => [DEFAULT_MSVC_CFLAGS, DEFAULT_MSVC_CXXFLAGS, DEFAULT_MSVC_LDFLAGS]
+	Toolchains::GNU  => [DEFAULT_GNU_CFLAGS, DEFAULT_GNU_CXXFLAGS, DEFAULT_GNU_LDFLAGS + ADDITIONAL_LD_FLAGS],
+	Toolchains::LLVM => [DEFAULT_LLVM_CFLAGS, DEFAULT_LLVM_CXXFLAGS, DEFAULT_LLVM_LDFLAGS + ADDITIONAL_LD_FLAGS],
+	Toolchains::MSVC => [DEFAULT_MSVC_CFLAGS, DEFAULT_MSVC_CXXFLAGS, DEFAULT_MSVC_LDFLAGS + ADDITIONAL_LD_FLAGS]
 }[Options::toolchain]
 
-[Options::cflags, Options::cxxflags, Options::ldflags].each {|flags|
+Options::all_flags.each {|flags|
 	flags.map!{ |flag|
 		case flag
 		when "-flto"
@@ -368,6 +480,13 @@ if Options::debug
 	Options::cflags = debug_ccflags(Options::cflags)
 	Options::cxxflags = debug_ccflags(Options::cxxflags)
 	Options::ldflags = debug_ldflags(Options::ldflags)
+end
+
+case Options::toolchain
+when Toolchains::GNU, Toolchains::LLVM
+	Options::all_flags.each { |flags|
+		flags << GNU::f_opt("use-ld=#{PREFERRED_GNU_LINKER}")
+	}
 end
 
 if Options::arch.is_a?(String)
@@ -633,13 +752,13 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 			"precompiled-headers",
 			#"aot=yes",
 			"dtrace=no",
-			"unlimited-crypto"
+			"unlimited-crypto",
+			"sjavac",
 		]
 
 		disable_flags = [
 			"option_checking",
 			"full-docs",
-			"hotspot-gtest",
 			"jtreg-failure-handler",
 			"manpages",
 			"reproducible-build",
@@ -665,6 +784,7 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 		else
 			with_flags << "toolchain_type=#{(Options::toolchain == Toolchains::GNU) ? "gcc" : "clang"}"
 			with_flags << "ccache"
+			enable_flags << "ccache"
 		end
 
 		with_flags << "boot-jdk=#{Directory::java}" unless Directory::java.blank?
@@ -835,19 +955,21 @@ ExecutePass("Package Pass", Error::Flag::PACKAGE) {
 			">", package_path
 		]
 	else
-		command = [
-			"tar", "-cvf", "-", dest, "|",
-			*best_compressor.command, "-",
-			">", package_path
-		]
+		command = best_compressor.full_command(source: dest, archive: package_path)
+		if command.nil?
+			command = [
+				"tar", "-cvf", "-", dest, "|",
+				*best_compressor.command, "-",
+				">", package_path
+			]
+		end
 	end
 
-	command.map! { |element|
-		["|", ">", ">>", "||", "&&", "-"].include?(element) ? element : Shellwords.escape(element)
-	}
+	#command.map! { |element|
+	#	["|", ">", ">>", "||", "&&", "-", "--"].include?(element) ? element : Shellwords.escape(element)
+	#}
 
-	puts(command.join(" "))
-	system(command.join(" ")) or Error::error("Failed to compress package")
+	execute(*command) or Error::error("Failed to compress package")
 } if Options::Pass::package
 
 puts "done"

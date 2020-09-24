@@ -77,6 +77,7 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -286,6 +287,7 @@ public class CreateSymbols {
         try (OutputStream fos = new FileOutputStream(ctSymLocation);
              OutputStream bos = new BufferedOutputStream(fos);
              ZipOutputStream jos = new ZipOutputStream(bos)) {
+            jos.setLevel(Deflater.BEST_COMPRESSION);
             for (Entry<String, Set<FileData>> e : directory2FileData.entrySet()) {
                 jos.putNextEntry(createZipEntry(e.getKey(), timestamp));
                 for (FileData fd : e.getValue()) {

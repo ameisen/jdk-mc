@@ -66,8 +66,7 @@ class Driver {
 
     private static class MaxGZIPOutputStream extends GZIPOutputStream {
         public MaxGZIPOutputStream(OutputStream out) throws IOException {
-            super(out);
-            def.setLevel(Deflater.BEST_COMPRESSION);
+            super(out, -1, Deflater.BEST_COMPRESSION);
         }
     }
 

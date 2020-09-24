@@ -9,7 +9,9 @@ DEFAULT_ARCHITECTURES = [
 	"k10",
 	"generic",
 	"zen",
-	"skylake"
+	"zen2",
+	"skylake",
+	"skylake-x"
 ]
 
 build_arches = ["haswell"]
