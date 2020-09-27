@@ -34,6 +34,7 @@ import com.sun.tools.javac.jvm.PoolConstant.LoadableConstant.BasicConstant;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.Assert;
 
+import static com.sun.tools.javac.code.TypeTag.*;
 import static com.sun.tools.javac.jvm.ByteCodes.*;
 
 /** A helper class for code generation. Items are objects
@@ -51,7 +52,6 @@ import static com.sun.tools.javac.jvm.ByteCodes.*;
  *  deletion without notice.</b>
  */
 public class Items {
-
     /** The current constant pool writer.
      */
     PoolWriter poolWriter;
@@ -193,6 +193,69 @@ public class Items {
     /** The base class of all items, which implements default behavior.
      */
     abstract class Item {
+        protected boolean isPosZero(float x) {
+            return x == 0.0f && 1.0f / x > 0.0f;
+        }
+        /** Return true iff double number is positive 0.
+         */
+        protected boolean isPosZero(double x) {
+            return x == 0.0d && 1.0d / x > 0.0d;
+        }
+
+        protected boolean simplifyMember(Symbol member) {
+            if (member != null && member.isFinal() && member instanceof Symbol.VarSymbol) {
+                var varMember = (Symbol.VarSymbol)member;
+                var constantValue = varMember.getConstantValue();
+                if (constantValue != null) {
+                    switch (varMember.asType().getKind()) {
+                        case LONG:
+                            var lval = ((Long)constantValue).longValue();
+                            if (lval == 0L || lval == 1L) {
+                                code.emitop0(lconst_0 + (int)lval);
+                                return true;
+                            }
+                            break;
+
+                        case INT:
+                        case BYTE:
+                        case SHORT:
+                        case CHAR:
+                            int ival = ((Number)constantValue).intValue();
+                            if (-1 <= ival && ival <= 5) {
+                                code.emitop0(iconst_0 + ival);
+                                return true;
+                            }
+                            else if (Byte.MIN_VALUE <= ival && ival <= Byte.MAX_VALUE) {
+                                code.emitop1(bipush, ival);
+                                return true;
+                            }
+                            else if (Short.MIN_VALUE <= ival && ival <= Short.MAX_VALUE) {
+                                code.emitop2(sipush, ival);
+                                return true;
+                            }
+                            break;
+                        case BOOLEAN:
+                            code.emitop1(bipush, ((Number)constantValue).intValue());
+                            return true;
+                        case FLOAT:
+                            float fval = ((Number)constantValue).floatValue();
+                            if (isPosZero(fval) || fval == 1.0 || fval == 2.0) {
+                                code.emitop0(fconst_0 + (int)fval);
+                                return true;
+                            }
+                            break;
+                        case DOUBLE:
+                            double dval = ((Number)constantValue).doubleValue();
+                            if (isPosZero(dval) || dval == 1.0) {
+                                code.emitop0(dconst_0 + (int)dval);
+                                return true;
+                            }
+                            break;
+                    }
+                }
+            }
+            return false;
+        }
 
         /** The type code of values represented by this item.
          */
@@ -446,7 +509,9 @@ public class Items {
         }
 
         Item load() {
-            code.emitop2(getstatic, member, PoolWriter::putMember);
+            if (!simplifyMember(member)) {
+                code.emitop2(getstatic, member, PoolWriter::putMember);
+            }
             return stackItem[typecode];
         }
 
@@ -477,7 +542,9 @@ public class Items {
             Assert.check(member.kind == Kinds.Kind.VAR);
             Type type = member.erasure(types);
             int rescode = Code.typecode(type);
-            code.emitLdc((DynamicVarSymbol)member);
+            if (!simplifyMember(member)) {
+                code.emitLdc((DynamicVarSymbol)member);
+            }
             return stackItem[rescode];
         }
 
@@ -515,7 +582,9 @@ public class Items {
         }
 
         Item load() {
-            code.emitop2(getfield, member, PoolWriter::putMember);
+            if (!simplifyMember(member)) {
+                code.emitop2(getfield, member, PoolWriter::putMember);
+            }
             return stackItem[typecode];
         }
 
@@ -647,16 +716,6 @@ public class Items {
             return stackItem[typecode];
         }
         //where
-            /** Return true iff float number is positive 0.
-             */
-            private boolean isPosZero(float x) {
-                return x == 0.0f && 1.0f / x > 0.0f;
-            }
-            /** Return true iff double number is positive 0.
-             */
-            private boolean isPosZero(double x) {
-                return x == 0.0d && 1.0d / x > 0.0d;
-            }
 
         CondItem mkCond() {
             int ival = numericValue().intValue();

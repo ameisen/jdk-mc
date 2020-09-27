@@ -47,6 +47,9 @@
 #include "gc/z/zArguments.hpp"
 #endif
 
+#include "utilities/defaultStream.hpp"
+#include "utilities/stringUtils.hpp"
+
 struct IncludedGC {
   bool&               _flag;
   CollectedHeap::Name _name;
@@ -177,6 +180,8 @@ GCArguments* GCConfig::select_gc() {
   // Exactly one GC selected
   FOR_EACH_INCLUDED_GC(gc) {
     if (gc->_flag) {
+      // debug::println("Selected GC: %s", gc->_hs_err_name);
+
       return &gc->_arguments;
     }
   }

@@ -28,6 +28,7 @@
 package org.objectweb.asm.tree.analysis;
 
 import java.util.List;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
@@ -58,7 +59,8 @@ public abstract class Interpreter<V extends Value> {
    *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5}, {@link
    *     org.objectweb.asm.Opcodes#ASM6} or {@link org.objectweb.asm.Opcodes#ASM7}.
    */
-  protected Interpreter(final int api) {
+  protected Interpreter(int api) {
+    api = Opcodes.ASM_CURRENT;
     this.api = api;
   }
 

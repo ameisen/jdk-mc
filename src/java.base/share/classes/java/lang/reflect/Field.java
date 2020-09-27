@@ -42,6 +42,8 @@ import sun.reflect.annotation.AnnotationSupport;
 import sun.reflect.annotation.TypeAnnotation;
 import sun.reflect.annotation.TypeAnnotationParser;
 
+import java.util.function.*;
+
 /**
  * A {@code Field} provides information about, and dynamic access to, a
  * single field of a class or an interface.  The reflected field may
@@ -62,8 +64,177 @@ import sun.reflect.annotation.TypeAnnotationParser;
  * @author Nakul Saraiya
  * @since 1.1
  */
-public final
+public
 class Field extends AccessibleObject implements Member {
+
+    public static final class SubFieldInt extends Field {
+        private int dummy = 0;
+
+        private final ObjIntConsumer<Object> setter;
+        private final ToIntFunction<Object> getter;
+
+        public SubFieldInt(String name, ObjIntConsumer<Object> setter, ToIntFunction<Object> getter) {
+            super(
+                Field.class, // declaringClass
+                name, // name
+                Integer.class, // underlying type
+                0, // modifiers
+                false, // trustedFinal
+                -1, // slot : this will quickly break if used elsewhere
+                null, // signature
+                new byte[] {} // annotations
+            );
+            this.setter = setter;
+            this.getter = getter;
+        }
+
+        @Override
+        void checkCanSetAccessible(Class<?> caller) {}
+
+        @Override
+        @CallerSensitive
+        public void setAccessible(boolean flag) {
+            // do nothing
+        }
+
+        @Override
+        Field copy() {
+            if (this.root != null)
+                throw new IllegalArgumentException("Can not copy a non-root Field");
+
+            var res = new SubFieldInt(getName(), setter, getter);
+            res.root = this;
+            res.fieldAccessor = fieldAccessor;
+            res.overrideFieldAccessor = overrideFieldAccessor;
+            return res;
+        }
+
+        @Override
+        @CallerSensitive
+        @ForceInline
+        public Object get(Object obj) throws IllegalArgumentException, IllegalAccessException {
+            return (Integer)getter.applyAsInt(obj);
+        }
+
+        @Override
+        @CallerSensitive
+        @ForceInline
+        public boolean getBoolean(Object obj) throws IllegalArgumentException, IllegalAccessException {
+            throw new IllegalAccessException();
+        }
+
+        @Override
+        @CallerSensitive
+        @ForceInline
+        public byte getByte(Object obj) throws IllegalArgumentException, IllegalAccessException {
+            return (byte)getter.applyAsInt(obj);
+        }
+
+        @Override
+        @CallerSensitive
+        @ForceInline
+        public char getChar(Object obj) throws IllegalArgumentException, IllegalAccessException {
+            throw new IllegalAccessException();
+        }
+
+        @Override
+        @CallerSensitive
+        @ForceInline
+        public short getShort(Object obj) throws IllegalArgumentException, IllegalAccessException {
+            return (short)getter.applyAsInt(obj);
+        }
+
+        @Override
+        @CallerSensitive
+        @ForceInline
+        public int getInt(Object obj) throws IllegalArgumentException, IllegalAccessException {
+            return getter.applyAsInt(obj);
+        }
+
+        @Override
+        @CallerSensitive
+        @ForceInline
+        public long getLong(Object obj) throws IllegalArgumentException, IllegalAccessException {
+            return (long)getter.applyAsInt(obj);
+        }
+
+        @Override
+        @CallerSensitive
+        @ForceInline
+        public float getFloat(Object obj) throws IllegalArgumentException, IllegalAccessException {
+            return (float)getter.applyAsInt(obj);
+        }
+
+        @Override
+        @CallerSensitive
+        @ForceInline
+        public double getDouble(Object obj) throws IllegalArgumentException, IllegalAccessException {
+            return (double)getter.applyAsInt(obj);
+        }
+
+        @Override
+        @CallerSensitive
+        @ForceInline
+        public void set(Object obj, Object value) throws IllegalArgumentException, IllegalAccessException {
+            setter.accept(obj, ((Integer)value).intValue());
+        }
+
+        @Override
+        @CallerSensitive
+        @ForceInline
+        public void setBoolean(Object obj, boolean z) throws IllegalArgumentException, IllegalAccessException {
+            throw new IllegalAccessException();
+        }
+
+        @Override
+        @CallerSensitive
+        @ForceInline
+        public void setByte(Object obj, byte b) throws IllegalArgumentException, IllegalAccessException {
+            setter.accept(obj, (int)b);
+        }
+
+        @Override
+        @CallerSensitive
+        @ForceInline
+        public void setChar(Object obj, char c) throws IllegalArgumentException, IllegalAccessException {
+            throw new IllegalAccessException();
+        }
+
+        @Override
+        @CallerSensitive
+        @ForceInline
+        public void setShort(Object obj, short s) throws IllegalArgumentException, IllegalAccessException {
+            setter.accept(obj, (int)s);
+        }
+
+        @Override
+        @CallerSensitive
+        @ForceInline
+        public void setInt(Object obj, int i) throws IllegalArgumentException, IllegalAccessException {
+            setter.accept(obj, i);
+        }
+
+        @Override
+        @CallerSensitive
+        @ForceInline
+        public void setLong(Object obj, long l) throws IllegalArgumentException, IllegalAccessException {
+            setter.accept(obj, (int)l);
+        }
+
+        @Override
+        @CallerSensitive
+        @ForceInline
+        public void setFloat(Object obj, float f) throws IllegalArgumentException, IllegalAccessException {
+            setter.accept(obj, (int)f);
+        }
+
+        @Override
+        @CallerSensitive
+        @ForceInline
+        public void setDouble(Object obj, double d) throws IllegalArgumentException, IllegalAccessException {
+            setter.accept(obj, (int)d);
+        }
+    }
 
     private Class<?>            clazz;
     private int                 slot;
@@ -79,20 +250,20 @@ class Field extends AccessibleObject implements Member {
     private transient FieldRepository genericInfo;
     private byte[]              annotations;
     // Cached field accessor created without override
-    private FieldAccessor fieldAccessor;
+    protected FieldAccessor fieldAccessor;
     // Cached field accessor created with override
-    private FieldAccessor overrideFieldAccessor;
+    protected FieldAccessor overrideFieldAccessor;
     // For sharing of FieldAccessors. This branching structure is
     // currently only two levels deep (i.e., one root Field and
     // potentially many Field objects pointing to it.)
     //
     // If this branching structure would ever contain cycles, deadlocks can
     // occur in annotation code.
-    private Field               root;
+    protected Field               root;
 
     // Generics infrastructure
 
-    private String getGenericSignature() {return signature;}
+    protected String getGenericSignature() {return signature;}
 
     // Accessor for factory
     private GenericsFactory getFactory() {
@@ -202,6 +373,26 @@ class Field extends AccessibleObject implements Member {
      */
     public int getModifiers() {
         return modifiers;
+    }
+
+    protected void setModifiers(int value) {
+        modifiers = value;
+    }
+
+    protected static int getModifiersStatic(Object field) {
+        return ((Field)field).getModifiers();
+    }
+
+    protected static void setModifiersStatic(Object field, int value) {
+        ((Field)field).setModifiers(value);
+    }
+
+    public static SubFieldInt getModifiersField() {
+        return new SubFieldInt(
+            "modifiers",
+            Field::setModifiersStatic,
+            Field::getModifiersStatic
+        );
     }
 
     /**

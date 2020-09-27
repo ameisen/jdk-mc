@@ -82,6 +82,7 @@ namespace carbide {
 #include "dump/dump.hpp"
 #include "string_switch.hpp"
 #include "method_overrides.hpp"
+#include "debug.hpp"
 
 #include "Locks.hpp"
 #include "Sizes.hpp"

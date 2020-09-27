@@ -29,6 +29,10 @@
 #include "oops/objArrayOop.inline.hpp"
 #include "runtime/handles.inline.hpp"
 
+#include "utilities/defaultStream.hpp"
+#include "utilities/stringUtils.hpp"
+
+
 JVMCICompiler* JVMCICompiler::_instance = NULL;
 elapsedTimer JVMCICompiler::_codeInstallTimer;
 
@@ -44,8 +48,11 @@ JVMCICompiler::JVMCICompiler() : AbstractCompiler(compiler_jvmci) {
 void JVMCICompiler::initialize() {
   assert(!is_c1_or_interpreter_only(), "JVMCI is launched, it's not c1/interpreter only mode");
   if (!UseCompiler || !EnableJVMCI || !UseJVMCICompiler || !should_perform_init()) {
+    //debug::println("JVMCI is NOT Initialized");
     return;
   }
+
+  debug::println("JVMCI is Initialized");
 
   set_state(initialized);
 }

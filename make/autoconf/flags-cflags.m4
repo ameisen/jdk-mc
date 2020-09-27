@@ -147,7 +147,7 @@ AC_DEFUN([FLAGS_SETUP_WARNINGS],
       WARNINGS_ENABLE_ADDITIONAL_CXX="-Woverloaded-virtual -Wreorder"
 
       WARNINGS_ENABLE_ALL_CFLAGS="esyscmd(cat ./cflags) -Wall -Wextra -Wformat=2 $WARNINGS_ENABLE_ADDITIONAL -Wno-shift-negative-value -Wno-error=cpp -Wno-cpp -Wno-maybe-uninitialized"
-      WARNINGS_ENABLE_ALL_CXXFLAGS="-std=gnu++2a esyscmd(cat ./cxxflags) $WARNINGS_ENABLE_ALL_CFLAGS $WARNINGS_ENABLE_ADDITIONAL_CXX -Wno-deprecated-copy"
+      WARNINGS_ENABLE_ALL_CXXFLAGS="-std=gnu++2a -fconcepts esyscmd(cat ./cxxflags) $WARNINGS_ENABLE_ALL_CFLAGS $WARNINGS_ENABLE_ADDITIONAL_CXX -Wno-deprecated-copy"
 
 
       DISABLED_WARNINGS="unused-parameter unused"

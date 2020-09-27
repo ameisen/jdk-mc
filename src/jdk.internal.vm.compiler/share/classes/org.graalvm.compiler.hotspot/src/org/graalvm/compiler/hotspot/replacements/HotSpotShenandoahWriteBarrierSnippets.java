@@ -24,8 +24,17 @@
 
 package org.graalvm.compiler.hotspot.replacements;
 
-import static org.graalvm.compiler.hotspot.GraalHotSpotVMConfigBase.INJECTED_METAACCESS;
-import static org.graalvm.compiler.hotspot.GraalHotSpotVMConfigBase.INJECTED_VMCONFIG;
+import static org.graalvm.compiler.hotspot.GraalHotSpotVMConfig.INJECTED_METAACCESS;
+import static org.graalvm.compiler.hotspot.GraalHotSpotVMConfig.INJECTED_VMCONFIG;
+
+import static org.graalvm.compiler.hotspot.meta.HotSpotForeignCallDescriptor.Reexecutability.NOT_REEXECUTABLE;
+import static org.graalvm.compiler.hotspot.meta.HotSpotForeignCallDescriptor.Reexecutability.REEXECUTABLE;
+import static org.graalvm.compiler.hotspot.meta.HotSpotForeignCallDescriptor.Transition.LEAF;
+import static org.graalvm.compiler.hotspot.meta.HotSpotForeignCallDescriptor.Transition.LEAF_NO_VZERO;
+import static org.graalvm.compiler.hotspot.meta.HotSpotForeignCallDescriptor.Transition.SAFEPOINT;
+import static org.graalvm.compiler.hotspot.meta.HotSpotForeignCallsProviderImpl.NO_LOCATIONS;
+
+import org.graalvm.compiler.hotspot.meta.HotSpotForeignCallDescriptor;
 
 import org.graalvm.compiler.core.common.CompressEncoding;
 import org.graalvm.compiler.core.common.spi.ForeignCallDescriptor;
@@ -59,9 +68,9 @@ import jdk.vm.ci.meta.JavaKind;
 import jdk.vm.ci.meta.ResolvedJavaType;
 
 public final class HotSpotShenandoahWriteBarrierSnippets extends ShenandoahWriteBarrierSnippets {
-    public static final ForeignCallDescriptor SHENANDOAHWBPRECALL = new ForeignCallDescriptor("write_barrier_pre", void.class, Object.class);
-    public static final ForeignCallDescriptor SHENANDOAHWBPOSTCALL = new ForeignCallDescriptor("write_barrier_post", void.class, Word.class);
-    public static final ForeignCallDescriptor VALIDATE_OBJECT = new ForeignCallDescriptor("validate_object", boolean.class, Word.class, Word.class);
+    public static final HotSpotForeignCallDescriptor SHENANDOAHWBPRECALL = new HotSpotForeignCallDescriptor(LEAF_NO_VZERO, REEXECUTABLE, NO_LOCATIONS, "write_barrier_pre", void.class, Object.class);
+    public static final HotSpotForeignCallDescriptor SHENANDOAHWBPOSTCALL = new HotSpotForeignCallDescriptor(LEAF_NO_VZERO, REEXECUTABLE, NO_LOCATIONS, "write_barrier_post", void.class, Word.class);
+    public static final HotSpotForeignCallDescriptor SHENANDOAH_VALIDATE_OBJECT = new HotSpotForeignCallDescriptor(LEAF_NO_VZERO, REEXECUTABLE, NO_LOCATIONS, "validate_object", boolean.class, Word.class, Word.class);
 
     private final GraalHotSpotVMConfig config;
     private final Register threadRegister;
@@ -153,7 +162,7 @@ public final class HotSpotShenandoahWriteBarrierSnippets extends ShenandoahWrite
 
     @Override
     protected ForeignCallDescriptor validateObjectCallDescriptor() {
-        return VALIDATE_OBJECT;
+        return SHENANDOAH_VALIDATE_OBJECT;
     }
 
     @Override

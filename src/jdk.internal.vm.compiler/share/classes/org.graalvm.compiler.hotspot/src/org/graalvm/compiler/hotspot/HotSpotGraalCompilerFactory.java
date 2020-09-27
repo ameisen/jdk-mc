@@ -115,7 +115,7 @@ public final class HotSpotGraalCompilerFactory extends HotSpotJVMCICompilerFacto
 
         // @formatter:off
         @Option(help = "In tiered mode compile Graal and JVMCI using optimized first tier code.", type = OptionType.Expert)
-        public static final OptionKey<Boolean> CompileGraalWithC1Only = new OptionKey<>(true);
+        public static final OptionKey<Boolean> CompileGraalWithC1Only = new OptionKey<>(false);
 
         @Option(help = "A filter applied to a method the VM has selected for compilation by Graal. " +
                        "A method not matching the filter is redirected to a lower tier compiler. " +

@@ -471,12 +471,7 @@ AC_DEFUN_ONCE([JDKOPT_SETUP_STATIC_BUILD],
       CHECKING_MSG: [if static build is enabled],
       CHECK_AVAILABLE: [
         AC_MSG_CHECKING([if static build is available])
-        if test "x$OPENJDK_TARGET_OS" = "xmacosx"; then
-          AC_MSG_RESULT([yes])
-        else
-          AC_MSG_RESULT([no])
-          AVAILABLE=false
-        fi
+        AC_MSG_RESULT([yes])
       ],
       IF_ENABLED: [
         STATIC_BUILD_CFLAGS="-DSTATIC_BUILD=1"

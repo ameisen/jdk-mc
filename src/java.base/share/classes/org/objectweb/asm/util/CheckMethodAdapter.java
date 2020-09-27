@@ -739,8 +739,8 @@ public class CheckMethodAdapter extends MethodVisitor {
       throw new IllegalArgumentException("INVOKEINTERFACE can't be used with classes");
     }
     if (opcode == Opcodes.INVOKESPECIAL && isInterface && (version & 0xFFFF) < Opcodes.V1_8) {
-      throw new IllegalArgumentException(
-          "INVOKESPECIAL can't be used with interfaces prior to Java 8");
+      //throw new IllegalArgumentException(
+      //    "INVOKESPECIAL can't be used with interfaces prior to Java 8");
     }
     super.visitMethodInsn(opcodeAndSource, owner, name, descriptor, isInterface);
     ++insnCount;
@@ -1161,16 +1161,16 @@ public class CheckMethodAdapter extends MethodVisitor {
       if (sort != Type.OBJECT && sort != Type.ARRAY && sort != Type.METHOD) {
         throw new IllegalArgumentException("Illegal LDC constant value");
       }
-      if (sort != Type.METHOD && (version & 0xFFFF) < Opcodes.V1_5) {
-        throw new IllegalArgumentException("ldc of a constant class requires at least version 1.5");
-      }
-      if (sort == Type.METHOD && (version & 0xFFFF) < Opcodes.V1_7) {
-        throw new IllegalArgumentException("ldc of a method type requires at least version 1.7");
-      }
+      //if (sort != Type.METHOD && (version & 0xFFFF) < Opcodes.V1_5) {
+      //  throw new IllegalArgumentException("ldc of a constant class requires at least version 1.5");
+      //}
+      //if (sort == Type.METHOD && (version & 0xFFFF) < Opcodes.V1_7) {
+      //  throw new IllegalArgumentException("ldc of a method type requires at least version 1.7");
+      //}
     } else if (value instanceof Handle) {
-      if ((version & 0xFFFF) < Opcodes.V1_7) {
-        throw new IllegalArgumentException("ldc of a Handle requires at least version 1.7");
-      }
+      //if ((version & 0xFFFF) < Opcodes.V1_7) {
+      //  throw new IllegalArgumentException("ldc of a Handle requires at least version 1.7");
+      //}
       Handle handle = (Handle) value;
       int tag = handle.getTag();
       if (tag < Opcodes.H_GETFIELD || tag > Opcodes.H_INVOKEINTERFACE) {
@@ -1187,9 +1187,9 @@ public class CheckMethodAdapter extends MethodVisitor {
         checkMethodIdentifier(this.version, handleName, "handle name");
       }
     } else if (value instanceof ConstantDynamic) {
-      if ((version & 0xFFFF) < Opcodes.V11) {
-        throw new IllegalArgumentException("ldc of a ConstantDynamic requires at least version 11");
-      }
+      //if ((version & 0xFFFF) < Opcodes.V11) {
+      //  throw new IllegalArgumentException("ldc of a ConstantDynamic requires at least version 11");
+      //}
       ConstantDynamic constantDynamic = (ConstantDynamic) value;
       checkMethodIdentifier(this.version, constantDynamic.getName(), "constant dynamic name");
       checkDescriptor(this.version, constantDynamic.getDescriptor(), false);

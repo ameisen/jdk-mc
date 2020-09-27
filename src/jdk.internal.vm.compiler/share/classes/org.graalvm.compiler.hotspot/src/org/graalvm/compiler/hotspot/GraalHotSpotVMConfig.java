@@ -607,7 +607,7 @@ public class GraalHotSpotVMConfig extends GraalHotSpotVMConfigAccess {
     public final int g1SATBQueueBufferOffset;
     public final int g1CardQueueIndexOffset;
     public final int g1CardQueueBufferOffset;
-		
+
     public final int shenandoahSATBQueueMarkingOffset;
     public final int shenandoahSATBQueueIndexOffset;
     public final int shenandoahSATBQueueBufferOffset;
@@ -636,11 +636,11 @@ public class GraalHotSpotVMConfig extends GraalHotSpotVMConfigAccess {
             g1SATBQueueBufferOffset = getConstant("G1ThreadLocalData::satb_mark_queue_buffer_offset", Integer.class, -1);
             g1CardQueueIndexOffset = getConstant("G1ThreadLocalData::dirty_card_queue_index_offset", Integer.class, -1);
             g1CardQueueBufferOffset = getConstant("G1ThreadLocalData::dirty_card_queue_buffer_offset", Integer.class, -1);
-						
-            shenandoahSATBQueueMarkingOffset = getConstant("ShenandoahThreadLocalData::satb_mark_queue_active_offset", Integer.class);
-            shenandoahSATBQueueIndexOffset = getConstant("ShenandoahThreadLocalData::satb_mark_queue_index_offset", Integer.class);
-            shenandoahSATBQueueBufferOffset = getConstant("ShenandoahThreadLocalData::satb_mark_queue_buffer_offset", Integer.class);
         }
+
+        shenandoahSATBQueueMarkingOffset = getConstant("ShenandoahThreadLocalData::satb_mark_queue_active_offset", Integer.class, -1);
+        shenandoahSATBQueueIndexOffset = getConstant("ShenandoahThreadLocalData::satb_mark_queue_index_offset", Integer.class, -1);
+        shenandoahSATBQueueBufferOffset = getConstant("ShenandoahThreadLocalData::satb_mark_queue_buffer_offset", Integer.class, -1);
     }
 
     public final int klassOffset = getFieldValue("java_lang_Class::_klass_offset", Integer.class, "int");

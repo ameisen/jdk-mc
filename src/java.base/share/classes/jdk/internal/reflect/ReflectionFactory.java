@@ -226,7 +226,7 @@ public class ReflectionFactory {
 
         Class<?> declaringClass = c.getDeclaringClass();
         if (Modifier.isAbstract(declaringClass.getModifiers())) {
-            return new InstantiationExceptionConstructorAccessorImpl(null);
+            return new InstantiationExceptionConstructorAccessorImpl("Declaring Class '" + declaringClass.getName() + "' is abstract");
         }
         if (declaringClass == Class.class) {
             return new InstantiationExceptionConstructorAccessorImpl

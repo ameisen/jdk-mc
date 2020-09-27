@@ -257,6 +257,13 @@ public class GraalHotSpotVMConfigAccess {
         return notPresent;
     }
 
+    public <T> T getConstant(String name, Class<T> type, T notPresent) {
+        if (isPresent(name, vmConstants, true)) {
+            return access.getConstant(name, type, notPresent);
+        }
+        return notPresent;
+    }
+
     /**
      * @see HotSpotVMConfigAccess#getConstant(String, Class)
      */
@@ -312,6 +319,13 @@ public class GraalHotSpotVMConfigAccess {
      */
     public <T> T getFieldValue(String name, Class<T> type, String cppType, T notPresent, boolean expectPresent) {
         if (isPresent(name, vmFields, expectPresent)) {
+            return access.getFieldValue(name, type, cppType, notPresent);
+        }
+        return notPresent;
+    }
+
+    public <T> T getFieldValue(String name, Class<T> type, String cppType, T notPresent) {
+        if (isPresent(name, vmFields, true)) {
             return access.getFieldValue(name, type, cppType, notPresent);
         }
         return notPresent;

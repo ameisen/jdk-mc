@@ -420,8 +420,8 @@ public class File
         if (uri.isOpaque())
             throw new IllegalArgumentException("URI is not hierarchical");
         String scheme = uri.getScheme();
-        if ((scheme == null) || !scheme.equalsIgnoreCase("file"))
-            throw new IllegalArgumentException("URI scheme is not \"file\"");
+        if ((scheme == null) || (!scheme.equalsIgnoreCase("file") && !scheme.equalsIgnoreCase("jrt")))
+            throw new IllegalArgumentException("URI scheme '" + scheme + "' is not \"file\"");
         if (uri.getRawAuthority() != null)
             throw new IllegalArgumentException("URI has an authority component");
         if (uri.getRawFragment() != null)

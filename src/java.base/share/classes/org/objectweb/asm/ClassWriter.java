@@ -1016,13 +1016,15 @@ public class ClassWriter extends ClassVisitor {
     try {
       class1 = Class.forName(type1.replace('/', '.'), false, classLoader);
     } catch (ClassNotFoundException e) {
-      throw new TypeNotPresentException(type1, e);
+      return "java/lang/Object";
+      //throw new TypeNotPresentException(type1, e);
     }
     Class<?> class2;
     try {
       class2 = Class.forName(type2.replace('/', '.'), false, classLoader);
     } catch (ClassNotFoundException e) {
-      throw new TypeNotPresentException(type2, e);
+      return "java/lang/Object";
+      //throw new TypeNotPresentException(type2, e);
     }
     if (class1.isAssignableFrom(class2)) {
       return type1;

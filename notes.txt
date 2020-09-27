@@ -1,0 +1,5 @@
+the Field class no longer has any fields according to reflection. This appears to have changed at some point, it is not a bug in our build.
+Two approaches to fixing this:
+	oop Reflection::new_field(fieldDescriptor* fd, TRAPS) et al
+	OR
+	fake Field subclass that talks to setters/getters in the Field, and override it in getDeclaredFields.

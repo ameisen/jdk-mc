@@ -80,6 +80,9 @@
 #include <algorithm>
 #include <initializer_list>
 
+#include "utilities/defaultStream.hpp"
+#include "utilities/stringUtils.hpp"
+
 #ifdef DTRACE_ENABLED
 
 // Only bother with this argument setup if dtrace is available
@@ -643,10 +646,13 @@ void CompileBroker::compilation_init_phase1(Thread* THREAD) {
 
 #if INCLUDE_JVMCI
   if (EnableJVMCI) {
+    debug::println("JVMCI is Enabled");
     // This is creating a JVMCICompiler singleton.
     JVMCICompiler* jvmci = new JVMCICompiler();
 
     if (UseJVMCICompiler) {
+      debug::println("JVMCI Compiler is being used");
+
       _compilers[1] = jvmci;
       if (FLAG_IS_DEFAULT(JVMCIThreads)) {
         if (BootstrapJVMCI) {
@@ -2380,6 +2386,7 @@ void CompileBroker::handle_full_code_cache(int code_blob_type) {
       vm_direct_exit(1);
     }
 #endif
+    UseCodeCacheFlushing = true;
     if (UseCodeCacheFlushing) {
       // Since code cache is full, immediately stop new compiles
       if (CompileBroker::set_should_compile_new_jobs(CompileBroker::stop_compilation)) {

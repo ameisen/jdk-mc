@@ -474,7 +474,6 @@ public final class Class<T> implements java.io.Serializable,
                                             Class<?> caller)
         throws ClassNotFoundException;
 
-
     /**
      * Returns the {@code Class} with the given <a href="ClassLoader.html#binary-name">
      * binary name</a> in the given module.
@@ -2089,7 +2088,7 @@ public final class Class<T> implements java.io.Serializable,
         }
         Field field = getField0(name);
         if (field == null) {
-            throw new NoSuchFieldException(name);
+            throw new NoSuchFieldException("'" + name + "' in '" + getName() + "'");
         }
         return getReflectionFactory().copyField(field);
     }
@@ -2566,11 +2565,10 @@ public final class Class<T> implements java.io.Serializable,
         }
         Field field = searchFields(privateGetDeclaredFields(false), name);
         if (field == null) {
-            throw new NoSuchFieldException(name);
+            throw new NoSuchFieldException("'" + name + "' in '" + getName() + "'");
         }
         return getReflectionFactory().copyField(field);
     }
-
 
     /**
      * Returns a {@code Method} object that reflects the specified
@@ -3218,6 +3216,17 @@ public final class Class<T> implements java.io.Serializable,
         }
         // No cached value available; request value from VM
         res = Reflection.filterFields(this, getDeclaredFields0(publicOnly));
+
+        if (!publicOnly && this == java.lang.reflect.Field.class) {
+            // Insert fancy special fields into the array.
+            Field[] new_res = new Field[res.length + 1];
+            new_res[0] = java.lang.reflect.Field.getModifiersField();
+            for (int i = 0; i < res.length; ++i) {
+                new_res[i + 1] = res[i];
+            }
+            res = new_res;
+        }
+
         if (rd != null) {
             if (publicOnly) {
                 rd.declaredPublicFields = res;

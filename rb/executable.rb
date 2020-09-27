@@ -11,6 +11,58 @@ module Executable
 		return Executable::which?(name).nil? ? false : true
 	end
 
+	class Result
+		attr_reader :status
+
+		def initialize(status:, is_super: false)
+			(@status = status).freeze
+			self.freeze unless is_super
+		end
+
+		def valid?; return !(@status.nil?); end
+		def exited?; return @status.exited?; end
+		def exitstatus?; return @status.exitstatus?; end
+		def pid; return @status.pid; end
+		def stopped?; return @status.stopped?; end
+		def success?; return @status.success?; end
+		def failure?; return !@status.success?; end
+		def signaled?; return @status.signaled?; end
+		def stopsig; return @status.stopsig; end
+		def termsig; return @status.termsig; end
+
+		def to_i; return @status.to_i; end
+		alias_method :to_int, :to_i
+
+		def to_s; return @status.to_s; end
+		alias_method :to_str, :to_s
+	end
+
+	class Result2 < Result
+		attr_reader :stdout
+
+		def initialize(status:, stdout:)
+			super(status: status, is_super: true)
+
+			(@stdout = stdout).freeze
+
+			self.freeze
+		end
+	end
+
+	class Result3 < Result
+		attr_reader :stdout
+		attr_reader :stderr
+
+		def initialize(status:, stdout:, stderr:)
+			super(status: status, is_super: true)
+
+			(@stdout = stdout).freeze
+			(@stderr = stderr).freeze
+
+			self.freeze
+		end
+	end
+
 	def self.execute!(name, *args)
 		puts([name, *args].join(" "))
 
@@ -24,7 +76,7 @@ module Executable
 
 			thread_stdout.join
 			thread_stderr.join
-			return wait_thr.value
+			return Result.new(status: wait_thr.value)
 		}
 	end
 
@@ -47,7 +99,11 @@ module Executable
 			result = wait_thr.value
 		}
 
-		return [captured_stdout.string, captured_stderr.string, result]
+		return Result3.new(
+			status: result,
+			stdout: captured_stdout.string,
+			stderr: captured_stderr.string
+		)
 	end
 
 	def self.capture2e!(name, *args, stream: false)
@@ -68,7 +124,10 @@ module Executable
 			result = wait_thr.value
 		}
 
-		return [captured_stdout.string, result]
+		return Result2.new(
+			status: result,
+			stdout: captured_stdout.string
+		)
 	end
 end
 

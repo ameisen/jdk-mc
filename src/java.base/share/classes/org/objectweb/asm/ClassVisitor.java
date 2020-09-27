@@ -67,7 +67,8 @@ public abstract class ClassVisitor {
    * @param classVisitor the class visitor to which this visitor must delegate method calls. May be
    *     null.
    */
-  public ClassVisitor(final int api, final ClassVisitor classVisitor) {
+  public ClassVisitor(int api, final ClassVisitor classVisitor) {
+    api = Opcodes.ASM_CURRENT;
     if (api != Opcodes.ASM9
         && api != Opcodes.ASM8
         && api != Opcodes.ASM7

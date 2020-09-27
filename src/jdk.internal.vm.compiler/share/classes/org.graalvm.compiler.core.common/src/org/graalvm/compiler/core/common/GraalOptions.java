@@ -85,7 +85,7 @@ public final class GraalOptions {
     public static final OptionKey<String> EscapeAnalyzeOnly = new OptionKey<>(null);
 
     @Option(help = "The maximum length of an array that will be escape analyzed.", type = OptionType.Expert)
-    public static final OptionKey<Integer> MaximumEscapeAnalysisArrayLength = new OptionKey<>(128);
+    public static final OptionKey<Integer> MaximumEscapeAnalysisArrayLength = new OptionKey<>(8192);
 
     @Option(help = "", type = OptionType.Expert)
     public static final OptionKey<Integer> DeoptsToDisableOptimisticOptimization = new OptionKey<>(40);

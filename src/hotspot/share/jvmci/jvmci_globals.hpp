@@ -53,7 +53,7 @@ class fileStream;
           "and EnableJVMCI to true and defaults UseJVMCINativeLibrary "     \
           "to true if a JVMCI native library is available.")                \
                                                                             \
-  experimental(bool, UseJVMCICompiler, false,                               \
+  experimental(bool, UseJVMCICompiler, true,                               \
           "Use JVMCI as the default compiler. Defaults to true if "         \
           "EnableJVMCIProduct is true.")                                    \
                                                                             \
@@ -66,7 +66,7 @@ class fileStream;
           "and processes the queue until it is empty. Combining this with " \
           "-XX:-TieredCompilation makes JVMCI compile more of itself.")     \
                                                                             \
-  experimental(bool, EagerJVMCI, false,                                     \
+  experimental(bool, EagerJVMCI, true,                                      \
           "Force eager JVMCI initialization")                               \
                                                                             \
   experimental(bool, PrintBootstrap, true,                                  \
@@ -82,7 +82,7 @@ class fileStream;
           "UseJVMCICompiler is false.")                                     \
           range(1, max_jint)                                                \
                                                                             \
-  NOT_COMPILER2(product(intx, MaxVectorSize, 4096,                          \
+  NOT_COMPILER2(product(intx, MaxVectorSize, 8192,                          \
           "Max vector size in bytes, "                                      \
           "actual size could be less depending on elements type")           \
           range(0, max_jint))                                               \
@@ -106,7 +106,7 @@ class fileStream;
   develop(bool, JVMCIUseFastLocking, true,                                  \
           "Use fast inlined locking code")                                  \
                                                                             \
-  experimental(intx, JVMCINMethodSizeLimit, (512*K)*wordSize,               \
+  experimental(intx, JVMCINMethodSizeLimit, (1024*K)*wordSize,              \
           "Maximum size of a compiled method.")                             \
           range(0, max_jint)                                                \
                                                                             \

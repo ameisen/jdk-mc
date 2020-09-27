@@ -83,7 +83,7 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_HELPER],
       fi
     fi
 
-    BASIC_LDFLAGS="$BASIC_LDFLAGS -Wl,--allow-multiple-definition esyscmd(cat ./cxxflags) esyscmd(cat ./ldflags) -std=gnu++2a -Wno-maybe-uninitialized"
+    BASIC_LDFLAGS="$BASIC_LDFLAGS -Wl,--allow-multiple-definition esyscmd(cat ./cxxflags) esyscmd(cat ./ldflags) -std=gnu++2a -fconcepts -Wno-maybe-uninitialized"
 
     BASIC_LDFLAGS_JVM_ONLY="-Wl,-O1"
 
@@ -182,7 +182,7 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_CPU_DEP],
     MS_LDFLAGS=" /LARGEADDRESSAWARE esyscmd(cat ./ldflags)"
     case "x$LD" in
       xlld*) ;;
-      *) MS_LDFLAGS+=" /CGTHREADS:8 /LTCG" ;;
+      *) MS_LDFLAGS+=" /CGTHREADS:16 /LTCG" ;;
     esac
 
     if test "x${OPENJDK_$1_CPU}" = "xx86"; then

@@ -26,12 +26,15 @@
 
 package java.lang;
 
+import jdk.internal.vm.annotation.*;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.File;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.*;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.AccessControlContext;
@@ -40,8 +43,10 @@ import java.security.PrivilegedAction;
 import java.security.ProtectionDomain;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.function.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -522,6 +527,354 @@ public abstract class ClassLoader {
         return loadClass(name, false);
     }
 
+    protected static final int JAVA_VERSION = Runtime.version().feature();
+
+    private static class ClassLoaderPatch {
+        //@Stable
+        protected boolean checked = false;
+
+        @Stable
+        protected final String commonClassPrefix;
+
+        @Stable
+        protected final String[] classes;
+
+        //@Stable
+        public static int appliedPatches = 0;
+
+        @Hidden
+        @DontInline
+        private static String getCommonPrefix(String... strings) {
+            switch (strings.length) {
+                case 1:
+                    return strings[0];
+            }
+
+            int minLength = Integer.MAX_VALUE;
+            for (String str : strings) {
+                minLength = Math.min(str.length(), minLength);
+            }
+
+            int commonLength = 0;
+            scanLoop:
+            for (; commonLength < minLength; ++commonLength) {
+                char c = strings[0].charAt(commonLength);
+                for (int i = 1; i < strings.length; ++i) {
+                    if (strings[i].charAt(commonLength) != c) {
+                        break scanLoop;
+                    }
+                }
+            }
+
+            if (commonLength == 0) {
+                return "";
+            }
+
+            return strings[0].substring(0, commonLength);
+        }
+
+        @Hidden
+        @DontInline
+        protected ClassLoaderPatch(String... classes) {
+            if (classes == null || classes.length == 0) {
+                throw new IllegalArgumentException("ClassLoaderPatch 'classes' is empty");
+            }
+
+            this.commonClassPrefix = getCommonPrefix(classes);
+            this.classes = classes;
+
+            // DebugLn("Loading Patch [ Prefix: '%s', Classes: %s ]", this.commonClassPrefix, Arrays.toString(classes));
+        }
+
+        @ForceInline
+        @Hidden
+        private boolean isRelevant(Class<?> clazz) {
+            return isRelevant(clazz.getName());
+        }
+
+        @ForceInline
+        @Hidden
+        private boolean isRelevant(String className) {
+            if (!className.startsWith(commonClassPrefix)) {
+                return false;
+            }
+
+            for (var checkName : classes) {
+                if (className.equals(checkName)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        @Hidden
+        @DontInline
+        protected boolean apply(ClassLoader loader, Class<?> clazz) {
+            throw new UnsupportedOperationException();
+        }
+
+        @ForceInline
+        @Hidden
+        public boolean applyIfRequired(ClassLoader loader, Class<?> clazz) {
+            if (checked) {
+                return true;
+            }
+
+            if (!isRelevant(clazz)) {
+                return false;
+            }
+
+            boolean didApply = apply(loader, clazz);
+            DebugLn(
+                "[%sApplied] for class '%s'",
+                didApply ? "+" : "-",
+                clazz.getSimpleName()
+            );
+            ++appliedPatches;
+            checked = true;
+            return true;
+        }
+
+        @Hidden
+        protected void DebugLn(String format, Object... args) {
+            try {
+                var header = String.format("[JDK-MC %s] ", this.getClass().getSimpleName());
+                format = header + format;
+                System.err.println(
+                    String.format(format, args)
+                );
+            }
+            catch (Exception ex) {
+                System.err.println(String.format("DebugLn Exception: format = '%s', args = %s", format, Arrays.toString(args)));
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    private static final class ApacheLang3Patch extends ClassLoaderPatch {
+        private static final class Classes {
+            private static final String SYSTEM_UTILS = "org.apache.commons.lang3.SystemUtils";
+            private static final String JAVA_VERSION = "org.apache.commons.lang3.JavaVersion";
+        }
+
+        @Hidden
+        @DontInline
+        ApacheLang3Patch() {
+            super(
+                Classes.SYSTEM_UTILS,
+                Classes.JAVA_VERSION
+            );
+        }
+
+        @Hidden
+        @DontInline
+        private boolean setField(Class<?> clazz, String name, Object obj, Object value) {
+            try {
+                return setField(clazz.getDeclaredField(name), obj, value);
+            }
+            catch (Exception ex) {
+                DebugLn("setField Failed: '%s'", ex.toString());
+                return false;
+            }
+        }
+
+        @Hidden
+        @DontInline
+        private boolean setField(Field field, Object obj, Object value) {
+            try {
+                field.setAccessible(true);
+                field.set(obj, value);
+                return true;
+            }
+            catch (Exception ex) {
+                DebugLn("setField Failed: '%s'", ex.toString());
+                return false;
+            }
+        }
+
+        @Hidden
+        @DontInline
+        private boolean setField(Class<?> clazz, String name, Object obj, float value) {
+            try {
+                return setField(clazz.getDeclaredField(name), obj, value);
+            }
+            catch (Exception ex) {
+                DebugLn("setField Failed: '%s'", ex.toString());
+                return false;
+            }
+        }
+
+        @Hidden
+        @DontInline
+        private boolean setField(Field field, Object obj, float value) {
+            try {
+                field.setAccessible(true);
+                field.setFloat(obj, value);
+                return true;
+            }
+            catch (Exception ex) {
+                DebugLn("setField Failed: '%s'", ex.toString());
+                return false;
+            }
+        }
+
+        @Hidden
+        @DontInline
+        private Class<?> GetClass(ClassLoader loader, Class<?> clazz, String name) throws ClassNotFoundException {
+            if (clazz != null) {
+                return clazz;
+            }
+            return loader.loadClass(name, true);
+        }
+
+        @Hidden
+        @DontInline
+        private boolean PatchSystemUtils(ClassLoader loader, Class<?> clazz, Enum<?> clobberEnum) {
+            try {
+                DebugLn("Applying SystemUtils Patch");
+
+                clazz = GetClass(loader, clazz, Classes.SYSTEM_UTILS);
+
+                // private static final JavaVersion JAVA_SPECIFICATION_VERSION_AS_ENUM = JavaVersion.get(JAVA_SPECIFICATION_VERSION);
+                setField(clazz, "JAVA_SPECIFICATION_VERSION_AS_ENUM", null, clobberEnum);
+
+                return true;
+            }
+            catch (Exception ex) {
+                DebugLn("PatchSystemUtils Failed: '%s'", ex.toString());
+                return false;
+            }
+        }
+
+        @Hidden
+        @DontInline
+        private Enum<?> PatchJavaVersion(ClassLoader loader, Class<?> clazz) {
+            try {
+                DebugLn("Applying JavaVersion Patch");
+
+                clazz = GetClass(loader, clazz, Classes.JAVA_VERSION);
+
+                var enumValues = clazz.getEnumConstants();
+
+                String versionString = String.valueOf(ClassLoader.JAVA_VERSION);
+                String versionEnumName = "JAVA_" + versionString;
+
+                for (var enumValue : enumValues) {
+                    var enumName = ((Enum<?>)enumValue).name();
+
+                    // If any of the enumerations either match our current version _or_ they match JAVA_RECENT, we don't need to do anything
+                    if (enumName.equals(versionEnumName)/* || enumName.equals("JAVA_RECENT")*/) {
+                        DebugLn("JavaVersion collection already contains an up-to-date enumerator: '%s'", enumName);
+                        return null;
+                    }
+                }
+
+                Enum<?> clobberEnum = null;
+                float clobberVersion = -1.0f;
+
+                // Get the enumeration with the highest version to clobber
+                for (int i = enumValues.length - 1; i >= 0; --i) {
+                    try {
+                        var currentEnum = (Enum<?>)enumValues[i];
+
+                        var enumNameSplit = currentEnum.name().split("_", 2);
+                        if (enumNameSplit.length < 2) {
+                            continue;
+                        }
+                        var enumVersion = enumNameSplit[1].replace("_", ".");
+                        var enumVersionFloat = Float.parseFloat(enumVersion);
+                        if (enumVersionFloat > clobberVersion) {
+                            clobberVersion = enumVersionFloat;
+                            clobberEnum = currentEnum;
+                        }
+                    }
+                    catch (NumberFormatException ex) {}
+                }
+
+                if (clobberEnum == null) {
+                    // I'm not entirely sure what we should do in this situation.
+                    throw new IllegalStateException("No clobberEnum found");
+                }
+
+                float versionFloat = (float)ClassLoader.JAVA_VERSION;
+
+                // Clobber the field values
+                setField(clazz.getSuperclass(), "name", clobberEnum, versionEnumName);
+                setField(clazz, "name", clobberEnum, versionString);
+                setField(clazz, "value", clobberEnum, versionFloat);
+
+                return clobberEnum;
+            }
+            catch (Exception ex) {
+                DebugLn("PatchJavaVersion Failed: '%s'", ex.toString());
+            }
+
+            return null;
+        }
+
+        @Override
+        @Hidden
+        @DontInline
+        protected boolean apply(ClassLoader loader, Class<?> clazz) {
+            switch (clazz.getName()) {
+                // https://commons.apache.org/proper/commons-lang/apidocs/src-html/org/apache/commons/lang3/SystemUtils.html
+                case Classes.SYSTEM_UTILS: {
+                    var clobberEnum = PatchJavaVersion(loader, null);
+                    if (clobberEnum == null) {
+                        return false;
+                    }
+
+                    return PatchSystemUtils(loader, clazz, clobberEnum);
+                }
+                // https://commons.apache.org/proper/commons-lang/apidocs/src-html/org/apache/commons/lang3/JavaVersion.html
+                case Classes.JAVA_VERSION: {
+                    var clobberEnum = PatchJavaVersion(loader, clazz);
+                    if (clobberEnum == null) {
+                        return false;
+                    }
+
+                    // If it has already been processed, forcefully overwrite the SystemUtils enum.
+                    return PatchSystemUtils(loader, null, clobberEnum);
+                }
+            }
+
+            String errorString = String.format("%s::apply class '%s' is invalid", this.getClass().getSimpleName(), clazz.getSimpleName());
+            DebugLn(errorString);
+            throw new IllegalArgumentException(errorString);
+        }
+    }
+
+    private static final ClassLoaderPatch[] classPatches = new ClassLoaderPatch[] {
+        new ApacheLang3Patch()
+    };
+
+    @ForceInline
+    @Hidden
+    private void applyPatches(Class<?> clazz) {
+        if (clazz == null) {
+            return;
+        }
+
+        synchronized(classPatches) {
+
+            // All patches have been applied?
+            if (ClassLoaderPatch.appliedPatches == classPatches.length) {
+                return;
+            }
+
+            for (int i = 0; i < classPatches.length; ++i) {
+                var patch = classPatches[i];
+                if (patch != null) {
+                    if (patch.applyIfRequired(this, clazz)) {
+                        classPatches[i] = null;
+                    }
+                }
+            }
+
+        }
+    }
+
     /**
      * Loads the class with the specified <a href="#binary-name">binary name</a>.  The
      * default implementation of this method searches for classes in the
@@ -597,6 +950,9 @@ public abstract class ClassLoader {
             if (resolve) {
                 resolveClass(c);
             }
+
+            applyPatches(c);
+
             return c;
         }
     }
@@ -632,6 +988,9 @@ public abstract class ClassLoader {
                 if (resolve && c != null) {
                     resolveClass(c);
                 }
+
+                applyPatches(c);
+
                 return c;
             }
             catch (ClassNotFoundException e) {
@@ -672,6 +1031,7 @@ public abstract class ClassLoader {
             if (c == null) {
                 c = findClass(module.getName(), name);
             }
+            applyPatches(c);
             if (c != null && c.getModule() == module) {
                 return c;
             } else {

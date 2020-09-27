@@ -55,6 +55,11 @@ bool JVMCIGlobals::check_jvmci_flags_are_consistent() {
     return false;                                      \
   }
 
+  if (!EnableJVMCI) {
+    EnableJVMCIProduct = false;
+    UseJVMCICompiler = false;
+  }
+
   if (EnableJVMCIProduct) {
     if (FLAG_IS_DEFAULT(EnableJVMCI)) {
       FLAG_SET_DEFAULT(EnableJVMCI, true);
@@ -203,5 +208,9 @@ void JVMCIGlobals::check_jvmci_supported_gc() {
       FLAG_SET_DEFAULT(EnableJVMCI, false);
       FLAG_SET_DEFAULT(UseJVMCICompiler, false);
     }
+  }
+  else {
+    FLAG_SET_DEFAULT(UseJVMCICompiler, false);
+    UseJVMCICompiler = false;
   }
 }

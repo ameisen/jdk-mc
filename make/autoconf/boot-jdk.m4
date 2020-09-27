@@ -464,7 +464,6 @@ AC_DEFUN_ONCE([BOOTJDK_SETUP_BOOT_JDK_ARGUMENTS],
   #UTIL_ADD_JVM_ARG_IF_OK([-XX:+UseSerialGC],boot_jdk_jvmargs_small,[$JAVA])
   UTIL_ADD_JVM_ARG_IF_OK([-Xms32M],boot_jdk_jvmargs_small,[$JAVA])
   UTIL_ADD_JVM_ARG_IF_OK([-Xmx1G],boot_jdk_jvmargs_small,[$JAVA])
-  UTIL_ADD_JVM_ARG_IF_OK([-XX:TieredStopAtLevel=1],boot_jdk_jvmargs_small,[$JAVA])
 
   AC_MSG_RESULT([$boot_jdk_jvmargs_small])
 
@@ -473,7 +472,7 @@ AC_DEFUN_ONCE([BOOTJDK_SETUP_BOOT_JDK_ARGUMENTS],
 
   # Don't presuppose SerialGC is present in the buildjdk. Also, we cannot test
   # the buildjdk, but on the other hand we know what it will support.
-  BUILDJDK_JAVA_FLAGS_SMALL="-Xms32M -Xmx512M -XX:TieredStopAtLevel=1"
+  BUILDJDK_JAVA_FLAGS_SMALL="-Xms32M -Xmx512M"
   AC_SUBST(BUILDJDK_JAVA_FLAGS_SMALL)
 
   JAVA_TOOL_FLAGS_SMALL=""

@@ -1017,7 +1017,7 @@ const size_t minimumSymbolTableSize = 1024;
   product(bool, Inline, true,                                               \
           "Enable inlining")                                                \
                                                                             \
-  product(bool, ClipInlining, true,                                         \
+  product(bool, ClipInlining, false,                                        \
           "Clip inlining if aggregate method exceeds DesiredMethodLimit")   \
                                                                             \
   develop(bool, UseCHA, true,                                               \

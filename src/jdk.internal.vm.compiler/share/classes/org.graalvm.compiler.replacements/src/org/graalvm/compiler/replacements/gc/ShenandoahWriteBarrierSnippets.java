@@ -390,7 +390,7 @@ public abstract class ShenandoahWriteBarrierSnippets extends WriteBarrierSnippet
             Word parentWord = Word.objectToTrackedPointer(parent);
             Word childWord = Word.objectToTrackedPointer(child);
             boolean success = validateOop(validateObjectCallDescriptor(), parentWord, childWord);
-            AssertionNode.assertion(false, success, "Verification ERROR, Parent: %p Child: %p\n", parentWord.rawValue(), childWord.rawValue());
+            AssertionNode.dynamicAssert(success, "Verification ERROR, Parent: %p Child: %p\n", parentWord.rawValue(), childWord.rawValue());
         }
     }
 

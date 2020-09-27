@@ -65,7 +65,8 @@ public abstract class RecordComponentVisitor {
    *     method calls. May be null.
    */
   public RecordComponentVisitor(
-      final int api, final RecordComponentVisitor recordComponentVisitor) {
+      int api, final RecordComponentVisitor recordComponentVisitor) {
+    api = Opcodes.ASM_CURRENT;
     if (api != Opcodes.ASM9
         && api != Opcodes.ASM8
         && api != Opcodes.ASM7

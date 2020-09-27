@@ -79,6 +79,7 @@ BOOT_MODULES += \
 # Modules that directly or indirectly requiring upgradeable modules
 # should carefully be considered if it should be upgradeable or not.
 UPGRADEABLE_MODULES += \
+    java.activation \
     java.compiler \
     jdk.aot \
     jdk.internal.vm.compiler \

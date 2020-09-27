@@ -322,7 +322,8 @@ public abstract class Printer {
    * @param api the ASM API version implemented by this printer. Must be one of {@link
    *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
-  protected Printer(final int api) {
+  protected Printer(int api) {
+    api = Opcodes.ASM_CURRENT;
     this.api = api;
     this.stringBuilder = new StringBuilder();
     this.text = new ArrayList<>();

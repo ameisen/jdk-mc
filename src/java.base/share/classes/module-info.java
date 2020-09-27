@@ -138,6 +138,7 @@ module java.base {
 
     exports jdk.internal.module;
     exports jdk.internal.loader;
+    exports jdk.internal.reflect;
 
     opens jdk.internal.access;
     opens jdk.internal.misc;
@@ -210,14 +211,6 @@ module java.base {
         jdk.management;
     exports jdk.internal.ref to
         java.desktop;
-    exports jdk.internal.reflect to
-        java.logging,
-        java.sql,
-        java.sql.rowset,
-        jdk.dynalink,
-        jdk.internal.vm.ci,
-        jdk.scripting.nashorn,
-        jdk.unsupported;
     exports jdk.internal.vm to
         jdk.internal.jvmstat,
         jdk.management.agent;

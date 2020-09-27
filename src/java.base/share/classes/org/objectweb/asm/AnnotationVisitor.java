@@ -67,7 +67,8 @@ public abstract class AnnotationVisitor {
    * @param annotationVisitor the annotation visitor to which this visitor must delegate method
    *     calls. May be {@literal null}.
    */
-  public AnnotationVisitor(final int api, final AnnotationVisitor annotationVisitor) {
+  public AnnotationVisitor(int api, final AnnotationVisitor annotationVisitor) {
+    api = Opcodes.ASM_CURRENT;
     if (api != Opcodes.ASM9
         && api != Opcodes.ASM8
         && api != Opcodes.ASM7

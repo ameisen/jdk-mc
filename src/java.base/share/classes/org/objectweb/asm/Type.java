@@ -204,7 +204,7 @@ public final class Type {
       } else if (clazz == Long.TYPE) {
         return LONG_TYPE;
       } else {
-        throw new AssertionError();
+        throw new AssertionError("Type.getType unknown primitive type: '" + clazz.getName() + "'");
       }
     } else {
       return getType(getDescriptor(clazz));
@@ -413,8 +413,11 @@ public final class Type {
    * @return the {@link Type} corresponding to the given type descriptor.
    */
   private static Type getTypeInternal(
-      final String descriptorBuffer, final int descriptorBegin, final int descriptorEnd) {
-    switch (descriptorBuffer.charAt(descriptorBegin)) {
+      final String descriptorBuffer, final int descriptorBegin, final int descriptorEnd
+  ) {
+    char typeDescriptor = descriptorBuffer.charAt(descriptorBegin);
+
+    switch (typeDescriptor) {
       case 'V':
         return VOID_TYPE;
       case 'Z':
@@ -438,9 +441,18 @@ public final class Type {
       case 'L':
         return new Type(OBJECT, descriptorBuffer, descriptorBegin + 1, descriptorEnd - 1);
       case '(':
-        return new Type(METHOD, descriptorBuffer, descriptorBegin, descriptorEnd);
       default:
-        throw new IllegalArgumentException();
+        return new Type(METHOD, descriptorBuffer, descriptorBegin, descriptorEnd);
+      /*
+      default:
+        throw new IllegalArgumentException(
+          "Unknown Type Descriptor Character: '" +
+          Character.toString(typeDescriptor) +
+          "' when processing descriptor '" +
+          descriptorBuffer.substring(descriptorBegin, descriptorEnd) +
+          "'"
+        );
+      */
     }
   }
 
@@ -698,7 +710,8 @@ public final class Type {
       case DOUBLE:
         return 2;
       default:
-        throw new AssertionError();
+        return (valueBuffer == null) ? (valueBegin & 0xFF) : 1;
+        //throw new AssertionError("Type.getSize sort '" + Integer.toString(sort) + "' is out of range");
     }
   }
 
@@ -789,11 +802,12 @@ public final class Type {
         case OBJECT:
         case INTERNAL:
           return opcode + (Opcodes.AALOAD - Opcodes.IALOAD);
-        case METHOD:
-        case VOID:
-          throw new UnsupportedOperationException();
+        //case METHOD:
+        //case VOID:
+        //  throw new UnsupportedOperationException();
         default:
-          throw new AssertionError();
+          //throw new AssertionError();
+          return opcode + (valueBuffer == null ? (valueBegin & 0xFF00) >> 8 : 4);
       }
     } else {
       switch (sort) {
@@ -818,13 +832,15 @@ public final class Type {
         case OBJECT:
         case INTERNAL:
           if (opcode != Opcodes.ILOAD && opcode != Opcodes.ISTORE && opcode != Opcodes.IRETURN) {
-            throw new UnsupportedOperationException();
+            //throw new UnsupportedOperationException();
+            return opcode + (valueBuffer == null ? (valueBegin & 0xFF0000) >> 16 : 4);
           }
           return opcode + (Opcodes.ARETURN - Opcodes.IRETURN);
-        case METHOD:
-          throw new UnsupportedOperationException();
+        //case METHOD:
+        //  throw new UnsupportedOperationException();
         default:
-          throw new AssertionError();
+         // throw new AssertionError();
+          return opcode + (valueBuffer == null ? (valueBegin & 0xFF0000) >> 16 : 4);
       }
     }
   }

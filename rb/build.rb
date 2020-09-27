@@ -162,6 +162,7 @@ DEFAULT_MSVC_CFLAGS = DEFAULT_MSVC_C_OPTFLAGS + [
 	"/MP",
 	"/Zc:alignedNew",
 	"/Zc:__cplusplus",
+	"/Zc:inline",
 	"/Zc:forScope",
 	"/Zc:threadSafeInit-",
 	"/Zc:throwingNew",
@@ -173,11 +174,13 @@ DEFAULT_MSVC_CXXFLAGS = DEFAULT_MSVC_CFLAGS + [
 	"/std:c++latest"
 ]
 
+MAX_MSVC_CGTHREADS = 1 << 31 # default 8
+
 DEFAULT_MSVC_LDFLAGS = [
 	"/LARGEADDRESSAWARE",
 	"/OPT:REF",
 	"/OPT:ICF=8", # default 1
-	"/CGTHREADS:#{[Etc.nprocessors, 8].min}",
+	"/CGTHREADS:#{[Etc.nprocessors, MAX_MSVC_CGTHREADS].min}",
 ]
 
 def debug_ccflags(flags)
@@ -611,8 +614,7 @@ end
 
 def get_revision_count(source_root)
 	Dir.chdir(source_root) {
-		output, result = Executable::capture2e!("git", "rev-list", "--count", "HEAD")
-		output.strip!
+		output = Executable::capture2e!("git", "rev-list", "--count", "HEAD").stdout.strip
 		begin
 			output = output.to_i
 		rescue
@@ -730,16 +732,11 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 			"minimal",
 			"opt-size",
 			"zero",
-			"static-build",
 			#"g1gc",
 			"parallelgc",
 			"serialgc",
 			"epsilongc",
 			"jni-check",
-			"management",
-			"nmt",
-			"compiler2",
-			"link-time-opt",
 		].sort
 
 		enabled_features = all_features.filter_map { |f| f unless disabled_features.include?(f) }.sort
@@ -750,10 +747,16 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 			"cds-archive",
 			"javac-server",
 			"precompiled-headers",
-			#"aot=yes",
+			"aot=yes",
 			"dtrace=no",
 			"unlimited-crypto",
 			"sjavac",
+			"compiler2",
+			"link-time-opt",
+			"nmt",
+			"management",
+			"jvmci",
+			"graal",
 		]
 
 		disable_flags = [
@@ -778,6 +781,12 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 			"version-pre=#{(Options::debug ? "debug" : "release")}",
 			"native-debug-symbols=#{(Options::debug ? "internal" : "none")}"
 		]
+
+		#if Options::debug || TARGET_PLATFORM.is?(System::Platforms::WINDOWS)
+			disable_flags << "static_build"
+		#else
+		#	enable_flags << "static_build"
+		#end
 
 		if (TARGET_PLATFORM.is?(System::Platforms::WINDOWS))
 			with_flags << "tools-dir=#{Directory::vc_bin}"
@@ -890,6 +899,8 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 	}
 } if Options::Pass::configure
 
+build_successful = false
+
 ExecutePass("Build Pass", Error::Flag::BUILD) {
 	Directory.make(Directory::build)
 
@@ -908,7 +919,9 @@ ExecutePass("Build Pass", Error::Flag::BUILD) {
 			"JOBS=#{Options::jobs}",
 			"CONF_NAME=#{FULL_CONFIG_NAME}",
 			Options::project ? "hotspot-ide-project" : "images"
-		)
+		).success?
+
+		build_successful = success
 
 		if (!success)
 			STDERR.puts("Build Failed")
@@ -970,6 +983,6 @@ ExecutePass("Package Pass", Error::Flag::PACKAGE) {
 	#}
 
 	execute(*command) or Error::error("Failed to compress package")
-} if Options::Pass::package
+} if (Options::Pass::package && build_successful)
 
 puts "done"

@@ -241,6 +241,11 @@ JVMFlag::Error MaxTenuringThresholdConstraintFunc(uintx value, bool verbose) {
 }
 
 JVMFlag::Error MaxGCPauseMillisConstraintFunc(uintx value, bool verbose) {
+  // Override MaxGCPauseMillis
+  if (MaxGCPauseMillis > 10) {
+    MaxGCPauseMillis = 10;
+  }
+
 #if INCLUDE_G1GC
   JVMFlag::Error status = MaxGCPauseMillisConstraintFuncG1(value, verbose);
   if (status != JVMFlag::SUCCESS) {

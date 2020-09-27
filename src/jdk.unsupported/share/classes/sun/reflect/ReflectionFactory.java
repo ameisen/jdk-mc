@@ -33,6 +33,13 @@ import java.security.AccessController;
 import java.security.Permission;
 import java.security.PrivilegedAction;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
+import sun.reflect.FieldAccessor;
+import sun.reflect.MethodAccessor;
+import sun.reflect.ConstructorAccessor;
+
 /**
  * ReflectionFactory supports custom serialization.
  * Its methods support the creation of uninitialized objects, invoking serialization
@@ -222,5 +229,24 @@ public class ReflectionFactory {
         } catch (InstantiationException|IllegalAccessException|InvocationTargetException ex) {
             throw new InternalError("unable to create OptionalDataException", ex);
         }
+    }
+
+    /*
+     * Note: this routine can cause the declaring class for the field
+     * be initialized and therefore must not be called until the
+     * first get/set of this field.
+     * @param field the field
+     * @param override true if caller has overridden accessibility
+     */
+    public FieldAccessor newFieldAccessor(Field field, boolean override) {
+        return new FieldAccessor(delegate.newFieldAccessor(field, override));
+    }
+
+    public MethodAccessor newMethodAccessor(Method method) {
+        return new MethodAccessor(delegate.newMethodAccessor(method));
+    }
+
+    public ConstructorAccessor newConstructorAccessor(Constructor<?> c) {
+        return new ConstructorAccessor(delegate.newConstructorAccessor(c));
     }
 }

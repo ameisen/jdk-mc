@@ -65,7 +65,8 @@ public abstract class ModuleVisitor {
    * @param moduleVisitor the module visitor to which this visitor must delegate method calls. May
    *     be null.
    */
-  public ModuleVisitor(final int api, final ModuleVisitor moduleVisitor) {
+  public ModuleVisitor(int api, final ModuleVisitor moduleVisitor) {
+    api = Opcodes.ASM_CURRENT;
     if (api != Opcodes.ASM9
         && api != Opcodes.ASM8
         && api != Opcodes.ASM7

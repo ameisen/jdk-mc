@@ -66,7 +66,8 @@ public abstract class FieldVisitor {
    * @param fieldVisitor the field visitor to which this visitor must delegate method calls. May be
    *     null.
    */
-  public FieldVisitor(final int api, final FieldVisitor fieldVisitor) {
+  public FieldVisitor(int api, final FieldVisitor fieldVisitor) {
+    api = Opcodes.ASM_CURRENT;
     if (api != Opcodes.ASM9
         && api != Opcodes.ASM8
         && api != Opcodes.ASM7
