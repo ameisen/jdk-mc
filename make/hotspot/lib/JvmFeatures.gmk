@@ -179,9 +179,9 @@ endif
 ################################################################################
 
 ifeq ($(TOOLCHAIN_TYPE), microsoft)
-  JVM_CFLAGS_FEATURES += $(shell cat $(TOPDIR)/cxxflags)
+  JVM_CFLAGS_FEATURES += /std:c++latest $(shell cat $(TOPDIR)/cxxflags)
   ifneq (,$(findstring clang,$(CC)))
-    JVM_CFLAGS_FEATURES += -m64 -Wno-narrowing -fms-compatibility -fms-extensions -fms-compatibility-version=19.26.28806
+    JVM_CFLAGS_FEATURES += -fno-aligned-allocation -m64 -Wno-narrowing -fms-compatibility -fms-extensions -fms-compatibility-version=$(shell cat $(TOPDIR)/msvc_cl_version)
   endif
   JVM_LDFLAGS_FEATURES += /LARGEADDRESSAWARE $(shell cat $(TOPDIR)/ldflags)
   ifeq (,$(findstring lld,$(LD)))
@@ -196,7 +196,7 @@ ifeq ($(call check-jvm-feature, link-time-opt), true)
   JVM_OPTIMIZATION :=
   ifeq ($(TOOLCHAIN_TYPE), microsoft)
     ifneq (,$(findstring clang,$(CC)))
-      #JVM_CFLAGS_FEATURES += -flto=thin
+      JVM_CFLAGS_FEATURES += -flto=thin
     else
       JVM_CFLAGS_FEATURES += /GL
       JVM_LDFLAGS_FEATURES += /LTCG

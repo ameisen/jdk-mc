@@ -2,7 +2,11 @@
 
 RUBY_BIN = "ruby"
 
-RUBY_PATH = `which #{RUBY_BIN}`.strip
+def which?(name)
+	result = `which #{name}`.strip
+	return nil if result.empty?
+	return result
+end
 
 DEFAULT_ARCHITECTURES = [
 	"haswell",
@@ -45,14 +49,20 @@ when 0
 	STDERR.puts "No architectures provided to build"
 	exit 1
 else
+	dir = __dir__
+	cygpath = which?("cygpath")
+	#unless cygpath.nil?
+		#dir = `cygpath -u \"#{dir}\"`.strip
+	#end
+
 	build_arches.each { |arch|
 		command = [
-			RUBY_PATH,
-			"--",
-			File.join(__dir__, "rb", "build.rb"),
+			RUBY_BIN,
+			File.join(dir, "rb", "build.rb"),
 			"arch=#{arch}",
 			*args
 		]
+		puts command.join(" ")
 		result = system(*command)
 		failures << arch unless result
 	}

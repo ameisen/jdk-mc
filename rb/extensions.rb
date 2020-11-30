@@ -1,19 +1,20 @@
 require 'pathname'
 
-$ivars = []
 def AutoInstance(mod)
-	$ivars << mod.instance_variables
-
-	return Module.new {
-		class << mod
-			$ivars[-1].each { |m|
-				m = m[1..-1] if m[0] == '@'
-				attr_accessor :"#{m}"
-			}
-		end
+	# https://stackoverflow.com/a/4082937
+	def create_method(mod, name, &block)
+		mod.class.send(:define_method, name, &block)
+	end
+	
+	mod.instance_variables.each { |variable|
+		name = variable[1..-1]
+		create_method(mod, "#{name}=".to_sym) { |value|
+			instance_variable_set("@#{name}", value)
+		}
+		create_method(mod, name.to_sym) {
+			instance_variable_get("@#{name}")
+		}
 	}
-
-	$ivars = $ivars[0..-2]
 end
 
 class File
@@ -37,7 +38,7 @@ class File
 		return canonical(path1) == canonical(path2)
 	end
 
-	include AutoInstance(self)
+	AutoInstance(self)
 end
 
 module Directory
@@ -93,5 +94,5 @@ module Directory
 		return File.same?(path1, path2)
 	end
 
-	include AutoInstance(self)
+	AutoInstance(self)
 end

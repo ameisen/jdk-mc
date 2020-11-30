@@ -1,7 +1,7 @@
 #!rb.sh
 
-MSC_NAME = "Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64"
-MSC_VER = "19.26.28806"
+MSC_VER = "19.28.29515.1"
+MSC_NAME = "Microsoft (R) C/C++ Optimizing Compiler Version #{MSC_VER} for x64"
 #"1926"
 
 if ARGV.empty?

@@ -1017,8 +1017,8 @@ public class Check {
             //this is null when type-checking a method reference
             while (formals.head != last) {
                 JCTree arg = args.head;
-                Warner warn = convertWarner(arg.pos(), arg.type, nonInferred.head);
-                assertConvertible(arg, arg.type, formals.head, warn);
+                //Warner warn = convertWarner(arg.pos(), arg.type, nonInferred.head);
+                //assertConvertible(arg, arg.type, formals.head, warn);
                 args = args.tail;
                 formals = formals.tail;
                 nonInferred = nonInferred.tail;
@@ -1027,8 +1027,8 @@ public class Check {
                 Type varArg = types.elemtype(last);
                 while (args.tail != null) {
                     JCTree arg = args.head;
-                    Warner warn = convertWarner(arg.pos(), arg.type, varArg);
-                    assertConvertible(arg, arg.type, varArg, warn);
+                    //Warner warn = convertWarner(arg.pos(), arg.type, varArg);
+                    //assertConvertible(arg, arg.type, varArg, warn);
                     args = args.tail;
                 }
             } else if ((sym.flags() & (VARARGS | SIGNATURE_POLYMORPHIC)) == VARARGS) {

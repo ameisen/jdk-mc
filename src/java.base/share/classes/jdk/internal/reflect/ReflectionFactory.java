@@ -225,9 +225,9 @@ public class ReflectionFactory {
         checkInitted();
 
         Class<?> declaringClass = c.getDeclaringClass();
-        if (Modifier.isAbstract(declaringClass.getModifiers())) {
-            return new InstantiationExceptionConstructorAccessorImpl("Declaring Class '" + declaringClass.getName() + "' is abstract");
-        }
+        //if (Modifier.isAbstract(declaringClass.getModifiers())) {
+        //    return new InstantiationExceptionConstructorAccessorImpl("Declaring Class '" + declaringClass.getName() + "' is abstract");
+        //}
         if (declaringClass == Class.class) {
             return new InstantiationExceptionConstructorAccessorImpl
                 ("Can not instantiate java.lang.Class");

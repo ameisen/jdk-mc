@@ -1602,6 +1602,12 @@ struct JNIEnv_ {
     jstring NewString(const jchar *unicode, jsize len) {
         return functions->NewString(this,unicode,len);
     }
+    #ifdef __clang__
+    static_assert(sizeof(wchar_t) == sizeof(jchar), "wchar_t size is not the same as jchar");
+    jstring NewString(const wchar_t *unicode, jsize len) {
+        return NewString((const jchar *)unicode, len);
+    }
+    #endif
     jsize GetStringLength(jstring str) {
         return functions->GetStringLength(this,str);
     }
@@ -1611,6 +1617,11 @@ struct JNIEnv_ {
     void ReleaseStringChars(jstring str, const jchar *chars) {
         functions->ReleaseStringChars(this,str,chars);
     }
+    #ifdef __clang__
+    void ReleaseStringChars(jstring str, const wchar_t *chars) {
+      ReleaseStringChars(str, (const jchar *)chars);
+    }
+    #endif
 
     jstring NewStringUTF(const char *utf) {
         return functions->NewStringUTF(this,utf);

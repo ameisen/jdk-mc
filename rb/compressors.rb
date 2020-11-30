@@ -50,6 +50,7 @@ end
 module Compressors
 	ALL = []
 	# These are ordered by best to worst compression ratio
+	ALL << XZ = Compressor.new(parallel: 'xz', flags: ["-zk", "-c", "-9e", "--threads=0", "--lzma2=preset=9e,dict=1536m", "--memory=32g"], extension: 'txz')
 	ALL << SEVENZ = Compressor.new(serial: '7z', flags: [], extension: '7z', cmd: Proc.new { |executable, source, archive|
 		[
 			executable,

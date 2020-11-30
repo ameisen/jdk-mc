@@ -146,7 +146,7 @@ AC_DEFUN([FLAGS_SETUP_WARNINGS],
           -Wtrampolines"
       WARNINGS_ENABLE_ADDITIONAL_CXX="-Woverloaded-virtual -Wreorder"
 
-      WARNINGS_ENABLE_ALL_CFLAGS="esyscmd(cat ./cflags) -Wall -Wextra -Wformat=2 $WARNINGS_ENABLE_ADDITIONAL -Wno-shift-negative-value -Wno-error=cpp -Wno-cpp -Wno-maybe-uninitialized"
+      WARNINGS_ENABLE_ALL_CFLAGS="esyscmd(cat ./cflags) -Wall -Wextra -Wformat=2 $WARNINGS_ENABLE_ADDITIONAL -Wno-format-nonliteral -Wno-format-security -Wno-int-to-pointer-cast -Wno-shift-negative-value -Wno-error=cpp -Wno-cpp -Wno-maybe-uninitialized"
       WARNINGS_ENABLE_ALL_CXXFLAGS="-std=gnu++2a -fconcepts esyscmd(cat ./cxxflags) $WARNINGS_ENABLE_ALL_CFLAGS $WARNINGS_ENABLE_ADDITIONAL_CXX -Wno-deprecated-copy"
 
 
@@ -264,7 +264,7 @@ AC_DEFUN([FLAGS_SETUP_OPTIMIZATION],
   elif test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
     MS_CFLAGS="esyscmd(cat ./cflags)"
     case "x$CC" in
-      xclang*) MS_CFLAGS+=" -m64 -Wno-narrowing -fms-compatibility -fms-extensions -fms-compatibility-version=19.26.28806";;
+      x*clang*) MS_CFLAGS+=" -Zc:alignedNew- -fignore-exceptions -fpermissive -fno-aligned-allocation -m64 -Wno-invalid-token-paste -Wno-narrowing -fms-compatibility -fms-extensions -fms-compatibility-version=esyscmd(cat ./msvc_cl_version)";;
     esac
 
     C_O_FLAG_HIGHEST_JVM="$MS_CFLAGS"
@@ -278,14 +278,15 @@ AC_DEFUN([FLAGS_SETUP_OPTIMIZATION],
   fi
 
   # Now copy to C++ flags
-  CXX_O_FLAG_HIGHEST_JVM="$C_O_FLAG_HIGHEST_JVM"
-  CXX_O_FLAG_HIGHEST="$C_O_FLAG_HIGHEST"
-  CXX_O_FLAG_HI="$C_O_FLAG_HI"
-  CXX_O_FLAG_NORM="$C_O_FLAG_NORM"
-  CXX_O_FLAG_DEBUG="$C_O_FLAG_DEBUG"
-  CXX_O_FLAG_DEBUG_JVM="$C_O_FLAG_DEBUG_JVM"
-  CXX_O_FLAG_NONE="$C_O_FLAG_NONE"
-  CXX_O_FLAG_SIZE="$C_O_FLAG_SIZE"
+  CXX_CAT_FLAGS="esyscmd(cat ./cxxflags)"
+  CXX_O_FLAG_HIGHEST_JVM="$C_O_FLAG_HIGHEST_JVM $CXX_CAT_FLAGS"
+  CXX_O_FLAG_HIGHEST="$C_O_FLAG_HIGHEST $CXX_CAT_FLAGS"
+  CXX_O_FLAG_HI="$C_O_FLAG_HI $CXX_CAT_FLAGS"
+  CXX_O_FLAG_NORM="$C_O_FLAG_NORM $CXX_CAT_FLAGS"
+  CXX_O_FLAG_DEBUG="$C_O_FLAG_DEBUG $CXX_CAT_FLAGS"
+  CXX_O_FLAG_DEBUG_JVM="$C_O_FLAG_DEBUG_JVM $CXX_CAT_FLAGS"
+  CXX_O_FLAG_NONE="$C_O_FLAG_NONE $CXX_CAT_FLAGS"
+  CXX_O_FLAG_SIZE="$C_O_FLAG_SIZE $CXX_CAT_FLAGS"
 
   if test "x$TOOLCHAIN_TYPE" = xgcc; then
     CXX_O_FLAG_HIGHEST_JVM="$CXX_O_FLAG_HIGHEST_JVM -fno-threadsafe-statics"

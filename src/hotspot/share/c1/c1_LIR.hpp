@@ -827,8 +827,8 @@ class LIR_OprFact: public AllStatic {
   static LIR_Opr doubleConst(jdouble d)          { return (LIR_Opr)(new LIR_Const(d)); }
   static LIR_Opr oopConst(jobject o)             { return (LIR_Opr)(new LIR_Const(o)); }
   static LIR_Opr address(LIR_Address* a)         { return (LIR_Opr)a; }
-  static LIR_Opr intptrConst(void* p)            { return (LIR_Opr)(new LIR_Const(p)); }
-  static LIR_Opr intptrConst(intptr_t v)         { return (LIR_Opr)(new LIR_Const((void*)v)); }
+  template <typename T>
+  static LIR_Opr intptrConst(T v)                { return (LIR_Opr)(new LIR_Const((void*)v)); }
   static LIR_Opr illegal()                       { return (LIR_Opr)-1; }
   static LIR_Opr addressConst(jint i)            { return (LIR_Opr)(new LIR_Const(i, true)); }
   static LIR_Opr metadataConst(Metadata* m)      { return (LIR_Opr)(new LIR_Const(m)); }

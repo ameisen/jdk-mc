@@ -20,3 +20,10 @@ src/utils/LogCompilation/
 cflags
 cxxflags
 ldflags
+build_objcopy
+build_objdump
+msvc_cl
+msvc_cl_version
+msvc_lib
+msvc_link
+msvc_rc

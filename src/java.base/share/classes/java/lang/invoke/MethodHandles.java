@@ -3272,6 +3272,7 @@ return mh1;
 
         private MethodHandle unreflectField(Field f, boolean isSetter) throws IllegalAccessException {
             MemberName field = new MemberName(f, isSetter);
+            /*
             if (isSetter && field.isFinal()) {
                 if (field.isTrustedFinalField()) {
                     String msg = field.isStatic() ? "static final field has no write access"
@@ -3279,6 +3280,7 @@ return mh1;
                     throw field.makeAccessException(msg, this);
                 }
             }
+            */
             assert(isSetter
                     ? MethodHandleNatives.refKindIsSetter(field.getReferenceKind())
                     : MethodHandleNatives.refKindIsGetter(field.getReferenceKind()));

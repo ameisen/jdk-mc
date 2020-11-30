@@ -472,6 +472,10 @@ AC_DEFUN([TOOLCHAIN_SETUP_VISUAL_STUDIO_ENV],
         IFS="$OLDIFS"
       fi
 
+      llvm_path="/cygdrive/t/LLVM/bin"
+      UTIL_FIXUP_PATH([llvm_path])
+      UTIL_APPEND_TO_PATH(VS_PATH, $llvm_path)
+
     else
       # We did not find a vsvars bat file, let's hope we are run from a VS command prompt.
       AC_MSG_NOTICE([Cannot locate a valid Visual Studio installation, checking current environment])

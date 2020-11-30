@@ -604,7 +604,7 @@ void LinkResolver::check_method_accessability(Klass* ref_klass,
     }
 
     // ~DC-MC HACK
-    
+
     ResourceMark rm(THREAD);
     stringStream ss;
     bool same_module = (sel_klass->module() == ref_klass->module());
@@ -869,6 +869,7 @@ Method* LinkResolver::resolve_interface_method(const LinkInfo& link_info, Byteco
   }
 
   // check constant pool tag for called method - must be JVM_CONSTANT_InterfaceMethodref
+  /*
   if (!link_info.tag().is_invalid() && !link_info.tag().is_interface_method()) {
     ResourceMark rm(THREAD);
     stringStream ss;
@@ -877,6 +878,7 @@ Method* LinkResolver::resolve_interface_method(const LinkInfo& link_info, Byteco
     ss.print("' must be InterfaceMethodref constant");
     THROW_MSG_NULL(vmSymbols::java_lang_IncompatibleClassChangeError(), ss.as_string());
   }
+  */
 
   // lookup method in this interface or its super, java.lang.Object
   // JDK8: also look for static methods

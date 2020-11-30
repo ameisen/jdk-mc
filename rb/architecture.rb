@@ -68,7 +68,7 @@ module Architectures
 			AVX512VP = InstructionSet.new(name: "AVX-512VP", parents: [InstructionSets::AVX2])
 			AVX512VNNI = InstructionSet.new(name: "AVX-512VNNI", parents: [InstructionSets::AVX2])
 
-			include AutoInstance(self)
+			AutoInstance(self)
 		end
 		AVX512 = InstructionSet.new(name: "AVX-512", parents: [
 			InstructionSets::AVX512_SUB.instance_variables.filter { |var|
@@ -78,7 +78,7 @@ module Architectures
 		# TODO add predicate searches on architectures
 		AVX512_ANY = InstructionSet.new(name: "AVX-512 (any)", parents: [InstructionSets::AVX2])
 
-		include AutoInstance(self)
+		AutoInstance(self)
 	end
 
 	class Manufacturer
@@ -225,7 +225,7 @@ module Architectures
 			return Manufacturers::GENERIC
 		end
 
-		include AutoInstance(self)
+		AutoInstance(self)
 	end
 
 	@@list = []
@@ -322,7 +322,7 @@ module Architectures
 			gcc_flags: ["-mtune=nehalem"]
 		)
 
-		include AutoInstance(self)
+		AutoInstance(self)
 	end
 
 	# TODO handle things like -mprefer-vector-width=256
@@ -394,7 +394,7 @@ module Architectures
 			gcc_flags: ["-mtune=amdfam10"]
 		)
 
-		include AutoInstance(self)
+		AutoInstance(self)
 	end
 
 	# Generic
@@ -413,5 +413,5 @@ module Architectures
 		return nil
 	end
 
-	include AutoInstance(self)
+	AutoInstance(self)
 end

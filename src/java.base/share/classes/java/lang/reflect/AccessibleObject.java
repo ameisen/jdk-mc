@@ -343,7 +343,7 @@ public class AccessibleObject implements AnnotatedElement {
 
         // package is open to caller
         if (declaringModule.isOpen(pn, callerModule)) {
-            logIfOpenedForIllegalAccess(caller, declaringClass);
+            //logIfOpenedForIllegalAccess(caller, declaringClass);
             return true;
         }
 

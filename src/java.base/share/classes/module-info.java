@@ -152,65 +152,27 @@ module java.base {
         jdk.incubator.foreign;
     exports com.sun.security.ntlm to
         java.security.sasl;
-    exports jdk.internal to
-        java.compiler,
-        jdk.jfr,
-        jdk.compiler,
-        jdk.jshell;
-    exports jdk.internal.access to
-        java.desktop,
-        java.logging,
-        java.management,
-        java.naming,
-        java.rmi,
-        jdk.jlink,
-        jdk.net,
-        jdk.incubator.foreign;
-    exports jdk.internal.access.foreign to
-        jdk.incubator.foreign;
-    exports jdk.internal.event to
-        jdk.jfr;
-    exports jdk.internal.jimage to
-        jdk.jlink;
-    exports jdk.internal.jimage.decompressor to
-        jdk.jlink;
-    exports jdk.internal.jmod to
-        jdk.compiler,
-        jdk.jlink;
+    exports jdk.internal;
+    exports jdk.internal.access;
+    exports jdk.internal.access.foreign;
+    exports jdk.internal.event;
+    exports jdk.internal.jimage;
+    exports jdk.internal.jimage.decompressor;
+    exports jdk.internal.jmod;
     exports jdk.internal.logger to
         java.logging;
     exports jdk.internal.org.xml.sax to
         jdk.jfr;
     exports jdk.internal.org.xml.sax.helpers to
         jdk.jfr;
-    exports jdk.internal.misc to
-        java.desktop,
-        java.logging,
-        java.management,
-        java.naming,
-        java.net.http,
-        java.rmi,
-        java.security.jgss,
-        java.xml,
-        jdk.attach,
-        jdk.charsets,
-        jdk.compiler,
-        jdk.jfr,
-        jdk.jshell,
-        jdk.nio.mapmode,
-        jdk.scripting.nashorn,
-        jdk.scripting.nashorn.shell,
-        jdk.unsupported,
-        jdk.internal.vm.ci,
-        jdk.incubator.foreign;
+    exports jdk.internal.misc;
     exports jdk.internal.perf to
         java.management,
         jdk.management.agent,
         jdk.internal.jvmstat;
     exports jdk.internal.platform to
         jdk.management;
-    exports jdk.internal.ref to
-        java.desktop;
+    exports jdk.internal.ref;
     exports jdk.internal.vm to
         jdk.internal.jvmstat,
         jdk.management.agent;
@@ -244,16 +206,10 @@ module java.base {
         jdk.jartool;
     exports sun.net.www.protocol.http to
         java.security.jgss;
-    exports sun.nio.ch to
-        java.management,
-        jdk.crypto.cryptoki,
-        jdk.net,
-        jdk.sctp,
-        jdk.incubator.foreign;
+    exports sun.nio.ch;
     exports sun.nio.cs to
         jdk.charsets;
-    exports sun.reflect.annotation to
-        jdk.compiler;
+    exports sun.reflect.annotation;
     exports sun.reflect.generics.reflectiveObjects to
         java.desktop;
     exports sun.reflect.misc to

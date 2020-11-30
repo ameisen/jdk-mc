@@ -291,6 +291,27 @@ java.smartcardio_DOCLINT += -Xdoclint:all/protected,-accessibility \
 
 ################################################################################
 
+DISABLED_WARNINGS_FORAWRD_PORT += rawtypes unchecked deprecation \
+    dep-ann cast serial fallthrough removal static auxiliaryclass
+
+java.activation_DISABLED_WARNINGS += $(DISABLED_WARNINGS_FORAWRD_PORT)
+
+java.xml_DISABLED_WARNINGS += $(DISABLED_WARNINGS_FORAWRD_PORT)
+
+java.xml.bind_DISABLED_WARNINGS += $(DISABLED_WARNINGS_FORAWRD_PORT)
+
+java.xml.ws_DISABLED_WARNINGS += $(DISABLED_WARNINGS_FORAWRD_PORT)
+
+java.xml.ws.annotation_DISABLED_WARNINGS += $(DISABLED_WARNINGS_FORAWRD_PORT)
+
+jdk.xml.bind_DISABLED_WARNINGS += $(DISABLED_WARNINGS_FORAWRD_PORT)
+
+jdk.xml.ws_DISABLED_WARNINGS += $(DISABLED_WARNINGS_FORAWRD_PORT)
+
+java.net.http_DISABLED_WARNINGS += cast auxiliaryclass
+
+################################################################################
+
 java.xml.crypto_DOCLINT += -Xdoclint:all/protected \
     '-Xdoclint/package:java.*,javax.*'
 java.xml.crypto_COPY += .dtd .xml

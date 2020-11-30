@@ -50,11 +50,11 @@ public class Warner {
     }
 
     public void warn(LintCategory lint) {
-        nonSilentLintSet.add(lint);
+        //nonSilentLintSet.add(lint);
     }
 
     public void silentWarn(LintCategory lint) {
-        silentLintSet.add(lint);
+        //silentLintSet.add(lint);
     }
 
     public Warner(DiagnosticPosition pos) {

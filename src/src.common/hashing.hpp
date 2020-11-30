@@ -28,9 +28,9 @@ namespace carbide::hashing {
 					return make_int128<T>(0x6C62'272E'07BB'0142, 0x62B8'2175'6295'C58D);
 				}
 #endif
-				else {
-					throw 0; // Unknown type.
-				}
+				//else {
+				//	throw 0; // Unknown type.
+				//}
 			}();
 
 			static constexpr T prime = []() {
@@ -46,9 +46,9 @@ namespace carbide::hashing {
 					return make_int128<T>(0x0000'0000'0100'0000, 0x0000'0000'0000'013B);
 				}
 #endif
-				else {
-					throw 0; // Unknown type.
-				}
+				//else {
+				//	throw 0; // Unknown type.
+				//}
 			}();
 
 		};

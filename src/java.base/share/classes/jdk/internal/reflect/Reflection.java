@@ -43,9 +43,9 @@ public class Reflection {
         view, where they are sensitive or they may contain VM-internal objects.
         These Maps are updated very rarely. Rather than synchronize on
         each access, we use copy-on-write */
-    private static volatile Map<Class<?>, Set<String>> fieldFilterMap;
-    private static volatile Map<Class<?>, Set<String>> methodFilterMap;
-    private static final String WILDCARD = "*";
+    public static volatile Map<Class<?>, Set<String>> fieldFilterMap;
+    public static volatile Map<Class<?>, Set<String>> methodFilterMap;
+    public static final String WILDCARD = "*";
     public static final Set<String> ALL_MEMBERS = Set.of(WILDCARD);
 
     static {
@@ -69,6 +69,9 @@ public class Reflection {
     @CallerSensitive
     @HotSpotIntrinsicCandidate
     public static native Class<?> getCallerClass();
+
+    @HotSpotIntrinsicCandidate
+    public static native Class<?> getCallerClass(int depth);
 
     /** Retrieves the access flags written to the class file. For
         inner classes these flags may differ from those returned by
@@ -244,13 +247,13 @@ public class Reflection {
     /**
      * Returns true if two classes in the same package.
      */
-    private static boolean isSameClassPackage(Class<?> c1, Class<?> c2) {
+    public static boolean isSameClassPackage(Class<?> c1, Class<?> c2) {
         if (c1.getClassLoader() != c2.getClassLoader())
             return false;
         return Objects.equals(c1.getPackageName(), c2.getPackageName());
     }
 
-    static boolean isSubclassOf(Class<?> queryClass,
+    public static boolean isSubclassOf(Class<?> queryClass,
                                 Class<?> ofClass)
     {
         while (queryClass != null) {
@@ -276,7 +279,7 @@ public class Reflection {
             registerFilter(methodFilterMap, containingClass, methodNames);
     }
 
-    private static Map<Class<?>, Set<String>> registerFilter(Map<Class<?>, Set<String>> map,
+    public static Map<Class<?>, Set<String>> registerFilter(Map<Class<?>, Set<String>> map,
                                                              Class<?> containingClass,
                                                              Set<String> names) {
         if (map.get(containingClass) != null) {
@@ -304,7 +307,7 @@ public class Reflection {
         return (Method[])filter(methods, methodFilterMap.get(containingClass));
     }
 
-    private static Member[] filter(Member[] members, Set<String> filteredNames) {
+    public static Member[] filter(Member[] members, Set<String> filteredNames) {
         if ((filteredNames == null) || (members.length == 0)) {
             return members;
         }
@@ -392,7 +395,7 @@ public class Reflection {
      * Returns an IllegalAccessException with an exception message where
      * there is no caller frame.
      */
-    private static IllegalAccessException newIllegalAccessException(Class<?> memberClass,
+    public static IllegalAccessException newIllegalAccessException(Class<?> memberClass,
                                                                     int modifiers)
     {
         String memberSuffix = "";

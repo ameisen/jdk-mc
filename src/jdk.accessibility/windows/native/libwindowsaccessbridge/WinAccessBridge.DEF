@@ -28,10 +28,10 @@
 ;DESCRIPTION 'WINDOWSACCESSBRIDGE.DLL'
 EXPORTS
 
-    addJavaEventNotification
-    removeJavaEventNotification
-    addAccessibilityEventNotification
-    removeAccessibilityEventNotification
+;    addJavaEventNotification
+;    removeJavaEventNotification
+;    addAccessibilityEventNotification
+;    removeAccessibilityEventNotification
 
     Windows_run
 

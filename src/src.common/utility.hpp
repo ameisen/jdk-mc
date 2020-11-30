@@ -73,9 +73,9 @@ namespace carbide::utility {
 				}
 				return false;
 			}
-			else {
-				throw 0;
-			}
+			//else {
+			//	throw 0;
+			//}
 #else
 			switch (hint) {
 				case branch_hint::none:
@@ -148,21 +148,21 @@ namespace carbide::utility {
 		*/
 
 		template <typename T, typename U/*, typename = detail::if_integral<T>*/>
-		static constexpr _forceinline _constf [[nodiscard]] T set(T value, U flag) noexcept { // TODO : Add enable_if for is_convertible<U, T>
+		static constexpr _forceinline _constf T set(T value, U flag) noexcept { // TODO : Add enable_if for is_convertible<U, T>
 			using UT = std::make_unsigned_t<detail::underlying_type<T>>;
 
 			return T(UT(value) | UT(flag));
 		}
 
 		template <typename T, typename U/*, typename = detail::if_integral<T>*/>
-		static constexpr _forceinline _constf [[nodiscard]] T unset(T value, U flag) noexcept { // TODO : Add enable_if for is_convertible<U, T>
+		static constexpr _forceinline _constf T unset(T value, U flag) noexcept { // TODO : Add enable_if for is_convertible<U, T>
 			using UT = std::make_unsigned_t<detail::underlying_type<T>>;
 
 			return T(UT(value) & ~UT(flag));
 		}
 
 		template <typename T, typename U/*, typename = detail::if_integral<T>*/>
-		static constexpr _forceinline _constf [[nodiscard]] T set_conditional(bool condition, T value, U flag) noexcept { // TODO : Add enable_if for is_convertible<U, T>
+		static constexpr _forceinline _constf T set_conditional(bool condition, T value, U flag) noexcept { // TODO : Add enable_if for is_convertible<U, T>
 			using UT = std::make_unsigned_t<detail::underlying_type<T>>;
 
 			// if flag is zero, we can just return the value unchanged.

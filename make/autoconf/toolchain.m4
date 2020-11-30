@@ -275,15 +275,17 @@ AC_DEFUN_ONCE([TOOLCHAIN_DETERMINE_TOOLCHAIN_TYPE],
   fi
   AC_SUBST(TOOLCHAIN_TYPE)
 
+  cl_name="cl"
   if test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
-    case "$CC" in
-      clang*) TOOLCHAIN_SUBTYPE_CC=clang;;
-      *) TOOLCHAIN_SUBTYPE_CC=default;;
-    esac
-    case "$LD" in
-      lld*) TOOLCHAIN_SUBTYPE_LD=clang;;
-      *) TOOLCHAIN_SUBTYPE_LD=default;;
-    esac
+    cl_name=esyscmd(cat ./msvc_cl)
+
+    if test "x$cl_name" = xclang-cl; then
+      TOOLCHAIN_SUBTYPE_CC=clang
+      TOOLCHAIN_SUBTYPE_LD=clang
+    else
+      TOOLCHAIN_SUBTYPE_CC=default
+      TOOLCHAIN_SUBTYPE_LD=default
+    fi
   else
     TOOLCHAIN_SUBTYPE_CC=default
     TOOLCHAIN_SUBTYPE_LD=default
@@ -308,12 +310,12 @@ AC_DEFUN_ONCE([TOOLCHAIN_DETERMINE_TOOLCHAIN_TYPE],
 
   TOOLCHAIN_CC_BINARY_clang="clang"
   TOOLCHAIN_CC_BINARY_gcc="gcc"
-  TOOLCHAIN_CC_BINARY_microsoft="cl$EXE_SUFFIX"
+  TOOLCHAIN_CC_BINARY_microsoft="$cl_name$EXE_SUFFIX"
   TOOLCHAIN_CC_BINARY_xlc="xlclang"
 
   TOOLCHAIN_CXX_BINARY_clang="clang++"
   TOOLCHAIN_CXX_BINARY_gcc="g++"
-  TOOLCHAIN_CXX_BINARY_microsoft="cl$EXE_SUFFIX"
+  TOOLCHAIN_CXX_BINARY_microsoft="$cl_name$EXE_SUFFIX"
   TOOLCHAIN_CXX_BINARY_xlc="xlclang++"
 
   # Use indirect variable referencing
@@ -727,7 +729,9 @@ AC_DEFUN_ONCE([TOOLCHAIN_DETECT_TOOLCHAIN_CORE],
     # In the Microsoft toolchain we have a separate LD command "link".
     # Make sure we reject /usr/bin/link (as determined in CYGWIN_LINK), which is
     # a cygwin program for something completely different.
-    AC_CHECK_PROG([LD], [link$EXE_SUFFIX],[link$EXE_SUFFIX],,, [$CYGWIN_LINK])
+    link_name=esyscmd(cat ./msvc_link)
+    AC_CHECK_PROG([LD], [$link_name$EXE_SUFFIX],[$link_name$EXE_SUFFIX],,, [$CYGWIN_LINK])
+    #AC_CHECK_PROG([LD], [link$EXE_SUFFIX],[link$EXE_SUFFIX],,, [$CYGWIN_LINK])
     UTIL_FIXUP_EXECUTABLE(LD)
     # Verify that we indeed succeeded with this trick.
     AC_MSG_CHECKING([if the found link.exe is actually the Visual Studio linker])
@@ -786,7 +790,8 @@ AC_DEFUN_ONCE([TOOLCHAIN_DETECT_TOOLCHAIN_CORE],
   #
   if test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
     # The corresponding ar tool is lib.exe (used to create static libraries)
-    AC_CHECK_PROG([AR], [lib$EXE_SUFFIX],[lib$EXE_SUFFIX],,,)
+    lib_name=esyscmd(cat ./msvc_lib)
+    AC_CHECK_PROG([AR], [$lib_name$EXE_SUFFIX],[$lib_name$EXE_SUFFIX],,,)
   elif test "x$TOOLCHAIN_TYPE" = xgcc; then
     UTIL_CHECK_TOOLS(AR, gcc-ar ar)
   elif test "x$TOOLCHAIN_TYPE" = xclang; then
@@ -815,7 +820,8 @@ AC_DEFUN_ONCE([TOOLCHAIN_DETECT_TOOLCHAIN_EXTRA],
     AC_CHECK_PROG([MT], [mt$EXE_SUFFIX], [mt$EXE_SUFFIX],,, [/usr/bin/mt])
     UTIL_FIXUP_EXECUTABLE(MT)
     # Setup the resource compiler (RC)
-    AC_CHECK_PROG([RC], [rc$EXE_SUFFIX], [rc$EXE_SUFFIX],,, [/usr/bin/rc])
+    rc_name=esyscmd(cat ./msvc_rc)
+    AC_CHECK_PROG([RC], [$rc_name$EXE_SUFFIX], [$rc_name$EXE_SUFFIX],,, [/usr/bin/rc])
     UTIL_FIXUP_EXECUTABLE(RC)
     AC_CHECK_PROG([DUMPBIN], [dumpbin$EXE_SUFFIX], [dumpbin$EXE_SUFFIX],,,)
     UTIL_FIXUP_EXECUTABLE(DUMPBIN)
@@ -847,14 +853,16 @@ AC_DEFUN_ONCE([TOOLCHAIN_DETECT_TOOLCHAIN_EXTRA],
   # objcopy is used for moving debug symbols to separate files when
   # full debug symbols are enabled.
   if test "x$OPENJDK_TARGET_OS" = xlinux; then
-    UTIL_CHECK_TOOLS(OBJCOPY, [gobjcopy objcopy])
+    objcopy_name=esyscmd(cat ./build_objcopy)
+    UTIL_CHECK_TOOLS(OBJCOPY, [$objcopy_name gobjcopy objcopy])
     # Only call fixup if objcopy was found.
     if test -n "$OBJCOPY"; then
       UTIL_FIXUP_EXECUTABLE(OBJCOPY)
     fi
   fi
 
-  UTIL_CHECK_TOOLS(OBJDUMP, [gobjdump objdump])
+  objdump_name=esyscmd(cat ./build_objdump)
+  UTIL_CHECK_TOOLS(OBJDUMP, [$objdump_name gobjdump objdump])
   if test "x$OBJDUMP" != x; then
     # Only used for compare.sh; we can live without it. UTIL_FIXUP_EXECUTABLE
     # bails if argument is missing.
@@ -862,7 +870,12 @@ AC_DEFUN_ONCE([TOOLCHAIN_DETECT_TOOLCHAIN_EXTRA],
   fi
 
   case $TOOLCHAIN_TYPE in
-    gcc|clang)
+    clang)
+      UTIL_CHECK_TOOLS(CXXFILT, [llvm-cxxfilt c++filt])
+      UTIL_CHECK_NONEMPTY(CXXFILT)
+      UTIL_FIXUP_EXECUTABLE(CXXFILT)
+      ;;
+    gcc)
       UTIL_CHECK_TOOLS(CXXFILT, [c++filt])
       UTIL_CHECK_NONEMPTY(CXXFILT)
       UTIL_FIXUP_EXECUTABLE(CXXFILT)

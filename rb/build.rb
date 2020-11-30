@@ -15,24 +15,24 @@ TARGET_PLATFORM = BUILD_PLATFORM
 PREFERRED_GNU_LINKER = "bfd"
 
 module GNU
-	def self.prefix_opt(opt, prefix:, enable: true)
-		return "-#{prefix}#{enable ? "" : "no-"}#{opt}"
+	def self.prefix_opt(opt, value = nil, prefix:, enable: true)
+		return "-#{prefix}#{enable ? "" : "no-"}#{opt}#{value.nil? ? "" : "=#{value}"}"
 	end
 
-	def self.opt(opt, enable: true)
-		return prefix_opt(opt, prefix: "", enable: enable)
+	def self.opt(opt, value = nil, enable: true)
+		return prefix_opt(opt, value, prefix: "", enable: enable)
 	end
 
-	def self.f_opt(opt, enable: true)
-		return prefix_opt(opt, prefix: "f", enable: enable)
+	def self.f_opt(opt, value = nil, enable: true)
+		return prefix_opt(opt, value, prefix: "f", enable: enable)
 	end
 
-	def self.m_opt(opt, enable: true)
-		return prefix_opt(opt, prefix: "m", enable: enable)
+	def self.m_opt(opt, value = nil, enable: true)
+		return prefix_opt(opt, value, prefix: "m", enable: enable)
 	end
 
-	def self.warn(opt, enable: true)
-		return prefix_opt(opt, prefix: "W", enable: enable)
+	def self.warn(opt, value = nil, enable: true)
+		return prefix_opt(opt, value, prefix: "W", enable: enable)
 	end
 
 	def self.warns(*opts, enable: true)
@@ -80,7 +80,7 @@ DEFAULT_GNU_CFLAGS = DEFAULT_GNU_C_OPTFLAGS + [
 	#GNU::f_opt("exceptions", enable: false),
 	GNU::warn("unused-function", enable: false),
 	"-pipe",
-	GNU::f_opt("lto"),
+	GNU::f_opt("lto", Etc.nprocessors),
 	GNU::f_opt("use-linker-plugin"),
 	GNU::f_opt("devirtualize-speculatively"),
 	GNU::f_opt("devirtualize-at-ltrans"),
@@ -89,6 +89,13 @@ DEFAULT_GNU_CFLAGS = DEFAULT_GNU_C_OPTFLAGS + [
 DEFAULT_GNU_CXXFLAGS = DEFAULT_GNU_CFLAGS + [
 	GNU::f_opt("threadsafe-statics", enable: false),
 	GNU::f_opt("rtti", enable: false),
+	GNU::f_opt("abi-version", 14),
+	GNU::f_opt("aligned-new", enable: false),
+	GNU::f_opt("enforce-eh-specs", enable: false),
+	GNU::f_opt("nothrow-opt"),
+	GNU::f_opt("permissive"),
+	GNU::f_opt("strong-eval-order", enable: false),
+	GNU::f_opt("elide-constructors"),
 	*GNU::warns("volatile", "attributes", enable: false),
 ]
 
@@ -96,6 +103,7 @@ DEFAULT_GNU_BFD_FLAGS = [
 	*GNU::linker(
 		"--enable-non-contiguous-regions",
 		"--no-omagic",
+		"-O",
 		"-O1",
 		# non-debug only
 	)
@@ -138,19 +146,70 @@ DEFAULT_GNU_LDFLAGS = [
 
 DEFAULT_LLVM_CFLAGS = [
 	"-O3",
+	"-pipe",
 	GNU::f_opt("merge-all-constants"),
+	GNU::f_opt("omit-frame-pointer"),
+	GNU::f_opt("fast-math"),
+	GNU::f_opt("associative-math"),
+	GNU::f_opt("reciprocal-math"),
+	GNU::f_opt("rename-registers"),
+	GNU::f_opt("unswitch-loops"),
+	GNU::f_opt("function-sections"),
+	GNU::f_opt("data-sections"),
+	GNU::f_opt("devirtualize-speculatively"),
+	GNU::f_opt("lto", "thin"),
 ]
 
-DEFAULT_LLVM_CXXFLAGS = DEFAULT_LLVM_CFLAGS + [
+DEFAULT_LLVM_CXXFLAGS_BASE = [
+	GNU::f_opt("threadsafe-statics", enable: false),
+	GNU::f_opt("rtti", enable: false),
+	GNU::f_opt("aligned-new", enable: false),
+	GNU::f_opt("permissive"),
+	GNU::f_opt("elide-constructors"),
+]
+
+DEFAULT_LLVM_CXXFLAGS = DEFAULT_LLVM_CFLAGS + DEFAULT_LLVM_CXXFLAGS_BASE
+
+DEFAULT_LLVM_LDFLAGS_BASE = [
+	"--relax",
+	"--gc-sections",
+	"--allow-multiple-definition",
+	"--as-needed",
+	"--compress-debug-sections=zlib",
+	"--hash-style=gnu",
+
+	"--icf=all",
+	"--ignore-data-address-equality",
+	"--ignore-function-address-equality",
+	"-O3",
+
+	# non-debug only
+	"--discard-all", # --discard-locals
+	"--strip-all", # --strip-debug
 ]
 
 DEFAULT_LLVM_LDFLAGS = [
+	*GNU::linker(
+		*DEFAULT_LLVM_LDFLAGS_BASE
+	),
+
+	"-pipe",
+	GNU::f_opt("lto", "thin"),
 ]
+
+MSVC_USE_CLANG = false
+MSVC_CL_VERSION = "19.28.29515.1"
+
+def msvc_clang?
+	return (Options::toolchain == Toolchains::MSVC && MSVC_USE_CLANG) ||
+		(BUILD_PLATFORM.is?(System::Platforms::WINDOWS) && Options::toolchain == Toolchains::LLVM);
+end
 
 DEFAULT_MSVC_C_OPTFLAGS = [
 	"/O2",
 	"/Ob3",
-]
+	MSVC_USE_CLANG ? "-O3" : nil,
+].compact
 
 DEFAULT_MSVC_CFLAGS = DEFAULT_MSVC_C_OPTFLAGS + [
 	"/fp:fast",
@@ -160,28 +219,29 @@ DEFAULT_MSVC_CFLAGS = DEFAULT_MSVC_C_OPTFLAGS + [
 	"/Gw",
 	"/Gy",
 	"/MP",
-	"/Zc:alignedNew",
+	MSVC_USE_CLANG ? "/Zc:alignedNew-" : nil,
 	"/Zc:__cplusplus",
 	"/Zc:inline",
 	"/Zc:forScope",
 	"/Zc:threadSafeInit-",
 	"/Zc:throwingNew",
 	"/Zc:strictStrings-",
-	"/GL"
-]
+	MSVC_USE_CLANG ? "-flto=thin" : "/GL"
+].compact + (MSVC_USE_CLANG ? DEFAULT_LLVM_CFLAGS : [])
 
-DEFAULT_MSVC_CXXFLAGS = DEFAULT_MSVC_CFLAGS + [
-	"/std:c++latest"
-]
+DEFAULT_MSVC_CXXFLAGS = [
+
+] + DEFAULT_MSVC_CFLAGS + (MSVC_USE_CLANG ? DEFAULT_LLVM_CXXFLAGS_BASE : [])
 
 MAX_MSVC_CGTHREADS = 1 << 31 # default 8
 
+# /mllvm:...
 DEFAULT_MSVC_LDFLAGS = [
 	"/LARGEADDRESSAWARE",
 	"/OPT:REF",
 	"/OPT:ICF=8", # default 1
-	"/CGTHREADS:#{[Etc.nprocessors, MAX_MSVC_CGTHREADS].min}",
-]
+	MSVC_USE_CLANG ? nil : "/CGTHREADS:#{[Etc.nprocessors, MAX_MSVC_CGTHREADS].min}",
+].compact #+ (MSVC_USE_CLANG ? DEFAULT_LLVM_LDFLAGS_BASE : [])
 
 def debug_ccflags(flags)
 	gcc = false
@@ -311,7 +371,7 @@ module Toolchains
 		return flags
 	end
 
-	include AutoInstance(self)
+	AutoInstance(self)
 end
 
 $DEFAULT_MAKE = get_best_make()
@@ -354,10 +414,10 @@ module Options
 			@install = inverse
 		end
 
-		include AutoInstance(self)
+		AutoInstance(self)
 	end
 
-	include AutoInstance(self)
+	AutoInstance(self)
 end
 
 cmd_arguments = {
@@ -501,6 +561,11 @@ end
 architecture_flags = Toolchains::get_arch(Options::toolchain, Options::arch)
 Options::cflags += architecture_flags
 Options::cxxflags += architecture_flags
+if msvc_clang?
+	architecture_flags = Toolchains::get_arch(Toolchains::LLVM, Options::arch)
+	Options::cflags += architecture_flags
+	Options::cxxflags += architecture_flags
+end
 
 def WriteEchoFile(path, str)
 	File.open(path, 'w') { |file|
@@ -514,6 +579,31 @@ FileUtils.mkdir_p(Directory::build_root)
 WriteEchoFile(File.join(Directory::build_root, "cflags"), Options::cflags.join(" "))
 WriteEchoFile(File.join(Directory::build_root, "cxxflags"), Options::cxxflags.join(" "))
 WriteEchoFile(File.join(Directory::build_root, "ldflags"), Options::ldflags.join(" "))
+
+if BUILD_PLATFORM.is?(System::Platforms::WINDOWS)
+	llvm = msvc_clang?
+	binaries = {
+		"cl" => llvm ? "clang-cl" : nil,
+		"link" => llvm ? "lld-link" : nil,
+		"lib" => llvm ? "llvm-lib" : nil,
+		#"rc" => llvm ? "llvm-rc" : nil,
+		"rc" => nil,
+		"cl_version" => MSVC_CL_VERSION,
+	}
+
+	binaries.each { |name, target|
+		target = name if target.nil?
+		WriteEchoFile(File.join(Directory::build_root, "msvc_#{name}"), target)
+	}
+end
+
+if msvc_clang? || Options::toolchain == Toolchains::LLVM
+	WriteEchoFile(File.join(Directory::build_root, "build_objcopy"), "llvm-objcopy")
+	WriteEchoFile(File.join(Directory::build_root, "build_objdump"), "llvm-objdump")
+else
+	WriteEchoFile(File.join(Directory::build_root, "build_objcopy"), "gobjcopy objcopy")
+	WriteEchoFile(File.join(Directory::build_root, "build_objdump"), "gobjdump objdump")
+end
 
 if (Options::Pass::clear_term)
 	puts "\e[H\e[2J"
@@ -827,6 +917,12 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 		extra_cflags = []
 
 		if BUILD_PLATFORM.is?(System::Platforms::WINDOWS)
+			if MSVC_USE_CLANG
+				ENV["MSVC_USE_CLANG"] = "true"
+			else
+				ENV.delete("MSVC_USE_CLANG")
+			end
+
 			# At the present, we only have to redirect if we're using an LLVM toolchain
 			if llvm
 				# Add the toolchain to the PATH so that the scripts know where to find it
@@ -836,7 +932,7 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 				#ENV["LD"] = File.join(__dir__, "alias", "lld-link")
 				ENV["CC"] = File.join(Directory::llvm_root, "bin", "clang-cl")
 				ENV["CXX"] = File.join(Directory::llvm_root, "bin", "clang-cl")
-				extra_cflags += ['-m64', '-Wno-narrowing', '-fms-compatibility', '-fms-extensions', '-fms-compatibility-version=19.26.28806']
+				extra_cflags += ['-m64', '-Wno-narrowing', '-fms-compatibility', '-fms-extensions', "-fms-compatibility-version=#{MSVC_CL_VERSION}"]
 				ENV["LD"] = File.join(Directory::llvm_root, "bin", "lld-link")
 
 				ENV["AS"] = "llvm-as"
@@ -962,6 +1058,7 @@ ExecutePass("Package Pass", Error::Flag::PACKAGE) {
 	Error::error("Failed to remove existing package '#{package_path}'") if File.exist?(package_path)
 
 	command = nil
+	success = true
 	if best_compressor.nil?
 		command = [
 			"tar", "-cvf", "-", dest,
@@ -970,19 +1067,26 @@ ExecutePass("Package Pass", Error::Flag::PACKAGE) {
 	else
 		command = best_compressor.full_command(source: dest, archive: package_path)
 		if command.nil?
-			command = [
-				"tar", "-cvf", "-", dest, "|",
-				*best_compressor.command, "-",
-				">", package_path
-			]
+			Open3.pipeline_r(
+				["tar", "-cvf", "-", dest],
+				[*best_compressor.command, "-"]
+			) { |stdout, thr|
+				File.open(package_path, "wb") { |archive_file|
+					IO.copy_stream(stdout, archive_file)
+				}
+				thr.each { |t|
+					s = t.value.success?
+					success = success && s
+				}
+			}
 		end
 	end
 
 	#command.map! { |element|
 	#	["|", ">", ">>", "||", "&&", "-", "--"].include?(element) ? element : Shellwords.escape(element)
 	#}
-
-	execute(*command) or Error::error("Failed to compress package")
+	success = execute(*command) unless command.nil?
+	Error::error("Failed to compress package") unless success
 } if (Options::Pass::package && build_successful)
 
 puts "done"

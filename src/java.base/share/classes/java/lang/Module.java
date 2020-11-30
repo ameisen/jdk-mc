@@ -482,7 +482,8 @@ public final class Module implements AnnotatedElement {
     public boolean isOpen(String pn, Module other) {
         Objects.requireNonNull(pn);
         Objects.requireNonNull(other);
-        return implIsExportedOrOpen(pn, other, /*open*/true);
+        return true;
+        //return implIsExportedOrOpen(pn, other, /*open*/true);
     }
 
     /**

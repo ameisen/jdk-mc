@@ -98,11 +98,16 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_HELPER],
     BASIC_LDFLAGS_JVM_ONLY="-Wl,-lC_r -bbigtoc"
 
   elif test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
-    BASIC_LDFLAGS="-nologo -opt:ref -ltcg"
     BASIC_LDFLAGS_JDK_ONLY="-incremental:no"
-    case "$LD" in
-      *lld*) BASIC_LDFLAGS_JVM_ONLY="-opt:icf -subsystem:windows";;
-      *) BASIC_LDFLAGS_JVM_ONLY="-opt:icf,8 -subsystem:windows";;
+    case "x$LD" in
+      x*lld*)
+        BASIC_LDFLAGS_JVM_ONLY="-opt:icf -subsystem:windows"
+        BASIC_LDFLAG="-nologo"
+        ;;
+      *)
+        BASIC_LDFLAGS_JVM_ONLY="-opt:icf,8 -subsystem:windows"
+        BASIC_LDFLAGS="-nologo -opt:ref -ltcg"
+        ;;
     esac
   fi
 
@@ -181,7 +186,7 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_CPU_DEP],
   elif test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
     MS_LDFLAGS=" /LARGEADDRESSAWARE esyscmd(cat ./ldflags)"
     case "x$LD" in
-      xlld*) ;;
+      x*lld*) ;;
       *) MS_LDFLAGS+=" /CGTHREADS:16 /LTCG" ;;
     esac
 
