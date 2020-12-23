@@ -115,26 +115,30 @@ public final class Math {
      * The {@code double} value that is closer than any other to
      * <i>e</i>, the base of the natural logarithms.
      */
-    public static final double E = 2.7182818284590452354;
+    public static final double E = 0x1.5bf0a8b145769p1;
+    public static final float E_F = 0x1.5bf0a8p1f;
 
     /**
      * The {@code double} value that is closer than any other to
      * <i>pi</i>, the ratio of the circumference of a circle to its
      * diameter.
      */
-    public static final double PI = 3.14159265358979323846;
+    public static final double PI = 0x1.921fb54442d18p1;
+    public static final float PI_F = 0x1.921fb6p1f;
 
     /**
      * Constant by which to multiply an angular value in degrees to obtain an
      * angular value in radians.
      */
-    private static final double DEGREES_TO_RADIANS = 0.017453292519943295;
+    private static final double DEGREES_TO_RADIANS = 0x1.1df46a2529d39p-6;
+    private static final float DEGREES_TO_RADIANS_F = 0x1.1df46ap-6f;
 
     /**
      * Constant by which to multiply an angular value in radians to obtain an
      * angular value in degrees.
      */
-    private static final double RADIANS_TO_DEGREES = 57.29577951308232;
+    private static final double RADIANS_TO_DEGREES = 0x1.ca5dc1a63c1f8p5;
+    private static final float RADIANS_TO_DEGREES_F = 0x1.ca5dc2p5f;
 
     /**
      * Returns the trigonometric sine of an angle.  Special cases:
@@ -153,6 +157,10 @@ public final class Math {
     public static double sin(double a) {
         return StrictMath.sin(a); // default impl. delegates to StrictMath
     }
+    @HotSpotIntrinsicCandidate
+    public static float sin(float a) {
+        return (float)sin((double)a);
+    }
 
     /**
      * Returns the trigonometric cosine of an angle. Special cases:
@@ -168,6 +176,10 @@ public final class Math {
     @HotSpotIntrinsicCandidate
     public static double cos(double a) {
         return StrictMath.cos(a); // default impl. delegates to StrictMath
+    }
+    @HotSpotIntrinsicCandidate
+    public static float cos(float a) {
+        return (float)cos((double)a);
     }
 
     /**
@@ -187,6 +199,10 @@ public final class Math {
     public static double tan(double a) {
         return StrictMath.tan(a); // default impl. delegates to StrictMath
     }
+    @HotSpotIntrinsicCandidate
+    public static float tan(float a) {
+        return (float)tan((double)a);
+    }
 
     /**
      * Returns the arc sine of a value; the returned angle is in the
@@ -202,8 +218,10 @@ public final class Math {
      * @param   a   the value whose arc sine is to be returned.
      * @return  the arc sine of the argument.
      */
-    public static double asin(double a) {
-        return StrictMath.asin(a); // default impl. delegates to StrictMath
+    public static native double asin(double a);
+    private static native float asinf(float a);
+    public static float asin(float a) {
+        return asinf(a);
     }
 
     /**
@@ -218,8 +236,10 @@ public final class Math {
      * @param   a   the value whose arc cosine is to be returned.
      * @return  the arc cosine of the argument.
      */
-    public static double acos(double a) {
-        return StrictMath.acos(a); // default impl. delegates to StrictMath
+    public static native double acos(double a);
+    private static native float acosf(float a);
+    public static float acos(float a) {
+        return acosf(a);
     }
 
     /**
@@ -235,8 +255,10 @@ public final class Math {
      * @param   a   the value whose arc tangent is to be returned.
      * @return  the arc tangent of the argument.
      */
-    public static double atan(double a) {
-        return StrictMath.atan(a); // default impl. delegates to StrictMath
+    public static native double atan(double a);
+    private static native float atanf(float a);
+    public static float atan(float a) {
+        return atanf(a);
     }
 
     /**
@@ -251,6 +273,9 @@ public final class Math {
      */
     public static double toRadians(double angdeg) {
         return angdeg * DEGREES_TO_RADIANS;
+    }
+    public static float toRadians(float angdeg) {
+        return angdeg * DEGREES_TO_RADIANS_F;
     }
 
     /**
@@ -267,6 +292,9 @@ public final class Math {
      */
     public static double toDegrees(double angrad) {
         return angrad * RADIANS_TO_DEGREES;
+    }
+    public static float toDegrees(float angrad) {
+        return angrad * RADIANS_TO_DEGREES_F;
     }
 
     /**
@@ -289,6 +317,10 @@ public final class Math {
     public static double exp(double a) {
         return StrictMath.exp(a); // default impl. delegates to StrictMath
     }
+    @HotSpotIntrinsicCandidate
+    public static float exp(float a) {
+        return (float)exp((double)a);
+    }
 
     /**
      * Returns the natural logarithm (base <i>e</i>) of a {@code double}
@@ -310,6 +342,10 @@ public final class Math {
     @HotSpotIntrinsicCandidate
     public static double log(double a) {
         return StrictMath.log(a); // default impl. delegates to StrictMath
+    }
+    @HotSpotIntrinsicCandidate
+    public static float log(float a) {
+        return (float)log((double)a);
     }
 
     /**
@@ -337,6 +373,10 @@ public final class Math {
     public static double log10(double a) {
         return StrictMath.log10(a); // default impl. delegates to StrictMath
     }
+    @HotSpotIntrinsicCandidate
+    public static float log10(float a) {
+        return (float)log10((double)a);
+    }
 
     /**
      * Returns the correctly rounded positive square root of a
@@ -355,13 +395,19 @@ public final class Math {
      * @return  the positive square root of {@code a}.
      *          If the argument is NaN or less than zero, the result is NaN.
      */
+    // default impl. delegates to StrictMath
+    // Note that hardware sqrt instructions
+    // frequently can be directly used by JITs
+    // and should be much faster than doing
+    // Math.sqrt in software.
+
     @HotSpotIntrinsicCandidate
     public static double sqrt(double a) {
-        return StrictMath.sqrt(a); // default impl. delegates to StrictMath
-                                   // Note that hardware sqrt instructions
-                                   // frequently can be directly used by JITs
-                                   // and should be much faster than doing
-                                   // Math.sqrt in software.
+        return StrictMath.sqrt(a);
+    }
+    @HotSpotIntrinsicCandidate
+    public static float sqrt(float a) {
+        return StrictMath.sqrt(a);
     }
 
 
@@ -391,8 +437,10 @@ public final class Math {
      * @return  the cube root of {@code a}.
      * @since 1.5
      */
-    public static double cbrt(double a) {
-        return StrictMath.cbrt(a);
+    public static native double cbrt(double a);
+    private static native float cbrtf(float a);
+    public static float cbrt(float a) {
+        return cbrtf(a);
     }
 
     /**
@@ -417,8 +465,10 @@ public final class Math {
      * @return  the remainder when {@code f1} is divided by
      *          {@code f2}.
      */
-    public static double IEEEremainder(double f1, double f2) {
-        return StrictMath.IEEEremainder(f1, f2); // delegate to StrictMath
+    public static native double IEEEremainder(double f1, double f2);
+    private static native float IEEEremainderf(float f1, float f2);
+    public static float IEEEremainder(float f1, float f2) {
+        return IEEEremainderf(f1, f2);
     }
 
     /**
@@ -444,6 +494,10 @@ public final class Math {
     public static double ceil(double a) {
         return StrictMath.ceil(a); // default impl. delegates to StrictMath
     }
+    @HotSpotIntrinsicCandidate
+    public static float ceil(float a) {
+        return (float)ceil((double)a);
+    }
 
     /**
      * Returns the largest (closest to positive infinity)
@@ -464,6 +518,10 @@ public final class Math {
     public static double floor(double a) {
         return StrictMath.floor(a); // default impl. delegates to StrictMath
     }
+    @HotSpotIntrinsicCandidate
+    public static float floor(float a) {
+        return (float)floor((double)a);
+    }
 
     /**
      * Returns the {@code double} value that is closest in value
@@ -483,6 +541,10 @@ public final class Math {
     @HotSpotIntrinsicCandidate
     public static double rint(double a) {
         return StrictMath.rint(a); // default impl. delegates to StrictMath
+    }
+    @HotSpotIntrinsicCandidate
+    public static float rint(float a) {
+        return (float)rint((double)a);
     }
 
     /**
@@ -540,6 +602,10 @@ public final class Math {
     @HotSpotIntrinsicCandidate
     public static double atan2(double y, double x) {
         return StrictMath.atan2(y, x); // default impl. delegates to StrictMath
+    }
+    @HotSpotIntrinsicCandidate
+    public static float atan2(float y, float x) {
+        return (float)atan2((double)x, (double)y);
     }
 
     /**
@@ -668,6 +734,18 @@ public final class Math {
     @HotSpotIntrinsicCandidate
     public static double pow(double a, double b) {
         return StrictMath.pow(a, b); // default impl. delegates to StrictMath
+    }
+    @HotSpotIntrinsicCandidate
+    public static double pow(double a, int b) {
+        return (double)pow(a, (double)b);
+    }
+    @HotSpotIntrinsicCandidate
+    public static float pow(float a, float b) {
+        return (float)pow((double)a, (double)b);
+    }
+    @HotSpotIntrinsicCandidate
+    public static float pow(float a, int b) {
+        return (float)pow((double)a, (double)b);
     }
 
     /**
@@ -808,6 +886,9 @@ public final class Math {
      */
     public static double random() {
         return RandomNumberGeneratorHolder.randomNumberGenerator.nextDouble();
+    }
+    public static float randomFloat() {
+        return RandomNumberGeneratorHolder.randomNumberGenerator.nextFloat();
     }
 
     /**
@@ -1517,6 +1598,7 @@ public final class Math {
      * @param   b   another argument.
      * @return  the larger of {@code a} and {@code b}.
      */
+    @HotSpotIntrinsicCandidate
     public static long max(long a, long b) {
         return (a >= b) ? a : b;
     }
@@ -1607,6 +1689,7 @@ public final class Math {
      * @param   b   another argument.
      * @return  the smaller of {@code a} and {@code b}.
      */
+    @HotSpotIntrinsicCandidate
     public static long min(long a, long b) {
         return (a <= b) ? a : b;
     }
@@ -2031,8 +2114,10 @@ public final class Math {
      * @return  The hyperbolic sine of {@code x}.
      * @since 1.5
      */
-    public static double sinh(double x) {
-        return StrictMath.sinh(x);
+    public static native double sinh(double x);
+    private static native float sinhf(float x);
+    public static float sinh(float x) {
+        return sinhf(x);
     }
 
     /**
@@ -2059,8 +2144,10 @@ public final class Math {
      * @return  The hyperbolic cosine of {@code x}.
      * @since 1.5
      */
-    public static double cosh(double x) {
-        return StrictMath.cosh(x);
+    public static native double cosh(double x);
+    private static native float coshf(float x);
+    public static float cosh(float x) {
+        return coshf(x);
     }
 
     /**
@@ -2099,8 +2186,10 @@ public final class Math {
      * @return  The hyperbolic tangent of {@code x}.
      * @since 1.5
      */
-    public static double tanh(double x) {
-        return StrictMath.tanh(x);
+    public static native double tanh(double x);
+    private static native float tanhf(float x);
+    public static float tanh(float x) {
+        return tanhf(x);
     }
 
     /**
@@ -2128,8 +2217,10 @@ public final class Math {
      * without intermediate overflow or underflow
      * @since 1.5
      */
-    public static double hypot(double x, double y) {
-        return StrictMath.hypot(x, y);
+    public static native double hypot(double x, double y);
+    private static native float hypotf(float x, float y);
+    public static float hypot(float x, float y) {
+        return hypotf(x, y);
     }
 
     /**
@@ -2166,8 +2257,10 @@ public final class Math {
      * @return  the value <i>e</i><sup>{@code x}</sup>&nbsp;-&nbsp;1.
      * @since 1.5
      */
-    public static double expm1(double x) {
-        return StrictMath.expm1(x);
+    public static native double expm1(double x);
+    private static native float expm1f(float x);
+    public static float expm1(float x) {
+        return expm1f(x);
     }
 
     /**
@@ -2203,8 +2296,10 @@ public final class Math {
      * log of {@code x}&nbsp;+&nbsp;1
      * @since 1.5
      */
-    public static double log1p(double x) {
-        return StrictMath.log1p(x);
+    public static native double log1p(double x);
+    private static native float log1pf(float x);
+    public static float log1p(float x) {
+        return log1pf(x);
     }
 
     /**

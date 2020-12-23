@@ -70,16 +70,17 @@ protected:
   } RegionData;
 
   RegionData* _region_data;
-
-  uint _degenerated_cycles_in_a_row;
-  uint _successful_cycles_in_a_row;
+  TruncatedSeq* _gc_time_history;
 
   double _cycle_start;
   double _last_cycle_end;
-
   size_t _gc_times_learned;
+
+  uint _degenerated_cycles_in_a_row;
+  uint _successful_cycles_in_a_row;
+  uint _min_free_threshold;
+
   intx _gc_time_penalties;
-  TruncatedSeq* _gc_time_history;
 
   // There may be many threads that contend to set this flag
   ShenandoahSharedFlag _metaspace_oom;

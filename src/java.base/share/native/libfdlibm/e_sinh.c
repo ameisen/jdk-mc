@@ -65,7 +65,7 @@ static double one = 1.0, shuge = 1.0e307;
         ix = jx&0x7fffffff;
 
     /* x is INF or NaN */
-        if(ix>=0x7ff00000) return x+x;
+        if _unlikely_if(ix>=0x7ff00000) return x+x;
 
         h = 0.5;
         if (jx<0) h = -h;

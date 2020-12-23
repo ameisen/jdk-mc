@@ -212,7 +212,7 @@ char* os::iso8601_time(char* buffer, size_t buffer_length, bool utc) {
 OSReturn os::set_priority(Thread* thread, ThreadPriority p) {
   debug_only(Thread::check_for_dangling_thread_pointer(thread);)
 
-  if ((p >= MinPriority && p <= MaxPriority) ||
+  if ((p >= LowestPriority && p <= MaxPriority) ||
       (p == CriticalPriority && thread->is_ConcurrentGC_thread())) {
     int priority = java_to_os_priority[p];
     return set_native_priority(thread, priority);
@@ -231,11 +231,11 @@ OSReturn os::get_priority(const Thread* const thread, ThreadPriority& priority) 
   OSReturn ret = get_native_priority(thread, &os_prio);
   if (ret != OS_OK) return ret;
 
-  if (java_to_os_priority[MaxPriority] > java_to_os_priority[MinPriority]) {
-    for (p = MaxPriority; p > MinPriority && java_to_os_priority[p] > os_prio; p--) ;
+  if (java_to_os_priority[MaxPriority] > java_to_os_priority[LowestPriority]) {
+    for (p = MaxPriority; p > LowestPriority && java_to_os_priority[p] > os_prio; p--) ;
   } else {
     // niceness values are in reverse order
-    for (p = MaxPriority; p > MinPriority && java_to_os_priority[p] < os_prio; p--) ;
+    for (p = MaxPriority; p > LowestPriority && java_to_os_priority[p] < os_prio; p--) ;
   }
   priority = (ThreadPriority)p;
   return OS_OK;

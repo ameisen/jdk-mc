@@ -70,7 +70,7 @@ static double one=1.0, two=2.0, tiny = 1.0e-300;
         ix = jx&0x7fffffff;
 
     /* x is INF or NaN */
-        if(ix>=0x7ff00000) {
+        if _unlikely_if(ix>=0x7ff00000) {
             if (jx>=0) return one/x+one;    /* tanh(+-inf)=+-1 */
             else       return one/x-one;    /* tanh(NaN) = NaN */
         }

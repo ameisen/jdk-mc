@@ -37,7 +37,7 @@ namespace carbide::dump {
 
 		public:
 			~handle_base() {
-				if _likely(handle_ != invalid) [[likely]] {
+				if _likely_if(handle_ != invalid) {
 					::CloseHandle(handle_);
 				}
 			}
@@ -96,7 +96,7 @@ namespace carbide::dump {
 			}
 
 			auto clear_stream = []() {
-				if _likely(dump_stream) [[likely]] {
+				if _likely_if(dump_stream) {
 					fclose(dump_stream);
 				}
 
@@ -113,7 +113,7 @@ namespace carbide::dump {
 				dirty_event.wait();
 
 				clear_stream();
-				if _unlikely(!dump_stream) [[unlikely]] {
+				if _unlikely_if(!dump_stream) {
 					continue;
 				}
 
@@ -146,7 +146,7 @@ namespace carbide::dump {
 			return;
 		}
 
-		if _unlikely(!method) [[unlikely]] {
+		if _unlikely_if(!method) {
 			return;
 		}
 

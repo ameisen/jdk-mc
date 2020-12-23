@@ -50,8 +50,8 @@
 #ifdef _SCALB_INT
         return scalbn(x,fn);
 #else
-        if (isnan(x)||isnan(fn)) return x*fn;
-        if (!finite(fn)) {
+        if _unlikely_if(isnan(x)||isnan(fn)) return x*fn;
+        if _unlikely_if(!finite(fn)) {
             if(fn>0.0) return x*fn;
             else       return x/(-fn);
         }

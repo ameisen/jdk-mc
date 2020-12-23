@@ -106,7 +106,7 @@ huge   = 1.0e300;
         hx = __HI(x);
         ix = hx&0x7fffffff;
         if(ix>=0x44100000) {    /* if |x| >= 2^66 */
-            if(ix>0x7ff00000||
+            if _unlikely_if(ix>0x7ff00000||
                 (ix==0x7ff00000&&(__LO(x)!=0)))
                 return x+x;             /* NaN */
             if(hx>0) return  atanhi[3]+atanlo[3];

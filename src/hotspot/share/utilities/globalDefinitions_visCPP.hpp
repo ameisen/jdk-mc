@@ -61,23 +61,33 @@
 // pointer when it extracts the argument, then we may have a problem.
 //
 // Solution: For 64-bit architectures, redefine NULL as 64-bit constant 0.
-#ifdef _LP64
-#undef NULL
-// 64-bit Windows uses a P64 data model (not LP64, although we define _LP64)
-// Since longs are 32-bit we cannot use 0L here.  Use the Visual C++ specific
-// 64-bit integer-suffix (LL) instead.
-#define NULL 0LL
+#if __clang__
+# ifdef _LP64
+#   define NULL_WORD  (0LL)
+# else
+    // Cast 0 to intptr_t rather than int32_t since they are not the same type
+    // on platforms such as Mac OS X.
+#   define NULL_WORD  ((intptr_t)0)
+# endif
 #else
-#ifndef NULL
-#define NULL 0
-#endif
-#endif
+# ifdef _LP64
+#   undef NULL
+    // 64-bit Windows uses a P64 data model (not LP64, although we define _LP64)
+    // Since longs are 32-bit we cannot use 0L here.  Use the Visual C++ specific
+    // 64-bit integer-suffix (LL) instead.
+#   define NULL (0LL)
+#  else
+#   ifndef NULL
+#     define NULL (0)
+#   endif
+# endif
 
-// NULL vs NULL_WORD:
-// On Linux NULL is defined as a special type '__null'. Assigning __null to
-// integer variable will cause gcc warning. Use NULL_WORD in places where a
-// pointer is stored as integer value.
-#define NULL_WORD NULL
+  // NULL vs NULL_WORD:
+  // On Linux NULL is defined as a special type '__null'. Assigning __null to
+  // integer variable will cause gcc warning. Use NULL_WORD in places where a
+  // pointer is stored as integer value.
+# define NULL_WORD NULL
+#endif
 
 #ifdef _WIN64
 typedef int64_t ssize_t;
@@ -93,20 +103,30 @@ typedef uint32_t juint;
 typedef uint64_t julong;
 
 // Non-standard stdlib-like stuff:
-inline int strcasecmp(const char *s1, const char *s2) { return _stricmp(s1,s2); }
-inline int strncasecmp(const char *s1, const char *s2, size_t n) {
+static inline int strcasecmp(const char *s1, const char *s2) { return _stricmp(s1,s2); }
+static inline int strncasecmp(const char *s1, const char *s2, size_t n) {
   return _strnicmp(s1,s2,n);
 }
 
 // Checking for nanness
 
-inline int g_isnan(jfloat  f)                    { return _isnan(f); }
-inline int g_isnan(jdouble f)                    { return _isnan(f); }
+#if __cplusplus
+static inline int g_isnan(jfloat  f)                    { return ::isnan(f); }
+static inline int g_isnan(jdouble f)                    { return ::isnan(f); }
+#else
+static inline int g_isnan(jfloat  f)                    { return _isnan(f); }
+static inline int g_isnan(jdouble f)                    { return _isnan(f); }
+#endif
 
 // Checking for finiteness
 
-inline int g_isfinite(jfloat  f)                 { return _finite(f); }
-inline int g_isfinite(jdouble f)                 { return _finite(f); }
+#if __cplusplus
+static inline int g_isfinite(jfloat  f)                 { return ::isfinite(f); }
+static inline int g_isfinite(jdouble f)                 { return ::isfinite(f); }
+#else
+static inline int g_isfinite(jfloat  f)                 { return _finite(f); }
+static inline int g_isfinite(jdouble f)                 { return _finite(f); }
+#endif
 
 // Miscellaneous
 
@@ -149,7 +169,11 @@ inline int g_isfinite(jdouble f)                 { return _finite(f); }
 #endif
 
 // Formatting.
-#define FORMAT64_MODIFIER "I64"
+#if _MSC_VER >=  	1900
+# define FORMAT64_MODIFIER "ll"
+#else
+# define FORMAT64_MODIFIER "I64"
+#endif
 
 #define offset_of(klass,field) offsetof(klass,field)
 
@@ -169,13 +193,24 @@ inline int g_isfinite(jdouble f)                 { return _finite(f); }
 
 #define ASSUME(expr) __assume(expr)
 
-#define EXPECT(expr, value) (expr)
-#define LIKELY(expr) (expr)
-#define UNLIKELY(expr) (expr)
+#ifdef __clang__
+# define EXPECT(expr, value) (__builtin_expect(expr, value))
+# define LIKELY(expr) EXPECT(!!(expr), true)
+# define UNLIKELY(expr) EXPECT(!!(expr), false)
+#else
+# define EXPECT(expr, value) (expr)
+# define LIKELY(expr) (expr)
+# define UNLIKELY(expr) (expr)
+#endif
 
 #define NORETURN __declspec(noreturn)
 
-#define PUREF __declspec(noalias)
-#define CONSTF __declspec(noalias)
+#ifdef __clang__
+# define PUREF __declspec(noalias) __attribute__ ((pure))
+# define CONSTF __declspec(noalias) __attribute__ ((const))
+#else
+# define PUREF __declspec(noalias)
+# define CONSTF __declspec(noalias)
+#endif
 
 #endif // SHARE_UTILITIES_GLOBALDEFINITIONS_VISCPP_HPP

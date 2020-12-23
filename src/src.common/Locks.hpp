@@ -26,7 +26,7 @@ namespace carbide {
 		_forceinline ScopedTryLock(LockType * __restrict lock) : ScopedTryLock(*lock) {}
 
 		_forceinline ~ScopedTryLock() {
-			if _likely(locked_) [[likely]] {
+			if _likely_if(locked_) {
 				lock_.unlock();
 			}
 		}

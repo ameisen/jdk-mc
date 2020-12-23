@@ -406,7 +406,7 @@ var getJibProfilesProfiles = function (input, common, data) {
             target_cpu: "x64",
             dependencies: ["devkit", "gtest", "graphviz", "pandoc", "graalunit_lib"],
             configure_args: concat(common.configure_args_64bit,
-                "--enable-full-docs", "--with-zlib=system",
+                "--enable-full-docs", "--with-zlib=system", "--with-zstd=system", "--with-lzma=system",
                 (isWsl(input) ? [ "--host=x86_64-unknown-linux-gnu",
                     "--build=x86_64-unknown-linux-gnu" ] : [])),
             default_make_targets: ["docs-bundles"],
@@ -418,14 +418,14 @@ var getJibProfilesProfiles = function (input, common, data) {
             build_cpu: "x64",
             dependencies: ["devkit", "gtest"],
             configure_args: concat(common.configure_args_32bit,
-                "--with-jvm-variants=minimal,server", "--with-zlib=system"),
+                "--with-jvm-variants=minimal,server", "--with-zlib=system", "--with-zstd=system", "--with-lzma=system"),
         },
 
         "macosx-x64": {
             target_os: "macosx",
             target_cpu: "x64",
             dependencies: ["devkit", "gtest", "pandoc", "graalunit_lib"],
-            configure_args: concat(common.configure_args_64bit, "--with-zlib=system",
+            configure_args: concat(common.configure_args_64bit, "--with-zlib=system", "--with-zstd=system", "--with-lzma=system",
                 "--with-macosx-version-max=10.9.0",
                 // Use system SetFile instead of the one in the devkit as the
                 // devkit one may not work on Catalina.
@@ -543,7 +543,7 @@ var getJibProfilesProfiles = function (input, common, data) {
             target_cpu: "x64",
             dependencies: ["devkit", "gtest"],
             configure_args: concat(common.configure_args_64bit, [
-                "--with-zlib=system",
+                "--with-zlib=system", "--with-zstd=system", "--with-lzma=system",
                 "--with-jvm-variants=zero",
                 "--enable-libffi-bundling"
             ])
@@ -555,7 +555,7 @@ var getJibProfilesProfiles = function (input, common, data) {
             build_cpu: "x64",
             dependencies: ["devkit", "gtest"],
             configure_args:  concat(common.configure_args_32bit, [
-                "--with-zlib=system",
+                "--with-zlib=system", "--with-zstd=system", "--with-lzma=system",
                 "--with-jvm-variants=zero",
                 "--enable-libffi-bundling"
             ])
@@ -578,7 +578,7 @@ var getJibProfilesProfiles = function (input, common, data) {
             target_cpu: "x64",
             dependencies: ["devkit", "gtest"],
             configure_args: concat(common.configure_args_64bit,
-                "--with-zlib=system", "--disable-precompiled-headers"),
+                "--with-zlib=system", "--with-zstd=system", "--with-lzma=system", "--disable-precompiled-headers"),
         },
     };
     profiles = concatObjects(profiles, noPchProfiles);

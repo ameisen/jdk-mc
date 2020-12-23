@@ -195,6 +195,7 @@ public class Random implements java.io.Serializable {
      *         generator's sequence
      * @since  1.1
      */
+    /*
     protected int next(int bits) {
         long oldseed, nextseed;
         AtomicLong seed = this.seed;
@@ -203,6 +204,21 @@ public class Random implements java.io.Serializable {
             nextseed = (oldseed * multiplier + addend) & mask;
         } while (!seed.compareAndSet(oldseed, nextseed));
         return (int)(nextseed >>> (48 - bits));
+    }
+    */
+    // test using xorshift64
+    protected int next(int bits) {
+        long oldseed, nextseed;
+        AtomicLong seed = this.seed;
+        do {
+            oldseed = seed.get();
+            nextseed = oldseed;
+            nextseed ^= (nextseed << 13);
+            nextseed ^= (nextseed >>> 7);
+            nextseed ^= (nextseed << 17);
+        } while (!seed.compareAndSet(oldseed, nextseed));
+        nextseed &= ((1L << bits) - 1);
+        return (int)nextseed;
     }
 
     /**

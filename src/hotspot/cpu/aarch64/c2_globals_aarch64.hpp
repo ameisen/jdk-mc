@@ -55,7 +55,7 @@ define_pd_global(intx, NewSizeThreadIncrease, ScaleForWordSize(4*K));
 define_pd_global(intx, LoopUnrollLimit,              60);
 define_pd_global(intx, LoopPercentProfileLimit,      10);
 // InitialCodeCacheSize derived from specjbb2000 run.
-define_pd_global(intx, InitialCodeCacheSize,         2496*K); // Integral multiple of CodeCacheExpansionSize
+define_pd_global(intx, InitialCodeCacheSize,         8*M); // Integral multiple of CodeCacheExpansionSize
 define_pd_global(intx, CodeCacheExpansionSize,       64*K);
 
 // Ergonomics related flags
@@ -72,15 +72,15 @@ define_pd_global(bool, OptoRegScheduling,            false);
 define_pd_global(bool, SuperWordLoopUnrollAnalysis,  true);
 define_pd_global(bool, IdealizeClearArrayNode,       true);
 
-define_pd_global(intx, ReservedCodeCacheSize,        48*M);
-define_pd_global(intx, NonProfiledCodeHeapSize,      21*M);
-define_pd_global(intx, ProfiledCodeHeapSize,         22*M);
-define_pd_global(intx, NonNMethodCodeHeapSize,       5*M );
+define_pd_global(intx, ReservedCodeCacheSize,        144*M);
+define_pd_global(intx, NonProfiledCodeHeapSize,      63*M);
+define_pd_global(intx, ProfiledCodeHeapSize,         66*M);
+define_pd_global(intx, NonNMethodCodeHeapSize,       15*M );
 define_pd_global(uintx, CodeCacheMinBlockLength,     6);
 define_pd_global(uintx, CodeCacheMinimumUseSpace,    400*K);
 
 // Heap related flags
-define_pd_global(uintx,MetaspaceSize,    ScaleForWordSize(16*M));
+define_pd_global(uintx,MetaspaceSize,    ScaleForWordSize(200*M));
 
 // Ergonomics related flags
 define_pd_global(bool, NeverActAsServerClassMachine, false);

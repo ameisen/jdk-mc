@@ -30,7 +30,6 @@
 #include "memory/allocation.inline.hpp"
 #include "memory/iterator.hpp"
 #include "runtime/atomic.hpp"
-#include "runtime/os.hpp"
 #include "runtime/semaphore.hpp"
 #include "runtime/thread.inline.hpp"
 
@@ -261,8 +260,9 @@ static GangTaskDispatcher* create_dispatcher() {
 WorkGang::WorkGang(const char* name,
                    uint  workers,
                    bool  are_GC_task_threads,
-                   bool  are_ConcurrentGC_threads) :
-    AbstractWorkGang(name, workers, are_GC_task_threads, are_ConcurrentGC_threads),
+                   bool  are_ConcurrentGC_threads,
+                   ThreadPriority priority) :
+    AbstractWorkGang(name, workers, are_GC_task_threads, are_ConcurrentGC_threads, priority),
     _dispatcher(create_dispatcher())
 { }
 
@@ -302,7 +302,7 @@ void AbstractGangWorker::run() {
 
 void AbstractGangWorker::initialize() {
   assert(_gang != NULL, "No gang to run in");
-  os::set_priority(this, NearMaxPriority);
+  os::set_priority(this, _gang->_thread_priority);
   log_develop_trace(gc, workgang)("Running gang worker for gang %s id %u", gang()->name(), id());
   assert(!Thread::current()->is_VM_thread(), "VM thread should not be part"
          " of a work gang");

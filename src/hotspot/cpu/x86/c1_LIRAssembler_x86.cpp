@@ -2470,7 +2470,27 @@ void LIR_Assembler::intrinsic_op(LIR_Code code, LIR_Opr value, LIR_Opr tmp, LIR_
         }
         break;
 
+      case lir_absf :
+        {
+#ifdef _LP64
+          if (UseAVX > 2 && !VM_Version::supports_avx512vl()) {
+            assert(tmp->is_valid(), "need temporary");
+            __ vpandn(dest->as_xmm_float_reg(), tmp->as_xmm_float_reg(), value->as_xmm_float_reg(), 2);
+          } else
+#endif
+          {
+            if (dest->as_xmm_float_reg() != value->as_xmm_float_reg()) {
+              __ movflt(dest->as_xmm_float_reg(), value->as_xmm_float_reg());
+            }
+            assert(!tmp->is_valid(), "do not need temporary");
+            __ andps(dest->as_xmm_float_reg(),
+                     ExternalAddress((address)float_signmask_pool));
+          }
+        }
+        break;
+
       case lir_sqrt: __ sqrtsd(dest->as_xmm_double_reg(), value->as_xmm_double_reg()); break;
+      case lir_sqrtf: __ sqrtss(dest->as_xmm_float_reg(), value->as_xmm_float_reg()); break;
       // all other intrinsics are not available in the SSE instruction set, so FPU is used
       default      : ShouldNotReachHere();
     }
@@ -2479,8 +2499,10 @@ void LIR_Assembler::intrinsic_op(LIR_Code code, LIR_Opr value, LIR_Opr tmp, LIR_
   } else if (value->is_double_fpu()) {
     assert(value->fpu_regnrLo() == 0 && dest->fpu_regnrLo() == 0, "both must be on TOS");
     switch(code) {
-      case lir_abs   : __ fabs() ; break;
-      case lir_sqrt  : __ fsqrt(); break;
+      case lir_absf :
+      case lir_abs  : __ fabs() ; break;
+      case lir_sqrtf:
+      case lir_sqrt : __ fsqrt(); break;
       default      : ShouldNotReachHere();
     }
 #endif // !_LP64

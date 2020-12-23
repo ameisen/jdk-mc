@@ -1,0 +1,67 @@
+AlwaysIncrementalInline
+	In benchmarks, this almost always hurt performance
+UseCMoveUnconditionally
+	In benchmarks, this almost always helped performance
+	Looking into not using this but rather making the JIT choose CMOV more liberally
+InlineReflectionGetCallerClass
+	I want to look further into how the JVM inlines such things since it's useful for us
+
+The following values require profiling:
+	OptoNodeListSize
+	OptoBlockListSize
+	MultiArrayExpandLimit
+	TrackedInitializationLimit
+	NodeCountInliningCutoff
+	AutoBoxCacheMax
+	EscapeAnalysisTimeout
+	EliminateAllocationArraySizeLimit
+	ValueSearchLimit
+	MaxLabelRootDepth
+	DominatorSearchLimit
+	MaxInlineLevel
+	MaxRecursiveInlineLevel
+	InlineSmallCode
+	MaxInlineSize
+	FreqInlineSize
+	MaxTrivialSize
+	AlwaysIncrementalInline
+	LiveNodeCountInliningCutoff
+	ArrayCopyLoadStoreMaxElem
+	LoopStripMiningIter
+	AVX3Threshold
+	ObjectAlignmentInBytes
+	AlwaysSafeConstructors
+	DynamicallyResizeSystemDictionaries
+	hashCode
+	EagerInitialization
+	FastAllocateSizeLimit
+	CompactStrings
+	AlwaysCompileLoopMethods
+	MaxBCEAEstimateLevel
+	MaxBCEAEstimateSize
+	TypeProfileWidth
+	BciProfileWidth
+	PerMethodRecompilationCutoff
+	PerBytecodeRecompilationCutoff
+	PerMethodTrapLimit
+	PerMethodSpecTrapLimit
+	PerBytecodeTrapLimit
+	SpecTrapLimitExtraEntries
+	UseStringDeduplication
+	NMethodSizeLimit
+	InstructionCountCutoff
+
+
+
+These require deep profiling:
+	LoopUnrollLimit
+	LoopPercentProfileLimit
+	LoopMaxUnroll
+	PartialPeelNewPhiDelta # default 0
+	OptoBundling # defaults to true, seems wasteful overall
+
+cmove flags:
+	UseCMoveUnconditionally
+	UseCMoveUnconditionallyPhi
+	UseCMoveUnconditionallyPredict
+	CMoveWeightMultiplier

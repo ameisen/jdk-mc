@@ -6931,6 +6931,8 @@ void Assembler::emit_farith(int b1, int b2, int i) {
 void Assembler::fabs() {
   emit_int16((unsigned char)0xD9, (unsigned char)0xE1);
 }
+void Assembler::fabsd() { return fabs(); }
+void Assembler::fabss() { return fabs(); }
 
 void Assembler::fadd(int i) {
   emit_farith(0xD8, 0xC0, i);
@@ -7209,6 +7211,9 @@ void Assembler::fsin() {
 void Assembler::fsqrt() {
   emit_int16((unsigned char)0xD9, (unsigned char)0xFA);
 }
+
+void Assembler::fsqrtd() { return fsqrt(); }
+void Assembler::fsqrts() { return fsqrt(); }
 
 void Assembler::fst_d(Address adr) {
   InstructionMark im(this);

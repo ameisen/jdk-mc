@@ -511,7 +511,7 @@ public class AccessibleObject implements AnnotatedElement {
     //
     // NOTE: for security purposes, this field must not be visible
     // outside this package.
-    boolean override;
+    public boolean override;
 
     // Reflection factory used by subclasses for creating field,
     // method, and constructor accessors. Note that this is called

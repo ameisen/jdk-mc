@@ -5,7 +5,7 @@ def AutoInstance(mod)
 	def create_method(mod, name, &block)
 		mod.class.send(:define_method, name, &block)
 	end
-	
+
 	mod.instance_variables.each { |variable|
 		name = variable[1..-1]
 		create_method(mod, "#{name}=".to_sym) { |value|
@@ -57,6 +57,8 @@ module Directory
 	@vc_bin = nil
 	@llvm_root = nil
 	@jmh = nil
+	@jtreg = nil
+	@proguard = nil
 
 	def self.working; Dir.pwd; end
 

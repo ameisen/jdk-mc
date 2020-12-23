@@ -492,7 +492,7 @@ ThreadPriority Thread::get_priority(const Thread* const thread) {
   ThreadPriority priority;
   // Can return an error!
   (void)os::get_priority(thread, priority);
-  assert(MinPriority <= priority && priority <= MaxPriority, "non-Java priority found");
+  assert(LowestPriority <= priority && priority <= MaxPriority, "non-Java priority found");
   return priority;
 }
 

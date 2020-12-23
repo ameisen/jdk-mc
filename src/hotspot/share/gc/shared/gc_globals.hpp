@@ -385,7 +385,7 @@
           "Deprecated, use InitialRAMPercentage instead")                   \
           range(1, max_uintx)                                               \
                                                                             \
-  product(double, MaxRAMPercentage, 25.0,                                   \
+  product(double, MaxRAMPercentage, 75.0,                                   \
           "Maximum percentage of real memory used for maximum heap size")   \
           range(0.0, 100.0)                                                 \
                                                                             \
@@ -495,7 +495,7 @@
           "Decay factor to TenuredGenerationSizeIncrement")                 \
           range(1, max_uintx)                                               \
                                                                             \
-  product(uintx, MaxGCPauseMillis, 5,                                       \
+  product(uintx, MaxGCPauseMillis, 3,                                       \
           "Adaptive size policy maximum GC pause time goal in millisecond, "\
           "or (G1 Only) the maximum GC time per MMU time slice")            \
           range(1, max_uintx - 1)                                           \
@@ -649,7 +649,7 @@
           "Initial heap size (in bytes); zero means use ergonomics")        \
           constraint(InitialHeapSizeConstraintFunc,AfterErgo)               \
                                                                             \
-  product(size_t, MaxHeapSize, ScaleForWordSize(2*G),                       \
+  product(size_t, MaxHeapSize, ScaleForWordSize(6*G),                       \
           "Maximum heap size (in bytes)")                                   \
           constraint(MaxHeapSizeConstraintFunc,AfterErgo)                   \
                                                                             \
@@ -657,11 +657,11 @@
           "Soft limit for maximum heap size (in bytes)")                    \
           constraint(SoftMaxHeapSizeConstraintFunc,AfterMemoryInit)         \
                                                                             \
-  product(size_t, OldSize, ScaleForWordSize(400*M),                         \
+  product(size_t, OldSize, ScaleForWordSize(1*G),                           \
           "Initial tenured generation size (in bytes)")                     \
           range(0, max_uintx)                                               \
                                                                             \
-  product(size_t, NewSize, ScaleForWordSize(100*M),                         \
+  product(size_t, NewSize, ScaleForWordSize(3*G),                           \
           "Initial new generation size (in bytes)")                         \
           constraint(NewSizeConstraintFunc,AfterErgo)                       \
                                                                             \
@@ -688,11 +688,11 @@
           "Starting TLAB size (in bytes); zero means set ergonomically")    \
           constraint(TLABSizeConstraintFunc,AfterMemoryInit)                \
                                                                             \
-  product(size_t, YoungPLABSize, 4096,                                      \
+  product(size_t, YoungPLABSize, 16*K,                                      \
           "Size of young gen promotion LAB's (in HeapWords)")               \
           constraint(YoungPLABSizeConstraintFunc,AfterMemoryInit)           \
                                                                             \
-  product(size_t, OldPLABSize, 1024,                                        \
+  product(size_t, OldPLABSize, 4*K,                                         \
           "Size of old gen promotion LAB's (in HeapWords)")                 \
           constraint(OldPLABSizeConstraintFunc,AfterMemoryInit)             \
                                                                             \
@@ -702,7 +702,7 @@
                                                                             \
   /* Limit the lower bound of this flag to 1 as it is used  */              \
   /* in a division expression.                              */              \
-  product(uintx, TLABWasteTargetPercent, 10,                                \
+  product(uintx, TLABWasteTargetPercent, 20,                                \
           "Percentage of Eden that can be wasted")                          \
           range(1, 100)                                                     \
                                                                             \
@@ -720,7 +720,7 @@
           range(1, max_uintx-2)                                             \
           constraint(SurvivorRatioConstraintFunc,AfterMemoryInit)           \
                                                                             \
-  product(uintx, NewRatio, 2,                                               \
+  product(uintx, NewRatio, 8,                                               \
           "Ratio of old/new generation sizes")                              \
           range(0, max_uintx-1)                                             \
                                                                             \
@@ -756,7 +756,7 @@
           "Desired percentage of survivor space used after scavenge")       \
           range(0, 100)                                                     \
                                                                             \
-  product(uintx, MarkSweepDeadRatio,     5,                                 \
+  product(uintx, MarkSweepDeadRatio,     10,                                \
           "Percentage (0-100) of the old gen allowed as dead wood. "        \
           "Serial mark sweep treats this as both the minimum and maximum "  \
           "value. "                                                         \
@@ -766,7 +766,7 @@
           "also has a smaller default value; see arguments.cpp.")           \
           range(0, 100)                                                     \
                                                                             \
-  product(uint, MarkSweepAlwaysCompactCount,     4,                         \
+  product(uint, MarkSweepAlwaysCompactCount,     8,                         \
           "How often should we fully compact the heap (ignoring the dead "  \
           "space parameters)")                                              \
           range(1, max_juint)                                               \

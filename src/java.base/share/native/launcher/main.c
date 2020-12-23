@@ -34,6 +34,22 @@
 #include "jli_util.h"
 #include "jni.h"
 
+// Make sure that the dedicated GPU is being used on systems with an integrated one as well
+#ifdef __cplusplus
+extern "C" {
+#endif
+#ifdef _MSC_VER
+#   define _export __declspec(dllexport)
+#else
+#   define _export __attribute__((visibility("default"), used))
+#endif
+_export unsigned int NvOptimusEnablement = 1;
+_export unsigned int AmdPowerXpressRequestHighPerformance = 1;
+#undef _export
+#ifdef __cplusplus
+}
+#endif
+
 #ifdef _MSC_VER
 #if _MSC_VER > 1400 && _MSC_VER < 1600
 

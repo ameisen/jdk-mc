@@ -39,6 +39,8 @@ AC_DEFUN_ONCE([LIB_SETUP_BUNDLED_LIBS],
   LIB_SETUP_GIFLIB
   LIB_SETUP_LIBPNG
   LIB_SETUP_ZLIB
+  LIB_SETUP_ZSTD
+  LIB_SETUP_LZMA
   LIB_SETUP_LCMS
 ])
 
@@ -223,6 +225,114 @@ AC_DEFUN_ONCE([LIB_SETUP_ZLIB],
   AC_SUBST(USE_EXTERNAL_LIBZ)
   AC_SUBST(LIBZ_CFLAGS)
   AC_SUBST(LIBZ_LIBS)
+])
+
+################################################################################
+# Setup zstd
+################################################################################
+AC_DEFUN_ONCE([LIB_SETUP_ZSTD],
+[
+  AC_ARG_WITH(zstd, [AS_HELP_STRING([--with-zstd],
+      [use zstd from build system or OpenJDK source (system, bundled) @<:@bundled@:>@])])
+
+  AC_CHECK_LIB(zstd, ZSTD_compress,
+      [ ZSTD_FOUND=yes ],
+      [ ZSTD_FOUND=no ])
+
+  AC_MSG_CHECKING([for which zstd to use])
+
+  DEFAULT_ZSTD=system
+
+  if test "x${ZSTD_FOUND}" != "xyes"; then
+    # If we don't find any system...set default to bundled
+    DEFAULT_ZSTD=bundled
+  fi
+
+  # If user didn't specify, use DEFAULT_ZSTD
+  if test "x${with_zstd}" = "x"; then
+    with_zstd=${DEFAULT_ZSTD}
+  fi
+
+  if test "x${with_zstd}" = "xbundled"; then
+    USE_EXTERNAL_LIBZSTD=false
+    AC_MSG_RESULT([bundled])
+  elif test "x${with_zstd}" = "xsystem"; then
+    if test "x${ZSTD_FOUND}" = "xyes"; then
+      USE_EXTERNAL_LIBZSTD=true
+      AC_MSG_RESULT([system])
+    else
+      AC_MSG_RESULT([system not found])
+      AC_MSG_ERROR([--with-zstd=system specified, but no zstd found!])
+    fi
+  else
+    AC_MSG_ERROR([Invalid value for --with-zstd: ${with_zstd}, use 'system' or 'bundled'])
+  fi
+
+  LIBZSTD_CFLAGS=""
+  LIBZSTD_LIBS=""
+  if test "x$USE_EXTERNAL_LIBZSTD" = "xfalse"; then
+    LIBZSTD_CFLAGS="$LIBZSTD_CFLAGS -I$TOPDIR/src/java.base/share/native/libzip/libzstd"
+  else
+    LIBZSTD_LIBS="-lzstd"
+  fi
+
+  AC_SUBST(USE_EXTERNAL_LIBZSTD)
+  AC_SUBST(LIBZSTD_CFLAGS)
+  AC_SUBST(LIBZSTD_LIBS)
+])
+
+################################################################################
+# Setup LZMA
+################################################################################
+AC_DEFUN_ONCE([LIB_SETUP_LZMA],
+[
+  AC_ARG_WITH(lzma, [AS_HELP_STRING([--with-lzma],
+      [use lzma from build system or OpenJDK source (system, bundled) @<:@bundled@:>@])])
+
+  AC_CHECK_LIB(lzma, lzma_code,
+      [ LZMA_FOUND=yes ],
+      [ LZMA_FOUND=no ])
+
+  AC_MSG_CHECKING([for which lzma to use])
+
+  DEFAULT_LZMA=system
+
+  if test "x${LZMA_FOUND}" != "xyes"; then
+    # If we don't find any system...set default to bundled
+    DEFAULT_LZMA=bundled
+  fi
+
+  # If user didn't specify, use DEFAULT_LZMA
+  if test "x${with_lzma}" = "x"; then
+    with_lzma=${DEFAULT_LZMA}
+  fi
+
+  if test "x${with_lzma}" = "xbundled"; then
+    USE_EXTERNAL_LIBLZMA=false
+    AC_MSG_RESULT([bundled])
+  elif test "x${with_lzma}" = "xsystem"; then
+    if test "x${LZMA_FOUND}" = "xyes"; then
+      USE_EXTERNAL_LIBLZMA=true
+      AC_MSG_RESULT([system])
+    else
+      AC_MSG_RESULT([system not found])
+      AC_MSG_ERROR([--with-lzma=system specified, but no lzma found!])
+    fi
+  else
+    AC_MSG_ERROR([Invalid value for --with-lzma: ${with_lzma}, use 'system' or 'bundled'])
+  fi
+
+  LIBLZMA_CFLAGS=""
+  LIBLZMA_LIBS=""
+  if test "x$USE_EXTERNAL_LIBLZMA" = "xfalse"; then
+    LIBLZMA_CFLAGS="$LIBLZMA_CFLAGS -I$TOPDIR/src/java.base/share/native/libzip/liblzma"
+  else
+    LIBLZMA_LIBS="-llzma"
+  fi
+
+  AC_SUBST(USE_EXTERNAL_LIBLZMA)
+  AC_SUBST(LIBLZMA_CFLAGS)
+  AC_SUBST(LIBLZMA_LIBS)
 ])
 
 ################################################################################

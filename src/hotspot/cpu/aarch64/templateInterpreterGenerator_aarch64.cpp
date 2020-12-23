@@ -173,10 +173,22 @@ address TemplateInterpreterGenerator::generate_math_entry(AbstractInterpreter::M
     __ fabsd(v0, v0);
     __ mov(sp, r13); // Restore caller's SP
     break;
+  case Interpreter::java_lang_math_absf:
+    entry_point = __ pc();
+    __ ldr(v0, Address(esp));
+    __ fabss(v0, v0);
+    __ mov(sp, r13); // Restore caller's SP
+    break;
   case Interpreter::java_lang_math_sqrt:
     entry_point = __ pc();
     __ ldrd(v0, Address(esp));
     __ fsqrtd(v0, v0);
+    __ mov(sp, r13);
+    break;
+  case Interpreter::java_lang_math_sqrtf:
+    entry_point = __ pc();
+    __ ldr(v0, Address(esp));
+    __ fsqrts(v0, v0);
     __ mov(sp, r13);
     break;
   case Interpreter::java_lang_math_sin :

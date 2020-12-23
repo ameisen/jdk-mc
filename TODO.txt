@@ -185,3 +185,79 @@ OptoBlockListSize
 CSEArrayLength
 
 NeverActAsServerClassMachine
+
+Default MC JVM arguments:
+-Xmx2G # TODO : Make automatic, possibly find a way to ignore the default value. We don't want a limit like this.
+-XX:+UnlockExperimentalVMOptions # Default and redundant.
+-XX:+UseG1GC # Default and currently redundant.
+-XX:G1NewSizePercent=20 # This is _not_ a good default value. Should be like 60 or 70
+-XX:G1ReservePercent=20 # This is the default value we use.
+-XX:MaxGCPauseMillis=50 # this is a terrible value, currently being overridden in code to '5'.
+-XX:G1HeapRegionSize=32M # this is an absolutely terrible value for G1. G1 is very heavily hit by MC.
+
+MaxVectorSize
+EliminateAutoBox
+AggressiveUnboxing
+DoEscapeAnalysis
+EscapeAnalysisTimeout
+ExitEscapeAnalysisOnTimeout
+EliminateAllocations
+EliminateAllocationArraySizeLimit
+OptimizePtrCompare
+
+InlineReflectionGetCallerClass
+          "inline sun.reflect.Reflection.getCallerClass(), known to be "    \
+          "part of base library DLL")                                       \
+
+SpecialArraysEquals
+SpecialStringEquals
+BailoutToInterpreterForThrows
+MonomorphicArrayCheck
+InlineAccessors
+  product(intx, AliasLevel,     3,                                          \
+          "0 for no aliasing, 1 for oop/field/static/array split, "         \
+          "2 for class split, 3 for unique instances")                      \
+
+set_has_boxed_value(false);
+
+UseTypeSpeculation
+
+// why?
+#if defined(IA32) || defined(AMD64)
+  if (size > 4*M || LargePageSizeInBytes > 4*M) {
+    WARN("JVM cannot use large pages bigger than 4mb.");
+    return 0;
+  }
+#endif
+
+UseNUMAInterleaving # make sure this is being set to false if the system lacks NUMA domains
+
+should_retain_local_variables
+
+ReservedCodeCacheSize
+NonProfiledCodeHeapSize
+ProfiledCodeHeapSize
+NonNMethodCodeHeapSize
+InitialCodeCacheSize
+
+NewSizeThreadIncrease
+OnStackReplacePercentage
+
+AlwaysSafeConstructors # this has performance benefits but can break very easily.
+UnlockExperimentalVMOptions # make sure this is being set uniformly
+
+ForceTimeHighResolution # make sure this is being used
+BackgroundCompilation # make sure this is true
+
+TraceLongCompiles # consider using this, and overriding certain methods or even potentially AOTing them
+UseInlineCaches # make sure inline caches are sufficiently deep.
+CriticalJNINatives # figure out what this does
+UseOSErrorReporting # we should really consider using this.
+SuppressFatalErrorMessage # This might make sense to keep the game running?
+NativeMemoryTracking # figure out what this does
+RegisterFinalizersAtInit # ??
+ClassUnloading # See if we can do this _explicitly_ only, preferably in STW situations
+DynamicallyResizeSystemDictionaries # print when this happens so we can adjust default values
+AllowParallelDefineClass # figure out what class loaders are marked as parallel capable
+hashCode # again, see if we can implement a better hashing algorithm
+UseFastJNIAccessors # validate this is working

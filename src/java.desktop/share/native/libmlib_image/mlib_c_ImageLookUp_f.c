@@ -2200,9 +2200,9 @@ void mlib_c_ImageLookUpSI_U8_U8(const mlib_u8 *src,
 
 /***************************************************************/
 
-#ifdef _MSC_VER
-#pragma optimize("", off)
-#endif /* _MSC_VER */
+//#ifdef _MSC_VER
+//#pragma optimize("", off)
+//#endif /* _MSC_VER */
 
 void mlib_c_ImageLookUpSI_S16_U8(const mlib_s16 *src,
                                  mlib_s32       slb,
@@ -2453,9 +2453,9 @@ void mlib_c_ImageLookUpSI_S16_U8(const mlib_s16 *src,
   }
 }
 
-#ifdef _MSC_VER
-#pragma optimize("", on)
-#endif /* _MSC_VER */
+//#ifdef _MSC_VER
+//#pragma optimize("", on)
+//#endif /* _MSC_VER */
 
 /***************************************************************/
 void mlib_c_ImageLookUpSI_U16_U8(const mlib_u16 *src,

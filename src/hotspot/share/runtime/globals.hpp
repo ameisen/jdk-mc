@@ -177,7 +177,7 @@ const size_t minimumSymbolTableSize = 1024;
   develop(bool, LargePagesIndividualAllocationInjectError, false,           \
           "Fail large pages individual allocation")                         \
                                                                             \
-  product(bool, UseLargePagesInMetaspace, false,                            \
+  product(bool, UseLargePagesInMetaspace, true,                             \
           "(Deprecated) Use large page memory in metaspace. "               \
           "Only used if UseLargePages is enabled.")                         \
                                                                             \
@@ -648,7 +648,7 @@ const size_t minimumSymbolTableSize = 1024;
   develop(bool, ProtectionDomainVerification, false,                        \
           "Verify protection domain before resolution in system dictionary")\
                                                                             \
-  product(bool, ClassUnloading, true,                                       \
+  product(bool, ClassUnloading, false,                                      \
           "Do unloading of classes")                                        \
                                                                             \
   product(bool, ClassUnloadingWithConcurrentMark, true,                     \
@@ -777,7 +777,9 @@ const size_t minimumSymbolTableSize = 1024;
                                                                             \
   /* Indications are that this is slower on x86 CPUs since at least 2008  */\
   /* https://mechanical-sympathy.blogspot.com/2011/11/java-lock-implementations.html */\
-  product(bool, UseBiasedLocking, false,                                    \
+  /* Further indications suggest that that assumption was incorrect */      \
+  /* https://mechanical-sympathy.blogspot.com/2011/11/biased-locking-osr-and-benchmarking-fun.html */\
+  product(bool, UseBiasedLocking, true,                                     \
           "Enable biased locking in JVM")                                   \
                                                                             \
   product(intx, BiasedLockingStartupDelay, 0,                               \
@@ -2173,7 +2175,7 @@ const size_t minimumSymbolTableSize = 1024;
                                                                             \
   /* flags for performance data collection */                               \
                                                                             \
-  product(bool, UsePerfData, true,                                          \
+  product(bool, UsePerfData, false,                                         \
           "Flag to disable jvmstat instrumentation for performance testing "\
           "and problem isolation purposes")                                 \
                                                                             \
@@ -2208,7 +2210,7 @@ const size_t minimumSymbolTableSize = 1024;
   product(bool, PerfBypassFileSystemCheck, true,                            \
           "Bypass Win32 file system criteria checks (Windows Only)")        \
                                                                             \
-  product(intx, UnguardOnExecutionViolation, 0,                             \
+  product(intx, UnguardOnExecutionViolation, 2,                             \
           "Unguard page and retry on no-execute fault (Win32 only) "        \
           "0=off, 1=conservative, 2=aggressive")                            \
           range(0, 2)                                                       \

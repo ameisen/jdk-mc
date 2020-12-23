@@ -43,6 +43,8 @@
 #include "opto/subtypenode.hpp"
 #include "utilities/macros.hpp"
 
+#include <cmath>
+
 //=============================================================================
 //------------------------------split_thru_phi---------------------------------
 // Split Node 'n' through merge point if there is enough win.
@@ -577,80 +579,86 @@ Node *PhaseIdealLoop::conditional_move( Node *region ) {
   // Always convert to CMOVE if all results are used only outside this loop.
   bool used_inside_loop = (r_loop == _ltree_root);
 
+  const auto CMoveMultiplier = C->cmove_weight_mult();
+
+  const auto cmoveCostAdjust = [=, this](int cost) -> int {
+    return int(::round(cost * C->cmove_weight_mult()));
+  };
+
   // Check profitability
   int cost = 0;
   int phis = 0;
-  for (DUIterator_Fast imax, i = region->fast_outs(imax); i < imax; i++) {
-    Node *out = region->fast_out(i);
-    if (!out->is_Phi()) continue; // Ignore other control edges, etc
-    phis++;
-    PhiNode* phi = out->as_Phi();
-    BasicType bt = phi->type()->basic_type();
-    switch (bt) {
-    case T_DOUBLE:
-    case T_FLOAT:
-      if (C->use_cmove()) {
-        continue; //TODO: maybe we want to add some cost
+  if (!C->use_cmove()) {
+    for (DUIterator_Fast imax, i = region->fast_outs(imax); i < imax; i++) {
+      Node *out = region->fast_out(i);
+      if (!out->is_Phi()) continue; // Ignore other control edges, etc
+      phis++;
+      PhiNode* phi = out->as_Phi();
+      BasicType bt = phi->type()->basic_type();
+      switch (bt) {
+      case T_DOUBLE:
+      case T_FLOAT:
+        cost += Matcher::float_cmove_cost(); // Could be very expensive
+        break;
+      case T_LONG: {
+        cost += Matcher::long_cmove_cost(); // May encodes as 2 CMOV's
       }
-      cost += Matcher::float_cmove_cost(); // Could be very expensive
-      break;
-    case T_LONG: {
-      cost += Matcher::long_cmove_cost(); // May encodes as 2 CMOV's
-    }
-    case T_INT:                 // These all CMOV fine
-    case T_ADDRESS: {           // (RawPtr)
-      cost++;
-      break;
-    }
-    case T_NARROWOOP: // Fall through
-    case T_OBJECT: {            // Base oops are OK, but not derived oops
-      const TypeOopPtr *tp = phi->type()->make_ptr()->isa_oopptr();
-      // Derived pointers are Bad (tm): what's the Base (for GC purposes) of a
-      // CMOVE'd derived pointer?  It's a CMOVE'd derived base.  Thus
-      // CMOVE'ing a derived pointer requires we also CMOVE the base.  If we
-      // have a Phi for the base here that we convert to a CMOVE all is well
-      // and good.  But if the base is dead, we'll not make a CMOVE.  Later
-      // the allocator will have to produce a base by creating a CMOVE of the
-      // relevant bases.  This puts the allocator in the business of
-      // manufacturing expensive instructions, generally a bad plan.
-      // Just Say No to Conditionally-Moved Derived Pointers.
-      if (tp && tp->offset() != 0)
-        return NULL;
-      cost++;
-      break;
-    }
-    default:
-      return NULL;              // In particular, can't do memory or I/O
-    }
-    // Add in cost any speculative ops
-    for (uint j = 1; j < region->req(); j++) {
-      Node *proj = region->in(j);
-      Node *inp = phi->in(j);
-      if (get_ctrl(inp) == proj) { // Found local op
+      case T_INT:                 // These all CMOV fine
+      case T_ADDRESS: {           // (RawPtr)
         cost++;
-        // Check for a chain of dependent ops; these will all become
-        // speculative in a CMOV.
-        for (uint k = 1; k < inp->req(); k++)
-          if (get_ctrl(inp->in(k)) == proj)
-            cost += ConditionalMoveLimit; // Too much speculative goo
+        break;
       }
-    }
-    // See if the Phi is used by a Cmp or Narrow oop Decode/Encode.
-    // This will likely Split-If, a higher-payoff operation.
-    for (DUIterator_Fast kmax, k = phi->fast_outs(kmax); k < kmax; k++) {
-      Node* use = phi->fast_out(k);
-      if (use->is_Cmp() || use->is_DecodeNarrowPtr() || use->is_EncodeNarrowPtr())
-        cost += ConditionalMoveLimit;
-      // Is there a use inside the loop?
-      // Note: check only basic types since CMoveP is pinned.
-      if (!used_inside_loop && is_java_primitive(bt)) {
-        IdealLoopTree* u_loop = get_loop(has_ctrl(use) ? get_ctrl(use) : use);
-        if (r_loop == u_loop || r_loop->is_member(u_loop)) {
-          used_inside_loop = true;
+      case T_NARROWOOP: // Fall through
+      case T_OBJECT: {            // Base oops are OK, but not derived oops
+        const TypeOopPtr *tp = phi->type()->make_ptr()->isa_oopptr();
+        // Derived pointers are Bad (tm): what's the Base (for GC purposes) of a
+        // CMOVE'd derived pointer?  It's a CMOVE'd derived base.  Thus
+        // CMOVE'ing a derived pointer requires we also CMOVE the base.  If we
+        // have a Phi for the base here that we convert to a CMOVE all is well
+        // and good.  But if the base is dead, we'll not make a CMOVE.  Later
+        // the allocator will have to produce a base by creating a CMOVE of the
+        // relevant bases.  This puts the allocator in the business of
+        // manufacturing expensive instructions, generally a bad plan.
+        // Just Say No to Conditionally-Moved Derived Pointers.
+        if (tp && tp->offset() != 0)
+          return NULL;
+        cost++;
+        break;
+      }
+      default:
+        return NULL;              // In particular, can't do memory or I/O
+      }
+      // Add in cost any speculative ops
+      for (uint j = 1; j < region->req(); j++) {
+        Node *proj = region->in(j);
+        Node *inp = phi->in(j);
+        if (get_ctrl(inp) == proj) { // Found local op
+          cost++;
+          // Check for a chain of dependent ops; these will all become
+          // speculative in a CMOV.
+          for (uint k = 1; k < inp->req(); k++)
+            if (get_ctrl(inp->in(k)) == proj)
+              cost += ConditionalMoveLimit; // Too much speculative goo
         }
       }
-    }
-  }//for
+      // See if the Phi is used by a Cmp or Narrow oop Decode/Encode.
+      // This will likely Split-If, a higher-payoff operation.
+      for (DUIterator_Fast kmax, k = phi->fast_outs(kmax); k < kmax; k++) {
+        Node* use = phi->fast_out(k);
+        if (use->is_Cmp() || use->is_DecodeNarrowPtr() || use->is_EncodeNarrowPtr())
+          cost += ConditionalMoveLimit;
+        // Is there a use inside the loop?
+        // Note: check only basic types since CMoveP is pinned.
+        if (!used_inside_loop && is_java_primitive(bt)) {
+          IdealLoopTree* u_loop = get_loop(has_ctrl(use) ? get_ctrl(use) : use);
+          if (r_loop == u_loop || r_loop->is_member(u_loop)) {
+            used_inside_loop = true;
+          }
+        }
+      }
+    }//for
+    cost = cmoveCostAdjust(cost);
+  } // forceCMove
   Node* bol = iff->in(1);
   if (bol->Opcode() == Op_Opaque4) {
     return NULL; // Ignore loop predicate checks (the Opaque4 ensures they will go away)
@@ -662,7 +670,9 @@ Node *PhaseIdealLoop::conditional_move( Node *region ) {
   }
   // It is expensive to generate flags from a float compare.
   // Avoid duplicated float compare.
-  if (phis > 1 && (cmp_op == Op_CmpF || cmp_op == Op_CmpD)) return NULL;
+  if (!C->use_cmove_phi() && (phis > 1 && (cmp_op == Op_CmpF || cmp_op == Op_CmpD))) {
+    return NULL;
+  }
 
   float infrequent_prob = PROB_UNLIKELY_MAG(3);
   // Ignore cost and blocks frequency if CMOVE can be moved outside the loop.
@@ -680,9 +690,13 @@ Node *PhaseIdealLoop::conditional_move( Node *region ) {
   // we are going to predict accurately all the time.
   if (C->use_cmove() && (cmp_op == Op_CmpF || cmp_op == Op_CmpD)) {
     //keep going
-  } else if (iff->_prob < infrequent_prob ||
-      iff->_prob > (1.0f - infrequent_prob))
+  }
+  else if (C->use_cmove_predict()) {
+    //keep going
+  }
+  else if (iff->_prob < infrequent_prob || iff->_prob > (1.0f - infrequent_prob)) {
     return NULL;
+  }
 
   // --------------
   // Now replace all Phis with CMOV's

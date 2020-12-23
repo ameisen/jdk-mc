@@ -436,6 +436,10 @@ address TemplateInterpreterGenerator::generate_math_entry(AbstractInterpreter::M
     assert(StubRoutines::x86::double_sign_mask() != NULL, "not initialized");
     __ movdbl(xmm0, Address(rsp, wordSize));
     __ andpd(xmm0, ExternalAddress(StubRoutines::x86::double_sign_mask()));
+  } else if (kind == Interpreter::java_lang_math_absf) {
+    assert(StubRoutines::x86::float_sign_mask() != NULL, "not initialized");
+    __ movflt(xmm0, Address(rsp, wordSize));
+    __ andps(xmm0, ExternalAddress(StubRoutines::x86::float_sign_mask()));
   } else {
     ShouldNotReachHere();
   }
@@ -446,4 +450,3 @@ address TemplateInterpreterGenerator::generate_math_entry(AbstractInterpreter::M
 
   return entry_point;
 }
-

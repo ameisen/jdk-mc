@@ -3270,6 +3270,43 @@ GraphBuilder::GraphBuilder(Compilation* compilation, IRScope* scope)
       break;
     }
 
+  case vmIntrinsics::_fabs          : // fall through
+  case vmIntrinsics::_fsqrt         : // fall through
+    {
+      // Compiles where the root method is an intrinsic need a special
+      // compilation environment because the bytecodes for the method
+      // shouldn't be parsed during the compilation, only the special
+      // Intrinsic node should be emitted.  If this isn't done the the
+      // code for the inlined version will be different than the root
+      // compiled version which could lead to monotonicity problems on
+      // intel.
+      if (CheckIntrinsics && !scope->method()->intrinsic_candidate()) {
+        BAILOUT("failed to inline intrinsic, method not annotated");
+      }
+
+      // Set up a stream so that appending instructions works properly.
+      ciBytecodeStream s(scope->method());
+      s.reset_to_bci(0);
+      scope_data()->set_stream(&s);
+      s.next();
+
+      // setup the initial block state
+      _block = start_block;
+      _state = start_block->state()->copy_for_parsing();
+      _last  = start_block;
+      load_local(floatType, 0);
+
+      // Emit the intrinsic node.
+      bool result = try_inline_intrinsics(scope->method());
+      if (!result) BAILOUT("failed to inline intrinsic");
+      method_return(dpop());
+
+      // connect the begin and end blocks and we're all done.
+      BlockEnd* end = last()->as_BlockEnd();
+      block()->set_end(end);
+      break;
+    }
+
   case vmIntrinsics::_Reference_get:
     {
       {

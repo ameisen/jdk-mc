@@ -33,8 +33,8 @@
         double value; int exp;
 #endif
 {
-        if(!finite(value)||value==0.0) return value;
+        if _unlikely_if(!finite(value)||value==0.0) return value;
         value = scalbn(value,exp);
-        if(!finite(value)||value==0.0) errno = ERANGE;
+        if _unlikely_if(!finite(value)||value==0.0) errno = ERANGE;
         return value;
 }

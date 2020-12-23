@@ -63,6 +63,8 @@ size_t HeapRegion::min_region_size_in_words() {
 void HeapRegion::setup_heap_region_size(size_t max_heap_size) {
   size_t region_size = G1HeapRegionSize;
   // G1HeapRegionSize = 0 means decide ergonomically.
+  // DC : always ergonomic
+  region_size = 0;
   if (region_size == 0) {
     region_size = MAX2(max_heap_size / HeapRegionBounds::target_number(),
                        HeapRegionBounds::min_size());

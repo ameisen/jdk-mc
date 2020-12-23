@@ -90,7 +90,7 @@ qS4 =  7.70381505559019352791e-02; /* 0x3FB3B8C5, 0xB12E9282 */
         hx = __HI(x);
         ix = hx&0x7fffffff;
         if(ix>= 0x3ff00000) {           /* |x|>= 1 */
-            if(((ix-0x3ff00000)|__LO(x))==0)
+            if _likely_if(((ix-0x3ff00000)|__LO(x))==0)
                     /* asin(1)=+-pi/2 with inexact */
                 return x*pio2_hi+x*pio2_lo;
             return (x-x)/(x-x);         /* asin(|x|>1) is NaN */

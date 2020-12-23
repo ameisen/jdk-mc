@@ -172,7 +172,7 @@
              "Unroll loop bodies with % node count of profile limit")       \
              range(10, 100)                                                 \
                                                                             \
-  product(intx,  LoopMaxUnroll, 16,                                         \
+  product(intx,  LoopMaxUnroll, 32,                                         \
           "Maximum number of unrolls for main loop")                        \
           range(0, max_jint)                                                \
                                                                             \
@@ -207,7 +207,7 @@
           "unrolling. Zero acts as a very large value." )                   \
           range(0, max_intx)                                                \
                                                                             \
-  product(intx, MultiArrayExpandLimit, 8,                                   \
+  product(intx, MultiArrayExpandLimit, 16,                                  \
           "Maximum number of individual allocations in an inline-expanded " \
           "multianewarray instruction")                                     \
           range(0, max_jint)                                                \
@@ -249,7 +249,7 @@
   develop(bool, UseExactTypes, true,                                        \
           "Use exact types to eliminate array store checks and v-calls")    \
                                                                             \
-  product(intx, TrackedInitializationLimit, 50,                             \
+  product(intx, TrackedInitializationLimit, 100,                            \
           "When initializing fields, track up to this many words")          \
           range(0, 65535)                                                   \
                                                                             \
@@ -307,7 +307,7 @@
   product(bool, PartialPeelLoop, true,                                      \
           "Partial peel (rotate) loops")                                    \
                                                                             \
-  product(intx, PartialPeelNewPhiDelta, 0,                                  \
+  product(intx, PartialPeelNewPhiDelta, 2,                                  \
           "Additional phis that can be created by partial peeling")         \
           range(0, max_jint)                                                \
                                                                             \
@@ -332,7 +332,7 @@
   product(bool, UseSuperWord, true,                                         \
           "Transform scalar operations into superword operations")          \
                                                                             \
-  develop(bool, SuperWordRTDepCheck, false,                                 \
+  develop(bool, SuperWordRTDepCheck, true,                                  \
           "Enable runtime dependency checks.")                              \
                                                                             \
   product(bool, SuperWordReductions, true,                                  \
@@ -340,6 +340,16 @@
                                                                             \
   product(bool, UseCMoveUnconditionally, false,                             \
           "Use CMove (scalar and vector) ignoring profitability test.")     \
+                                                                            \
+  product(bool, UseCMoveUnconditionallyPhi, false,                          \
+          "Use CMove without considering Phi count.")                       \
+                                                                            \
+  product(bool, UseCMoveUnconditionallyPredict, false,                      \
+          "Use CMove without considering branch predictability.")           \
+                                                                            \
+  product(intx, CMoveWeightMultiplier, 100,                                 \
+          "Percentage that CMove Costs are multiplied by")                  \
+          range(0, max_jint)                                                \
                                                                             \
   product(bool, DoReserveCopyInSuperWord, true,                             \
           "Create reserve copy of graph in SuperWord.")                     \
@@ -404,9 +414,9 @@
           "limit")                                                          \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, LoopOptsCount, 43,                                          \
+  product(intx, LoopOptsCount, 64,                                          \
           "Set level of loop optimization for tier 1 compiles")             \
-          range(5, 43)                                                      \
+          range(1, max_jint)                                                \
                                                                             \
   /* controls for heat-based inlining */                                    \
                                                                             \
@@ -702,7 +712,7 @@
           "The maximum bytecode size of a frequent method to be inlined")   \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, MaxTrivialSize, 6,                                          \
+  product(intx, MaxTrivialSize, 8,                                          \
           "The maximum bytecode size of a trivial method to be inlined by " \
           "high tier compiler")                                             \
           range(0, max_jint)                                                \
@@ -763,7 +773,7 @@
   develop(bool, RenumberLiveNodes, true,                                    \
           "Renumber live nodes")                                            \
                                                                             \
-  product(uintx, LoopStripMiningIter, 0,                                    \
+  product(uintx, LoopStripMiningIter, 4,                                    \
           "Number of iterations in strip mined loop")                       \
           range(0, max_juint)                                               \
                                                                             \

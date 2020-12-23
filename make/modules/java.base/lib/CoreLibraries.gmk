@@ -92,8 +92,8 @@ $(eval $(call SetupJdkLibrary, BUILD_LIBJAVA, \
     LDFLAGS_macosx := -L$(SUPPORT_OUTPUTDIR)/native/$(MODULE)/, \
     LDFLAGS_windows := -delayload:shell32.dll, \
     LIBS := $(BUILD_LIBFDLIBM_TARGET), \
-    LIBS_unix := -ljvm, \
-    LIBS_linux := $(LIBDL), \
+    LIBS_unix := -ljvm $(LIBM), \
+    LIBS_linux := $(LIBDL) $(LIBM), \
     LIBS_aix := $(LIBDL) $(LIBM),\
     LIBS_macosx := -framework CoreFoundation \
         -framework Foundation \
@@ -116,6 +116,14 @@ ifeq ($(USE_EXTERNAL_LIBZ), true)
   LIBZIP_EXCLUDES += zlib
 endif
 
+ifeq ($(USE_EXTERNAL_LIBZSTD), true)
+  LIBZIP_EXCLUDES += zstd
+endif
+
+ifeq ($(USE_EXTERNAL_LIBLZMA), true)
+  LIBZIP_EXCLUDES += lzma
+endif
+
 ifeq ($(LIBZIP_CAN_USE_MMAP), true)
   BUILD_LIBZIP_MMAP := -DUSE_MMAP
 endif
@@ -125,12 +133,12 @@ $(eval $(call SetupJdkLibrary, BUILD_LIBZIP, \
     OPTIMIZATION := HIGH, \
     EXCLUDES := $(LIBZIP_EXCLUDES), \
     CFLAGS := $(CFLAGS_JDKLIB) \
-        $(LIBZ_CFLAGS), \
+        $(LIBZ_CFLAGS) $(LIBZSTD_CFLAGS) $(LIBLZMA_CFLAGS), \
     CFLAGS_unix := $(BUILD_LIBZIP_MMAP) -UDEBUG, \
     DISABLED_WARNINGS_gcc := unused-function implicit-fallthrough, \
     LDFLAGS := $(LDFLAGS_JDKLIB) \
         $(call SET_SHARED_LIBRARY_ORIGIN), \
-    LIBS_unix := -ljvm -ljava $(LIBZ_LIBS), \
+    LIBS_unix := -ljvm -ljava $(LIBZ_LIBS) $(LIBZSTD_LIBS) $(LIBLZMA_LIBS), \
     LIBS_windows := jvm.lib $(WIN_JAVA_LIB), \
 ))
 
@@ -175,7 +183,7 @@ ifeq ($(call isTargetOs, windows), true)
   endif
 endif
 
-LIBJLI_CFLAGS += $(LIBZ_CFLAGS)
+LIBJLI_CFLAGS += $(LIBZ_CFLAGS) $(LIBZSTD_CFLAGS) $(LIBLZMA_CFLAGS)
 
 ifneq ($(USE_EXTERNAL_LIBZ), true)
   LIBJLI_EXTRA_FILES += \
@@ -189,6 +197,30 @@ ifneq ($(USE_EXTERNAL_LIBZ), true)
       )
 endif
 
+#ifneq ($(USE_EXTERNAL_LIBZSTD), true)
+#  LIBJLI_EXTRA_FILES += \
+#      $(addprefix $(TOPDIR)/src/java.base/share/native/libzip/zlib/, \
+#          inflate.c \
+#          inftrees.c \
+#          inffast.c \
+#          zadler32.c \
+#          zcrc32.c \
+#          zutil.c \
+#      )
+#endif
+
+#ifneq ($(USE_EXTERNAL_LIBZSTD), true)
+#  LIBJLI_EXTRA_FILES += \
+#      $(addprefix $(TOPDIR)/src/java.base/share/native/libzip/zlib/, \
+#          inflate.c \
+#          inftrees.c \
+#          inffast.c \
+#          zadler32.c \
+#          zcrc32.c \
+#          zutil.c \
+#      )
+#endif
+
 $(eval $(call SetupJdkLibrary, BUILD_LIBJLI, \
     NAME := jli, \
     OUTPUT_DIR := $(INSTALL_LIBRARIES_HERE), \
@@ -200,7 +232,7 @@ $(eval $(call SetupJdkLibrary, BUILD_LIBJLI, \
     DISABLED_WARNINGS_clang := sometimes-uninitialized format-nonliteral, \
     LDFLAGS := $(LDFLAGS_JDKLIB) \
         $(call SET_SHARED_LIBRARY_ORIGIN), \
-    LIBS_unix := $(LIBZ_LIBS), \
+    LIBS_unix := $(LIBZ_LIBS) $(LIBZSTD_LIBS) $(LIBLZMA_LIBS), \
     LIBS_linux := $(LIBDL) -lpthread, \
     LIBS_aix := $(LIBDL),\
     LIBS_macosx := -framework Cocoa -framework Security -framework ApplicationServices, \

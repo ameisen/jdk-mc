@@ -77,22 +77,22 @@ define_pd_global(bool, IdealizeClearArrayNode,       true);
 // sequence of instructions to load a 64 bit pointer.
 //
 // InitialCodeCacheSize derived from specjbb2000 run.
-define_pd_global(size_t, InitialCodeCacheSize,       2048*K); // Integral multiple of CodeCacheExpansionSize
-define_pd_global(size_t, ReservedCodeCacheSize,      48*M);
-define_pd_global(size_t, NonProfiledCodeHeapSize,    21*M);
-define_pd_global(size_t, ProfiledCodeHeapSize,       22*M);
-define_pd_global(size_t, NonNMethodCodeHeapSize,     5*M );
+define_pd_global(size_t, InitialCodeCacheSize,       8*M); // Integral multiple of CodeCacheExpansionSize
+define_pd_global(size_t, ReservedCodeCacheSize,      144*M);
+define_pd_global(size_t, NonProfiledCodeHeapSize,    63*M);
+define_pd_global(size_t, ProfiledCodeHeapSize,       66*M);
+define_pd_global(size_t, NonNMethodCodeHeapSize,     15*M );
 define_pd_global(size_t, CodeCacheExpansionSize,     64*K);
 
 // Ergonomics related flags
 define_pd_global(uint64_t, MaxRAM,                   128ULL*G);
 #else
 // InitialCodeCacheSize derived from specjbb2000 run.
-define_pd_global(size_t, InitialCodeCacheSize,       1536*K); // Integral multiple of CodeCacheExpansionSize
-define_pd_global(size_t, ReservedCodeCacheSize,      32*M);
-define_pd_global(size_t, NonProfiledCodeHeapSize,    13*M);
-define_pd_global(size_t, ProfiledCodeHeapSize,       14*M);
-define_pd_global(size_t, NonNMethodCodeHeapSize,     5*M );
+define_pd_global(size_t, InitialCodeCacheSize,       8*M); // Integral multiple of CodeCacheExpansionSize
+define_pd_global(size_t, ReservedCodeCacheSize,      96*M);
+define_pd_global(size_t, NonProfiledCodeHeapSize,    39*M);
+define_pd_global(size_t, ProfiledCodeHeapSize,       42*M);
+define_pd_global(size_t, NonNMethodCodeHeapSize,     15*M );
 define_pd_global(size_t, CodeCacheExpansionSize,     32*K);
 // Ergonomics related flags
 define_pd_global(uint64_t, MaxRAM,                   4ULL*G);
@@ -103,7 +103,7 @@ define_pd_global(size_t, CodeCacheMinimumUseSpace,   400*K);
 define_pd_global(bool,  TrapBasedRangeChecks,        false); // Not needed
 
 // Heap related flags
-define_pd_global(size_t, MetaspaceSize,              ScaleForWordSize(16*M));
+define_pd_global(size_t, MetaspaceSize,              ScaleForWordSize(200*M));
 
 // Ergonomics related flags
 define_pd_global(bool, NeverActAsServerClassMachine, false);

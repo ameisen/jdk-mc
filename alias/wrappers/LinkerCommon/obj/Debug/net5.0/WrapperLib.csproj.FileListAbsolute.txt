@@ -1,0 +1,11 @@
+B:\java\mc\src\alias\wrappers\WrapperLib\bin\Debug\net5.0\WrapperLib.deps.json
+B:\java\mc\src\alias\wrappers\WrapperLib\bin\Debug\net5.0\WrapperLib.dll
+B:\java\mc\src\alias\wrappers\WrapperLib\bin\Debug\net5.0\ref\WrapperLib.dll
+B:\java\mc\src\alias\wrappers\WrapperLib\bin\Debug\net5.0\WrapperLib.pdb
+B:\java\mc\src\alias\wrappers\WrapperLib\obj\Debug\net5.0\WrapperLib.GeneratedMSBuildEditorConfig.editorconfig
+B:\java\mc\src\alias\wrappers\WrapperLib\obj\Debug\net5.0\WrapperLib.AssemblyInfoInputs.cache
+B:\java\mc\src\alias\wrappers\WrapperLib\obj\Debug\net5.0\WrapperLib.AssemblyInfo.cs
+B:\java\mc\src\alias\wrappers\WrapperLib\obj\Debug\net5.0\WrapperLib.csproj.CoreCompileInputs.cache
+B:\java\mc\src\alias\wrappers\WrapperLib\obj\Debug\net5.0\WrapperLib.dll
+B:\java\mc\src\alias\wrappers\WrapperLib\obj\Debug\net5.0\ref\WrapperLib.dll
+B:\java\mc\src\alias\wrappers\WrapperLib\obj\Debug\net5.0\WrapperLib.pdb

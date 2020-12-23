@@ -62,7 +62,7 @@ void ShenandoahAdaptiveHeuristics::choose_collection_set_from_regiondata(Shenand
 
   size_t capacity    = ShenandoahHeap::heap()->max_capacity();
   size_t max_cset    = (size_t)((1.0 * capacity / 100 * ShenandoahEvacReserve) / ShenandoahEvacWaste);
-  size_t free_target = (capacity / 100 * ShenandoahMinFreeThreshold) + max_cset;
+  size_t free_target = (capacity / 100 * ShenandoahHeuristics::_min_free_threshold) + max_cset;
   size_t min_garbage = (free_target > actual_free ? (free_target - actual_free) : 0);
 
   log_info(gc, ergo)("Adaptive CSet Selection. Target Free: " SIZE_FORMAT "%s, Actual Free: "
@@ -107,7 +107,7 @@ bool ShenandoahAdaptiveHeuristics::should_start_gc() const {
 
   // Check if we are falling below the worst limit, time to trigger the GC, regardless of
   // anything else.
-  size_t min_threshold = capacity / 100 * ShenandoahMinFreeThreshold;
+  size_t min_threshold = capacity / 100 * ShenandoahHeuristics::_min_free_threshold;
   if (available < min_threshold) {
     log_info(gc)("Trigger: Free (" SIZE_FORMAT "%s) is below minimum threshold (" SIZE_FORMAT "%s)",
                  byte_size_in_proper_unit(available),     proper_unit_for_byte_size(available),

@@ -61,8 +61,8 @@ static double zero = 0.0;
         hx &= 0x7fffffff;
 
     /* purge off exception values */
-        if((hp|lp)==0) return (x*p)/(x*p);      /* p = 0 */
-        if((hx>=0x7ff00000)||                   /* x not finite */
+        if _unlikely_if((hp|lp)==0) return (x*p)/(x*p);      /* p = 0 */
+        if _unlikely_if((hx>=0x7ff00000)||                   /* x not finite */
           ((hp>=0x7ff00000)&&                   /* p is NaN */
           (((hp-0x7ff00000)|lp)!=0)))
             return (x*p)/(x*p);

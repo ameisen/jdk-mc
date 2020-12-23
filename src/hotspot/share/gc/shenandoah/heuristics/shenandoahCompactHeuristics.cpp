@@ -51,7 +51,7 @@ bool ShenandoahCompactHeuristics::should_start_gc() const {
   size_t available = heap->free_set()->available();
 
   size_t threshold_bytes_allocated = capacity / 100 * ShenandoahAllocationThreshold;
-  size_t min_threshold = capacity / 100 * ShenandoahMinFreeThreshold;
+  size_t min_threshold = capacity / 100 * ShenandoahHeuristics::_min_free_threshold;
 
   if (available < min_threshold) {
     log_info(gc)("Trigger: Free (" SIZE_FORMAT "%s) is below minimum threshold (" SIZE_FORMAT "%s)",

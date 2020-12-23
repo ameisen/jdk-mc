@@ -51,9 +51,9 @@
 #include "mlib_ImageCopy.h"
 
 /***************************************************************/
-#ifdef _MSC_VER
-#pragma optimize("", off)                   /* Fix bug 4195132 */
-#endif /* _MSC_VER */
+//#ifdef _MSC_VER
+//#pragma optimize("", off)                   /* Fix bug 4195132 */
+//#endif /* _MSC_VER */
 
 /***************************************************************/
 /* do not perform the coping by mlib_d64 data type for x86 */
@@ -660,8 +660,8 @@ void mlib_ImageCopy_na(const mlib_u8 *sp,
 }
 
 /***************************************************************/
-#ifdef _MSC_VER
-#pragma optimize("", on)
-#endif /* _MSC_VER */
+//#ifdef _MSC_VER
+//#pragma optimize("", on)
+//#endif /* _MSC_VER */
 
 /***************************************************************/

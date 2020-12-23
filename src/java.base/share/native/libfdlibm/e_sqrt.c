@@ -117,14 +117,14 @@ static  double  one     = 1.0, tiny=1.0e-300;
         ix1 = __LO(x);          /* low word of x */
 
     /* take care of Inf and NaN */
-        if((ix0&0x7ff00000)==0x7ff00000) {
+        if _unlikely_if((ix0&0x7ff00000)==0x7ff00000) {
             return x*x+x;               /* sqrt(NaN)=NaN, sqrt(+inf)=+inf
                                            sqrt(-inf)=sNaN */
         }
     /* take care of zero */
-        if(ix0<=0) {
-            if(((ix0&(~sign))|ix1)==0) return x;/* sqrt(+-0) = +-0 */
-            else if(ix0<0)
+        if _unlikely_if(ix0<=0) {
+            if _likely_if(((ix0&(~sign))|ix1)==0) return x;/* sqrt(+-0) = +-0 */
+            else if _unlikely_if(ix0<0)
                 return (x-x)/(x-x);             /* sqrt(-ve) = sNaN */
         }
     /* normalize x */

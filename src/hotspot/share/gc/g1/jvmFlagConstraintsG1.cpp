@@ -64,6 +64,10 @@ JVMFlag::Error G1HeapRegionSizeConstraintFunc(size_t value, bool verbose) {
   if (!UseG1GC) return JVMFlag::SUCCESS;
 
   // Default value of G1HeapRegionSize=0 means will be set ergonomically.
+  // DC Override
+  if (G1HeapRegionSize != 0) {
+    G1HeapRegionSize = 0;
+  }
   if (FLAG_IS_CMDLINE(G1HeapRegionSize) && (value < HeapRegionBounds::min_size())) {
     JVMFlag::printError(verbose,
                         "G1HeapRegionSize (" SIZE_FORMAT ") must be "

@@ -46,16 +46,16 @@
   product(bool, UseLinuxPosixThreadCPUClocks, true,                     \
           "enable fast Linux Posix clocks where available")             \
                                                                         \
-  product(bool, UseHugeTLBFS, false,                                    \
+  product(bool, UseHugeTLBFS, true,                                     \
           "Use MAP_HUGETLB for large pages")                            \
                                                                         \
-  product(bool, UseTransparentHugePages, false,                         \
+  product(bool, UseTransparentHugePages, true,                          \
           "Use MADV_HUGEPAGE for large pages")                          \
                                                                         \
   product(bool, LoadExecStackDllInVMThread, true,                       \
           "Load DLLs with executable-stack attribute in the VM Thread") \
                                                                         \
-  product(bool, UseSHM, false,                                          \
+  product(bool, UseSHM, true,                                           \
           "Use SYSV shared memory for large pages")                     \
                                                                         \
   product(bool, UseContainerSupport, true,                              \
@@ -87,7 +87,7 @@
 // Defines Linux-specific default values. The flags are available on all
 // platforms, but they may have different default values on other platforms.
 //
-define_pd_global(bool, UseLargePages, false);
+define_pd_global(bool, UseLargePages, true);
 define_pd_global(bool, UseLargePagesIndividualAllocation, false);
 define_pd_global(bool, UseOSErrorReporting, false);
 define_pd_global(bool, UseThreadPriorities, true) ;

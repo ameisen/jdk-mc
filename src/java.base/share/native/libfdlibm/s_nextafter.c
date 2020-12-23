@@ -49,7 +49,7 @@
         ix = hx&0x7fffffff;             /* |x| */
         iy = hy&0x7fffffff;             /* |y| */
 
-        if(((ix>=0x7ff00000)&&((ix-0x7ff00000)|lx)!=0) ||   /* x is nan */
+        if _unlikely_if(((ix>=0x7ff00000)&&((ix-0x7ff00000)|lx)!=0) ||   /* x is nan */
            ((iy>=0x7ff00000)&&((iy-0x7ff00000)|ly)!=0))     /* y is nan */
            return x+y;
         if(x==y) return x;              /* x=y, return x */

@@ -284,6 +284,9 @@ class Compile : public Phase {
   bool                  _do_method_data_update; // True if we generate code to update MethodData*s
   bool                  _do_vector_loop;        // True if allowed to execute loop in parallel iterations
   bool                  _use_cmove;             // True if CMove should be used without profitability analysis
+  bool                  _use_cmove_phi;         // True if CMove should be used without without consideration for Phi count
+  bool                  _use_cmove_predict;     // True if CMove should be used without without consideration for Phi count
+  float                 _cmove_weight_mult;     // CMove cost analysis results are multiplied against this
   bool                  _age_code;              // True if we need to profile code age (decrement the aging counter)
   int                   _AliasLevel;            // Locally-adjusted version of AliasLevel flag.
   bool                  _print_assembly;        // True if we should dump assembly code for this compilation
@@ -576,6 +579,12 @@ class Compile : public Phase {
   void          set_do_vector_loop(bool z)      { _do_vector_loop = z; }
   bool              use_cmove() const           { return _use_cmove; }
   void          set_use_cmove(bool z)           { _use_cmove = z; }
+  bool              use_cmove_phi() const       { return _use_cmove_phi; }
+  void          set_use_cmove_phi(bool z)       { _use_cmove_phi = z; }
+  bool              use_cmove_predict() const   { return _use_cmove_predict; }
+  void          set_use_cmove_predict(bool z)   { _use_cmove_predict = z; }
+  float             cmove_weight_mult() const   { return _cmove_weight_mult; }
+  void          set_cmove_weight_mult(float z)  { _cmove_weight_mult = z; }
   bool              age_code() const             { return _age_code; }
   void          set_age_code(bool z)             { _age_code = z; }
   int               AliasLevel() const           { return _AliasLevel; }

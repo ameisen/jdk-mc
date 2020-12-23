@@ -70,12 +70,13 @@ enum OSReturn {
 
 enum ThreadPriority {        // JLS 20.20.1-3
   NoPriority       = -1,     // Initial non-priority value
-  MinPriority      =  1,     // Minimum priority
-  NormPriority     =  5,     // Normal (non-daemon) priority
-  NearMaxPriority  =  9,     // High priority, used for VMThread
-  MaxPriority      = 10,     // Highest priority, used for WatcherThread
+  LowestPriority   =  1,
+  MinPriority      =  2,     // Minimum priority
+  NormPriority     =  6,     // Normal (non-daemon) priority
+  NearMaxPriority  =  10,    // High priority, used for VMThread
+  MaxPriority      =  11,    // Highest priority, used for WatcherThread
                              // ensures that VMThread doesn't starve profiler
-  CriticalPriority = 11      // Critical thread priority
+  CriticalPriority =  12     // Critical thread priority
 };
 
 // Executable parameter flag for os::commit_memory() and

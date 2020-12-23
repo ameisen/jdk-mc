@@ -1,0 +1,63 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "clang-cl", "clang-cl\clang-cl.csproj", "{FA17D65B-E396-4B06-A5AB-E76313FDA61A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A613822A-D9BD-4280-8EFF-382290470E78} = {A613822A-D9BD-4280-8EFF-382290470E78}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lld-link", "lld-link\lld-link.csproj", "{5F0525E5-9ED0-46A7-8EFC-4E6B827A14EB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A613822A-D9BD-4280-8EFF-382290470E78} = {A613822A-D9BD-4280-8EFF-382290470E78}
+		{11A96E93-ADDB-4776-83D8-97E7A4DEFBF1} = {11A96E93-ADDB-4776-83D8-97E7A4DEFBF1}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "llvm-lib", "llvm-lib\llvm-lib.csproj", "{B9FC3D53-ECB5-4337-89C8-833E89E5627A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A613822A-D9BD-4280-8EFF-382290470E78} = {A613822A-D9BD-4280-8EFF-382290470E78}
+		{11A96E93-ADDB-4776-83D8-97E7A4DEFBF1} = {11A96E93-ADDB-4776-83D8-97E7A4DEFBF1}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WrapperLib", "WrapperLib\WrapperLib.csproj", "{A613822A-D9BD-4280-8EFF-382290470E78}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LinkerCommon", "LinkerCommon\LinkerCommon.csproj", "{11A96E93-ADDB-4776-83D8-97E7A4DEFBF1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A613822A-D9BD-4280-8EFF-382290470E78} = {A613822A-D9BD-4280-8EFF-382290470E78}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FA17D65B-E396-4B06-A5AB-E76313FDA61A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA17D65B-E396-4B06-A5AB-E76313FDA61A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA17D65B-E396-4B06-A5AB-E76313FDA61A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA17D65B-E396-4B06-A5AB-E76313FDA61A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F0525E5-9ED0-46A7-8EFC-4E6B827A14EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F0525E5-9ED0-46A7-8EFC-4E6B827A14EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F0525E5-9ED0-46A7-8EFC-4E6B827A14EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F0525E5-9ED0-46A7-8EFC-4E6B827A14EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9FC3D53-ECB5-4337-89C8-833E89E5627A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9FC3D53-ECB5-4337-89C8-833E89E5627A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9FC3D53-ECB5-4337-89C8-833E89E5627A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9FC3D53-ECB5-4337-89C8-833E89E5627A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A613822A-D9BD-4280-8EFF-382290470E78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A613822A-D9BD-4280-8EFF-382290470E78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A613822A-D9BD-4280-8EFF-382290470E78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A613822A-D9BD-4280-8EFF-382290470E78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11A96E93-ADDB-4776-83D8-97E7A4DEFBF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11A96E93-ADDB-4776-83D8-97E7A4DEFBF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11A96E93-ADDB-4776-83D8-97E7A4DEFBF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11A96E93-ADDB-4776-83D8-97E7A4DEFBF1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5B77EA9A-F0EA-4C35-B9A4-5251153C2195}
+	EndGlobalSection
+EndGlobal

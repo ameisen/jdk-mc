@@ -247,7 +247,7 @@ public class VM {
         // If not set or set to -1, the max memory will be used
         // The system property will be removed.
         String s = props.get("sun.nio.MaxDirectMemorySize");
-        if (s == null || s.isEmpty() || s.equals("-1")) {
+        if (s == null || s.isEmpty() || s.equals("-1") || s.equals("0")) {
             // -XX:MaxDirectMemorySize not given, take default
             directMemory = Runtime.getRuntime().maxMemory();
         } else {

@@ -174,7 +174,7 @@
           "The maximum bytecode size of a method to be inlined by C1")      \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, C1MaxTrivialSize, 6,                                        \
+  product(intx, C1MaxTrivialSize, 8,                                        \
           "The maximum bytecode size of a trivial method to be inlined by " \
           "C1")                                                             \
           range(0, max_jint)                                                \

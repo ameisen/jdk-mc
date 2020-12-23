@@ -46,36 +46,36 @@ extern "C" {
 
 /* Throw a Java exception by name. Similar to SignalError. */
 JNIEXPORT void JNICALL
-JNU_ThrowByName(JNIEnv *env, const char *name, const char *msg);
+JNU_ThrowByName(JNIEnv * __restrict env, const char *name, const char *msg);
 
 /* Throw common exceptions */
 JNIEXPORT void JNICALL
-JNU_ThrowNullPointerException(JNIEnv *env, const char *msg);
+JNU_ThrowNullPointerException(JNIEnv * __restrict env, const char *msg);
 
 JNIEXPORT void JNICALL
-JNU_ThrowArrayIndexOutOfBoundsException(JNIEnv *env, const char *msg);
+JNU_ThrowArrayIndexOutOfBoundsException(JNIEnv * __restrict env, const char *msg);
 
 JNIEXPORT void JNICALL
-JNU_ThrowOutOfMemoryError(JNIEnv *env, const char *msg);
+JNU_ThrowOutOfMemoryError(JNIEnv * __restrict env, const char *msg);
 
 JNIEXPORT void JNICALL
-JNU_ThrowIllegalArgumentException(JNIEnv *env, const char *msg);
+JNU_ThrowIllegalArgumentException(JNIEnv * __restrict env, const char *msg);
 
 JNIEXPORT void JNICALL
-JNU_ThrowInternalError(JNIEnv *env, const char *msg);
+JNU_ThrowInternalError(JNIEnv * __restrict env, const char *msg);
 
 JNIEXPORT void JNICALL
-JNU_ThrowIOException(JNIEnv *env, const char *msg);
+JNU_ThrowIOException(JNIEnv * __restrict env, const char *msg);
 
 JNIEXPORT void JNICALL
-JNU_ThrowClassNotFoundException(JNIEnv *env, const char *msg);
+JNU_ThrowClassNotFoundException(JNIEnv * __restrict env, const char *msg);
 
 /* Throw an exception by name, using the string returned by
  * getLastErrorString for the detail string. If the last-error
  * string is NULL, use the given default detail string.
  */
 JNIEXPORT void JNICALL
-JNU_ThrowByNameWithLastError(JNIEnv *env, const char *name,
+JNU_ThrowByNameWithLastError(JNIEnv * __restrict env, const char *name,
                              const char *defaultDetail);
 
 /* Throw an exception by name, using a given message and the string
@@ -83,37 +83,37 @@ JNU_ThrowByNameWithLastError(JNIEnv *env, const char *name,
  */
 JNIEXPORT void JNICALL
 JNU_ThrowByNameWithMessageAndLastError
-  (JNIEnv *env, const char *name, const char *message);
+  (JNIEnv * __restrict env, const char *name, const char *message);
 
 /* Throw an IOException, using the last-error string for the detail
  * string. If the last-error string is NULL, use the given default
  * detail string.
  */
 JNIEXPORT void JNICALL
-JNU_ThrowIOExceptionWithLastError(JNIEnv *env, const char *defaultDetail);
+JNU_ThrowIOExceptionWithLastError(JNIEnv * __restrict env, const char *defaultDetail);
 
 /* Convert between Java strings and i18n C strings */
 JNIEXPORT const char *
-GetStringPlatformChars(JNIEnv *env, jstring jstr, jboolean *isCopy);
+GetStringPlatformChars(JNIEnv * __restrict env, jstring jstr, jboolean *isCopy);
 
 JNIEXPORT jstring JNICALL
-JNU_NewStringPlatform(JNIEnv *env, const char *str);
+JNU_NewStringPlatform(JNIEnv * __restrict env, const char *str);
 
 JNIEXPORT const char * JNICALL
-JNU_GetStringPlatformChars(JNIEnv *env, jstring jstr, jboolean *isCopy);
+JNU_GetStringPlatformChars(JNIEnv * __restrict env, jstring jstr, jboolean *isCopy);
 
 JNIEXPORT void JNICALL
-JNU_ReleaseStringPlatformChars(JNIEnv *env, jstring jstr, const char *str);
+JNU_ReleaseStringPlatformChars(JNIEnv * __restrict env, jstring jstr, const char *str);
 
 /* Class constants */
 JNIEXPORT jclass JNICALL
-JNU_ClassString(JNIEnv *env);
+JNU_ClassString(JNIEnv * __restrict env);
 
 /* Copy count number of arguments from src to dst. Array bounds
  * and ArrayStoreException are checked.
  */
 JNIEXPORT jint JNICALL
-JNU_CopyObjectArray(JNIEnv *env, jobjectArray dst, jobjectArray src,
+JNU_CopyObjectArray(JNIEnv * __restrict env, jobjectArray dst, jobjectArray src,
                     jint count);
 
 /* Invoke a object-returning static method, based on class name,
@@ -124,7 +124,7 @@ JNU_CopyObjectArray(JNIEnv *env, jobjectArray dst, jobjectArray src,
  * has occurred, pass in NULL.
  */
 JNIEXPORT jvalue JNICALL
-JNU_CallStaticMethodByName(JNIEnv *env,
+JNU_CallStaticMethodByName(JNIEnv * __restrict env,
                            jboolean *hasException,
                            const char *class_name,
                            const char *name,
@@ -134,7 +134,7 @@ JNU_CallStaticMethodByName(JNIEnv *env,
 /* Invoke an instance method by name.
  */
 JNIEXPORT jvalue JNICALL
-JNU_CallMethodByName(JNIEnv *env,
+JNU_CallMethodByName(JNIEnv * __restrict env,
                      jboolean *hasException,
                      jobject obj,
                      const char *name,
@@ -142,7 +142,7 @@ JNU_CallMethodByName(JNIEnv *env,
                      ...);
 
 JNIEXPORT jvalue JNICALL
-JNU_CallMethodByNameV(JNIEnv *env,
+JNU_CallMethodByNameV(JNIEnv * __restrict env,
                       jboolean *hasException,
                       jobject obj,
                       const char *name,
@@ -159,7 +159,7 @@ JNU_CallMethodByNameV(JNIEnv *env,
  * have been thrown.
  */
 JNIEXPORT jobject JNICALL
-JNU_NewObjectByName(JNIEnv *env, const char *class_name,
+JNU_NewObjectByName(JNIEnv * __restrict env, const char *class_name,
                     const char *constructor_sig, ...);
 
 /* returns:
@@ -169,7 +169,7 @@ JNU_NewObjectByName(JNIEnv *env, const char *class_name,
  * has been thrown.
  */
 JNIEXPORT jint JNICALL
-JNU_IsInstanceOfByName(JNIEnv *env, jobject object, const char *classname);
+JNU_IsInstanceOfByName(JNIEnv * __restrict env, jobject object, const char *classname);
 
 
 /* Get or set class and instance fields.
@@ -188,13 +188,13 @@ JNU_IsInstanceOfByName(JNIEnv *env, jobject object, const char *classname);
  * has occurred, pass in NULL.
  */
 JNIEXPORT jvalue JNICALL
-JNU_GetFieldByName(JNIEnv *env,
+JNU_GetFieldByName(JNIEnv * __restrict env,
                    jboolean *hasException,
                    jobject obj,
                    const char *name,
                    const char *sig);
 JNIEXPORT void JNICALL
-JNU_SetFieldByName(JNIEnv *env,
+JNU_SetFieldByName(JNIEnv * __restrict env,
                    jboolean *hasException,
                    jobject obj,
                    const char *name,
@@ -202,7 +202,7 @@ JNU_SetFieldByName(JNIEnv *env,
                    ...);
 
 JNIEXPORT jvalue JNICALL
-JNU_GetStaticFieldByName(JNIEnv *env,
+JNU_GetStaticFieldByName(JNIEnv * __restrict env,
                          jboolean *hasException,
                          const char *classname,
                          const char *name,
@@ -286,7 +286,7 @@ JNU_GetStaticFieldByName(JNIEnv *env,
  */
 
 JNIEXPORT jstring JNICALL
-JNU_ToString(JNIEnv *env, jobject object);
+JNU_ToString(JNIEnv * __restrict env, jobject object);
 
 
 /*
@@ -329,7 +329,7 @@ enum {
     FAST_UTF_8
 };
 
-JNIEXPORT void InitializeEncoding(JNIEnv *env, const char *name);
+JNIEXPORT void InitializeEncoding(JNIEnv * __restrict env, const char *name);
 
 void* getProcessHandle();
 

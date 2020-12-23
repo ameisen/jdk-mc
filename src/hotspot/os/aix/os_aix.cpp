@@ -2617,21 +2617,22 @@ void os::naked_yield() {
 int os::java_to_os_priority[CriticalPriority + 1] = {
   54,             // 0 Entry should never be used
 
-  55,             // 1 MinPriority
-  55,             // 2
-  56,             // 3
-
+  55,             // 1 LowestPriority
+  55,             // 2 MinPriority
+  55,             // 3
   56,             // 4
-  57,             // 5 NormPriority
-  57,             // 6
 
-  58,             // 7
+  56,             // 5
+  57,             // 6 NormPriority
+  57,             // 7
+
   58,             // 8
-  59,             // 9 NearMaxPriority
+  58,             // 9
+  59,             // 10 NearMaxPriority
 
-  60,             // 10 MaxPriority
+  60,             // 11 MaxPriority
 
-  60              // 11 CriticalPriority
+  60              // 12 CriticalPriority
 };
 
 static int prio_init() {

@@ -73,7 +73,7 @@
         if(ix <= 0x3fe921fb) return __kernel_tan(x,z,1);
 
     /* tan(Inf or NaN) is NaN */
-        else if (ix>=0x7ff00000) return x-x;            /* NaN */
+        else if _unlikely_if(ix>=0x7ff00000) return x-x;            /* NaN */
 
     /* argument reduction needed */
         else {

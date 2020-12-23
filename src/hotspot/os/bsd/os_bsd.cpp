@@ -2230,42 +2230,44 @@ void os::naked_yield() {
 int os::java_to_os_priority[CriticalPriority + 1] = {
   19,              // 0 Entry should never be used
 
-   0,              // 1 MinPriority
-   3,              // 2
-   6,              // 3
+   0,              // 1 LowestPriority
+   0,              // 2 MinPriority
+   3,              // 3
+   6,              // 4
 
-  10,              // 4
-  15,              // 5 NormPriority
-  18,              // 6
+  10,              // 5
+  15,              // 6 NormPriority
+  18,              // 7
 
-  21,              // 7
-  25,              // 8
-  28,              // 9 NearMaxPriority
+  21,              // 8
+  25,              // 9
+  28,              // 10 NearMaxPriority
 
-  31,              // 10 MaxPriority
+  31,              // 11 MaxPriority
 
-  31               // 11 CriticalPriority
+  31               // 12 CriticalPriority
 };
 #else
 // Using Mach high-level priority assignments
 int os::java_to_os_priority[CriticalPriority + 1] = {
    0,              // 0 Entry should never be used (MINPRI_USER)
 
-  27,              // 1 MinPriority
-  28,              // 2
-  29,              // 3
+  27,              // 1 LowestPriority
+  27,              // 2 MinPriority
+  28,              // 3
+  29,              // 4
 
-  30,              // 4
-  31,              // 5 NormPriority (BASEPRI_DEFAULT)
-  32,              // 6
+  30,              // 5
+  31,              // 6 NormPriority (BASEPRI_DEFAULT)
+  32,              // 7
 
-  33,              // 7
-  34,              // 8
-  35,              // 9 NearMaxPriority
+  33,              // 8
+  34,              // 9
+  35,              // 10 NearMaxPriority
 
-  36,              // 10 MaxPriority
+  36,              // 11 MaxPriority
 
-  36               // 11 CriticalPriority
+  36               // 12 CriticalPriority
 };
 #endif
 

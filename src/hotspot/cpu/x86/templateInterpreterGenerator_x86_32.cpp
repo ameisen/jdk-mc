@@ -397,10 +397,16 @@ address TemplateInterpreterGenerator::generate_math_entry(AbstractInterpreter::M
         __ addptr(rsp, 2 * wordSize);
         break;
     case Interpreter::java_lang_math_sqrt:
-        __ fsqrt();
+        __ fsqrtd();
+        break;
+    case Interpreter::java_lang_math_sqrtf:
+        __ fsqrts();
         break;
     case Interpreter::java_lang_math_abs:
-        __ fabs();
+        __ fabsd();
+        break;
+    case Interpreter::java_lang_math_absf:
+        __ fabss();
         break;
     case Interpreter::java_lang_math_log:
         __ subptr(rsp, 2 * wordSize);

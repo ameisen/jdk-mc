@@ -123,12 +123,12 @@ static double zero = 0.0;
 
         k = 1;
         if (hx < 0x3FDA827A) {                  /* x < 0.41422  */
-            if(ax>=0x3ff00000) {                /* x <= -1.0 */
+            if _unlikely_if(ax>=0x3ff00000) {                /* x <= -1.0 */
                 /*
                  * Added redundant test against hx to work around VC++
                  * code generation problem.
                  */
-                if(x==-1.0 && (hx==0xbff00000)) /* log1p(-1)=-inf */
+                if _unlikely_if(x==-1.0 && (hx==0xbff00000)) /* log1p(-1)=-inf */
                   return -two54/zero;
                 else
                   return (x-x)/(x-x);           /* log1p(x<-1)=NaN */
@@ -143,7 +143,7 @@ static double zero = 0.0;
             if(hx>0||hx<=((int)0xbfd2bec3)) {
                 k=0;f=x;hu=1;}  /* -0.2929<x<0.41422 */
         }
-        if (hx >= 0x7ff00000) return x+x;
+        if _unlikely_if(hx >= 0x7ff00000) return x+x;
         if(k!=0) {
             if(hx<0x43400000) {
                 u  = 1.0+x;

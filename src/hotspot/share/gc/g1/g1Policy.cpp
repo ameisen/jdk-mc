@@ -836,13 +836,24 @@ void G1Policy::record_collection_pause_end(double pause_time_ms) {
 }
 
 G1IHOPControl* G1Policy::create_ihop_control(const G1Predictions* predictor){
+  uint32_t heapOccupancyPercent = InitiatingHeapOccupancyPercent;
+  if (FLAG_IS_DEFAULT(InitiatingHeapOccupancyPercent)) {
+    // TODO : move me to a header somewhere
+    static const uint64_t targetOldGenerationSize = 2'147'483'648;
+    uint64_t maxHeapSize = MaxHeapSize;
+    if (maxHeapSize > targetOldGenerationSize) {
+      double fraction = double(targetOldGenerationSize) / maxHeapSize;
+      heapOccupancyPercent = uint32_t((fraction * 100) + 0.5);
+    }
+  }
+
   if (G1UseAdaptiveIHOP) {
-    return new G1AdaptiveIHOPControl(InitiatingHeapOccupancyPercent,
+    return new G1AdaptiveIHOPControl(heapOccupancyPercent,
                                      predictor,
                                      G1ReservePercent,
                                      G1HeapWastePercent);
   } else {
-    return new G1StaticIHOPControl(InitiatingHeapOccupancyPercent);
+    return new G1StaticIHOPControl(heapOccupancyPercent);
   }
 }
 

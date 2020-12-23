@@ -27,3 +27,15 @@ msvc_cl_version
 msvc_lib
 msvc_link
 msvc_rc
+alias/wrappers/.vs/
+alias/wrappers/clang-cl/bin/
+alias/wrappers/clang-cl/obj/
+alias/wrappers/clang-cl/Properties/
+alias/wrappers/lld-link/bin/
+alias/wrappers/lld-link/obj/
+alias/wrappers/lld-link/Properties/
+alias/wrappers/llvm-lib/bin/
+alias/wrappers/llvm-lib/obj/
+alias/wrappers/llvm-lib/Properties/
+alias/wrappers/WrapperLib/bin/
+alias/wrappers/WrapperLib/obj/

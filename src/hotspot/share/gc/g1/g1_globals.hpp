@@ -69,7 +69,7 @@
           "level for gc+remset")                                            \
           range(0, max_intx)                                                \
                                                                             \
-  product(double, G1ConcMarkStepDurationMillis, 5.0,                        \
+  product(double, G1ConcMarkStepDurationMillis, 2.0,                        \
           "Target duration of individual concurrent marking steps "         \
           "in milliseconds.")                                               \
           range(1.0, DBL_MAX)                                               \
@@ -88,7 +88,7 @@
                "percent.")                                                  \
                range(0.001, 100.0)                                          \
                                                                             \
-  product(size_t, G1SATBBufferSize, 1*K,                                    \
+  product(size_t, G1SATBBufferSize, 2*K,                                    \
           "Number of entries in an SATB log buffer.")                       \
           range(1, max_uintx)                                               \
                                                                             \
@@ -108,7 +108,7 @@
           "When expanding, % of uncommitted space to claim.")               \
           range(0, 100)                                                     \
                                                                             \
-  product(size_t, G1UpdateBufferSize, 256,                                  \
+  product(size_t, G1UpdateBufferSize, 512,                                  \
           "Size of an update buffer")                                       \
           range(1, NOT_LP64(32*M) LP64_ONLY(1*G))                           \
                                                                             \
@@ -151,7 +151,7 @@
           "Select green, yellow and red zones adaptively to meet the "      \
           "the pause requirements.")                                        \
                                                                             \
-  product(size_t, G1ConcRSLogCacheSize, 10,                                 \
+  product(size_t, G1ConcRSLogCacheSize, 14,                                 \
           "Log base 2 of the length of conc RS hot-card cache.")            \
           range(0, 27)                                                      \
                                                                             \
@@ -185,7 +185,7 @@
           "-1 means print all.")                                            \
           range(-1, max_jint)                                               \
                                                                             \
-  product(uintx, G1ReservePercent, 10,                                      \
+  product(uintx, G1ReservePercent, 20,                                      \
           "It determines the minimum reserve we should have in the heap "   \
           "to minimize the probability of promotion failure.")              \
           range(0, 50)                                                      \
@@ -212,13 +212,13 @@
           "Raise a fatal VM exit out of memory failure in the event "       \
           " that heap expansion fails due to running out of swap.")         \
                                                                             \
-  experimental(uintx, G1MaxNewSizePercent, 60,                              \
+  experimental(uintx, G1MaxNewSizePercent, 90,                              \
           "Percentage (0-100) of the heap size to use as default "          \
           " maximum young gen size.")                                       \
           range(0, 100)                                                     \
           constraint(G1MaxNewSizePercentConstraintFunc,AfterErgo)           \
                                                                             \
-  experimental(uintx, G1NewSizePercent, 5,                                  \
+  experimental(uintx, G1NewSizePercent, 50,                                 \
           "Percentage (0-100) of the heap size to use as default "          \
           "minimum young gen size.")                                        \
           range(0, 100)                                                     \
@@ -230,7 +230,7 @@
           "Regions with live bytes exceeding this will not be collected.")  \
           range(0, 100)                                                     \
                                                                             \
-  product(uintx, G1HeapWastePercent, 5,                                     \
+  product(uintx, G1HeapWastePercent, 50,                                    \
           "Amount of space, expressed as a percentage of the heap size, "   \
           "that G1 is willing not to collect to avoid expensive GCs.")      \
           range(0, 100)                                                     \

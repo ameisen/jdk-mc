@@ -33,9 +33,9 @@
 #if defined(WIN32) && (defined(_MSC_VER) && (_MSC_VER < 1600))
 // Windows AMD64 Compiler Hangs compiling this file
 // unless optimization is off
-#ifdef _M_AMD64
-#pragma optimize ("", off)
-#endif
+//#ifdef _M_AMD64
+//#pragma optimize ("", off)
+//#endif
 #endif
 
 
@@ -562,6 +562,6 @@ void bytecodes_init() {
 }
 
 // Restore optimization
-#ifdef _M_AMD64
-#pragma optimize ("", on)
-#endif
+//#ifdef _M_AMD64
+//#pragma optimize ("", on)
+//#endif

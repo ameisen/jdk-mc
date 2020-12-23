@@ -3910,11 +3910,7 @@ bool os::Linux::setup_large_page_type(size_t page_size) {
     // The type of large pages has not been specified by the user.
 
     // Try UseHugeTLBFS and then UseSHM.
-    UseHugeTLBFS = UseSHM = true;
-
-    // Don't try UseTransparentHugePages since there are known
-    // performance issues with it turned on. This might change in the future.
-    UseTransparentHugePages = false;
+    UseTransparentHugePages = UseHugeTLBFS = UseSHM = true;
   }
 
   if (UseTransparentHugePages) {
@@ -4405,21 +4401,22 @@ void os::naked_yield() {
 int os::java_to_os_priority[CriticalPriority + 1] = {
   19,              // 0 Entry should never be used
 
-   4,              // 1 MinPriority
-   3,              // 2
-   2,              // 3
+  19,              // 1 LowestPriority
+   4,              // 2 MinPriority
+   3,              // 3
+   2,              // 4
 
-   1,              // 4
-   0,              // 5 NormPriority
-  -1,              // 6
+   1,              // 5
+   0,              // 6 NormPriority
+  -1,              // 7
 
-  -2,              // 7
-  -3,              // 8
-  -4,              // 9 NearMaxPriority
+  -2,              // 8
+  -3,              // 9
+  -4,              // 10 NearMaxPriority
 
-  -5,              // 10 MaxPriority
+  -5,              // 11 MaxPriority
 
-  -5               // 11 CriticalPriority
+  -5               // 12 CriticalPriority
 };
 
 static int prio_init() {

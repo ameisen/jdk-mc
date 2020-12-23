@@ -156,10 +156,10 @@ Q5  =  -2.01099218183624371326e-07; /* BE8AFDB7 6E09C32D */
         hx &= 0x7fffffff;               /* high word of |x| */
 
     /* filter out huge and non-finite argument */
-        if(hx >= 0x4043687A) {                  /* if |x|>=56*ln2 */
-            if(hx >= 0x40862E42) {              /* if |x|>=709.78... */
-                if(hx>=0x7ff00000) {
-                    if(((hx&0xfffff)|__LO(x))!=0)
+        if _unlikely_if(hx >= 0x4043687A) {                  /* if |x|>=56*ln2 */
+            if _unlikely_if(hx >= 0x40862E42) {              /* if |x|>=709.78... */
+                if _unlikely_if(hx>=0x7ff00000) {
+                    if _unlikely_if(((hx&0xfffff)|__LO(x))!=0)
                          return x+x;     /* NaN */
                     else return (xsb==0)? x:-1.0;/* exp(+-inf)={inf,-1} */
                 }

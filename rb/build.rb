@@ -13,6 +13,8 @@ TARGET_PLATFORM = BUILD_PLATFORM
 
 # /usr/lib/gcc/x86_64-linux-gnu/10/libstdc++.a(eh_throw.o)(.note.stapsdt+0x14): error: relocation refers to local symbol "" [4], which is defined in a discarded section
 PREFERRED_GNU_LINKER = "bfd"
+MSVC_CL_VERSION = "19.28.29515.1"
+THIN_LTO = false
 
 module GNU
 	def self.prefix_opt(opt, value = nil, prefix:, enable: true)
@@ -48,8 +50,25 @@ module GNU
 	end
 end
 
+def clang_lto?(full = false)
+	lto = THIN_LTO ? "thin" : "full"
+	return full ? GNU::f_opt("lto", lto) : lto
+end
+
+args = ARGV.clone
+
+MSVC_USE_CLANG = args.include?("--clang-cl")
+if MSVC_USE_CLANG
+	while args.include?("--clang-cl")
+		args.delete("--clang-cl")
+	end
+end
+
 DEFAULT_GNU_C_OPTFLAGS = [
 	"-O3",
+	"-g0",
+	#GNU::f_opt("exceptions", enable: false),
+	GNU::f_opt("cf-protection", "none"),
 	GNU::f_opt("merge-all-constants"),
 	GNU::f_opt("omit-frame-pointer"),
 	GNU::f_opt("ipa-pta"),
@@ -68,9 +87,12 @@ DEFAULT_GNU_C_OPTFLAGS = [
 	GNU::f_opt("rename-registers"),
 	GNU::f_opt("split-loops"),
 	GNU::f_opt("unswitch-loops"),
-	GNU::f_opt("function-sections"),
-	GNU::f_opt("data-sections"),
-	GNU::f_opt("stdarg-opt")
+	#GNU::f_opt("function-sections"),
+	#GNU::f_opt("data-sections"),
+	GNU::f_opt("stdarg-opt"),
+	GNU::f_opt("reg-struct-return"),
+	GNU::f_opt("strict-volatile-bitfields", enable: false),
+	#GNU::f_opt("force-emit-vtables"),
 	#function-sections
 	#data-sections
 	#-fvariable-expansion-in-unroller
@@ -144,20 +166,84 @@ DEFAULT_GNU_LDFLAGS = [
 	GNU::f_opt("ipa-pta"),
 ]
 
+def mllvm(*arg)
+	return (arg.map { |a| [
+		"-mllvm",
+		a.is_a?(Array) ? "-#{a[0]}=#{a[1]}" : "-#{a}"
+	]
+	.flatten }).flatten
+end
+
+def llvm_get_opts
+	opts_file = File.join(__dir__, "llvm.opts")
+	return [] unless File.exist?(opts_file)
+	lines = File.readlines(opts_file)
+	lines.map!(&:strip)
+	args = []
+	block_comment = false
+	lines.each { |line|
+		if line.start_with?("=#")
+			block_comment = !block_comment
+			next
+		end
+		next if block_comment
+
+		next if line.start_with?("#")
+		if line.include?("#")
+			line = line.split("#", 2)[0].strip
+		end
+		opts = line.split(" ", 2)
+		next if opts[0].nil? || opts[0].empty?
+		if opts.length == 1
+			args << opts[0].strip
+		else
+			args << opts.map(&:strip)
+		end
+	}
+	return mllvm(*args)
+end
+
 DEFAULT_LLVM_CFLAGS = [
-	"-O3",
 	"-pipe",
+	GNU::f_opt("cf-protection", "none"),
+	GNU::f_opt("addrsig"),
 	GNU::f_opt("merge-all-constants"),
+	GNU::f_opt("debug-macro", enable: false),
 	GNU::f_opt("omit-frame-pointer"),
 	GNU::f_opt("fast-math"),
 	GNU::f_opt("associative-math"),
 	GNU::f_opt("reciprocal-math"),
 	GNU::f_opt("rename-registers"),
 	GNU::f_opt("unswitch-loops"),
-	GNU::f_opt("function-sections"),
-	GNU::f_opt("data-sections"),
+	#GNU::f_opt("function-sections"),
+	#GNU::f_opt("data-sections"),
 	GNU::f_opt("devirtualize-speculatively"),
-	GNU::f_opt("lto", "thin"),
+	GNU::f_opt("delete-dead-exceptions"),
+	GNU::f_opt("asynchronous-unwind-tables"),
+	GNU::f_opt("ivopts"),
+	GNU::f_opt("tree-vectorize"),
+	clang_lto?(true),
+	GNU::f_opt("strict-vtable-pointers"),
+	#GNU::f_opt("force-emit-vtables"),
+	#GNU::f_opt("virtual-function-elimination"),
+	#GNU::f_opt("whole-program-vtables"),
+	GNU::m_opt("lvi-cfi", enable: false),
+	GNU::m_opt("lvi-hardening", enable: false),
+	GNU::m_opt("seses", enable: false),
+	#GNU::f_opt("reroll-loops"),
+	*llvm_get_opts(),
+]
+
+DEFAULT_LLVM_CFLAGS_CL = [
+	#GNU::f_opt("merge-all-constants"),
+	#GNU::f_opt("fast-math"),
+	#GNU::f_opt("reciprocal-math"),
+	#GNU::f_opt("function-sections"),
+	#GNU::f_opt("data-sections"),
+	#clang_lto?(true),
+	#GNU::f_opt("force-emit-vtables"),
+	#GNU::f_opt("virtual-function-elimination"),
+	#GNU::f_opt("whole-program-vtables"),
 ]
 
 DEFAULT_LLVM_CXXFLAGS_BASE = [
@@ -182,6 +268,7 @@ DEFAULT_LLVM_LDFLAGS_BASE = [
 	"--ignore-data-address-equality",
 	"--ignore-function-address-equality",
 	"-O3",
+	clang_lto?(true),
 
 	# non-debug only
 	"--discard-all", # --discard-locals
@@ -194,54 +281,108 @@ DEFAULT_LLVM_LDFLAGS = [
 	),
 
 	"-pipe",
-	GNU::f_opt("lto", "thin"),
+	clang_lto?(true),
 ]
 
-MSVC_USE_CLANG = false
-MSVC_CL_VERSION = "19.28.29515.1"
+def if_clang(arg)
+	return MSVC_USE_CLANG ? arg : (arg.is_a?(Array) ? [] : nil)
+end
 
-def msvc_clang?
-	return (Options::toolchain == Toolchains::MSVC && MSVC_USE_CLANG) ||
-		(BUILD_PLATFORM.is?(System::Platforms::WINDOWS) && Options::toolchain == Toolchains::LLVM);
+def if_not_clang(arg)
+	return MSVC_USE_CLANG ? (arg.is_a?(Array) ? [] : nil) : arg
+end
+
+DEFAULT_CLANG_CL_POLLY_ARGS = [
+	# "-mllvm", "-polly", "-mllvm", "-polly-vectorizer=stripmine"
+]
+
+def xclang(*arg)
+	return (arg.map { |a| ["-Xclang", a.to_s].flatten }).flatten
 end
 
 DEFAULT_MSVC_C_OPTFLAGS = [
 	"/O2",
-	"/Ob3",
-	MSVC_USE_CLANG ? "-O3" : nil,
+	"/Ot", # optimize for time
+	MSVC_USE_CLANG ? "/Ob2" : "/Ob3", # inline functionality, clang-cl doesn't specify that it supports Ob3
+	"/Oy", # omit frame pointers
+	"/Oi", # enable builtin functions
+	*if_clang([
+		*xclang(
+			"-O3",
+			"-Ofast",
+#			"-g0",
+			#GNU::f_opt("exceptions", enable: false),
+			GNU::f_opt("reg-struct-return"),
+		),
+		*DEFAULT_CLANG_CL_POLLY_ARGS
+	]),
 ].compact
 
+# /Gregcall
+# /Gfastcall
+# /Gv -- vectorcall
+# /Gz -- stdcall
+# /link <option> - forward options to linker
+# /MDd                    Use DLL debug run-time
+# /MD                     Use DLL run-time
+# /MTd                    Use static debug run-time
+# /MT                     Use static run-time
+
 DEFAULT_MSVC_CFLAGS = DEFAULT_MSVC_C_OPTFLAGS + [
+	"/nologo",
+	#"/dumpargs",
 	"/fp:fast",
-	"/GS-",
+	"/fp:except-",
+	#"/GA", # assume thread-local variables are defined in executable
+	"/GF", # enable string pooling
+	"/GS-", # disable buffer security check
+	"/GR-", # do not emit RTTI data
+	"/Gs-", # disable stack probes
 	"/Qpar",
+	"/vmb", # use best-case representation for member pointers - this may break if a DLL or something doesn't like it?
+	# if_clang(GNU::f_opt("complete-member-pointers")), # not sure if this is necessary
+	"/openmp-",
+	if_clang("/Qvec"),
 	"/volatile:iso",
-	"/Gw",
-	"/Gy",
+	"/Gw", # put each data item in its own section
+	"/Gy", # put each function in its own section
 	"/MP",
-	MSVC_USE_CLANG ? "/Zc:alignedNew-" : nil,
+	if_clang("/Zc:alignedNew-"),
 	"/Zc:__cplusplus",
 	"/Zc:inline",
 	"/Zc:forScope",
 	"/Zc:threadSafeInit-",
 	"/Zc:throwingNew",
 	"/Zc:strictStrings-",
-	MSVC_USE_CLANG ? "-flto=thin" : "/GL"
-].compact + (MSVC_USE_CLANG ? DEFAULT_LLVM_CFLAGS : [])
+	# "/Zp", # umm... I am quite sure this will make it far slower. Sets default struct packing to 1.
+#	"/Zc:twoPhase",
+	MSVC_USE_CLANG ? clang_lto?(true) : "/GL"
+].compact + (MSVC_USE_CLANG ?
+	(
+		DEFAULT_LLVM_CFLAGS +
+		DEFAULT_LLVM_CFLAGS_CL.map{ |arg| ["-Xclang", arg] }.flatten)
+	: []
+)
 
 DEFAULT_MSVC_CXXFLAGS = [
 
-] + DEFAULT_MSVC_CFLAGS + (MSVC_USE_CLANG ? DEFAULT_LLVM_CXXFLAGS_BASE : [])
+] + DEFAULT_MSVC_CFLAGS + (MSVC_USE_CLANG ? (DEFAULT_LLVM_CXXFLAGS_BASE) : [])
 
 MAX_MSVC_CGTHREADS = 1 << 31 # default 8
 
 # /mllvm:...
+
+DEFAULT_LLD_LINK_LDFLAGS = [
+].compact
+
 DEFAULT_MSVC_LDFLAGS = [
+	"/NOLOGO",
+	"/MACHINE:X64",
 	"/LARGEADDRESSAWARE",
 	"/OPT:REF",
 	"/OPT:ICF=8", # default 1
 	MSVC_USE_CLANG ? nil : "/CGTHREADS:#{[Etc.nprocessors, MAX_MSVC_CGTHREADS].min}",
-].compact #+ (MSVC_USE_CLANG ? DEFAULT_LLVM_LDFLAGS_BASE : [])
+].compact + (MSVC_USE_CLANG ? DEFAULT_LLD_LINK_LDFLAGS : [])#+ (MSVC_USE_CLANG ? DEFAULT_LLVM_LDFLAGS_BASE : [])
 
 def debug_ccflags(flags)
 	gcc = false
@@ -364,6 +505,9 @@ module Toolchains
 				flags << "/QIntel-jcc-erratum"
 			end
 			flags += architecture.cc_flags(gcc: false)
+			#if MSVC_USE_CLANG
+			#	flags += architecture.cc_flags(gcc: true).map{ |arg| ["-Xclang", arg] }.flatten
+			#end
 		when GNU, LLVM
 			flags += architecture.cc_flags(gcc: true)
 		end
@@ -418,6 +562,11 @@ module Options
 	end
 
 	AutoInstance(self)
+end
+
+def msvc_clang?
+	return (Options::toolchain == Toolchains::MSVC && MSVC_USE_CLANG) ||
+		(BUILD_PLATFORM.is?(System::Platforms::WINDOWS) && Options::toolchain == Toolchains::LLVM);
 end
 
 cmd_arguments = {
@@ -508,7 +657,7 @@ cmd_arguments = {
 	} ],
 }
 
-Argument.process(ARGV, cmd_arguments)
+Argument.process(args, cmd_arguments)
 
 Options::linker = {
 	Toolchains::GNU => PREFERRED_GNU_LINKER,
@@ -531,8 +680,7 @@ Options::all_flags.each {|flags|
 	flags.map!{ |flag|
 		case flag
 		when "-flto"
-			(Options::toolchain == Toolchains::GNU) ? "-flto=#{Options::jobs}" : "-flto=thin"
-			#(Options::toolchain == Toolchains::GNU) ? "-flto=1" : "-flto=thin"
+			(Options::toolchain == Toolchains::GNU) ? GNU::f_opt("lto", Options::jobs) : clang_lto?(true)
 		else
 			flag
 		end
@@ -548,7 +696,7 @@ end
 case Options::toolchain
 when Toolchains::GNU, Toolchains::LLVM
 	Options::all_flags.each { |flags|
-		flags << GNU::f_opt("use-ld=#{PREFERRED_GNU_LINKER}")
+		flags << GNU::f_opt("use-ld", PREFERRED_GNU_LINKER)
 	}
 end
 
@@ -866,9 +1014,9 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 			"jvm-variants=#{CONFIG_NAME}",
 			"vendor-name=Digital Carbide",
 			"vendor-url=https://www.digitalcarbide.com/",
-			"version-build=#{JDK_VERSION_HASH["DEFAULT_VERSION_REVISION"]}",
+			"version-build=#{JDK_VERSION_HASH["DEFAULT_VERSION_REVISION"]}-mc",
 			"version-opt=mc-#{JDK_BUILD}",
-			"version-pre=#{(Options::debug ? "debug" : "release")}",
+			"version-pre=#{(Options::debug ? "debug" : "release")} #{JDK_BUILD}",
 			"native-debug-symbols=#{(Options::debug ? "internal" : "none")}"
 		]
 
@@ -888,6 +1036,7 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 
 		with_flags << "boot-jdk=#{Directory::java}" unless Directory::java.blank?
 		with_flags << "jmh=#{Directory::jmh}" unless Directory::jmh.blank?
+		with_flags << "jtreg=#{Directory::jtreg}" unless Directory::jtreg.blank?
 
 		without_flags = [
 			"devkit",
@@ -913,6 +1062,7 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 		llvm = (Options::toolchain == Toolchains::LLVM)
 
 		ENV["PATH"] = File.join(Directory::build_root, "alias", "interpreter") + ":" + ENV["PATH"]
+		#ENV["PATH"] = File.join(__dir__, "..", "alias") + ":" + ENV["PATH"]
 
 		extra_cflags = []
 
@@ -924,44 +1074,44 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 			end
 
 			# At the present, we only have to redirect if we're using an LLVM toolchain
-			if llvm
+			if llvm || MSVC_USE_CLANG
 				# Add the toolchain to the PATH so that the scripts know where to find it
-				#ENV["CC"] = File.join(__dir__, "alias", "clang-cl")
-				#ENV["CXX"] = File.join(__dir__, "alias", "clang-cl")
+				ENV["CC"] = File.join(__dir__, "..", "alias", "clang-cl")
+				ENV["CXX"] = File.join(__dir__, "..", "alias", "clang-cl")
 				#ENV["CPP"] = File.join(__dir__, "alias", "clang-cl")
-				#ENV["LD"] = File.join(__dir__, "alias", "lld-link")
-				ENV["CC"] = File.join(Directory::llvm_root, "bin", "clang-cl")
-				ENV["CXX"] = File.join(Directory::llvm_root, "bin", "clang-cl")
-				extra_cflags += ['-m64', '-Wno-narrowing', '-fms-compatibility', '-fms-extensions', "-fms-compatibility-version=#{MSVC_CL_VERSION}"]
-				ENV["LD"] = File.join(Directory::llvm_root, "bin", "lld-link")
+				ENV["LD"] = File.join(__dir__, "..", "alias", "lld-link")
+				ENV["LIB"] = File.join(__dir__, "..", "alias", "llvm-lib")
+				#ENV["CC"] = File.join(Directory::llvm_root, "bin", "clang-cl")
+				#ENV["CXX"] = File.join(Directory::llvm_root, "bin", "clang-cl")
+				#extra_cflags += ['-m64', '-Wno-narrowing', '-fms-compatibility', '-fms-extensions', "-fms-compatibility-version=#{MSVC_CL_VERSION}"]
+				#ENV["LD"] = File.join(Directory::llvm_root, "bin", "lld-link")
 
-				ENV["AS"] = "llvm-as"
+				#ENV["AS"] = "llvm-as"
 				#ENV["RC"] = "llvm-rc"
 				#ENV["NM"] = "llvm-nm"
 				#ENV["AR"] = "llvm-ar"
 				#ENV["RANLIB"] = "llvm-ranlib"
-				ENV["OBJDUMP"] = "llvm-objdump"
-				ENV["OBJCOPY"] = "llvm-objcopy"
-				ENV["PROFDATA"] = "llvm-profdata"
-				ENV["LIB"] = "llvm-lib"
-				ENV["SYMBOLIZER"] = "llvm-symbolizer"
+				#ENV["OBJDUMP"] = "llvm-objdump"
+				#ENV["OBJCOPY"] = "llvm-objcopy"
+				#ENV["PROFDATA"] = "llvm-profdata"
+				#ENV["SYMBOLIZER"] = "llvm-symbolizer"
 			end
 		else
-			ENV["CC"] = File.join(Directory::build_root, "alias", llvm ? "clang" : "gcc")
-			ENV["CXX"] = File.join(Directory::build_root, "alias", llvm ? "clang++" : "g++")
-			ENV["CPP"] = File.join(Directory::build_root, "alias", llvm ? "clang-cpp" : "cpp")
-			ENV["NM"] = File.join(Directory::build_root, "alias", llvm ? "llvm-nm" : "nm")
-			ENV["AR"] = File.join(Directory::build_root, "alias", llvm ? "llvm-ar" : "ar")
-			ENV["RANLIB"] = File.join(Directory::build_root, "alias", llvm ? "llvm-ranlib" : "ranlib")
+#			ENV["CC"] = File.join(Directory::build_root, "alias", llvm ? "clang" : "gcc")
+#			ENV["CXX"] = File.join(Directory::build_root, "alias", llvm ? "clang++" : "g++")
+#			ENV["CPP"] = File.join(Directory::build_root, "alias", llvm ? "clang-cpp" : "cpp")
+#			ENV["NM"] = File.join(Directory::build_root, "alias", llvm ? "llvm-nm" : "nm")
+#			ENV["AR"] = File.join(Directory::build_root, "alias", llvm ? "llvm-ar" : "ar")
+#			ENV["RANLIB"] = File.join(Directory::build_root, "alias", llvm ? "llvm-ranlib" : "ranlib")
 
-			configure_add_env.call("NM")
-			configure_add_env.call("AR")
-			configure_add_env.call("RANLIB")
-			configure_add_env.call("CPP")
-			configure_add_env.call("CC")
-			configure_add_env.call("CXX")
-			configure_add_env.call("LD")
-			configure_add_env.call("STRIP")
+#			configure_add_env.call("NM")
+#			configure_add_env.call("AR")
+#			configure_add_env.call("RANLIB")
+#			configure_add_env.call("CPP")
+#			configure_add_env.call("CC")
+#			configure_add_env.call("CXX")
+#			configure_add_env.call("LD")
+#			configure_add_env.call("STRIP")
 
 			if Options::native
 				extra_cflags += [
@@ -973,6 +1123,9 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 		configure_flags << "--with-extra-cflags=#{extra_cflags.join(" ")}" unless extra_cflags.empty?
 
 		puts "Configure Flags:"
+
+		#configure_flags << "--enable-static-build"
+
 		configure_flags.each { |f|
 			tputs(1, f)
 		}
@@ -1057,30 +1210,35 @@ ExecutePass("Package Pass", Error::Flag::PACKAGE) {
 	FileUtils.rm_rf(package_path)
 	Error::error("Failed to remove existing package '#{package_path}'") if File.exist?(package_path)
 
+	dest_path = File.dirname(dest)
+	dest_base = File.basename(dest)
+
 	command = nil
 	success = true
-	if best_compressor.nil?
-		command = [
-			"tar", "-cvf", "-", dest,
-			">", package_path
-		]
-	else
-		command = best_compressor.full_command(source: dest, archive: package_path)
-		if command.nil?
-			Open3.pipeline_r(
-				["tar", "-cvf", "-", dest],
-				[*best_compressor.command, "-"]
-			) { |stdout, thr|
-				File.open(package_path, "wb") { |archive_file|
-					IO.copy_stream(stdout, archive_file)
+	Dir.chdir(dest_path) {
+		if best_compressor.nil?
+			command = [
+				"tar", "-cvf", "-", dest_base,
+				">", package_path
+			]
+		else
+			command = best_compressor.full_command(source: dest_base, archive: package_path)
+			if command.nil?
+				Open3.pipeline_r(
+					["tar", "-cvf", "-", dest_base],
+					[*best_compressor.command, "-"]
+				) { |stdout, thr|
+					File.open(package_path, "wb") { |archive_file|
+						IO.copy_stream(stdout, archive_file)
+					}
+					thr.each { |t|
+						s = t.value.success?
+						success = success && s
+					}
 				}
-				thr.each { |t|
-					s = t.value.success?
-					success = success && s
-				}
-			}
+			end
 		end
-	end
+	}
 
 	#command.map! { |element|
 	#	["|", ">", ">>", "||", "&&", "-", "--"].include?(element) ? element : Shellwords.escape(element)

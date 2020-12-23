@@ -67,7 +67,7 @@ inline oop JNIHandles::resolve_impl(jobject handle) {
 
 inline oop JNIHandles::resolve(jobject handle) {
   oop result = NULL;
-  if _likely(handle != NULL) [[likely]] {
+  if _likely_if(handle != NULL) {
     result = resolve_impl<DECORATORS_NONE, false /* external_guard */>(handle);
   }
   return result;
@@ -75,7 +75,7 @@ inline oop JNIHandles::resolve(jobject handle) {
 
 inline oop JNIHandles::resolve_no_keepalive(jobject handle) {
   oop result = NULL;
-  if _likely(handle != NULL) [[likely]] {
+  if _likely_if(handle != NULL) {
     result = resolve_impl<AS_NO_KEEPALIVE, false /* external_guard */>(handle);
   }
   return result;
@@ -95,7 +95,7 @@ inline oop JNIHandles::resolve_non_null(jobject handle) {
 }
 
 inline void JNIHandles::destroy_local(jobject handle) {
-  if _likely(handle != NULL) [[likely]] {
+  if _likely_if(handle != NULL) {
     assert(!is_jweak(handle), "Invalid JNI local handle");
     NativeAccess<>::oop_store(jobject_ptr(handle), (oop)NULL);
   }

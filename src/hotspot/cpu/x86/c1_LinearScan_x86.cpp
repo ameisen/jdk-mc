@@ -772,7 +772,9 @@ void FpuStackAllocator::handle_op2(LIR_Op2* op2) {
     }
 
     case lir_abs:
-    case lir_sqrt: {
+    case lir_absf:
+    case lir_sqrt:
+    case lir_sqrtf: {
       // Right argument appears to be unused
       assert(right->is_illegal(), "must be");
       assert(left->is_fpu_register(), "must be");

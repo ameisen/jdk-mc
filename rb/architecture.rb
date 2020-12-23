@@ -147,52 +147,60 @@ module Architectures
 		def cc_flags(gcc:)
 			out_flags = []
 
+			prefer_avx512 = include?(InstructionSets::AVX512_ANY) && (@fast_avx512) && ALLOW_AVX512
+			prefer_avx2 = include?(InstructionSets::AVX2) && (@fast_avx || !@slow_avx) && ALLOW_AVX
+			prefer_avx = include?(InstructionSets::AVX) && (@fast_avx || !@slow_avx) && ALLOW_AVX
+
+			prohibit_avx512 = !ALLOW_AVX512 || @slow_avx512
+			prohibit_avx2 = (!ALLOW_AVX2 || @slow_avx) && !@fast_avx
+			prohibit_avx = (!ALLOW_AVX || @slow_avx) && !@fast_avx
+
 			if gcc
 				width = 64
-				if include?(InstructionSets::AVX512_ANY) && fast_avx512 && ALLOW_AVX512
+				if prefer_avx512
 					width = 512
-				elsif include?(InstructionSets::AVX) && fast_avx && ALLOW_AVX
+				elsif prefer_avx
 					width = 256
-				elsif include?(InstructionSets::SSE2)
+				elsif include?(InstructionSets::SSE2) # this should be the default for x64
 					width = 128
 				end
 
-				unless (ALLOW_AVX512 && !@slow_avx)
-					out_flags += [
-						"-mno-avx512f",
-						"-mno-avx512bitalg",
-						"-mno-avx512bw",
-						"-mno-avx512cd",
-						"-mno-avx512dq",
-						"-mno-avx512er",
-						"-mno-avx512ifma",
-						"-mno-avx512pf",
-						"-mno-avx512vbmi",
-						"-mno-avx512vbmi2",
-						"-mno-avx512vl",
-						"-mno-avx512vnni",
-						"-mno-avx512vpopcntdq",
-					]
-				end
-				out_flags << "-mno-avx2" unless (ALLOW_AVX2 && !@slow_avx)
-				out_flags << "-mno-avx" unless (ALLOW_AVX && !@slow_avx)
+				out_flags += [
+					"-mno-avx512f",
+					"-mno-avx512bitalg",
+					"-mno-avx512bw",
+					"-mno-avx512cd",
+					"-mno-avx512dq",
+					"-mno-avx512er",
+					"-mno-avx512ifma",
+					"-mno-avx512pf",
+					"-mno-avx512vbmi",
+					"-mno-avx512vbmi2",
+					"-mno-avx512vl",
+					"-mno-avx512vnni",
+					"-mno-avx512vpopcntdq",
+				] if prohibit_avx512
+				out_flags << "-mno-avx2" if prohibit_avx2
+				out_flags << "-mno-avx" if prohibit_avx
 
-				out_flags << "-mprefer-vector-width=#{width}"
+				#out_flags << "-mprefer-vector-width=#{width}"
+
+				out_flags += @gcc_flags unless @gcc_flags.nil?
 
 				case @manufacturer
 				when Manufacturers::INTEL
-					out_flags << "-mtune=intel"
+					out_flags << "-mtune=intel" unless out_flags.any? { |flag| flag.start_with?("-march=")}
 				end
-
-				out_flags += @gcc_flags unless @gcc_flags.nil?
 			else
 				arch = nil
 
-				if include?(InstructionSets::AVX512_ANY) && fast_avx512 && ALLOW_AVX512
+				msvc_allow_highest = false
+
+				if prefer_avx512 || (msvc_allow_highest && include?(InstructionSets::AVX512_ANY) && ALLOW_AVX512)
 					arch = "AVX512"
-				elsif include?(InstructionSets::AVX2) && fast_avx2 && ALLOW_AVX2
+				elsif prefer_avx2 || (msvc_allow_highest && include?(InstructionSets::AVX2) && ALLOW_AVX512)
 					arch = "AVX2"
-				elsif include?(InstructionSets::AVX) && fast_avx && ALLOW_AVX
+				elsif prefer_avx || (msvc_allow_highest && include?(InstructionSets::AVX) && ALLOW_AVX512)
 					arch = "AVX"
 				end
 
@@ -342,6 +350,22 @@ module Architectures
 				msvc_flags: msvc_flags
 			)
 		end
+
+		Architectures::list << ZEN_3 = arch(
+			name: "Zen3",
+			sets: [
+				InstructionSets::SSE3,
+				InstructionSets::SSSE3,
+				InstructionSets::SSE4,
+				InstructionSets::SSE4A,
+				InstructionSets::AVX,
+				InstructionSets::AVX2,
+				InstructionSets::ABM,
+			],
+			fast_avx: true,
+			fast_avx2: true,
+			gcc_flags: ["-march=znver3"]
+		)
 
 		Architectures::list << ZEN_2 = arch(
 			name: "Zen2",

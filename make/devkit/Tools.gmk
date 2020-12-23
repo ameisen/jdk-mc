@@ -153,6 +153,8 @@ RPM_LIST := \
     libXau libXau-devel \
     libgcc \
     zlib zlib-devel \
+		libzstd1 libzstd-dev \
+		liblzma5 liblzma-dev \
     libffi libffi-devel \
     fontconfig fontconfig-devel \
     systemtap-sdt-devel \

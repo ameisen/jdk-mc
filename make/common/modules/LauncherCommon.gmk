@@ -139,6 +139,14 @@ define SetupBuildLauncherBody
     $1_LIBS += -lz
   endif
 
+  ifeq ($(USE_EXTERNAL_LIBZSTD), true)
+    $1_LIBS += -lzstd
+  endif
+
+  ifeq ($(USE_EXTERNAL_LIBLZMA), true)
+    $1_LIBS += -llzma
+  endif
+
   $1_WINDOWS_JLI_LIB := $(call FindStaticLib, java.base, jli, /libjli)
 
   $$(eval $$(call SetupJdkExecutable, BUILD_LAUNCHER_$1, \
@@ -162,7 +170,7 @@ define SetupBuildLauncherBody
           -L$(call FindLibDirForModule, java.base), \
       LDFLAGS_aix := -L$(SUPPORT_OUTPUTDIR)/native/java.base, \
       LIBS := $(JDKEXE_LIBS) $$($1_LIBS), \
-      LIBS_linux := -ljli -lpthread $(LIBDL), \
+      LIBS_linux := -ljli -lpthread -lm $(LIBDL), \
       LIBS_macosx := -ljli -framework Cocoa -framework Security \
           -framework ApplicationServices, \
       LIBS_aix := -ljli_static, \

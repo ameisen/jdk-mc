@@ -196,15 +196,16 @@ ifeq ($(call check-jvm-feature, link-time-opt), true)
   JVM_OPTIMIZATION :=
   ifeq ($(TOOLCHAIN_TYPE), microsoft)
     ifneq (,$(findstring clang,$(CC)))
-      JVM_CFLAGS_FEATURES += -flto=thin
+      JVM_CFLAGS_FEATURES += -flto=full
+      JVM_LDFLAGS_FEATURES += -flto=full
     else
       JVM_CFLAGS_FEATURES += /GL
       JVM_LDFLAGS_FEATURES += /LTCG
     endif
   else
     ifeq ($(TOOLCHAIN_TYPE), clang)
-      JVM_CFLAGS_FEATURES += -flto=thin
-      JVM_LDFLAGS_FEATURES += -flto=thin
+      JVM_CFLAGS_FEATURES += -flto=full
+      JVM_LDFLAGS_FEATURES += -flto=full
     else
       JVM_CFLAGS_FEATURES += -flto -fuse-linker-plugin
       JVM_LDFLAGS_FEATURES += -flto -fuse-linker-plugin
@@ -222,7 +223,7 @@ ifeq ($(TOOLCHAIN_TYPE), clang)
   JVM_LDFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL) $(shell cat $(TOPDIR)/ldflags)
 else ifeq ($(TOOLCHAIN_TYPE), gcc)
   JVM_CFLAGS_FEATURES_ALL += -fno-strict-aliasing -std=gnu++2a -fconcepts $(shell cat $(TOPDIR)/cxxflags)
-  JVM_CFLAGS_FEATURES_ALL += -Wno-stringop-truncation -Wno-stringop-overflow -Wno-maybe-uninitialized
+  JVM_CFLAGS_FEATURES_ALL += -Wno-stringop-truncation -Wno-stringop-overflow -Wno-maybe-uninitialized -Wno-reorder
   JVM_CFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL)
   JVM_LDFLAGS_FEATURES += $(JVM_CFLAGS_FEATURES_ALL) -Wl,--allow-multiple-definition $(shell cat $(TOPDIR)/ldflags)
 endif

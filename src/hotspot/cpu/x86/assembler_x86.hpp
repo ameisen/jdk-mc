@@ -1174,6 +1174,8 @@ private:
   void emms();
 
   void fabs();
+  void fabsd();
+  void fabss();
 
   void fadd(int i);
 
@@ -1270,6 +1272,8 @@ private:
   void fsin();
 
   void fsqrt();
+  void fsqrtd();
+  void fsqrts();
 
   void fst_d(Address adr);
   void fst_s(Address adr);

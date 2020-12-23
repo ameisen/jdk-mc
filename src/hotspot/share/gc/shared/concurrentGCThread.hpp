@@ -33,7 +33,7 @@ private:
   volatile bool _has_terminated;
 
 protected:
-  void create_and_start(ThreadPriority prio = NearMaxPriority);
+  void create_and_start(ThreadPriority prio = LowestPriority);
 
   virtual void run_service() = 0;
   virtual void stop_service() = 0;

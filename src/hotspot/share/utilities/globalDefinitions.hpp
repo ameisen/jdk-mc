@@ -229,7 +229,7 @@ const int LogHeapWordsPerLong = LogBytesPerLong - LogHeapWordSize;
 
 // The minimum number of native machine words necessary to contain "byte_size"
 // bytes.
-inline size_t heap_word_size(size_t byte_size) {
+constexpr inline size_t heap_word_size(size_t byte_size) {
   return (byte_size + (HeapWordSize-1)) >> LogHeapWordSize;
 }
 
@@ -251,22 +251,22 @@ const size_t HWperKB            = K / sizeof(HeapWord);
 // Constants for converting from a base unit to milli-base units.  For
 // example from seconds to milliseconds and microseconds
 
-const int MILLIUNITS    = 1000;         // milli units per base unit
-const int MICROUNITS    = 1000000;      // micro units per base unit
-const int NANOUNITS     = 1000000000;   // nano units per base unit
+const int MILLIUNITS    = 1'000;         // milli units per base unit
+const int MICROUNITS    = 1'000'000;      // micro units per base unit
+const int NANOUNITS     = 1'000'000'000;   // nano units per base unit
 const int NANOUNITS_PER_MILLIUNIT = NANOUNITS / MILLIUNITS;
 
-const jlong NANOSECS_PER_SEC      = CONST64(1000000000);
-const jint  NANOSECS_PER_MILLISEC = 1000000;
+const jlong NANOSECS_PER_SEC      = CONST64(1'000'000'000);
+const jint  NANOSECS_PER_MILLISEC = 1'000'000;
 
 
 // Unit conversion functions
 // The caller is responsible for considering overlow.
 
-inline int64_t nanos_to_millis(int64_t nanos) {
+constexpr inline int64_t nanos_to_millis(int64_t nanos) {
   return nanos / NANOUNITS_PER_MILLIUNIT;
 }
-inline int64_t millis_to_nanos(int64_t millis) {
+constexpr inline int64_t millis_to_nanos(int64_t millis) {
   return millis * NANOUNITS_PER_MILLIUNIT;
 }
 
@@ -401,10 +401,12 @@ inline address_word  castable_address(void* x)                { return address_w
 // and then additions like
 //       ... top() + size ...
 // are safe because we know that top() is at least size below end().
-inline size_t pointer_delta(const volatile void* left,
-                            const volatile void* right,
+// TODO DC : Why in the name of Zeus were left and right 'volatile'?
+template <typename T, typename U>
+inline size_t pointer_delta(const T* left,
+                            const U* right,
                             size_t element_size) {
-  return (((uintptr_t) left) - ((uintptr_t) right)) / element_size;
+  return (uintptr_t(left) - uintptr_t(right)) / element_size;
 }
 
 // A version specialized for HeapWord*'s.
@@ -498,7 +500,7 @@ const  uint64_t KlassEncodingMetaspaceMax = (uint64_t(max_juint) + 1) << LogKlas
 // Machine dependent stuff
 
 // The maximum size of the code cache.  Can be overridden by targets.
-#define CODE_CACHE_SIZE_LIMIT (2*G)
+#define CODE_CACHE_SIZE_LIMIT (4*G)
 // Allow targets to reduce the default size of the code cache.
 #define CODE_CACHE_DEFAULT_LIMIT CODE_CACHE_SIZE_LIMIT
 
@@ -542,11 +544,26 @@ inline double fabsd(double value) {
   return fabs(value);
 }
 
+inline float fabss(float value) {
+  return fabsf(value);
+}
+
 // Returns numerator/denominator as percentage value from 0 to 100. If denominator
 // is zero, return 0.0.
 template<typename T>
 inline double percent_of(T numerator, T denominator) {
-  return denominator != 0 ? (double)numerator / denominator * 100.0 : 0.0;
+  if _unlikely_if(denominator == 0) {
+    return 0.0;
+  }
+  return (double(numerator) / denominator) * 100.0;
+}
+
+template<>
+inline double percent_of<float>(float numerator, float denominator) {
+  if _unlikely_if(denominator == 0.0f) {
+    return 0.0;
+  }
+  return double((numerator / denominator) * 100.0f);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -575,16 +592,38 @@ inline jint high(jlong value)                    { return jint(value >> 32); }
 
 // the fancy casts are a hopefully portable way
 // to do unsigned 32 to 64 bit type conversion
-inline void set_low (jlong* value, jint low )    { *value &= (jlong)0xffffffff << 32;
-                                                   *value |= (jlong)(julong)(juint)low; }
+inline void set_low (jlong* __restrict value, jint low) {
+  jlong val = *value;
+  val &= (jlong)0xffffffff << 32;
+  val |= (jlong)(julong)(juint)low;
+  *value = val;
+}
 
-inline void set_high(jlong* value, jint high)    { *value &= (jlong)(julong)(juint)0xffffffff;
-                                                   *value |= (jlong)high       << 32; }
+inline void set_low (jlong& __restrict value, jint low) {
+  jlong val = value;
+  val &= (jlong)0xffffffff << 32;
+  val |= (jlong)(julong)(juint)low;
+  value = val;
+}
+
+inline void set_high(jlong* __restrict value, jint high) {
+  jlong val = *value;
+  val &= (jlong)(julong)(juint)0xffffffff;
+  val |= (jlong)high << 32;
+  *value = val;
+}
+
+inline void set_high(jlong& __restrict value, jint high) {
+  jlong val = value;
+  val &= (jlong)(julong)(juint)0xffffffff;
+  val |= (jlong)high << 32;
+  value = val;
+}
 
 inline jlong jlong_from(jint h, jint l) {
   jlong result = 0; // initialization to avoid warning
-  set_high(&result, h);
-  set_low(&result,  l);
+  set_high(result, h);
+  set_low(result, l);
   return result;
 }
 
@@ -913,7 +952,7 @@ const int      badCodeHeapFreeVal = 0xDD;                   // value used to zap
 #define       badHeapWord       (::badHeapWordVal)
 
 // Default TaskQueue size is 16K (32-bit) or 128K (64-bit)
-#define TASKQUEUE_SIZE (NOT_LP64(1<<14) LP64_ONLY(1<<17))
+#define TASKQUEUE_SIZE (NOT_LP64(1<<16) LP64_ONLY(1<<19))
 
 //----------------------------------------------------------------------------------------------------
 // Utility functions for bitfield manipulations
@@ -1090,9 +1129,7 @@ inline intptr_t p2i(const void * p) {
 
 // swap a & b
 template<class T> static void swap(T& a, T& b) {
-  T tmp = std::move(a);
-  a = std::move(b);
-  b = std::move(tmp);
+  std::swap(a, b);
 }
 
 #define ARRAY_SIZE(array) (sizeof(array)/sizeof((array)[0]))

@@ -79,7 +79,7 @@ pi_lo   = 1.2246467991473531772E-16; /* 0x3CA1A626, 0x33145C07 */
         lx = __LO(x);
         hy = __HI(y); iy = hy&0x7fffffff;
         ly = __LO(y);
-        if(((ix|((lx|-lx)>>31))>0x7ff00000)||
+        if _unlikely_if(((ix|((lx|-lx)>>31))>0x7ff00000)||
            ((iy|((ly|-ly)>>31))>0x7ff00000))    /* x or y is NaN */
            return x+y;
         if(((hx-0x3ff00000)|lx)==0) return atan(y);   /* x=1.0 */
@@ -98,8 +98,8 @@ pi_lo   = 1.2246467991473531772E-16; /* 0x3CA1A626, 0x33145C07 */
         if((ix|lx)==0) return (hy<0)?  -pi_o_2-tiny: pi_o_2+tiny;
 
     /* when x is INF */
-        if(ix==0x7ff00000) {
-            if(iy==0x7ff00000) {
+        if _unlikely_if(ix==0x7ff00000) {
+            if _unlikely_if(iy==0x7ff00000) {
                 switch(m) {
                     case 0: return  pi_o_4+tiny;/* atan(+INF,+INF) */
                     case 1: return -pi_o_4-tiny;/* atan(-INF,+INF) */
@@ -116,7 +116,7 @@ pi_lo   = 1.2246467991473531772E-16; /* 0x3CA1A626, 0x33145C07 */
             }
         }
     /* when y is INF */
-        if(iy==0x7ff00000) return (hy<0)? -pi_o_2-tiny: pi_o_2+tiny;
+        if _unlikely_if(iy==0x7ff00000) return (hy<0)? -pi_o_2-tiny: pi_o_2+tiny;
 
     /* compute y/x */
         k = (iy-ix)>>20;

@@ -39,11 +39,11 @@
 #undef  DTYPE
 #define DTYPE mlib_s32
 
-#ifdef _MSC_VER
+//#ifdef _MSC_VER
 /* Workaround for MSC optimizer bug (known affected versions
    12.00.8168-12.00.8804). See bug 4893435 for details. */
-#pragma optimize("gs", off)
-#endif /* _MSC_VER */
+//#pragma optimize("gs", off)
+//#endif /* _MSC_VER */
 #ifdef i386 /* do not perform the coping by mlib_d64 data type for x86 */
 
 mlib_status mlib_ImageAffine_s32_1ch_nn(mlib_affine_param *param)
@@ -294,8 +294,8 @@ mlib_status mlib_ImageAffine_d64_4ch_nn(mlib_affine_param *param)
 }
 
 /***************************************************************/
-#ifdef _MSC_VER
+//#ifdef _MSC_VER
 /* Workaround for MSC optimizer bug (known affected versions
    12.00.8168-12.00.8804). See bug 4893435 for details. */
-#pragma optimize("gs", on)
-#endif /* _MSC_VER */
+//#pragma optimize("gs", on)
+//#endif /* _MSC_VER */

@@ -60,7 +60,7 @@ tiny   = 1.0e-300;
             k = ((hx&0x7ff00000)>>20) - 54;
             if (n< -50000) return tiny*x;       /*underflow*/
             }
-        if (k==0x7ff) return x+x;               /* NaN or Inf */
+        if _unlikely_if(k==0x7ff) return x+x;               /* NaN or Inf */
         k = k+n;
         if (k >  0x7fe) return huge*copysign(huge,x); /* overflow  */
         if (k > 0)                              /* normal result */

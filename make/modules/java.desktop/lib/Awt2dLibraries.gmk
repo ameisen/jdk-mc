@@ -676,6 +676,14 @@ ifeq ($(ENABLE_HEADLESS_ONLY), false)
     LIBSPLASHSCREEN_EXTRA_SRC += java.base:libzip/zlib
   endif
 
+  ifeq ($(USE_EXTERNAL_LIBZSTD), false)
+    LIBSPLASHSCREEN_EXTRA_SRC += java.base:libzip/zstd
+  endif
+
+  ifeq ($(USE_EXTERNAL_LIBLZMA), false)
+    LIBSPLASHSCREEN_EXTRA_SRC += java.base:libzip/lzma
+  endif
+
   ifeq ($(call isTargetOs, macosx), true)
     # libsplashscreen on macosx do not use the unix code
     LIBSPLASHSCREEN_EXCLUDE_SRC_PATTERNS := /unix/
@@ -737,7 +745,7 @@ ifeq ($(ENABLE_HEADLESS_ONLY), false)
       EXCLUDES := $(LIBSPLASHSCREEN_EXCLUDES), \
       OPTIMIZATION := HIGH, \
       CFLAGS := $(CFLAGS_JDKLIB) $(LIBSPLASHSCREEN_CFLAGS) \
-          $(GIFLIB_CFLAGS) $(LIBJPEG_CFLAGS) $(PNG_CFLAGS) $(LIBZ_CFLAGS), \
+          $(GIFLIB_CFLAGS) $(LIBJPEG_CFLAGS) $(PNG_CFLAGS) $(LIBZ_CFLAGS) $(LIBZSTD_CFLAGS) $(LIBLZMA_CFLAGS), \
       EXTRA_HEADER_DIRS := $(LIBSPLASHSCREEN_HEADER_DIRS), \
       DISABLED_WARNINGS_gcc := sign-compare type-limits unused-result \
           maybe-uninitialized shift-negative-value implicit-fallthrough \
@@ -748,7 +756,7 @@ ifeq ($(ENABLE_HEADLESS_ONLY), false)
           $(call SET_SHARED_LIBRARY_ORIGIN), \
       LDFLAGS_macosx := -L$(INSTALL_LIBRARIES_HERE), \
       LDFLAGS_windows := -delayload:user32.dll, \
-      LIBS := $(JDKLIB_LIBS) $(LIBSPLASHSCREEN_LIBS) $(LIBZ_LIBS) \
+      LIBS := $(JDKLIB_LIBS) $(LIBSPLASHSCREEN_LIBS) $(LIBZ_LIBS) $(LIBZSTD_LIBS) $(LIBLZMA_LIBS) \
           $(GIFLIB_LIBS) $(LIBJPEG_LIBS) $(PNG_LIBS), \
       LIBS_aix := -liconv, \
   ))

@@ -48,7 +48,7 @@ template <typename T>
 static inline HB_CONST_FUNC unsigned int
 hb_popcount (T v)
 {
-#if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
+#if ((defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)) && !defined(_MSC_VER)
   if (sizeof (T) <= sizeof (unsigned int))
     return __builtin_popcount (v);
 
@@ -100,7 +100,7 @@ hb_bit_storage (T v)
 {
   if (unlikely (!v)) return 0;
 
-#if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
+#if ((defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)) && !defined(_MSC_VER)
   if (sizeof (T) <= sizeof (unsigned int))
     return sizeof (unsigned int) * 8 - __builtin_clz (v);
 
@@ -174,7 +174,7 @@ hb_ctz (T v)
 {
   if (unlikely (!v)) return 0;
 
-#if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
+#if ((defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)) && !defined(_MSC_VER)
   if (sizeof (T) <= sizeof (unsigned int))
     return __builtin_ctz (v);
 

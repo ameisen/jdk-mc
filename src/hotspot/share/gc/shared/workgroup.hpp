@@ -28,6 +28,7 @@
 #include "memory/allocation.hpp"
 #include "runtime/globals.hpp"
 #include "runtime/thread.hpp"
+#include "runtime/os.hpp"
 #include "gc/shared/gcId.hpp"
 #include "logging/log.hpp"
 #include "utilities/debug.hpp"
@@ -110,16 +111,20 @@ class AbstractWorkGang : public CHeapObj<mtInternal> {
  protected:
   // The array of worker threads for this gang.
   AbstractGangWorker** _workers;
+  // Printing support.
+  const char* _name;
   // The count of the number of workers in the gang.
   uint _total_workers;
   // The currently active workers in this gang.
   uint _active_workers;
   // The count of created workers in the gang.
   uint _created_workers;
-  // Printing support.
-  const char* _name;
 
   ~AbstractWorkGang() {}
+
+ public:
+  // Default work thread priority
+  ThreadPriority _thread_priority;
 
  private:
   // Initialize only instance data.
@@ -131,12 +136,13 @@ class AbstractWorkGang : public CHeapObj<mtInternal> {
   }
 
  public:
-  AbstractWorkGang(const char* name, uint workers, bool are_GC_task_threads, bool are_ConcurrentGC_threads) :
+  AbstractWorkGang(const char* name, uint workers, bool are_GC_task_threads, bool are_ConcurrentGC_threads, ThreadPriority priority = LowestPriority) :
       _workers(NULL),
+      _name(name),
       _total_workers(workers),
       _active_workers(UseDynamicNumberOfGCThreads ? 1U : workers),
       _created_workers(0),
-      _name(name),
+      _thread_priority(priority),
       _are_GC_task_threads(are_GC_task_threads),
       _are_ConcurrentGC_threads(are_ConcurrentGC_threads)
   { }
@@ -207,7 +213,8 @@ public:
   WorkGang(const char* name,
            uint workers,
            bool are_GC_task_threads,
-           bool are_ConcurrentGC_threads);
+           bool are_ConcurrentGC_threads,
+           ThreadPriority priority = LowestPriority);
 
   ~WorkGang();
 

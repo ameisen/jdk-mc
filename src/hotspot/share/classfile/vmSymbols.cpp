@@ -1049,6 +1049,7 @@ void vmIntrinsics::verify_method(ID actual_id, Method* m) {
     case _min:
     case _max:
     case _dsqrt:
+    case _fsqrt:
       declared_id = match_method_with_klass(m, vmSymbols::java_lang_Math());
       if (declared_id == actual_id)  return; // acceptable alias
       break;

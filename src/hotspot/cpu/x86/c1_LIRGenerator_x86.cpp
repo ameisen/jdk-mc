@@ -810,16 +810,23 @@ void LIRGenerator::do_MathIntrinsic(Intrinsic* x) {
 
   LIR_Opr tmp = LIR_OprFact::illegalOpr;
 #ifdef _LP64
-  if (UseAVX > 2 && (!VM_Version::supports_avx512vl()) &&
-      (x->id() == vmIntrinsics::_dabs)) {
-    tmp = new_register(T_DOUBLE);
-    __ move(LIR_OprFact::doubleConst(-0.0), tmp);
+  if (UseAVX > 2 && !VM_Version::supports_avx512vl()) {
+    if (x->id() == vmIntrinsics::_dabs) {
+      tmp = new_register(T_DOUBLE);
+      __ move(LIR_OprFact::doubleConst(-0.0), tmp);
+    }
+    else if (x->id() == vmIntrinsics::_fabs) {
+      tmp = new_register(T_FLOAT);
+      __ move(LIR_OprFact::floatConst(-0.0f), tmp);
+    }
   }
 #endif
 
   switch(x->id()) {
     case vmIntrinsics::_dabs:   __ abs  (calc_input, calc_result, tmp); break;
+    case vmIntrinsics::_fabs:   __ absf (calc_input, calc_result, tmp); break;
     case vmIntrinsics::_dsqrt:  __ sqrt (calc_input, calc_result, LIR_OprFact::illegalOpr); break;
+    case vmIntrinsics::_fsqrt:  __ sqrtf(calc_input, calc_result, LIR_OprFact::illegalOpr); break;
     default:                    ShouldNotReachHere();
   }
 

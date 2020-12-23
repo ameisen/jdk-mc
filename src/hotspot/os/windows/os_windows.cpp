@@ -3090,12 +3090,14 @@ static size_t large_page_init_decide_size() {
     return 0;
   }
 
+/*
 #if defined(IA32) || defined(AMD64)
   if (size > 4*M || LargePageSizeInBytes > 4*M) {
     WARN("JVM cannot use large pages bigger than 4mb.");
     return 0;
   }
 #endif
+*/
 
   if (LargePageSizeInBytes > 0 && LargePageSizeInBytes % size == 0) {
     size = LargePageSizeInBytes;
@@ -3348,10 +3350,7 @@ char* os::pd_reserve_memory_special(size_t bytes, size_t alignment, char* addr,
   const DWORD prot = exec ? PAGE_EXECUTE_READWRITE : PAGE_READWRITE;
   const DWORD flags = MEM_RESERVE | MEM_COMMIT | MEM_LARGE_PAGES;
 
-  // with large pages, there are two cases where we need to use Individual Allocation
-  // 1) the UseLargePagesIndividualAllocation flag is set (set by default on WS2003)
-  // 2) NUMA Interleaving is enabled, in which case we use a different node for each page
-  if (UseLargePagesIndividualAllocation || UseNUMAInterleaving) {
+  const auto individualAlloc = [&]() -> char* {
     log_debug(pagesize)("Reserving large pages individually.");
 
     char * p_buf = allocate_pages_individually(bytes, addr, flags, prot, LargePagesIndividualAllocationInjectError);
@@ -3368,13 +3367,24 @@ char* os::pd_reserve_memory_special(size_t bytes, size_t alignment, char* addr,
     }
 
     return p_buf;
+  };
 
-  } else {
+  // with large pages, there are two cases where we need to use Individual Allocation
+  // 1) the UseLargePagesIndividualAllocation flag is set (set by default on WS2003)
+  // 2) NUMA Interleaving is enabled, in which case we use a different node for each page
+  if (UseNUMAInterleaving) {
+    return individualAlloc();
+  }
+  else {
     log_debug(pagesize)("Reserving large pages in a single large chunk.");
 
     // normal policy just allocate it all at once
     DWORD flag = MEM_RESERVE | MEM_COMMIT | MEM_LARGE_PAGES;
     char * res = (char *)VirtualAlloc(addr, bytes, flag, prot);
+
+    if (UseLargePagesIndividualAllocation && !res) {
+      return individualAlloc();
+    }
 
     return res;
   }
@@ -3689,32 +3699,34 @@ void os::naked_yield() {
 
 int os::java_to_os_priority[CriticalPriority + 1] = {
   THREAD_PRIORITY_IDLE,                         // 0  Entry should never be used
-  THREAD_PRIORITY_LOWEST,                       // 1  MinPriority
-  THREAD_PRIORITY_LOWEST,                       // 2
-  THREAD_PRIORITY_BELOW_NORMAL,                 // 3
+  THREAD_PRIORITY_IDLE,                         // 1  LowestPriority
+  THREAD_PRIORITY_LOWEST,                       // 2  MinPriority
+  THREAD_PRIORITY_LOWEST,                       // 3
   THREAD_PRIORITY_BELOW_NORMAL,                 // 4
-  THREAD_PRIORITY_NORMAL,                       // 5  NormPriority
-  THREAD_PRIORITY_NORMAL,                       // 6
-  THREAD_PRIORITY_ABOVE_NORMAL,                 // 7
+  THREAD_PRIORITY_BELOW_NORMAL,                 // 5
+  THREAD_PRIORITY_NORMAL,                       // 6  NormPriority
+  THREAD_PRIORITY_NORMAL,                       // 7
   THREAD_PRIORITY_ABOVE_NORMAL,                 // 8
-  THREAD_PRIORITY_HIGHEST,                      // 9  NearMaxPriority
-  THREAD_PRIORITY_HIGHEST,                      // 10 MaxPriority
-  THREAD_PRIORITY_HIGHEST                       // 11 CriticalPriority
+  THREAD_PRIORITY_ABOVE_NORMAL,                 // 9
+  THREAD_PRIORITY_HIGHEST,                      // 10  NearMaxPriority
+  THREAD_PRIORITY_HIGHEST,                      // 11 MaxPriority
+  THREAD_PRIORITY_HIGHEST                       // 12 CriticalPriority
 };
 
 int prio_policy1[CriticalPriority + 1] = {
   THREAD_PRIORITY_IDLE,                         // 0  Entry should never be used
-  THREAD_PRIORITY_LOWEST,                       // 1  MinPriority
-  THREAD_PRIORITY_LOWEST,                       // 2
-  THREAD_PRIORITY_BELOW_NORMAL,                 // 3
+  THREAD_PRIORITY_IDLE,                         // 1  LowestPriority
+  THREAD_PRIORITY_LOWEST,                       // 2  MinPriority
+  THREAD_PRIORITY_LOWEST,                       // 3
   THREAD_PRIORITY_BELOW_NORMAL,                 // 4
-  THREAD_PRIORITY_NORMAL,                       // 5  NormPriority
-  THREAD_PRIORITY_ABOVE_NORMAL,                 // 6
+  THREAD_PRIORITY_BELOW_NORMAL,                 // 5
+  THREAD_PRIORITY_NORMAL,                       // 6  NormPriority
   THREAD_PRIORITY_ABOVE_NORMAL,                 // 7
-  THREAD_PRIORITY_HIGHEST,                      // 8
-  THREAD_PRIORITY_HIGHEST,                      // 9  NearMaxPriority
-  THREAD_PRIORITY_TIME_CRITICAL,                // 10 MaxPriority
-  THREAD_PRIORITY_TIME_CRITICAL                 // 11 CriticalPriority
+  THREAD_PRIORITY_ABOVE_NORMAL,                 // 8
+  THREAD_PRIORITY_HIGHEST,                      // 9
+  THREAD_PRIORITY_HIGHEST,                      // 10 NearMaxPriority
+  THREAD_PRIORITY_TIME_CRITICAL,                // 12 MaxPriority
+  THREAD_PRIORITY_TIME_CRITICAL                 // 13 CriticalPriority
 };
 
 static int prio_init() {

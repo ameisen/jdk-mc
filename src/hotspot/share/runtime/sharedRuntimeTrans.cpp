@@ -39,10 +39,10 @@
 // Enabling optimizations in this file causes incorrect code to be
 // generated; can not figure out how to turn down optimization for one
 // file in the IDE on Windows
-#ifdef WIN32
-# pragma warning( disable: 4748 ) // /GS can not protect parameters and local variables from local buffer overrun because optimizations are disabled in function
-# pragma optimize ( "", off )
-#endif
+//#ifdef WIN32
+//# pragma warning( disable: 4748 ) // /GS can not protect parameters and local variables from local buffer overrun because optimizations are disabled in function
+//# pragma optimize ( "", off )
+//#endif
 
 #include "runtime/sharedRuntimeMath.hpp"
 
@@ -659,6 +659,6 @@ JRT_LEAF(jdouble, SharedRuntime::dpow(jdouble x, jdouble y))
   return __ieee754_pow(x, y);
 JRT_END
 
-#ifdef WIN32
-# pragma optimize ( "", on )
-#endif
+//#ifdef WIN32
+//# pragma optimize ( "", on )
+//#endif

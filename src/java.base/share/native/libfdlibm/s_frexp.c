@@ -54,7 +54,7 @@ two54 =  1.80143985094819840000e+16; /* 0x43500000, 0x00000000 */
         ix = 0x7fffffff&hx;
         lx = __LO(x);
         *eptr = 0;
-        if(ix>=0x7ff00000||((ix|lx)==0)) return x;      /* 0,inf,nan */
+        if _unlikely_if(ix>=0x7ff00000||((ix|lx)==0)) return x;      /* 0,inf,nan */
         if (ix<0x00100000) {            /* subnormal */
             x *= two54;
             hx = __HI(x);

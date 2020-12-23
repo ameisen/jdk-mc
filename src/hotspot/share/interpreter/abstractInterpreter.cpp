@@ -173,7 +173,9 @@ AbstractInterpreter::MethodKind AbstractInterpreter::method_kind(const methodHan
     case vmIntrinsics::_dcos  : return java_lang_math_cos  ;
     case vmIntrinsics::_dtan  : return java_lang_math_tan  ;
     case vmIntrinsics::_dabs  : return java_lang_math_abs  ;
+    case vmIntrinsics::_fabs  : return java_lang_math_absf ;
     case vmIntrinsics::_dsqrt : return java_lang_math_sqrt ;
+    case vmIntrinsics::_fsqrt : return java_lang_math_sqrtf;
     case vmIntrinsics::_dlog  : return java_lang_math_log  ;
     case vmIntrinsics::_dlog10: return java_lang_math_log10;
     case vmIntrinsics::_dpow  : return java_lang_math_pow  ;
@@ -299,7 +301,9 @@ void AbstractInterpreter::print_method_kind(MethodKind kind) {
     case java_lang_math_cos     : tty->print("java_lang_math_cos"     ); break;
     case java_lang_math_tan     : tty->print("java_lang_math_tan"     ); break;
     case java_lang_math_abs     : tty->print("java_lang_math_abs"     ); break;
+    case java_lang_math_absf    : tty->print("java_lang_math_absf"    ); break;
     case java_lang_math_sqrt    : tty->print("java_lang_math_sqrt"    ); break;
+    case java_lang_math_sqrtf   : tty->print("java_lang_math_sqrtf"   ); break;
     case java_lang_math_log     : tty->print("java_lang_math_log"     ); break;
     case java_lang_math_log10   : tty->print("java_lang_math_log10"   ); break;
     case java_lang_math_fmaD    : tty->print("java_lang_math_fmaD"    ); break;

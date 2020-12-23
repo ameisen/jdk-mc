@@ -57,12 +57,26 @@ static bool should_commit_large_pages_when_reserving(size_t bytes) {
   return false;
 }
 
+static bool OverrideLargePages = false;
 // byte_size is the size of the associated virtualspace.
 VirtualSpaceNode::VirtualSpaceNode(bool is_class, size_t bytes) :
     _next(NULL), _is_class(is_class), _rs(), _top(NULL), _container_count(0), _occupancy_map(NULL) {
   assert_is_aligned(bytes, Metaspace::reserve_alignment());
-  bool large_pages = should_commit_large_pages_when_reserving(bytes);
+  bool large_pages = false;
+  if (!OverrideLargePages) {
+    large_pages = should_commit_large_pages_when_reserving(bytes);
+  }
   _rs = ReservedSpace(bytes, Metaspace::reserve_alignment(), large_pages);
+  if (large_pages && (!_rs.is_reserved() || _rs.base() == nullptr || _rs.size() == 0)) {
+    // Re-attempt the reservation without large pages
+    if (_rs.is_reserved()) {
+      _rs.release();
+    }
+    _rs = ReservedSpace(bytes, Metaspace::reserve_alignment(), false);
+    if (_rs.is_reserved()) {
+      OverrideLargePages = true;
+    }
+  }
 
   if (_rs.is_reserved()) {
     assert(_rs.base() != NULL, "Catch if we get a NULL address");

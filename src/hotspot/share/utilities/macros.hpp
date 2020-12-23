@@ -78,7 +78,7 @@
 #endif // INCLUDE_VM_STRUCTS
 
 #ifndef INCLUDE_JNI_CHECK
-#define INCLUDE_JNI_CHECK 1
+#define INCLUDE_JNI_CHECK 0
 #endif
 
 #if INCLUDE_JNI_CHECK

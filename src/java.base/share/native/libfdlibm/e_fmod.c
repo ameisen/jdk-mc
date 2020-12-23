@@ -56,7 +56,7 @@ static double one = 1.0, Zero[] = {0.0, -0.0,};
         hy &= 0x7fffffff;       /* |y| */
 
     /* purge off exception values */
-        if((hy|ly)==0||(hx>=0x7ff00000)||       /* y=0,or x not finite */
+        if _unlikely_if((hy|ly)==0||(hx>=0x7ff00000)||       /* y=0,or x not finite */
           ((hy|((ly|-ly)>>31))>0x7ff00000))     /* or y is NaN */
             return (x*y)/(x*y);
         if(hx<=hy) {

@@ -160,7 +160,10 @@ void G1Arguments::initialize() {
 
   if (FLAG_IS_DEFAULT(MaxGCPauseMillis)) {
     // The default pause time target in G1 is 200ms
-    FLAG_SET_DEFAULT(MaxGCPauseMillis, 200);
+    FLAG_SET_DEFAULT(MaxGCPauseMillis, 3);
+  }
+  else if (MaxGCPauseMillis > 5) {
+    MaxGCPauseMillis = 5;
   }
 
   // Then, if the interval parameter was not set, set it according to

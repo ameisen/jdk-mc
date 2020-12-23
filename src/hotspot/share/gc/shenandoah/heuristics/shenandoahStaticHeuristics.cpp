@@ -44,7 +44,7 @@ bool ShenandoahStaticHeuristics::should_start_gc() const {
 
   size_t capacity = heap->max_capacity();
   size_t available = heap->free_set()->available();
-  size_t threshold_available = capacity / 100 * ShenandoahMinFreeThreshold;
+  size_t threshold_available = capacity / 100 * ShenandoahHeuristics::_min_free_threshold;
 
   if (available < threshold_available) {
     log_info(gc)("Trigger: Free (" SIZE_FORMAT "%s) is below minimum threshold (" SIZE_FORMAT "%s)",

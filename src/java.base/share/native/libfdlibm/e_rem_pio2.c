@@ -166,7 +166,7 @@ pio2_3t =  8.47842766036889956997e-32; /* 0x397B839A, 0x252049C1 */
     /*
      * all other (large) arguments
      */
-        if(ix>=0x7ff00000) {            /* x is inf or NaN */
+        if _unlikely_if(ix>=0x7ff00000) {            /* x is inf or NaN */
             y[0]=y[1]=x-x; return 0;
         }
     /* set z = scalbn(|x|,ilogb(x)-23) */

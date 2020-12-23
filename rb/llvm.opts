@@ -1,0 +1,159 @@
+# evaluate-aa-metadata
+# enable-no-signed-zeros-fp-math
+# fp-contract fast
+# tailcallopt
+# mc-relax-all
+# emdep-block-scan-limit 200
+# reroll-loops
+# avoid-speculation 0
+
+=# PGO
+enable-value-profiling # if we enable PGO
+=#
+
+#compile-threads 8 # LTO compilation threads
+#load-threads 16 # LTO loading threads
+
+# x86-experimental-unordered-atomic-isel
+
+# vector-library
+
+# addr-sink-new-phis
+# cgp-icmp-eq2icmp-st
+# cgp-optimize-phi-types
+
+# fixup-scs-extend-slot-size
+
+=#
+=#
+
+#attributor-enable all
+#enable-knowledge-retention
+
+max-cg-scc-iterations 8
+alias-set-saturation-threshold 500
+enable-unsafe-globalsmodref-alias-results
+
+basic-aa-recphi
+
+
+available-load-scan-limit 12
+max-dependences 200
+memdep-block-number-limit 2000
+
+memssa-check-limit 200
+scalar-evolution-max-iterations 200
+scalar-evolution-max-scev-compare-depth 48
+scalar-evolution-max-scev-operations-implication-depth 4
+scalar-evolution-max-value-compare-depth 4
+
+scalar-evolution-max-arith-depth 48
+scalar-evolution-max-constant-evolving-depth 48
+scalar-evolution-max-cast-depth 16
+scalar-evolution-max-add-rec-size 16
+scalar-evolution-huge-expr-threshold 8192
+stack-safety-max-iterations 40
+costmodel-reduxcost
+dom-conditions-max-uses 40
+write-relbf-to-summary
+tail-merge-threshold 300
+global-merge-on-const
+global-merge-on-external
+imp-null-max-insts-to-consider 12
+
+enable-linkonceodr-outlining
+machine-outliner-reruns 16
+
+misched-limit 384
+
+attributor-max-iterations 48
+attributor-allow-shallow-wrappers
+
+cvp-max-functions-per-value 6
+
+enable-aa-sched-mi
+
+pipeliner-experimental-cg
+aggressive-ext-opt
+rewrite-phi-limit 40
+enable-local-reassign
+enable-deferred-spilling
+consider-local-interval-cost
+pbqp-coalescing
+enable-shrink-wrap
+enable-ipra
+optimize-regalloc
+enable-cse-in-irtranslator
+enable-cse-in-legalizer
+enable-npm-partial-inlining
+
+use-cfl-aa-in-codegen both
+combiner-global-alias-analysis
+use-registers-for-deopt-values
+
+openmp-ir-builder-optimistic-attributes
+thinlto-synthesize-entry-counts
+
+pm-max-devirt-iterations 8
+enable-npm-gvn-hoist
+enable-npm-gvn-sink
+enable-npm-unroll-and-jam
+enable-npm-synthetic-counts
+
+instcombine-max-num-phis 2048
+instcombine-max-iterations 2000
+instcombine-maxarray-size 2048
+
+
+force-chr
+
+x86-condbr-folding
+icp-lto
+enable-partial-inlining
+enable-unroll-and-jam
+enable-loopinterchange
+hot-cold-split
+enable-loop-versioning-licm
+enable-gvn-hoist
+enable-simple-loop-unswitch
+enable-gvn-sink
+
+enable-chr
+enable-matrix
+
+
+allow-unroll-and-jam
+likely-branch-weight 8000
+
+consthoist-gep
+enable-dse-memoryssa
+dse-memoryssa-scanlimit 300
+gvn-max-recurse-depth 2000
+
+
+licm-control-flow-hoisting
+loop-prefetch-writes
+enable-loop-distribute
+lsr-exp-narrow
+unroll-allow-partial
+unroll-allow-remainder
+unroll-allow-loop-nests-peeling
+unroll-remainder
+unroll-revisit-child-loops
+matrix-allow-contract
+
+enable-store-refinement
+scalarize-load-store
+
+
+assume-preserve-all
+
+preserve-alignment-assumptions-during-inlining
+loop-rotate-multi
+unroll-runtime-epilog
+unroll-runtime-multi-exit
+
+enable-interleaved-mem-accesses
+enable-masked-interleaved-mem-accesses
+
+slp-vectorize-hor-store

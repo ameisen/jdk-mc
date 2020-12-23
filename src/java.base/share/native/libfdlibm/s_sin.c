@@ -74,7 +74,7 @@
         if(ix <= 0x3fe921fb) return __kernel_sin(x,z,0);
 
     /* sin(Inf or NaN) is NaN */
-        else if (ix>=0x7ff00000) return x-x;
+        else if _unlikely_if(ix>=0x7ff00000) return x-x;
 
     /* argument reduction needed */
         else {

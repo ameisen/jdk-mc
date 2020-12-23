@@ -51,7 +51,7 @@ public class Reflection {
     static {
         fieldFilterMap = Map.of(
             Reflection.class, ALL_MEMBERS,
-            AccessibleObject.class, ALL_MEMBERS,
+            //AccessibleObject.class, ALL_MEMBERS,
             Class.class, Set.of("classLoader", "classData"),
             ClassLoader.class, ALL_MEMBERS,
             Constructor.class, ALL_MEMBERS,

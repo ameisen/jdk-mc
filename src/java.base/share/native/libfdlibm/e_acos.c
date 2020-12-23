@@ -81,7 +81,7 @@ qS4 =  7.70381505559019352791e-02; /* 0x3FB3B8C5, 0xB12E9282 */
         hx = __HI(x);
         ix = hx&0x7fffffff;
         if(ix>=0x3ff00000) {    /* |x| >= 1 */
-            if(((ix-0x3ff00000)|__LO(x))==0) {  /* |x|==1 */
+            if _likely_if(((ix-0x3ff00000)|__LO(x))==0) {  /* |x|==1 */
                 if(hx>0) return 0.0;            /* acos(1) = 0  */
                 else return pi+2.0*pio2_lo;     /* acos(-1)= pi */
             }

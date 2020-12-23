@@ -284,8 +284,13 @@ struct _hb_alignof
 #define HB_CONST_FUNC   __attribute__((const))
 #define HB_PRINTF_FUNC(format_idx, arg_idx) __attribute__((__format__ (__printf__, format_idx, arg_idx)))
 #elif defined(_MSC_VER)
+#ifdef __clang__
+#define HB_PURE_FUNC    __declspec(noalias) __attribute__((pure))
+#define HB_CONST_FUNC   __declspec(noalias) __attribute__((const))
+#else
 #define HB_PURE_FUNC    __declspec(noalias)
 #define HB_CONST_FUNC   __declspec(noalias)
+#endif
 #define HB_PRINTF_FUNC(format_idx, arg_idx)
 #else
 #define HB_PURE_FUNC

@@ -130,10 +130,10 @@ AC_DEFUN([FLAGS_SETUP_WARNINGS],
   case "${TOOLCHAIN_TYPE}" in
     microsoft)
       DISABLE_WARNING_PREFIX="-wd"
-      CFLAGS_WARNINGS_ARE_ERRORS="-w"
+      CFLAGS_WARNINGS_ARE_ERRORS="-w -wd4530"
 
-      WARNINGS_ENABLE_ALL="-W0 -w"
-      DISABLED_WARNINGS="4800"
+      WARNINGS_ENABLE_ALL="-W0 -w -wd4530"
+      DISABLED_WARNINGS="4800 4530"
       ;;
 
     gcc)
@@ -146,7 +146,7 @@ AC_DEFUN([FLAGS_SETUP_WARNINGS],
           -Wtrampolines"
       WARNINGS_ENABLE_ADDITIONAL_CXX="-Woverloaded-virtual -Wreorder"
 
-      WARNINGS_ENABLE_ALL_CFLAGS="esyscmd(cat ./cflags) -Wall -Wextra -Wformat=2 $WARNINGS_ENABLE_ADDITIONAL -Wno-format-nonliteral -Wno-format-security -Wno-int-to-pointer-cast -Wno-shift-negative-value -Wno-error=cpp -Wno-cpp -Wno-maybe-uninitialized"
+      WARNINGS_ENABLE_ALL_CFLAGS="esyscmd(cat ./cflags) -Wall -Wextra -Wformat=2 $WARNINGS_ENABLE_ADDITIONAL -Wno-permissive -Wno-format-nonliteral -Wno-format-security -Wno-int-to-pointer-cast -Wno-shift-negative-value -Wno-error=cpp -Wno-cpp -Wno-maybe-uninitialized"
       WARNINGS_ENABLE_ALL_CXXFLAGS="-std=gnu++2a -fconcepts esyscmd(cat ./cxxflags) $WARNINGS_ENABLE_ALL_CFLAGS $WARNINGS_ENABLE_ADDITIONAL_CXX -Wno-deprecated-copy"
 
 
@@ -477,12 +477,12 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_HELPER],
     TOOLCHAIN_CFLAGS_JDK="-pipe -fno-stack-protector"
     # reduce lib size on linux in link step, this needs also special compile flags
     # do this on s390x also for libjvm (where serviceability agent is not supported)
-    if test "x$ENABLE_LINKTIME_GC" = xtrue; then
-      TOOLCHAIN_CFLAGS_JDK="$TOOLCHAIN_CFLAGS_JDK -ffunction-sections -fdata-sections"
+    #if test "x$ENABLE_LINKTIME_GC" = xtrue; then
+      #TOOLCHAIN_CFLAGS_JDK="$TOOLCHAIN_CFLAGS_JDK -ffunction-sections"
       #if test "x$OPENJDK_TARGET_CPU" = xs390x; then
-      TOOLCHAIN_CFLAGS_JVM="$TOOLCHAIN_CFLAGS_JVM -ffunction-sections -fdata-sections"
+      #TOOLCHAIN_CFLAGS_JVM="$TOOLCHAIN_CFLAGS_JVM -ffunction-sections"
       #fi
-    fi
+    #fi
     # technically NOT for CXX (but since this gives *worse* performance, use
     # no-strict-aliasing everywhere!)
     TOOLCHAIN_CFLAGS_JDK_CONLY="-fno-strict-aliasing"
@@ -528,7 +528,7 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_HELPER],
   # C99 level.
   if test "x$TOOLCHAIN_TYPE" = xgcc || test "x$TOOLCHAIN_TYPE" = xclang || test "x$TOOLCHAIN_TYPE" = xxlc; then
     # Explicitly set C99. clang and xlclang support the same flag.
-    LANGSTD_CFLAGS="-std=c99"
+    LANGSTD_CFLAGS="-std=c2x"
   elif test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
     # MSVC doesn't support C99/C11 explicitly, unless you compile as C++:
     # LANGSTD_CFLAGS="-TP"
@@ -627,7 +627,7 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_HELPER],
   # JDK libraries.
   STATIC_LIBS_CFLAGS="-DSTATIC_BUILD=1"
   if test "x$TOOLCHAIN_TYPE" = xgcc || test "x$TOOLCHAIN_TYPE" = xclang; then
-    STATIC_LIBS_CFLAGS="$STATIC_LIBS_CFLAGS -ffunction-sections -fdata-sections \
+    STATIC_LIBS_CFLAGS="$STATIC_LIBS_CFLAGS \
       -DJNIEXPORT='__attribute__((visibility(\"hidden\")))'"
   else
     STATIC_LIBS_CFLAGS="$STATIC_LIBS_CFLAGS -DJNIEXPORT="

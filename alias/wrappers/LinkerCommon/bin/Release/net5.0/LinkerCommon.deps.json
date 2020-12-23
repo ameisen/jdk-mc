@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v5.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v5.0": {
+      "LinkerCommon/1.0.0": {
+        "dependencies": {
+          "WrapperLib": "1.0.0"
+        },
+        "runtime": {
+          "LinkerCommon.dll": {}
+        }
+      },
+      "WrapperLib/1.0.0": {
+        "runtime": {
+          "WrapperLib.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "LinkerCommon/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "WrapperLib/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

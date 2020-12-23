@@ -1818,6 +1818,8 @@ void LIR_Assembler::intrinsic_op(LIR_Code code, LIR_Opr value, LIR_Opr unused, L
   switch(code) {
   case lir_abs : __ fabsd(dest->as_double_reg(), value->as_double_reg()); break;
   case lir_sqrt: __ fsqrtd(dest->as_double_reg(), value->as_double_reg()); break;
+  case lir_absf : __ fabsf(dest->as_float_reg(), value->as_float_reg()); break;
+  case lir_sqrtf: __ fsqrtf(dest->as_float_reg(), value->as_float_reg()); break;
   default      : ShouldNotReachHere();
   }
 }

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+		<RootNamespace>wrappers</RootNamespace>
+    <StartupObject>wrappers.ClangCL</StartupObject>
+    <Nullable>enable</Nullable>
+		<PublishSingleFile>true</PublishSingleFile>
+		<PublishTrimmed>true</PublishTrimmed>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WrapperLib\WrapperLib.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -778,7 +778,9 @@ void LIRGenerator::do_MathIntrinsic(Intrinsic* x) {
   }
   switch (x->id()) {
     case vmIntrinsics::_dabs:
-    case vmIntrinsics::_dsqrt: {
+    case vmIntrinsics::_fabs:
+    case vmIntrinsics::_dsqrt:
+    case vmIntrinsics::_fsqrt: {
       assert(x->number_of_arguments() == 1, "wrong type");
       LIRItem value(x->argument_at(0), this);
       value.load_item();
@@ -789,8 +791,16 @@ void LIRGenerator::do_MathIntrinsic(Intrinsic* x) {
           __ sqrt(value.result(), dst, LIR_OprFact::illegalOpr);
           break;
         }
+        case vmIntrinsics::_fsqrt: {
+          __ sqrtf(value.result(), dst, LIR_OprFact::illegalOpr);
+          break;
+        }
         case vmIntrinsics::_dabs: {
           __ abs(value.result(), dst, LIR_OprFact::illegalOpr);
+          break;
+        }
+        case vmIntrinsics::_fabs: {
+          __ absf(value.result(), dst, LIR_OprFact::illegalOpr);
           break;
         }
         default:

@@ -999,7 +999,8 @@ void VM_Version::get_processor_features() {
     // setting during arguments processing. See use_biased_locking().
     // VM_Version_init() is executed after UseBiasedLocking is used
     // in Thread::allocate().
-    vm_exit_during_initialization("RTM instructions are not available on this CPU");
+    //warning("RTM instructions are not available on this CPU");
+    FLAG_SET_DEFAULT(UseRTMLocking, false);
   }
 
 #if INCLUDE_RTM_OPT
@@ -1008,7 +1009,8 @@ void VM_Version::get_processor_features() {
       // Only C2 does RTM locking optimization.
       // Can't continue because UseRTMLocking affects UseBiasedLocking flag
       // setting during arguments processing. See use_biased_locking().
-      vm_exit_during_initialization("RTM locking optimization is not supported in this VM");
+      //warning("RTM locking optimization is not supported in this VM");
+      FLAG_SET_DEFAULT(UseRTMLocking, false);
     }
     if (is_intel_family_core()) {
       if ((_model == CPU_MODEL_HASWELL_E3) ||
@@ -1023,11 +1025,11 @@ void VM_Version::get_processor_features() {
         }
       }
     }
-    if (!FLAG_IS_CMDLINE(UseRTMLocking)) {
+    //if (!FLAG_IS_CMDLINE(UseRTMLocking)) {
       // RTM locking should be used only for applications with
       // high lock contention. For now we do not use it by default.
-      vm_exit_during_initialization("UseRTMLocking flag should be only set on command line");
-    }
+    // vm_exit_during_initialization("UseRTMLocking flag should be only set on command line");
+    //}
   } else { // !UseRTMLocking
     if (UseRTMForStackLocks) {
       if (!FLAG_IS_DEFAULT(UseRTMForStackLocks)) {
@@ -1047,7 +1049,8 @@ void VM_Version::get_processor_features() {
     // Only C2 does RTM locking optimization.
     // Can't continue because UseRTMLocking affects UseBiasedLocking flag
     // setting during arguments processing. See use_biased_locking().
-    vm_exit_during_initialization("RTM locking optimization is not supported in this VM");
+    //warning("RTM locking optimization is not supported in this VM");
+    FLAG_SET_DEFAULT(UseRTMLocking, false);
   }
 #endif
 

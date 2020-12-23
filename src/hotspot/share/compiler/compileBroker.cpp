@@ -814,7 +814,7 @@ Handle CompileBroker::create_thread_oop(const char* name, TRAPS) {
                        CHECK_NH);
 }
 
-static constexpr const int DefaultCompilerThreadPriority = MinPriority; // NearMaxPriority
+static constexpr const int DefaultCompilerThreadPriority = LowestPriority; // NearMaxPriority
 
 JavaThread* CompileBroker::make_thread(jobject thread_handle, CompileQueue* queue, AbstractCompiler* comp, Thread* THREAD) {
   JavaThread* new_thread = NULL;
@@ -849,7 +849,7 @@ JavaThread* CompileBroker::make_thread(jobject thread_handle, CompileQueue* queu
       // definition is limited to Java priorities and not OS priorities.
       // The os-priority is set in the CompilerThread startup code itself
 
-      java_lang_Thread::set_priority(JNIHandles::resolve_non_null(thread_handle), MinPriority);
+      java_lang_Thread::set_priority(JNIHandles::resolve_non_null(thread_handle), LowestPriority);
 
       // Note that we cannot call os::set_priority because it expects Java
       // priorities and we are *explicitly* using OS priorities so that it's

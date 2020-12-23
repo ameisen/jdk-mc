@@ -72,7 +72,9 @@ class AbstractInterpreter: AllStatic {
     java_lang_math_cos,                                         // implementation of java.lang.Math.cos   (x)
     java_lang_math_tan,                                         // implementation of java.lang.Math.tan   (x)
     java_lang_math_abs,                                         // implementation of java.lang.Math.abs   (x)
+    java_lang_math_absf,                                        // implementation of java.lang.Math.absf  (x)
     java_lang_math_sqrt,                                        // implementation of java.lang.Math.sqrt  (x)
+    java_lang_math_sqrtf,                                       // implementation of java.lang.Math.sqrtf (x)
     java_lang_math_log,                                         // implementation of java.lang.Math.log   (x)
     java_lang_math_log10,                                       // implementation of java.lang.Math.log10 (x)
     java_lang_math_pow,                                         // implementation of java.lang.Math.pow   (x,y)
@@ -159,7 +161,9 @@ class AbstractInterpreter: AllStatic {
       case vmIntrinsics::_dcos  : // fall thru
       case vmIntrinsics::_dtan  : // fall thru
       case vmIntrinsics::_dabs  : // fall thru
+      case vmIntrinsics::_fabs  : // fall thru
       case vmIntrinsics::_dsqrt : // fall thru
+      case vmIntrinsics::_fsqrt : // fall thru
       case vmIntrinsics::_dlog  : // fall thru
       case vmIntrinsics::_dlog10: // fall thru
       case vmIntrinsics::_dpow  : // fall thru

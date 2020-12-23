@@ -51,7 +51,8 @@ ShenandoahHeuristics::ShenandoahHeuristics() :
   _gc_times_learned(0),
   _gc_time_penalties(0),
   _gc_time_history(new TruncatedSeq(5)),
-  _metaspace_oom()
+  _metaspace_oom(),
+  _min_free_threshold(ShenandoahMinFreeThreshold)
 {
   // No unloading during concurrent mark? Communicate that to heuristics
   if (!ClassUnloadingWithConcurrentMark) {
@@ -62,6 +63,16 @@ ShenandoahHeuristics::ShenandoahHeuristics() :
   assert(num_regions > 0, "Sanity");
 
   _region_data = NEW_C_HEAP_ARRAY(RegionData, num_regions, mtGC);
+
+  if (FLAG_IS_DEFAULT(ShenandoahMinFreeThreshold)) {
+    // TODO : move me to a header somewhere
+    static const uint64_t targetOldGenerationSize = 2'147'483'648;
+    uint64_t maxHeapSize = MaxHeapSize;
+    if (maxHeapSize > targetOldGenerationSize) {
+      double fraction = 1.0 - double(targetOldGenerationSize) / maxHeapSize;
+      _min_free_threshold = uint32_t((fraction * 100) + 0.5);
+    }
+  }
 }
 
 ShenandoahHeuristics::~ShenandoahHeuristics() {

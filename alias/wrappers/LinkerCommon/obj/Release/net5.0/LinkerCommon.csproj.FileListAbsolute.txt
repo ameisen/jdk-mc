@@ -1,0 +1,15 @@
+B:\java\mc\src\alias\wrappers\LinkerCommon\bin\Release\net5.0\LinkerCommon.deps.json
+B:\java\mc\src\alias\wrappers\LinkerCommon\bin\Release\net5.0\LinkerCommon.dll
+B:\java\mc\src\alias\wrappers\LinkerCommon\bin\Release\net5.0\ref\LinkerCommon.dll
+B:\java\mc\src\alias\wrappers\LinkerCommon\bin\Release\net5.0\LinkerCommon.pdb
+B:\java\mc\src\alias\wrappers\LinkerCommon\bin\Release\net5.0\WrapperLib.dll
+B:\java\mc\src\alias\wrappers\LinkerCommon\bin\Release\net5.0\WrapperLib.pdb
+B:\java\mc\src\alias\wrappers\LinkerCommon\obj\Release\net5.0\LinkerCommon.csprojAssemblyReference.cache
+B:\java\mc\src\alias\wrappers\LinkerCommon\obj\Release\net5.0\LinkerCommon.GeneratedMSBuildEditorConfig.editorconfig
+B:\java\mc\src\alias\wrappers\LinkerCommon\obj\Release\net5.0\LinkerCommon.AssemblyInfoInputs.cache
+B:\java\mc\src\alias\wrappers\LinkerCommon\obj\Release\net5.0\LinkerCommon.AssemblyInfo.cs
+B:\java\mc\src\alias\wrappers\LinkerCommon\obj\Release\net5.0\LinkerCommon.csproj.CoreCompileInputs.cache
+B:\java\mc\src\alias\wrappers\LinkerCommon\obj\Release\net5.0\LinkerCommon.csproj.CopyComplete
+B:\java\mc\src\alias\wrappers\LinkerCommon\obj\Release\net5.0\LinkerCommon.dll
+B:\java\mc\src\alias\wrappers\LinkerCommon\obj\Release\net5.0\ref\LinkerCommon.dll
+B:\java\mc\src\alias\wrappers\LinkerCommon\obj\Release\net5.0\LinkerCommon.pdb

@@ -23,6 +23,8 @@
  * questions.
  */
 
+#include <../../../../common>
+
 #ifdef _ALLBSD_SOURCE
 #include <machine/endian.h>
 #elif defined(__linux__)
@@ -87,11 +89,11 @@ extern  _LIB_VERSION_TYPE  _LIB_VERSION;
 #define _POSIX_ fdlibm_posix
 
 struct exception {
-        int type;
-        char *name;
         double arg1;
         double arg2;
         double retval;
+        char *name;
+        int type;
 };
 
 #define HUGE            MAXFLOAT

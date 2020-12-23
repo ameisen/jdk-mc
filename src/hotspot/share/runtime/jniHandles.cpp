@@ -56,7 +56,7 @@ void jni_handles_init() {
 
 
 jobject JNIHandles::make_local(oop obj) {
-  if _unlikely(obj == NULL) [[unlikely]] {
+  if _unlikely_if(obj == NULL) {
     return NULL;                // ignore null handles
   } else {
     Thread* thread = Thread::current();
@@ -70,7 +70,7 @@ jobject JNIHandles::make_local(oop obj) {
 // optimized versions
 
 jobject JNIHandles::make_local(Thread* thread, oop obj) {
-  if _unlikely(obj == NULL) [[unlikely]] {
+  if _unlikely_if(obj == NULL) {
     return NULL;                // ignore null handles
   } else {
     assert(oopDesc::is_oop(obj), "not an oop");
@@ -82,7 +82,7 @@ jobject JNIHandles::make_local(Thread* thread, oop obj) {
 
 
 jobject JNIHandles::make_local(JNIEnv* env, oop obj) {
-  if _unlikely(obj == NULL) [[unlikely]] {
+  if _unlikely_if(obj == NULL) {
     return NULL;                // ignore null handles
   } else {
     JavaThread* thread = JavaThread::thread_from_jni_environment(env);
@@ -108,12 +108,12 @@ jobject JNIHandles::make_global(Handle obj, AllocFailType alloc_failmode) {
   assert(!Universe::heap()->is_gc_active(), "can't extend the root set during GC");
   assert(!current_thread_in_native(), "must not be in native");
   jobject res = NULL;
-  if _likely(!obj.is_null()) [[likely]] {
+  if _likely_if(!obj.is_null()) {
     // ignore null handles
     assert(oopDesc::is_oop(obj()), "not an oop");
     oop* ptr = global_handles()->allocate();
     // Return NULL on allocation failure.
-    if _likely(ptr != NULL) [[likely]] {
+    if _likely_if(ptr != NULL) {
       assert(*ptr == NULL, "invariant");
       NativeAccess<>::oop_store(ptr, obj());
       res = reinterpret_cast<jobject>(ptr);
@@ -130,12 +130,12 @@ jobject JNIHandles::make_weak_global(Handle obj, AllocFailType alloc_failmode) {
   assert(!Universe::heap()->is_gc_active(), "can't extend the root set during GC");
   assert(!current_thread_in_native(), "must not be in native");
   jobject res = NULL;
-  if _likely(!obj.is_null()) [[likely]] {
+  if _likely_if(!obj.is_null()) {
     // ignore null handles
     assert(oopDesc::is_oop(obj()), "not an oop");
     oop* ptr = weak_global_handles()->allocate();
     // Return NULL on allocation failure.
-    if _likely(ptr != NULL) [[likely]] {
+    if _likely_if(ptr != NULL) {
       assert(*ptr == NULL, "invariant");
       NativeAccess<ON_PHANTOM_OOP_REF>::oop_store(ptr, obj());
       char* tptr = reinterpret_cast<char*>(ptr) + weak_tag_value;
@@ -153,7 +153,7 @@ jobject JNIHandles::make_weak_global(Handle obj, AllocFailType alloc_failmode) {
 // isn't detected).
 oop JNIHandles::resolve_external_guard(jobject handle) {
   oop result = NULL;
-  if _likely(handle != NULL) [[likely]] {
+  if _likely_if(handle != NULL) {
     result = resolve_impl<DECORATORS_NONE, true /* external_guard */>(handle);
   }
   return result;
@@ -168,7 +168,7 @@ bool JNIHandles::is_global_weak_cleared(jweak handle) {
 }
 
 void JNIHandles::destroy_global(jobject handle) {
-  if _likely(handle != NULL) [[likely]] {
+  if _likely_if(handle != NULL) {
     assert(!is_jweak(handle), "wrong method for detroying jweak");
     oop* oop_ptr = jobject_ptr(handle);
     NativeAccess<>::oop_store(oop_ptr, (oop)NULL);
@@ -178,7 +178,7 @@ void JNIHandles::destroy_global(jobject handle) {
 
 
 void JNIHandles::destroy_weak_global(jobject handle) {
-  if _likely(handle != NULL) [[likely]] {
+  if _likely_if(handle != NULL) {
     assert(is_jweak(handle), "JNI handle not jweak");
     oop* oop_ptr = jweak_ptr(handle);
     NativeAccess<ON_PHANTOM_OOP_REF>::oop_store(oop_ptr, (oop)NULL);
@@ -211,7 +211,7 @@ jobjectRefType JNIHandles::handle_type(Thread* thread, jobject handle) {
   assert(handle != NULL, "precondition");
   jobjectRefType result = JNIInvalidRefType;
   if (is_jweak(handle)) {
-    if _likely(is_storage_handle(weak_global_handles(), jweak_ptr(handle))) [[likely]] {
+    if _likely_if(is_storage_handle(weak_global_handles(), jweak_ptr(handle))) {
       result = JNIWeakGlobalRefType;
     }
   } else {

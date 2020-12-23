@@ -225,6 +225,14 @@ ifeq ($(USE_EXTERNAL_LIBZ), true)
   LEGAL_EXCLUDES += zlib.md
 endif
 
+ifeq ($(USE_EXTERNAL_LIBZSTD), true)
+  LEGAL_EXCLUDES += zstd.md
+endif
+
+ifeq ($(USE_EXTERNAL_LIBLZMA), true)
+  LEGAL_EXCLUDES += lzma.md
+endif
+
 $(eval $(call SetupCopyLegalFiles, COPY_LEGAL, \
     EXCLUDES := $(LEGAL_EXCLUDES), \
 ))

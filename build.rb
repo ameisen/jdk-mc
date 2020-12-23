@@ -14,6 +14,7 @@ DEFAULT_ARCHITECTURES = [
 	"generic",
 	"zen",
 	"zen2",
+	"zen3",
 	"skylake",
 	"skylake-x"
 ]

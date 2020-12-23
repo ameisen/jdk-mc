@@ -141,6 +141,9 @@ void C2Compiler::compile_method(ciEnv* env, ciMethod* target, int entry_bci, Dir
       // on the ciEnv via env->record_method_not_compilable().
       env->record_failure(C.failure_reason());
     }
+    else {
+      env->report_failure("unknown");
+    }
     if (StressRecompilation) {
       if (subsume_loads) {
         subsume_loads = false;
@@ -150,6 +153,21 @@ void C2Compiler::compile_method(ciEnv* env, ciMethod* target, int entry_bci, Dir
         do_escape_analysis = false;
         continue;  // retry
       }
+    }
+
+    if (subsume_loads) {
+      subsume_loads = false;
+      continue;
+    }
+
+    if (do_escape_analysis) {
+      do_escape_analysis = false;
+      continue;
+    }
+
+    if (eliminate_boxing) {
+      eliminate_boxing = false;
+      continue;
     }
 
     // print inlining for last compilation only

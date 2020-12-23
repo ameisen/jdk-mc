@@ -178,8 +178,8 @@ bool jfieldIDWorkaround::is_valid_jfieldID(Klass* k, jfieldID id) {
   if (jfieldIDWorkaround::is_instance_jfieldID(k, id)) {
     uintptr_t as_uint = (uintptr_t) id;
     intptr_t offset = raw_instance_offset(id);
-    if (is_checked_jfieldID(id)) {
-      if (!klass_hash_ok(k, id)) {
+    if _unlikely_if(is_checked_jfieldID(id)) {
+      if _unlikely_if(!klass_hash_ok(k, id)) {
         return false;
       }
     }
@@ -196,15 +196,15 @@ bool jfieldIDWorkaround::is_valid_jfieldID(Klass* k, jfieldID id) {
 
 
 intptr_t jfieldIDWorkaround::encode_klass_hash(Klass* k, intptr_t offset) {
-  if (offset <= small_offset_mask) {
+  if _likely_if(offset <= small_offset_mask) {
     Klass* field_klass = k;
-    Klass* super_klass = field_klass->super();
+    InstanceKlass* super_klass = InstanceKlass::cast(field_klass->super());
     // With compressed oops the most super class with nonstatic fields would
     // be the owner of fields embedded in the header.
-    while (InstanceKlass::cast(super_klass)->has_nonstatic_fields() &&
-           InstanceKlass::cast(super_klass)->contains_field_offset(offset)) {
+    while (super_klass->has_nonstatic_fields() &&
+           super_klass->contains_field_offset(offset)) {
       field_klass = super_klass;   // super contains the field also
-      super_klass = field_klass->super();
+      super_klass = InstanceKlass::cast(field_klass->super());
     }
     debug_only(NoSafepointVerifier nosafepoint;)
     uintptr_t klass_hash = field_klass->identity_hash();
@@ -228,10 +228,10 @@ bool jfieldIDWorkaround::klass_hash_ok(Klass* k, jfieldID id) {
   do {
     debug_only(NoSafepointVerifier nosafepoint;)
     // Could use a non-blocking query for identity_hash here...
-    if ((k->identity_hash() & klass_mask) == klass_hash)
+    if _likely_if((k->identity_hash() & klass_mask) == klass_hash)
       return true;
     k = k->super();
-  } while (k != NULL);
+  } while _likely(k != NULL);
   return false;
 }
 
@@ -239,7 +239,7 @@ void jfieldIDWorkaround::verify_instance_jfieldID(Klass* k, jfieldID id) {
   guarantee(jfieldIDWorkaround::is_instance_jfieldID(k, id), "must be an instance field" );
   uintptr_t as_uint = (uintptr_t) id;
   intptr_t offset = raw_instance_offset(id);
-  if (VerifyJNIFields) {
+  if _unlikely_if(VerifyJNIFields) {
     if (is_checked_jfieldID(id)) {
       guarantee(klass_hash_ok(k, id),
     "Bug in native code: jfieldID class must match object");
@@ -325,7 +325,7 @@ JNI_ENTRY(jclass, jni_DefineClass(JNIEnv *env, const char *name, jobject loaderR
   ClassFileStream st((u1*)buf, bufLen, NULL, ClassFileStream::verify);
   Handle class_loader (THREAD, JNIHandles::resolve(loaderRef));
 
-  if (UsePerfData && !class_loader.is_null()) {
+  if _unlikely_if(UsePerfData && !class_loader.is_null()) {
     // check whether the current caller thread holds the lock or not.
     // If not, increment the corresponding counter
     if (ObjectSynchronizer::
@@ -340,7 +340,7 @@ JNI_ENTRY(jclass, jni_DefineClass(JNIEnv *env, const char *name, jobject loaderR
                                                    &st,
                                                    CHECK_NULL);
 
-  if (log_is_enabled(Debug, class, resolve) && k != NULL) {
+  if _unlikely_if(log_is_enabled(Debug, class, resolve) && k != NULL) {
     trace_class_resolution(k);
   }
 
@@ -400,7 +400,7 @@ JNI_ENTRY(jclass, jni_FindClass(JNIEnv *env, const char *name))
   result = find_class_from_class_loader(env, class_name, true, loader,
                                         protection_domain, true, thread);
 
-  if (log_is_enabled(Debug, class, resolve) && result != NULL) {
+  if _unlikely_if(log_is_enabled(Debug, class, resolve) && result != NULL) {
     trace_class_resolution(java_lang_Class::as_Klass(JNIHandles::resolve_non_null(result)));
   }
 
@@ -518,14 +518,14 @@ JNI_ENTRY(jclass, jni_GetSuperclass(JNIEnv *env, jclass sub))
 
   oop mirror = JNIHandles::resolve_non_null(sub);
   // primitive classes return NULL
-  if (java_lang_Class::is_primitive(mirror)) return NULL;
+  if _unlikely_if(java_lang_Class::is_primitive(mirror)) return NULL;
 
   // Rules of Class.getSuperClass as implemented by KLass::java_super:
   // arrays return Object
   // interfaces return NULL
   // proper classes return Klass::super()
   Klass* k = java_lang_Class::as_Klass(mirror);
-  if (k->is_interface()) return NULL;
+  if _unlikely_if(k->is_interface()) return NULL;
 
   // return mirror for superclass
   Klass* super = k->java_super();
@@ -810,7 +810,7 @@ JNI_LEAF(jint, jni_EnsureLocalCapacity(JNIEnv *env, jint capacity))
   HOTSPOT_JNI_ENSURELOCALCAPACITY_ENTRY(env, capacity);
 
   jint ret;
-  if (capacity >= 0 &&
+  if _likely_if(capacity >= 0 &&
       ((MaxJNILocalCapacity <= 0) || (capacity <= MaxJNILocalCapacity))) {
     ret = JNI_OK;
   } else {
@@ -828,7 +828,7 @@ JNI_LEAF(jobjectRefType, jni_GetObjectRefType(JNIEnv *env, jobject obj))
   HOTSPOT_JNI_GETOBJECTREFTYPE_ENTRY(env, obj);
 
   jobjectRefType ret = JNIInvalidRefType;
-  if (obj != NULL) {
+  if _likely_if(obj != NULL) {
     ret = JNIHandles::handle_type(thread, obj);
   }
 
@@ -852,7 +852,9 @@ class JNI_ArgumentPusher : public SignatureIterator {
     // 0 to JNI_FALSE.  Boolean return values from native are normalized the same in
     // TemplateInterpreterGenerator::generate_result_handler_for and
     // SharedRuntime::generate_native_wrapper.
-    push_int(b == 0 ? JNI_FALSE : JNI_TRUE);
+    // push_int(b == 0 ? JNI_FALSE : JNI_TRUE);
+    static_assert(JNI_FALSE == 0 && JNI_TRUE == 1, "this only works if JNI_FALSE and _TRUE are 0 and 1");
+    push_int(jint(b));
   }
 
   JNI_ArgumentPusher(Method* method)
@@ -1140,7 +1142,7 @@ JNI_ENTRY_NO_PRESERVE(jboolean, jni_IsInstanceOf(JNIEnv *env, jobject obj, jclas
   HOTSPOT_JNI_ISINSTANCEOF_ENTRY(env, obj, clazz);
 
   jboolean ret = JNI_TRUE;
-  if (obj != NULL) {
+  if _likely_if(obj != NULL) {
     ret = JNI_FALSE;
     Klass* k = java_lang_Class::as_Klass(
       JNIHandles::resolve_non_null(clazz));
@@ -1167,7 +1169,7 @@ static jmethodID get_method_id(JNIEnv *env, jclass clazz, const char *name_str,
   TempNewSymbol name = SymbolTable::probe(name_to_probe, (int)strlen(name_to_probe));
   TempNewSymbol signature = SymbolTable::probe(sig, (int)strlen(sig));
 
-  if (name == NULL || signature == NULL) {
+  if _unlikely_if(name == NULL || signature == NULL) {
     THROW_MSG_0(vmSymbols::java_lang_NoSuchMethodError(), name_str);
   }
 
@@ -1188,7 +1190,7 @@ static jmethodID get_method_id(JNIEnv *env, jclass clazz, const char *name_str,
   if (name == vmSymbols::object_initializer_name() ||
       name == vmSymbols::class_initializer_name()) {
     // Never search superclasses for constructors
-    if (klass->is_instance_klass()) {
+    if _likely_if(klass->is_instance_klass()) {
       m = InstanceKlass::cast(klass)->find_method(name, signature);
     } else {
       m = NULL;
@@ -1199,7 +1201,7 @@ static jmethodID get_method_id(JNIEnv *env, jclass clazz, const char *name_str,
       m = InstanceKlass::cast(klass)->lookup_method_in_ordered_interfaces(name, signature);
     }
   }
-  if (m == NULL || (m->is_static() != is_static)) {
+  if _unlikely_if(m == NULL || (m->is_static() != is_static)) {
     ResourceMark rm;
     THROW_MSG_0(vmSymbols::java_lang_NoSuchMethodError(), err_msg("%s%s.%s%s", is_static ? "static " : "", klass->signature_name(), name_str, sig));
   }
@@ -1876,7 +1878,7 @@ JNI_ENTRY(jfieldID, jni_GetFieldID(JNIEnv *env, jclass clazz,
   // table.  If they're not there, the field doesn't exist.
   TempNewSymbol fieldname = SymbolTable::probe(name, (int)strlen(name));
   TempNewSymbol signame = SymbolTable::probe(sig, (int)strlen(sig));
-  if (fieldname == NULL || signame == NULL) {
+  if _unlikely_if(fieldname == NULL || signame == NULL) {
     ResourceMark rm;
     THROW_MSG_0(vmSymbols::java_lang_NoSuchFieldError(), err_msg("%s.%s %s", k->external_name(), name, sig));
   }
@@ -1885,7 +1887,7 @@ JNI_ENTRY(jfieldID, jni_GetFieldID(JNIEnv *env, jclass clazz,
   k->initialize(CHECK_NULL);
 
   fieldDescriptor fd;
-  if (!k->is_instance_klass() ||
+  if _unlikely_if(!k->is_instance_klass() ||
       !InstanceKlass::cast(k)->find_field(fieldname, signame, false, &fd)) {
     ResourceMark rm;
     THROW_MSG_0(vmSymbols::java_lang_NoSuchFieldError(), err_msg("%s.%s %s", k->external_name(), name, sig));
@@ -2113,7 +2115,7 @@ JNI_ENTRY(jfieldID, jni_GetStaticFieldID(JNIEnv *env, jclass clazz,
   // table.  If they're not there, the field doesn't exist.
   TempNewSymbol fieldname = SymbolTable::probe(name, (int)strlen(name));
   TempNewSymbol signame = SymbolTable::probe(sig, (int)strlen(sig));
-  if (fieldname == NULL || signame == NULL) {
+  if _unlikely_if(fieldname == NULL || signame == NULL) {
     THROW_MSG_0(vmSymbols::java_lang_NoSuchFieldError(), (char*) name);
   }
   Klass* k = java_lang_Class::as_Klass(JNIHandles::resolve_non_null(clazz));
@@ -2121,7 +2123,7 @@ JNI_ENTRY(jfieldID, jni_GetStaticFieldID(JNIEnv *env, jclass clazz,
   k->initialize(CHECK_NULL);
 
   fieldDescriptor fd;
-  if (!k->is_instance_klass() ||
+  if _unlikely_if(!k->is_instance_klass() ||
       !InstanceKlass::cast(k)->find_field(fieldname, signame, true, &fd)) {
     THROW_MSG_0(vmSymbols::java_lang_NoSuchFieldError(), (char*) name);
   }
@@ -2305,7 +2307,7 @@ JNI_ENTRY_NO_PRESERVE(const jchar*, jni_GetStringChars(
     bool is_latin1 = java_lang_String::is_latin1(s);
     buf = NEW_C_HEAP_ARRAY_RETURN_NULL(jchar, s_len + 1, mtInternal);  // add one for zero termination
     /* JNI Specification states return NULL on OOM */
-    if (buf != NULL) {
+    if _likely_if(buf != NULL) {
       if (s_len > 0) {
         if (!is_latin1) {
           ArrayAccess<>::arraycopy_to_native(s_value, (size_t) typeArrayOopDesc::element_offset<jchar>(0),
@@ -2332,7 +2334,7 @@ JNI_ENTRY_NO_PRESERVE(void, jni_ReleaseStringChars(JNIEnv *env, jstring str, con
   JNIWrapper("ReleaseStringChars");
   HOTSPOT_JNI_RELEASESTRINGCHARS_ENTRY(env, str, (uint16_t *) chars);
   //%note jni_6
-  if (chars != NULL) {
+  if _likely_if(chars != NULL) {
     // Since String objects are supposed to be immutable, don't copy any
     // new data back.  A bad user will have to go after the char array.
     FreeHeap((void*) chars);
@@ -2374,7 +2376,7 @@ JNI_ENTRY(const char*, jni_GetStringUTFChars(JNIEnv *env, jstring string, jboole
   char* result = NULL;
   oop java_string = JNIHandles::resolve_non_null(string);
   typeArrayOop s_value = java_lang_String::value(java_string);
-  if (s_value != NULL) {
+  if _likely_if(s_value != NULL) {
     size_t length = java_lang_String::utf8_length(java_string, s_value);
     /* JNI Specification states return NULL on OOM */
     result = AllocateHeap(length + 1, mtInternal, 0, AllocFailStrategy::RETURN_NULL);
@@ -2393,7 +2395,7 @@ JNI_END
 JNI_LEAF(void, jni_ReleaseStringUTFChars(JNIEnv *env, jstring str, const char *chars))
   JNIWrapper("ReleaseStringUTFChars");
  HOTSPOT_JNI_RELEASESTRINGUTFCHARS_ENTRY(env, str, (char *) chars);
-  if (chars != NULL) {
+  if _likely_if(chars != NULL) {
     FreeHeap((char*) chars);
   }
 HOTSPOT_JNI_RELEASESTRINGUTFCHARS_RETURN();
@@ -2446,7 +2448,7 @@ JNI_ENTRY(jobject, jni_GetObjectArrayElement(JNIEnv *env, jobjectArray array, js
   jobject ret = NULL;
   DT_RETURN_MARK(GetObjectArrayElement, jobject, (const jobject&)ret);
   objArrayOop a = objArrayOop(JNIHandles::resolve_non_null(array));
-  if (a->is_within_bounds(index)) {
+  if _likely_if(a->is_within_bounds(index)) {
     ret = JNIHandles::make_local(env, a->obj_at(index));
     return ret;
   } else {
@@ -2467,8 +2469,8 @@ JNI_ENTRY(void, jni_SetObjectArrayElement(JNIEnv *env, jobjectArray array, jsize
 
   objArrayOop a = objArrayOop(JNIHandles::resolve_non_null(array));
   oop v = JNIHandles::resolve(value);
-  if (a->is_within_bounds(index)) {
-    if (v == NULL || v->is_a(ObjArrayKlass::cast(a->klass())->element_klass())) {
+  if _likely_if(a->is_within_bounds(index)) {
+    if _likely_if(v == NULL || v->is_a(ObjArrayKlass::cast(a->klass())->element_klass())) {
       a->obj_at_put(index, v);
     } else {
       ResourceMark rm(THREAD);
@@ -2626,7 +2628,7 @@ JNI_ENTRY_NO_PRESERVE(void, \
   EntryProbe; \
   typeArrayOop a = typeArrayOop(JNIHandles::resolve_non_null(array)); \
   int len = a->length(); \
-  if (len != 0) {   /* Empty array:  nothing to free or copy. */  \
+  if _likely_if(len != 0) {   /* Empty array:  nothing to free or copy. */  \
     if ((mode == 0) || (mode == JNI_COMMIT)) { \
       ArrayAccess<>::arraycopy_from_native(buf, a, typeArrayOopDesc::element_offset<ElementType>(0), len); \
     } \
@@ -2664,11 +2666,11 @@ DEFINE_RELEASESCALARARRAYELEMENTS(T_DOUBLE,  jdouble,  Double,  double
 
 static void check_bounds(jsize start, jsize copy_len, jsize array_len, TRAPS) {
   ResourceMark rm(THREAD);
-  if (copy_len < 0) {
+  if _unlikely_if(copy_len < 0) {
     stringStream ss;
     ss.print("Length %d is negative", copy_len);
     THROW_MSG(vmSymbols::java_lang_ArrayIndexOutOfBoundsException(), ss.as_string());
-  } else if (start < 0 || (start > array_len - copy_len)) {
+  } else if _unlikely_if(start < 0 || (start > array_len - copy_len)) {
     stringStream ss;
     ss.print("Array region %d.." INT64_FORMAT " out of bounds for length %d",
              start, (int64_t)start+(int64_t)copy_len, array_len);
@@ -2689,7 +2691,7 @@ jni_Get##Result##ArrayRegion(JNIEnv *env, ElementType##Array array, jsize start,
   DT_VOID_RETURN_MARK(Get##Result##ArrayRegion); \
   typeArrayOop src = typeArrayOop(JNIHandles::resolve_non_null(array)); \
   check_bounds(start, len, src->length(), CHECK); \
-  if (len > 0) {    \
+  if _likely_if(len > 0) {    \
     ArrayAccess<>::arraycopy_to_native(src, typeArrayOopDesc::element_offset<ElementType>(start), buf, len); \
   } \
 JNI_END
@@ -2733,7 +2735,7 @@ jni_Set##Result##ArrayRegion(JNIEnv *env, ElementType##Array array, jsize start,
   DT_VOID_RETURN_MARK(Set##Result##ArrayRegion); \
   typeArrayOop dst = typeArrayOop(JNIHandles::resolve_non_null(array)); \
   check_bounds(start, len, dst->length(), CHECK); \
-  if (len > 0) { \
+  if _likely_if(len > 0) { \
     ArrayAccess<>::arraycopy_from_native(buf, dst, typeArrayOopDesc::element_offset<ElementType>(start), len); \
   } \
 JNI_END
@@ -2811,7 +2813,7 @@ JNI_ENTRY(jint, jni_RegisterNatives(JNIEnv *env, jclass clazz,
     TempNewSymbol  name = SymbolTable::probe(meth_name, meth_name_len);
     TempNewSymbol  signature = SymbolTable::probe(meth_sig, (int)strlen(meth_sig));
 
-    if (name == NULL || signature == NULL) {
+    if _unlikely_if(name == NULL || signature == NULL) {
       ResourceMark rm(THREAD);
       stringStream st;
       st.print("Method %s.%s%s not found", k->external_name(), meth_name, meth_sig);
@@ -2819,7 +2821,7 @@ JNI_ENTRY(jint, jni_RegisterNatives(JNIEnv *env, jclass clazz,
       THROW_MSG_(vmSymbols::java_lang_NoSuchMethodError(), st.as_string(), -1);
     }
 
-    if (do_warning) {
+    if _unlikely_if(do_warning) {
       ResourceMark rm(THREAD);
       log_warning(jni, resolve)("Re-registering of platform native method: %s.%s%s "
               "from code in a different classloader", k->external_name(), meth_name, meth_sig);
@@ -2827,7 +2829,7 @@ JNI_ENTRY(jint, jni_RegisterNatives(JNIEnv *env, jclass clazz,
 
     bool res = Method::register_native(k, name, signature,
                                        (address) methods[index].fnPtr, THREAD);
-    if (!res) {
+    if _unlikely_if(!res) {
       ret = -1;
       break;
     }
@@ -2867,7 +2869,7 @@ JNI_ENTRY(jint, jni_MonitorEnter(JNIEnv *env, jobject jobj))
   DT_RETURN_MARK(MonitorEnter, jint, (const jint&)ret);
 
   // If the object is null, we can't do anything with it
-  if (jobj == NULL) {
+  if _unlikely_if(jobj == NULL) {
     THROW_(vmSymbols::java_lang_NullPointerException(), JNI_ERR);
   }
 
@@ -2886,7 +2888,7 @@ JNI_ENTRY(jint, jni_MonitorExit(JNIEnv *env, jobject jobj))
   DT_RETURN_MARK(MonitorExit, jint, (const jint&)ret);
 
   // Don't do anything with a null object
-  if (jobj == NULL) {
+  if _unlikely_if(jobj == NULL) {
     THROW_(vmSymbols::java_lang_NullPointerException(), JNI_ERR);
   }
 
@@ -2911,10 +2913,10 @@ JNI_ENTRY(void, jni_GetStringRegion(JNIEnv *env, jstring string, jsize start, js
   oop s = JNIHandles::resolve_non_null(string);
   typeArrayOop s_value = java_lang_String::value(s);
   int s_len = java_lang_String::length(s, s_value);
-  if (start < 0 || len < 0 || start > s_len - len) {
+  if _unlikely_if(start < 0 || len < 0 || start > s_len - len) {
     THROW(vmSymbols::java_lang_StringIndexOutOfBoundsException());
   } else {
-    if (len > 0) {
+    if _likely_if(len > 0) {
       bool is_latin1 = java_lang_String::is_latin1(s);
       if (!is_latin1) {
         ArrayAccess<>::arraycopy_to_native(s_value, typeArrayOopDesc::element_offset<jchar>(start),
@@ -2938,11 +2940,11 @@ JNI_ENTRY(void, jni_GetStringUTFRegion(JNIEnv *env, jstring string, jsize start,
   oop s = JNIHandles::resolve_non_null(string);
   typeArrayOop s_value = java_lang_String::value(s);
   int s_len = java_lang_String::length(s, s_value);
-  if (start < 0 || len < 0 || start > s_len - len) {
+  if _unlikely_if(start < 0 || len < 0 || start > s_len - len) {
     THROW(vmSymbols::java_lang_StringIndexOutOfBoundsException());
   } else {
     //%note jni_7
-    if (len > 0) {
+    if _likely_if(len > 0) {
       // Assume the buffer is large enough as the JNI spec. does not require user error checking
       java_lang_String::as_utf8_string(s, s_value, start, len, buf, INT_MAX);
       // as_utf8_string null-terminates the result string
@@ -3094,7 +3096,7 @@ static jclass lookupOne(JNIEnv* env, const char* name, TRAPS) {
   TempNewSymbol sym = SymbolTable::new_symbol(name);
   jclass result =  find_class_from_class_loader(env, sym, true, loader, protection_domain, true, CHECK_NULL);
 
-  if (log_is_enabled(Debug, class, resolve) && result != NULL) {
+  if _unlikely_if(log_is_enabled(Debug, class, resolve) && result != NULL) {
     trace_class_resolution(java_lang_Class::as_Klass(JNIHandles::resolve_non_null(result)));
   }
   return result;
@@ -3104,21 +3106,21 @@ static jclass lookupOne(JNIEnv* env, const char* name, TRAPS) {
 // circumvent any security checks that would be done by jni_FindClass.
 JNI_ENTRY(bool, lookupDirectBufferClasses(JNIEnv* env))
 {
-  if ((bufferClass           = lookupOne(env, "java/nio/Buffer", thread))           == NULL) { return false; }
-  if ((directBufferClass     = lookupOne(env, "sun/nio/ch/DirectBuffer", thread))   == NULL) { return false; }
-  if ((directByteBufferClass = lookupOne(env, "java/nio/DirectByteBuffer", thread)) == NULL) { return false; }
+  if _unlikely_if((bufferClass           = lookupOne(env, "java/nio/Buffer", thread))           == NULL) { return false; }
+  if _unlikely_if((directBufferClass     = lookupOne(env, "sun/nio/ch/DirectBuffer", thread))   == NULL) { return false; }
+  if _unlikely_if((directByteBufferClass = lookupOne(env, "java/nio/DirectByteBuffer", thread)) == NULL) { return false; }
   return true;
 }
 JNI_END
 
 
 static bool initializeDirectBufferSupport(JNIEnv* env, JavaThread* thread) {
-  if (directBufferSupportInitializeFailed) {
+  if _unlikely_if(directBufferSupportInitializeFailed) {
     return false;
   }
 
   if (Atomic::cmpxchg(&directBufferSupportInitializeStarted, 0, 1) == 0) {
-    if (!lookupDirectBufferClasses(env)) {
+    if _unlikely_if(!lookupDirectBufferClasses(env)) {
       directBufferSupportInitializeFailed = 1;
       return false;
     }
@@ -3130,25 +3132,25 @@ static bool initializeDirectBufferSupport(JNIEnv* env, JavaThread* thread) {
 
     // Get needed field and method IDs
     directByteBufferConstructor = env->GetMethodID(directByteBufferClass, "<init>", "(JI)V");
-    if (env->ExceptionCheck()) {
+    if _unlikely_if(env->ExceptionCheck()) {
       env->ExceptionClear();
       directBufferSupportInitializeFailed = 1;
       return false;
     }
     directBufferAddressField    = env->GetFieldID(bufferClass, "address", "J");
-    if (env->ExceptionCheck()) {
+    if _unlikely_if(env->ExceptionCheck()) {
       env->ExceptionClear();
       directBufferSupportInitializeFailed = 1;
       return false;
     }
     bufferCapacityField         = env->GetFieldID(bufferClass, "capacity", "I");
-    if (env->ExceptionCheck()) {
+    if _unlikely_if(env->ExceptionCheck()) {
       env->ExceptionClear();
       directBufferSupportInitializeFailed = 1;
       return false;
     }
 
-    if ((directByteBufferConstructor == NULL) ||
+    if _unlikely_if((directByteBufferConstructor == NULL) ||
         (directBufferAddressField    == NULL) ||
         (bufferCapacityField         == NULL)) {
       directBufferSupportInitializeFailed = 1;
@@ -3157,7 +3159,7 @@ static bool initializeDirectBufferSupport(JNIEnv* env, JavaThread* thread) {
 
     directBufferSupportInitializeEnded = 1;
   } else {
-    while (!directBufferSupportInitializeEnded && !directBufferSupportInitializeFailed) {
+    while _unlikely_if(!directBufferSupportInitializeEnded && !directBufferSupportInitializeFailed) {
       os::naked_yield();
     }
   }
@@ -3173,7 +3175,7 @@ extern "C" jobject JNICALL jni_NewDirectByteBuffer(JNIEnv *env, void* address, j
   JNIWrapper("jni_NewDirectByteBuffer");
  HOTSPOT_JNI_NEWDIRECTBYTEBUFFER_ENTRY(env, address, capacity);
 
-  if (!directBufferSupportInitializeEnded) {
+  if _unlikely_if(!directBufferSupportInitializeEnded) {
     if (!initializeDirectBufferSupport(env, thread)) {
       HOTSPOT_JNI_NEWDIRECTBYTEBUFFER_RETURN(NULL);
       return NULL;
@@ -3203,7 +3205,7 @@ extern "C" void* JNICALL jni_GetDirectBufferAddress(JNIEnv *env, jobject buf)
   void* ret = NULL;
   DT_RETURN_MARK(GetDirectBufferAddress, void*, (const void*&)ret);
 
-  if (!directBufferSupportInitializeEnded) {
+  if _unlikely_if(!directBufferSupportInitializeEnded) {
     if (!initializeDirectBufferSupport(env, thread)) {
       return 0;
     }
@@ -3230,18 +3232,18 @@ extern "C" jlong JNICALL jni_GetDirectBufferCapacity(JNIEnv *env, jobject buf)
   jlong ret = -1;
   DT_RETURN_MARK(GetDirectBufferCapacity, jlong, (const jlong&)ret);
 
-  if (!directBufferSupportInitializeEnded) {
+  if _unlikely_if(!directBufferSupportInitializeEnded) {
     if (!initializeDirectBufferSupport(env, thread)) {
       ret = 0;
       return ret;
     }
   }
 
-  if (buf == NULL) {
+  if _unlikely_if(buf == NULL) {
     return -1;
   }
 
-  if (!env->IsInstanceOf(buf, directBufferClass)) {
+  if _unlikely_if(!env->IsInstanceOf(buf, directBufferClass)) {
     return -1;
   }
 
@@ -3582,35 +3584,35 @@ void quicken_jni_functions() {
   if (UseFastJNIAccessors && !VerifyJNIFields && !CountJNICalls && !CheckJNICalls) {
     address func;
     func = JNI_FastGetField::generate_fast_get_boolean_field();
-    if (func != (address)-1) {
+    if _likely_if(func != (address)-1) {
       jni_NativeInterface.GetBooleanField = (GetBooleanField_t)func;
     }
     func = JNI_FastGetField::generate_fast_get_byte_field();
-    if (func != (address)-1) {
+    if _likely_if(func != (address)-1) {
       jni_NativeInterface.GetByteField = (GetByteField_t)func;
     }
     func = JNI_FastGetField::generate_fast_get_char_field();
-    if (func != (address)-1) {
+    if _likely_if(func != (address)-1) {
       jni_NativeInterface.GetCharField = (GetCharField_t)func;
     }
     func = JNI_FastGetField::generate_fast_get_short_field();
-    if (func != (address)-1) {
+    if _likely_if(func != (address)-1) {
       jni_NativeInterface.GetShortField = (GetShortField_t)func;
     }
     func = JNI_FastGetField::generate_fast_get_int_field();
-    if (func != (address)-1) {
+    if _likely_if(func != (address)-1) {
       jni_NativeInterface.GetIntField = (GetIntField_t)func;
     }
     func = JNI_FastGetField::generate_fast_get_long_field();
-    if (func != (address)-1) {
+    if _likely_if(func != (address)-1) {
       jni_NativeInterface.GetLongField = (GetLongField_t)func;
     }
     func = JNI_FastGetField::generate_fast_get_float_field();
-    if (func != (address)-1) {
+    if _likely_if(func != (address)-1) {
       jni_NativeInterface.GetFloatField = (GetFloatField_t)func;
     }
     func = JNI_FastGetField::generate_fast_get_double_field();
-    if (func != (address)-1) {
+    if _likely_if(func != (address)-1) {
       jni_NativeInterface.GetDoubleField = (GetDoubleField_t)func;
     }
   }
@@ -3619,7 +3621,7 @@ void quicken_jni_functions() {
 // Returns the function structure
 struct JNINativeInterface_* jni_functions() {
 #if INCLUDE_JNI_CHECK
-  if (CheckJNICalls) return jni_functions_check();
+  if _unlikely_if(CheckJNICalls) return jni_functions_check();
 #endif // INCLUDE_JNI_CHECK
   return &jni_NativeInterface;
 }
@@ -3674,14 +3676,14 @@ _JNI_IMPORT_OR_EXPORT_ jint JNICALL JNI_GetDefaultJavaVMInitArgs(void *args_) {
   jint ret = JNI_ERR;
   DT_RETURN_MARK(GetDefaultJavaVMInitArgs, jint, (const jint&)ret);
 
-  if (Threads::is_supported_jni_version(args->version)) {
+  if _likely_if(Threads::is_supported_jni_version(args->version)) {
     ret = JNI_OK;
   }
   // 1.1 style no longer supported in hotspot.
   // According the JNI spec, we should update args->version on return.
   // We also use the structure to communicate with launcher about default
   // stack size.
-  if (args->version == JNI_VERSION_1_1) {
+  if _unlikely_if(args->version == JNI_VERSION_1_1) {
     args->version = JNI_VERSION_1_2;
     // javaStackSize is int in arguments structure
     assert(jlong(ThreadStackSize) * K < INT_MAX, "integer overflow");
@@ -3724,7 +3726,7 @@ static jint JNI_CreateJavaVM_inner(JavaVM **vm, void **penv, void *args) {
   // We use Atomic::xchg rather than Atomic::add/dec since on some platforms
   // the add/dec implementations are dependent on whether we are running
   // on a multiprocessor Atomic::xchg does not have this problem.
-  if (Atomic::xchg(&vm_created, 1) == 1) {
+  if _likely_if(Atomic::xchg(&vm_created, 1) == 1) {
     return JNI_EEXIST;   // already created, or create attempt in progress
   }
 
@@ -3733,7 +3735,7 @@ static jint JNI_CreateJavaVM_inner(JavaVM **vm, void **penv, void *args) {
   // cleared here. If a previous creation attempt succeeded and we then
   // destroyed that VM, we will be prevented from trying to recreate
   // the VM in the same process, as the value will still be 0.
-  if (Atomic::xchg(&safe_to_recreate_vm, 0) == 0) {
+  if _unlikely_if(Atomic::xchg(&safe_to_recreate_vm, 0) == 0) {
     return JNI_ERR;
   }
 
@@ -3752,7 +3754,7 @@ static jint JNI_CreateJavaVM_inner(JavaVM **vm, void **penv, void *args) {
   bool can_try_again = true;
 
   result = Threads::create_vm((JavaVMInitArgs*) args, &can_try_again);
-  if (result == JNI_OK) {
+  if _likely_if(result == JNI_OK) {
     JavaThread *thread = JavaThread::current();
     assert(!thread->has_pending_exception(), "should have returned not OK");
     /* thread is thread_in_vm here */
@@ -3798,7 +3800,7 @@ static jint JNI_CreateJavaVM_inner(JavaVM **vm, void **penv, void *args) {
     // exception.  In the future when we figure out how to reclaim memory,
     // we may be able to exit with JNI_ERR and allow the calling application
     // to continue.
-    if (Universe::is_fully_initialized()) {
+    if _unlikely_if(Universe::is_fully_initialized()) {
       // otherwise no pending exception possible - VM will already have aborted
       JavaThread* THREAD = JavaThread::current();
       if (HAS_PENDING_EXCEPTION) {
@@ -3807,7 +3809,7 @@ static jint JNI_CreateJavaVM_inner(JavaVM **vm, void **penv, void *args) {
       }
     }
 
-    if (can_try_again) {
+    if _likely_if(can_try_again) {
       // reset safe_to_recreate_vm to 1 so that retrial would be possible
       safe_to_recreate_vm = 1;
     }
@@ -3849,12 +3851,18 @@ _JNI_IMPORT_OR_EXPORT_ jint JNICALL JNI_GetCreatedJavaVMs(JavaVM **vm_buf, jsize
 
   HOTSPOT_JNI_GETCREATEDJAVAVMS_ENTRY((void **) vm_buf, bufLen, (uintptr_t *) numVMs);
 
-  if (vm_created == 1) {
-    if (numVMs != NULL) *numVMs = 1;
-    if (bufLen > 0)     *vm_buf = (JavaVM *)(&main_vm);
-  } else {
-    if (numVMs != NULL) *numVMs = 0;
+  switch (vm_created) {
+    [[unlikely]] case 0:
+      if (numVMs) *numVMs = 0;
+      break;
+    [[likely]] case 1:
+      if (numVMs) *numVMs = 1;
+      if (bufLen > 0)     *vm_buf = (JavaVM *)(&main_vm);
+      break;
+    default:
+      ShouldNotReachHere();
   }
+
   HOTSPOT_JNI_GETCREATEDJAVAVMS_RETURN(JNI_OK);
   return JNI_OK;
 }
@@ -3869,7 +3877,7 @@ static jint JNICALL jni_DestroyJavaVM_inner(JavaVM *vm) {
   jint res = JNI_ERR;
   DT_RETURN_MARK(DestroyJavaVM, jint, (const jint&)res);
 
-  if (vm_created == 0) {
+  if _unlikely_if(vm_created == 0) {
     res = JNI_ERR;
     return res;
   }
@@ -3881,14 +3889,14 @@ static jint JNICALL jni_DestroyJavaVM_inner(JavaVM *vm) {
   destroyargs.name = (char *)"DestroyJavaVM";
   destroyargs.group = NULL;
   res = vm->AttachCurrentThread((void **)&env, (void *)&destroyargs);
-  if (res != JNI_OK) {
+  if _unlikely_if(res != JNI_OK) {
     return res;
   }
 
   // Since this is not a JVM_ENTRY we have to set the thread state manually before entering.
   JavaThread* thread = JavaThread::current();
   ThreadStateTransition::transition_from_native(thread, _thread_in_vm);
-  if (Threads::destroy_vm()) {
+  if _likely_if(Threads::destroy_vm()) {
     // Should not change thread state, VM is gone
     vm_created = 0;
     res = JNI_OK;
@@ -3928,7 +3936,7 @@ static jint attach_current_thread(JavaVM *vm, void **penv, void *_args, bool dae
   Thread* t = Thread::current_or_null();
   if (t != NULL) {
     // If executing from an atexit hook we may be in the VMThread.
-    if (t->is_Java_thread()) {
+    if _likely_if(t->is_Java_thread()) {
       // If the thread has been attached this operation is a no-op
       *(JNIEnv**)penv = ((JavaThread*) t)->jni_environment();
       return JNI_OK;
@@ -3949,7 +3957,7 @@ static jint attach_current_thread(JavaVM *vm, void **penv, void *_args, bool dae
   thread->register_thread_stack_with_NMT();
   thread->initialize_thread_current();
 
-  if (!os::create_attached_thread(thread)) {
+  if _unlikely_if(!os::create_attached_thread(thread)) {
     thread->smr_delete();
     return JNI_ERR;
   }
@@ -3984,14 +3992,14 @@ static jint attach_current_thread(JavaVM *vm, void **penv, void *_args, bool dae
     HandleMark hm(THREAD);
     Handle thread_group(THREAD, group);
     thread->allocate_threadObj(thread_group, thread_name, daemon, THREAD);
-    if (HAS_PENDING_EXCEPTION) {
+    if _unlikely_if(HAS_PENDING_EXCEPTION) {
       CLEAR_PENDING_EXCEPTION;
       // cleanup outside the handle mark.
       attach_failed = true;
     }
   }
 
-  if (attach_failed) {
+  if _unlikely_if(attach_failed) {
     // Added missing cleanup
     thread->cleanup_failed_attach_current_thread(daemon);
     return JNI_ERR;
@@ -4031,7 +4039,7 @@ static jint attach_current_thread(JavaVM *vm, void **penv, void *_args, bool dae
 
 jint JNICALL jni_AttachCurrentThread(JavaVM *vm, void **penv, void *_args) {
   HOTSPOT_JNI_ATTACHCURRENTTHREAD_ENTRY(vm, penv, _args);
-  if (vm_created == 0) {
+  if _unlikely_if(vm_created == 0) {
     HOTSPOT_JNI_ATTACHCURRENTTHREAD_RETURN((uint32_t) JNI_ERR);
     return JNI_ERR;
   }
@@ -4045,7 +4053,7 @@ jint JNICALL jni_AttachCurrentThread(JavaVM *vm, void **penv, void *_args) {
 
 jint JNICALL jni_DetachCurrentThread(JavaVM *vm)  {
   HOTSPOT_JNI_DETACHCURRENTTHREAD_ENTRY(vm);
-  if (vm_created == 0) {
+  if _unlikely_if(vm_created == 0) {
     HOTSPOT_JNI_DETACHCURRENTTHREAD_RETURN(JNI_ERR);
     return JNI_ERR;
   }
@@ -4061,7 +4069,7 @@ jint JNICALL jni_DetachCurrentThread(JavaVM *vm)  {
   }
 
   // If executing from an atexit hook we may be in the VMThread.
-  if (!current->is_Java_thread()) {
+  if _unlikely_if(!current->is_Java_thread()) {
     HOTSPOT_JNI_DETACHCURRENTTHREAD_RETURN((uint32_t) JNI_ERR);
     return JNI_ERR;
   }
@@ -4069,7 +4077,7 @@ jint JNICALL jni_DetachCurrentThread(JavaVM *vm)  {
   VM_Exit::block_if_vm_exited();
 
   JavaThread* thread = (JavaThread*) current;
-  if (thread->has_last_Java_frame()) {
+  if _unlikely_if(thread->has_last_Java_frame()) {
     HOTSPOT_JNI_DETACHCURRENTTHREAD_RETURN((uint32_t) JNI_ERR);
     // Can't detach a thread that's running java, that can't work.
     return JNI_ERR;
@@ -4103,7 +4111,7 @@ jint JNICALL jni_GetEnv(JavaVM *vm, void **penv, jint version) {
   jint ret = JNI_ERR;
   DT_RETURN_MARK(GetEnv, jint, (const jint&)ret);
 
-  if (vm_created == 0) {
+  if _unlikely_if(vm_created == 0) {
     *penv = NULL;
     ret = JNI_EDETACHED;
     return ret;
@@ -4121,20 +4129,20 @@ jint JNICALL jni_GetEnv(JavaVM *vm, void **penv, jint version) {
 #endif // !JVMPI_VERSION_1
 
   Thread* thread = Thread::current_or_null();
-  if (thread != NULL && thread->is_Java_thread()) {
-    if (Threads::is_supported_jni_version_including_1_1(version)) {
+  if _likely_if(thread != NULL && thread->is_Java_thread()) {
+    if _likely_if(Threads::is_supported_jni_version_including_1_1(version)) {
       *(JNIEnv**)penv = ((JavaThread*) thread)->jni_environment();
       ret = JNI_OK;
       return ret;
 
-    } else if (version == JVMPI_VERSION_1 ||
+    } else if _unlikely_if(version == JVMPI_VERSION_1 ||
                version == JVMPI_VERSION_1_1 ||
                version == JVMPI_VERSION_1_2) {
       tty->print_cr("ERROR: JVMPI, an experimental interface, is no longer supported.");
       tty->print_cr("Please use the supported interface: the JVM Tool Interface (JVM TI).");
       ret = JNI_EVERSION;
       return ret;
-    } else if (JvmtiExport::is_jvmdi_version(version)) {
+    } else if _unlikely_if(JvmtiExport::is_jvmdi_version(version)) {
       tty->print_cr("FATAL ERROR: JVMDI is no longer supported.");
       tty->print_cr("Please use the supported interface: the JVM Tool Interface (JVM TI).");
       ret = JNI_EVERSION;
@@ -4154,7 +4162,7 @@ jint JNICALL jni_GetEnv(JavaVM *vm, void **penv, jint version) {
 
 jint JNICALL jni_AttachCurrentThreadAsDaemon(JavaVM *vm, void **penv, void *_args) {
   HOTSPOT_JNI_ATTACHCURRENTTHREADASDAEMON_ENTRY(vm, penv, _args);
-  if (vm_created == 0) {
+  if _unlikely_if(vm_created == 0) {
   HOTSPOT_JNI_ATTACHCURRENTTHREADASDAEMON_RETURN((uint32_t) JNI_ERR);
     return JNI_ERR;
   }

@@ -553,7 +553,9 @@ void LIR_OpVisitState::visit(LIR_Op* op) {
     case lir_div:
     case lir_rem:
     case lir_sqrt:
+    case lir_sqrtf:
     case lir_abs:
+    case lir_absf:
     case lir_neg:
     case lir_logic_and:
     case lir_logic_or:
@@ -1657,8 +1659,10 @@ const char * LIR_Op::name() const {
      case lir_div_strictfp:          s = "div_strictfp";  break;
      case lir_rem:                   s = "rem";           break;
      case lir_abs:                   s = "abs";           break;
+     case lir_absf:                  s = "absf";          break;
      case lir_neg:                   s = "neg";           break;
      case lir_sqrt:                  s = "sqrt";          break;
+     case lir_sqrtf:                 s = "sqrtf";         break;
      case lir_logic_and:             s = "logic_and";     break;
      case lir_logic_or:              s = "logic_or";      break;
      case lir_logic_xor:             s = "logic_xor";     break;

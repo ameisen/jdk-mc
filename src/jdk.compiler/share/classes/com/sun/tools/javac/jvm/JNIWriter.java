@@ -271,14 +271,14 @@ public class JNIWriter {
                 float fv = ((Float) value).floatValue();
                 valueStr = (Float.isInfinite(fv))
                         ? ((fv < 0) ? "-" : "") + "Inff"
-                        : value.toString() + "f";
+                        : Float.toHexString(fv) + "f";
                 break;
             case DOUBLE:
                 // bug compatible
                 double d = ((Double) value).doubleValue();
                 valueStr = (Double.isInfinite(d))
                         ? ((d < 0) ? "-" : "") + "InfD"
-                        : value.toString();
+                        : Double.toHexString(d);
                 break;
             default:
                 valueStr = null;

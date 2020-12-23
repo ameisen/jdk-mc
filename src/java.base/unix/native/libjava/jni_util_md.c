@@ -26,6 +26,8 @@
 #include <errno.h>
 #include <string.h>
 
+#include <../../../../common>
+
 #include "jni.h"
 #include "jni_util.h"
 #include "dlfcn.h"
@@ -39,7 +41,7 @@ extern int __xpg_strerror_r(int, char *, size_t);
 
 void* getProcessHandle() {
     static void *procHandle = NULL;
-    if (procHandle != NULL) {
+    if _likely_if(procHandle != NULL) {
         return procHandle;
     }
 #ifdef __APPLE__

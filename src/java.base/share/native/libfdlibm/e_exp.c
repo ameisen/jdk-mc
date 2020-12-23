@@ -128,7 +128,7 @@ P5   =  4.13813679705723846039e-08; /* 0x3E663769, 0x72BEA4D0 */
 
     /* filter out non-finite argument */
         if(hx >= 0x40862E42) {                  /* if |x|>=709.78... */
-            if(hx>=0x7ff00000) {
+            if _unlikely_if(hx>=0x7ff00000) {
                 if(((hx&0xfffff)|__LO(x))!=0)
                      return x+x;                /* NaN */
                 else return (xsb==0)? x:0.0;    /* exp(+-inf)={inf,0} */

@@ -6599,7 +6599,9 @@ void LinearScanStatistic::collect(LinearScan* allocator) {
         case lir_div_strictfp:
         case lir_rem:
         case lir_sqrt:
+        case lir_sqrtf:
         case lir_abs:
+        case lir_absf:
         case lir_log10:
         case lir_logic_and:
         case lir_logic_or:

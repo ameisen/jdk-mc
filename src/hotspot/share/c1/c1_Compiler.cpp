@@ -153,7 +153,9 @@ bool Compiler::is_intrinsic_supported(const methodHandle& method) {
   case vmIntrinsics::_isPrimitive:
   case vmIntrinsics::_currentThread:
   case vmIntrinsics::_dabs:
+  case vmIntrinsics::_fabs:
   case vmIntrinsics::_dsqrt:
+  case vmIntrinsics::_fsqrt:
   case vmIntrinsics::_dsin:
   case vmIntrinsics::_dcos:
   case vmIntrinsics::_dtan:
