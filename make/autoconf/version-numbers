@@ -41,16 +41,16 @@ DEFAULT_ACCEPTABLE_BOOT_VERSIONS="14 15"
 DEFAULT_JDK_SOURCE_TARGET_VERSION=15
 DEFAULT_PROMOTED_VERSION_PRE=
 
-LAUNCHER_NAME=openjdk
-PRODUCT_NAME=OpenJDK
-PRODUCT_SUFFIX="Runtime Environment"
+LAUNCHER_NAME=jdk-mc
+PRODUCT_NAME=CarbideJDK-MC
+PRODUCT_SUFFIX="Minecraft Environment"
 JDK_RC_PLATFORM_NAME=Platform
 COMPANY_NAME="Digital Carbide"
-HOTSPOT_VM_DISTRO="OpenJDK"
+HOTSPOT_VM_DISTRO="CarbideJDK-MC"
 VENDOR_URL=https://openjdk.java.net/
 VENDOR_URL_BUG=https://bugreport.java.com/bugreport/
 VENDOR_URL_VM_BUG=https://bugreport.java.com/bugreport/crash.jsp
 
 # Might need better names for these
-MACOSX_BUNDLE_NAME_BASE="OpenJDK"
+MACOSX_BUNDLE_NAME_BASE="CarbideJDK-MC"
 MACOSX_BUNDLE_ID_BASE="net.java.openjdk"

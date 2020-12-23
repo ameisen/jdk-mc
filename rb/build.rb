@@ -1014,9 +1014,9 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 			"jvm-variants=#{CONFIG_NAME}",
 			"vendor-name=Digital Carbide",
 			"vendor-url=https://www.digitalcarbide.com/",
-			"version-build=#{JDK_VERSION_HASH["DEFAULT_VERSION_REVISION"]}-mc",
+			"version-build=#{JDK_VERSION_HASH["DEFAULT_VERSION_REVISION"]}",
 			"version-opt=mc-#{JDK_BUILD}",
-			"version-pre=#{(Options::debug ? "debug" : "release")} #{JDK_BUILD}",
+			"version-pre=mc#{(Options::debug ? "-debug" : "")}",
 			"native-debug-symbols=#{(Options::debug ? "internal" : "none")}"
 		]
 
