@@ -465,10 +465,11 @@ public final class Math {
      * @return  the remainder when {@code f1} is divided by
      *          {@code f2}.
      */
-    public static native double IEEEremainder(double f1, double f2);
-    private static native float IEEEremainderf(float f1, float f2);
+    public static double IEEEremainder(double f1, double f2) {
+        return StrictMath.IEEEremainder(f1, f2);
+    }
     public static float IEEEremainder(float f1, float f2) {
-        return IEEEremainderf(f1, f2);
+        return (float)IEEEremainder((double)f1, (double)f2);
     }
 
     /**

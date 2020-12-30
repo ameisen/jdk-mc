@@ -64,6 +64,41 @@ if MSVC_USE_CLANG
 	end
 end
 
+def gcc_get_opts
+	opts_file = File.join(__dir__, "gcc.opts")
+	return [] unless File.exist?(opts_file)
+	lines = File.readlines(opts_file)
+	lines.map!(&:strip)
+	args = []
+	block_comment = false
+	lines.each { |line|
+		if line.start_with?("=#")
+			block_comment = !block_comment
+			next
+		end
+		next if block_comment
+
+		next if line.start_with?("#")
+		if line.include?("#")
+			line = line.split("#", 2)[0].strip
+		end
+		opts = line.split(" ", 2)
+		next if opts[0].nil? || opts[0].empty?
+		if opts.length == 1
+			args << opts[0].strip
+		else
+			args << opts.map(&:strip)
+		end
+	}
+	return args.map { |opt|
+		if opt.is_a?(String)
+			["--param", opt]
+		else
+			["--param", opt.join("=")]
+		end
+	}.flatten
+end
+
 DEFAULT_GNU_C_OPTFLAGS = [
 	"-O3",
 	"-g0",
@@ -76,6 +111,7 @@ DEFAULT_GNU_C_OPTFLAGS = [
 	GNU::f_opt("tree-loop-ivcanon"),
 	GNU::f_opt("ivopts"),
 	GNU::f_opt("graphite-identity"),
+	GNU::f_opt("loop-strip-mine"),
 	GNU::f_opt("loop-nest-optimize"),
 	GNU::f_opt("tree-vectorize"),
 	GNU::f_opt("allow-store-data-races"), # worrying
@@ -86,7 +122,9 @@ DEFAULT_GNU_C_OPTFLAGS = [
 	#GNU::f_opt("single-precision-constant"),
 	GNU::f_opt("rename-registers"),
 	GNU::f_opt("split-loops"),
+	GNU::f_opt("unroll-loops"),
 	GNU::f_opt("unswitch-loops"),
+	GNU::f_opt("prefetch-loop-arrays"),
 	#GNU::f_opt("function-sections"),
 	#GNU::f_opt("data-sections"),
 	GNU::f_opt("stdarg-opt"),
@@ -119,6 +157,7 @@ DEFAULT_GNU_CXXFLAGS = DEFAULT_GNU_CFLAGS + [
 	GNU::f_opt("strong-eval-order", enable: false),
 	GNU::f_opt("elide-constructors"),
 	*GNU::warns("volatile", "attributes", enable: false),
+	*gcc_get_opts(),
 ]
 
 DEFAULT_GNU_BFD_FLAGS = [
