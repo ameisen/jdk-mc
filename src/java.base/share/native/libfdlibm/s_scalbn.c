@@ -24,8 +24,8 @@
  */
 
 /*
- * scalbn (double x, int n)
- * scalbn(x,n) returns x* 2**n  computed by  exponent
+ * fd_scalbn (double x, int n)
+ * fd_scalbn(x,n) returns x* 2**n  computed by  exponent
  * manipulation rather than by actually performing an
  * exponentiation or a multiplication.
  */
@@ -43,9 +43,9 @@ huge   = 1.0e+300,
 tiny   = 1.0e-300;
 
 #ifdef __STDC__
-        double scalbn (double x, int n)
+        double fd_scalbn (double x, int n)
 #else
-        double scalbn (x,n)
+        double fd_scalbn (x,n)
         double x; int n;
 #endif
 {

@@ -26,7 +26,7 @@
 /*
  * __ieee754_scalb(x, fn) is provide for
  * passing various standard test suite. One
- * should use scalbn() instead.
+ * should use fd_scalbn() instead.
  */
 
 #include "fdlibm.h"
@@ -48,7 +48,7 @@
 #endif
 {
 #ifdef _SCALB_INT
-        return scalbn(x,fn);
+        return fd_scalbn(x,fn);
 #else
         if _unlikely_if(isnan(x)||isnan(fn)) return x*fn;
         if _unlikely_if(!finite(fn)) {
@@ -56,8 +56,8 @@
             else       return x/(-fn);
         }
         if (rint(fn)!=fn) return (fn-fn)/(fn-fn);
-        if ( fn > 65000.0) return scalbn(x, 65000);
-        if (-fn > 65000.0) return scalbn(x,-65000);
-        return scalbn(x,(int)fn);
+        if ( fn > 65000.0) return fd_scalbn(x, 65000);
+        if (-fn > 65000.0) return fd_scalbn(x,-65000);
+        return fd_scalbn(x,(int)fn);
 #endif
 }

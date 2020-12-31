@@ -462,7 +462,7 @@ static int __ieee754_rem_pio2(double x, double *y) {
   if(ix>=0x7ff00000) {          /* x is inf or NaN */
     y[0]=y[1]=x-x; return 0;
   }
-  /* set z = scalbn(|x|,ilogb(x)-23) */
+  /* set z = fd_scalbn(|x|,ilogb(x)-23) */
   *(1-i0+(int*)&z) = *(1-i0+(int*)&x);
   e0    = (ix>>20)-1046;        /* e0 = ilogb(z)-23; */
   *(i0+(int*)&z) = ix - (e0<<20);

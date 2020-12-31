@@ -382,6 +382,8 @@ address TemplateInterpreterGenerator::generate_math_entry(AbstractInterpreter::M
     __ fmaf(xmm0, xmm1, xmm2, xmm0);
   } else if (kind == Interpreter::java_lang_math_sqrt) {
     __ sqrtsd(xmm0, Address(rsp, wordSize));
+  } else if (kind == Interpreter::java_lang_math_sqrtF) {
+    __ sqrtss(xmm0, Address(rsp, wordSize));
   } else if (kind == Interpreter::java_lang_math_exp) {
     __ movdbl(xmm0, Address(rsp, wordSize));
     if (StubRoutines::dexp() != NULL) {
@@ -436,7 +438,7 @@ address TemplateInterpreterGenerator::generate_math_entry(AbstractInterpreter::M
     assert(StubRoutines::x86::double_sign_mask() != NULL, "not initialized");
     __ movdbl(xmm0, Address(rsp, wordSize));
     __ andpd(xmm0, ExternalAddress(StubRoutines::x86::double_sign_mask()));
-  } else if (kind == Interpreter::java_lang_math_absf) {
+  } else if (kind == Interpreter::java_lang_math_absF) {
     assert(StubRoutines::x86::float_sign_mask() != NULL, "not initialized");
     __ movflt(xmm0, Address(rsp, wordSize));
     __ andps(xmm0, ExternalAddress(StubRoutines::x86::float_sign_mask()));

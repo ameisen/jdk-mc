@@ -169,7 +169,7 @@ pio2_3t =  8.47842766036889956997e-32; /* 0x397B839A, 0x252049C1 */
         if _unlikely_if(ix>=0x7ff00000) {            /* x is inf or NaN */
             y[0]=y[1]=x-x; return 0;
         }
-    /* set z = scalbn(|x|,ilogb(x)-23) */
+    /* set z = fd_scalbn(|x|,ilogb(x)-23) */
         __LO(z) = __LO(x);
         e0      = (ix>>20)-1046;        /* e0 = ilogb(z)-23; */
         __HI(z) = ix - (e0<<20);

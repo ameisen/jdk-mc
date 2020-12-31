@@ -381,11 +381,19 @@ double SharedRuntime::dabs(double f)  {
   return (f <= (double)0.0) ? (double)0.0 - f : f;
 }
 
+float SharedRuntime::fabs(float f)  {
+  return (f <= 0.0f) ? 0.0f - f : f;
+}
+
 #endif
 
 #if defined(__SOFTFP__) || defined(PPC)
 double SharedRuntime::dsqrt(double f) {
   return sqrt(f);
+}
+
+float SharedRuntime::fsqrt(float f) {
+  return sqrtf(f);
 }
 #endif
 

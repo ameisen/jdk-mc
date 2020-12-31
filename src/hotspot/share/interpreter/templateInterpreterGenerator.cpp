@@ -200,9 +200,9 @@ void TemplateInterpreterGenerator::generate_all() {
   method_entry(java_lang_math_cos  )
   method_entry(java_lang_math_tan  )
   method_entry(java_lang_math_abs  )
-  method_entry(java_lang_math_absf )
+  method_entry(java_lang_math_absF )
   method_entry(java_lang_math_sqrt )
-  method_entry(java_lang_math_sqrtf)
+  method_entry(java_lang_math_sqrtF)
   method_entry(java_lang_math_log  )
   method_entry(java_lang_math_log10)
   method_entry(java_lang_math_exp  )
@@ -425,11 +425,11 @@ address TemplateInterpreterGenerator::generate_method_entry(
   case Interpreter::java_lang_math_cos     : // fall thru
   case Interpreter::java_lang_math_tan     : // fall thru
   case Interpreter::java_lang_math_abs     : // fall thru
-  case Interpreter::java_lang_math_absf    : // fall thru
+  case Interpreter::java_lang_math_absF    : // fall thru
   case Interpreter::java_lang_math_log     : // fall thru
   case Interpreter::java_lang_math_log10   : // fall thru
   case Interpreter::java_lang_math_sqrt    : // fall thru
-  case Interpreter::java_lang_math_sqrtf   : // fall thru
+  case Interpreter::java_lang_math_sqrtF   : // fall thru
   case Interpreter::java_lang_math_pow     : // fall thru
   case Interpreter::java_lang_math_exp     : // fall thru
   case Interpreter::java_lang_math_fmaD    : // fall thru

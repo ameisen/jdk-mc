@@ -399,13 +399,13 @@ address TemplateInterpreterGenerator::generate_math_entry(AbstractInterpreter::M
     case Interpreter::java_lang_math_sqrt:
         __ fsqrtd();
         break;
-    case Interpreter::java_lang_math_sqrtf:
+    case Interpreter::java_lang_math_sqrtF:
         __ fsqrts();
         break;
     case Interpreter::java_lang_math_abs:
         __ fabsd();
         break;
-    case Interpreter::java_lang_math_absf:
+    case Interpreter::java_lang_math_absF:
         __ fabss();
         break;
     case Interpreter::java_lang_math_log:

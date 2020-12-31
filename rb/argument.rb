@@ -1,9 +1,12 @@
 module Argument
 	def self.flag(name, callback, cmd, arg)
-		m = /([\+\-]?)#{name}/.match(cmd)
-		return nil if !m
-		f = (m[1].strip != '-')
-		callback.call(name, f)
+		flag = true
+		if ['+', '-'].include?(name[0])
+			flag = (name[0] == '+')
+			name = name[1..-1]
+		end
+		return nil if (cmd != name)
+		callback.call(name, flag)
 		return true
 	end
 	FLAG = self.method(:flag)

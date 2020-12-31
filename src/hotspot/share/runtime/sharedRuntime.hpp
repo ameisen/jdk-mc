@@ -148,10 +148,12 @@ class SharedRuntime: AllStatic {
 
 #if defined(__SOFTFP__) || defined(E500V2)
   static double dabs(double f);
+  static float fabs(float f);
 #endif
 
 #if defined(__SOFTFP__) || defined(PPC)
   static double dsqrt(double f);
+  static float fsqrt(float f);
 #endif
 
   // Montgomery multiplication

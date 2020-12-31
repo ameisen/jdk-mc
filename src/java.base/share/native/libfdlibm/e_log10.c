@@ -33,7 +33,7 @@
  *      Then
  *              n = ilogb(x),
  *              if(n<0)  n = n+1;
- *              x = scalbn(x,-n);
+ *              x = fd_scalbn(x,-n);
  *              log10(x) := n*log10_2hi + (n*log10_2lo + ivln10*log(x))
  *
  * Note 1:

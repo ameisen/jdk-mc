@@ -100,12 +100,13 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_HELPER],
   elif test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
     BASIC_LDFLAGS_JDK_ONLY="-incremental:no"
     BASIC_LDFLAGS_JVM_ONLY="-subsystem:windows"
+    BASIC_LDFLAGS="-nologo -opt:ref"
     case "x$LD" in
       x*lld*)
-        BASIC_LDFLAG="-nologo -opt:icf -opt:ref"
+        BASIC_LDFLAGS+=" -opt:icf"
         ;;
       *)
-        BASIC_LDFLAGS="-nologo -opt:icf,8 -opt:ref -ltcg"
+        BASIC_LDFLAGS+=" -opt:icf,8 -ltcg"
         ;;
     esac
   fi

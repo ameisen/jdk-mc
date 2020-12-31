@@ -10072,6 +10072,16 @@ instruct sqrtDPR_reg(regDPR dst, regDPR src) %{
 //     movl(dst, greater_result);
 //   exit:
 
+instruct sqrtFPR_reg(regFPR dst, regFPR src) %{
+  predicate (UseSSE<=1);
+  match(Set dst (SqrtF src));
+  format %{ "FSQRT  $dst,$src" %}
+  opcode(0xFA, 0xD9);
+  ins_encode( Push_Reg_FPR(src),
+              OpcS, OpcP, Pop_Reg_FPR(dst) );
+  ins_pipe( pipe_slow );
+%}
+
 // P6 version of float compare, sets condition codes in EFLAGS
 instruct cmpFPR_cc_P6(eFlagsRegU cr, regFPR src1, regFPR src2, eAXRegI rax) %{
   predicate(VM_Version::supports_cmov() && UseSSE == 0);

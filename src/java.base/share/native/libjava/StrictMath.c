@@ -28,198 +28,39 @@
 
 #include "java_lang_StrictMath.h"
 
-JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_cos(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble) jcos((double)d);
+#define _JNI_FUNC_1(name, type_0, type_0_sig, type_0_call, type_1, type_1_sig, type_1_call) \
+JNIEXPORT type_0 JNICALL \
+Java_java_lang_StrictMath_ ## name ## __ ## type_0_sig ##(JNIEnv *env, jclass unused, type_0 v) { \
+    return type_0_call(v); \
+} \
+JNIEXPORT type_1 JNICALL \
+Java_java_lang_StrictMath_ ## name ## __ ## type_1_sig ##(JNIEnv *env, jclass unused, type_1 v) { \
+    return type_1_call(v); \
 }
 
-JNIEXPORT jfloat JNICALL
-Java_java_lang_StrictMath_cosf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat) jcos((float)d);
+#define _JNI_FUNC_2(name, type_0, type_0_sig, type_0_call, type_1, type_1_sig, type_1_call) \
+JNIEXPORT type_0 JNICALL \
+Java_java_lang_StrictMath_ ## name ## __ ## type_0_sig ##(JNIEnv *env, jclass unused, type_0 v0, type_0 v1) { \
+    return type_0_call(v0, v1); \
+} \
+JNIEXPORT type_1 JNICALL \
+Java_java_lang_StrictMath_ ## name ## __ ## type_1_sig ##(JNIEnv *env, jclass unused, type_1 v0, type_1 v1) { \
+    return type_1_call(v0, v1); \
 }
 
-JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_sin(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble) jsin((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_StrictMath_sinf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat) jsin((float)d);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_tan(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble) jtan((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_StrictMath_tanf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat) jtan((float)d);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_asin(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble) jasin((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_StrictMath_asinf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat) jasin((float)d);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_acos(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble) jacos((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_StrictMath_acosf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat) jacos((float)d);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_atan(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble) jatan((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_StrictMath_atanf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat) jatan((float)d);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_log(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble) jlog((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_StrictMath_logf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat) jlog((float)d);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_log10(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble) jlog10((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_StrictMath_log10f(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat) jlog10((float)d);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_sqrt(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble) jsqrt((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_StrictMath_sqrtf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat) jsqrt((float)d);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_atan2(JNIEnv *env, jclass unused, jdouble d1, jdouble d2)
-{
-    return (jdouble) jatan2((double)d1, (double)d2);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_StrictMath_atan2f(JNIEnv *env, jclass unused, jfloat d1, jfloat d2)
-{
-    return (jfloat) jatan2((float)d1, (float)d2);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_IEEEremainder(JNIEnv *env, jclass unused,
-                                  jdouble dividend,
-                                  jdouble divisor)
-{
-    return (jdouble) jremainder(dividend, divisor);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_StrictMath_IEEEremainderf(JNIEnv *env, jclass unused,
-                                  jfloat dividend,
-                                  jfloat divisor)
-{
-    return (jfloat) jremainder((float)dividend, (float)divisor);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_cosh(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble) jcosh((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_StrictMath_coshf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat) jcosh((float)d);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_sinh(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble) jsinh((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_StrictMath_sinhf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat) jsinh((float)d);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_tanh(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble) jtanh((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_StrictMath_tanhf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat) jtanh((float)d);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_log1p(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble) jlog1p((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_StrictMath_log1pf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat) jlog1p((float)d);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_expm1(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble) jexpm1((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_StrictMath_expm1f(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat) jexpm1((float)d);
-}
+_JNI_FUNC_1(cos, jdouble, D, jcos, jfloat, F, jcos)
+_JNI_FUNC_1(sin, jdouble, D, jsin, jfloat, F, jsin)
+_JNI_FUNC_1(tan, jdouble, D, jtan, jfloat, F, jtan)
+_JNI_FUNC_1(asin, jdouble, D, jasin, jfloat, F, jasin)
+_JNI_FUNC_1(acos, jdouble, D, jacos, jfloat, F, jacos)
+_JNI_FUNC_1(atan, jdouble, D, jatan, jfloat, F, jatan)
+_JNI_FUNC_1(log, jdouble, D, jlog, jfloat, F, jlog)
+_JNI_FUNC_1(log10, jdouble, D, jlog10, jfloat, F, jlog10)
+_JNI_FUNC_1(sqrt, jdouble, D, jsqrt, jfloat, F, jsqrt)
+_JNI_FUNC_1(cosh, jdouble, D, jcosh, jfloat, F, jcosh)
+_JNI_FUNC_1(sinh, jdouble, D, jsinh, jfloat, F, jsinh)
+_JNI_FUNC_1(tanh, jdouble, D, jtanh, jfloat, F, jtanh)
+_JNI_FUNC_1(log1p, jdouble, D, jlog1p, jfloat, F, jlog1p)
+_JNI_FUNC_1(expm1, jdouble, D, jexpm1, jfloat, F, jexpm1)
+_JNI_FUNC_2(atan2, jdouble, D, jatan2, jfloat, F, jatan2)
+_JNI_FUNC_2(IEEEremainder, jdouble, D, jremainder, jfloat, F, jremainder)

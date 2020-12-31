@@ -48,7 +48,7 @@
  *
  *              Example of breaking a double positive z into x[0]+x[1]+x[2]:
  *                      e0 = ilogb(z)-23
- *                      z  = scalbn(z,-e0)
+ *                      z  = fd_scalbn(z,-e0)
  *              for i = 0,1,2
  *                      x[i] = floor(z)
  *                      z    = (z-x[i])*2**24
@@ -87,7 +87,7 @@
  *                      ipio2[i] * 2^(-24(i+1)).
  *
  * External function:
- *      double scalbn(), floor();
+ *      double fd_scalbn(), floor();
  *
  *
  * Here is the description of some local variables:
@@ -210,7 +210,7 @@ recompute:
         }
 
     /* compute n */
-        z  = scalbn(z,q0);              /* actual value of z */
+        z  = fd_scalbn(z,q0);              /* actual value of z */
         z -= 8.0*floor(z*0.125);                /* trim off integer >= 8 */
         n  = (int) z;
         z -= (double)n;
@@ -243,7 +243,7 @@ recompute:
             }
             if(ih==2) {
                 z = one - z;
-                if(carry!=0) z -= scalbn(one,q0);
+                if(carry!=0) z -= fd_scalbn(one,q0);
             }
         }
 
@@ -269,7 +269,7 @@ recompute:
             jz -= 1; q0 -= 24;
             while(iq[jz]==0) { jz--; q0-=24;}
         } else { /* break z into 24-bit if necessary */
-            z = scalbn(z,-q0);
+            z = fd_scalbn(z,-q0);
             if(z>=two24) {
                 fw = (double)((int)(twon24*z));
                 iq[jz] = (int)(z-two24*fw);
@@ -279,7 +279,7 @@ recompute:
         }
 
     /* convert integer "bit" chunk to floating-point value */
-        fw = scalbn(one,q0);
+        fw = fd_scalbn(one,q0);
         for(i=jz;i>=0;i--) {
             q[i] = fw*(double)iq[i]; fw*=twon24;
         }

@@ -130,10 +130,7 @@ public final class StrictMath {
      * @return  the sine of the argument.
      */
     public static native double sin(double a);
-    private static native float sinf(float a);
-    public static float sin(float a) {
-        return sinf(a);
-    }
+    public static native float sin(float a);
 
     /**
      * Returns the trigonometric cosine of an angle. Special cases:
@@ -144,10 +141,7 @@ public final class StrictMath {
      * @return  the cosine of the argument.
      */
     public static native double cos(double a);
-    private static native float cosf(float a);
-    public static float cos(float a) {
-        return cosf(a);
-    }
+    public static native float cos(float a);
 
     /**
      * Returns the trigonometric tangent of an angle. Special cases:
@@ -160,10 +154,7 @@ public final class StrictMath {
      * @return  the tangent of the argument.
      */
     public static native double tan(double a);
-    private static native float tanf(float a);
-    public static float tan(float a) {
-        return tanf(a);
-    }
+    public static native float tan(float a);
 
     /**
      * Returns the arc sine of a value; the returned angle is in the
@@ -177,10 +168,7 @@ public final class StrictMath {
      * @return  the arc sine of the argument.
      */
     public static native double asin(double a);
-    private static native float asinf(float a);
-    public static float asin(float a) {
-        return asinf(a);
-    }
+    public static native float asin(float a);
 
     /**
      * Returns the arc cosine of a value; the returned angle is in the
@@ -192,10 +180,7 @@ public final class StrictMath {
      * @return  the arc cosine of the argument.
      */
     public static native double acos(double a);
-    private static native float acosf(float a);
-    public static float acos(float a) {
-        return acosf(a);
-    }
+    public static native float acos(float a);
 
     /**
      * Returns the arc tangent of a value; the returned angle is in the
@@ -208,10 +193,7 @@ public final class StrictMath {
      * @return  the arc tangent of the argument.
      */
     public static native double atan(double a);
-    private static native float atanf(float a);
-    public static float atan(float a) {
-        return atanf(a);
-    }
+    public static native float atan(float a);
 
     /**
      * Converts an angle measured in degrees to an approximately
@@ -291,10 +273,7 @@ public final class StrictMath {
      *          {@code a}.
      */
     public static native double log(double a);
-    private static native float logf(float a);
-    public static float log(float a) {
-        return logf(a);
-    }
+    public static native float log(float a);
 
     /**
      * Returns the base 10 logarithm of a {@code double} value.
@@ -315,10 +294,7 @@ public final class StrictMath {
      * @since 1.5
      */
     public static native double log10(double a);
-    private static native float log10f(float a);
-    public static float log10(float a) {
-        return log10f(a);
-    }
+    public static native float log10(float a);
 
     /**
      * Returns the correctly rounded positive square root of a
@@ -339,11 +315,7 @@ public final class StrictMath {
     @HotSpotIntrinsicCandidate
     public static native double sqrt(double a);
     @HotSpotIntrinsicCandidate
-    private static native float sqrtf(float a);
-    @HotSpotIntrinsicCandidate
-    public static float sqrt(float a) {
-        return sqrtf(a);
-    }
+    public static native float sqrt(float a);
 
     /**
      * Returns the cube root of a {@code double} value.  For
@@ -398,10 +370,7 @@ public final class StrictMath {
      *          {@code f2}.
      */
     public static native double IEEEremainder(double f1, double f2);
-    private static native float IEEEremainderf(float f1, float f2);
-    public static float IEEEremainder(float f1, float f2) {
-        return IEEEremainderf(f1, f2);
-    }
+    public static native float IEEEremainder(float f1, float f2);
 
     /**
      * Returns the smallest (closest to negative infinity)
@@ -645,10 +614,7 @@ public final class StrictMath {
      *          (<i>x</i>,&nbsp;<i>y</i>) in Cartesian coordinates.
      */
     public static native double atan2(double y, double x);
-    private static native float atan2f(float y, float x);
-    public static float atan2(float x, float y) {
-        return atan2f(x, y);
-    }
+    public static native float atan2(float y, float x);
 
     /**
      * Returns the value of the first argument raised to the power of the
@@ -1748,10 +1714,7 @@ public final class StrictMath {
      * @since 1.5
      */
     public static native double sinh(double x);
-    private static native float sinhf(float x);
-    public static float sinh(float x) {
-        return sinhf(x);
-    }
+    public static native float sinh(float x);
 
     /**
      * Returns the hyperbolic cosine of a {@code double} value.
@@ -1776,10 +1739,7 @@ public final class StrictMath {
      * @since 1.5
      */
     public static native double cosh(double x);
-    private static native float coshf(float x);
-    public static float cosh(float x) {
-        return coshf(x);
-    }
+    public static native float cosh(float x);
 
     /**
      * Returns the hyperbolic tangent of a {@code double} value.
@@ -1811,10 +1771,7 @@ public final class StrictMath {
      * @since 1.5
      */
     public static native double tanh(double x);
-    private static native float tanhf(float x);
-    public static float tanh(float x) {
-        return tanhf(x);
-    }
+    public static native float tanh(float x);
 
     /**
      * Returns sqrt(<i>x</i><sup>2</sup>&nbsp;+<i>y</i><sup>2</sup>)
@@ -1871,10 +1828,7 @@ public final class StrictMath {
      * @since 1.5
      */
     public static native double expm1(double x);
-    private static native float expm1f(float x);
-    public static float expm1(float x) {
-        return expm1f(x);
-    }
+    public static native float expm1(float x);
 
     /**
      * Returns the natural logarithm of the sum of the argument and 1.
@@ -1906,10 +1860,7 @@ public final class StrictMath {
      * @since 1.5
      */
     public static native double log1p(double x);
-    private static native float log1pf(float x);
-    public static float log1p(float x) {
-        return log1pf(x);
-    }
+    public static native float log1p(float x);
 
     /**
      * Returns the first floating-point argument with the sign of the

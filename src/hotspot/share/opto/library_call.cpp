@@ -548,6 +548,7 @@ bool LibraryCallKit::try_to_inline(int predicate) {
   case vmIntrinsics::_labs:
   case vmIntrinsics::_datan2:
   case vmIntrinsics::_dsqrt:
+  case vmIntrinsics::_fsqrt:
   case vmIntrinsics::_dexp:
   case vmIntrinsics::_dlog:
   case vmIntrinsics::_dlog10:

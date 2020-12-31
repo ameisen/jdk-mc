@@ -29,122 +29,55 @@
 
 #include "java_lang_Math.h"
 
-JNIEXPORT jdouble JNICALL
-Java_java_lang_Math_asin(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble)asin((double)d);
+#define _JNI_FUNC_1(name, type_0, type_0_sig, type_0_call, type_1, type_1_sig, type_1_call) \
+JNIEXPORT type_0 JNICALL \
+Java_java_lang_Math_ ## name ## __ ## type_0_sig ## (JNIEnv *env, jclass unused, type_0 v) { \
+    return type_0_call(v); \
+} \
+JNIEXPORT type_1 JNICALL \
+Java_java_lang_Math_ ## name ## __ ## type_1_sig ## (JNIEnv *env, jclass unused, type_1 v) { \
+    return type_1_call(v); \
 }
 
-JNIEXPORT jfloat JNICALL
-Java_java_lang_Math_asinf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat)asinf((float)d);
+#define _JNI_FUNC_2(name, type_0, type_0_sig, type_0_call, type_1, type_1_sig, type_1_call) \
+JNIEXPORT type_0 JNICALL \
+Java_java_lang_Math_ ## name ## __ ## type_0_sig ## type_0_sig ## (JNIEnv *env, jclass unused, type_0 v0, type_0 v1) { \
+    return type_0_call(v0, v1); \
+} \
+JNIEXPORT type_1 JNICALL \
+Java_java_lang_Math_ ## name ## __ ## type_1_sig ## type_1_sig ## (JNIEnv *env, jclass unused, type_1 v0, type_1 v1) { \
+    return type_1_call(v0, v1); \
 }
 
-JNIEXPORT jdouble JNICALL
-Java_java_lang_Math_acos(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble)acos((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_Math_acosf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat)acosf((float)d);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_Math_atan(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble)atan((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_Math_atanf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat)atanf((float)d);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_Math_cbrt(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble)cbrt((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_Math_cbrtf(JNIEnv *env, jclass unused, jfloat d)
-{
-   return (jfloat)cbrtf((float)d);
-}
+_JNI_FUNC_1(sin, jdouble, D, sin, jfloat, F, sinf)
+_JNI_FUNC_1(cos, jdouble, D, cos, jfloat, F, cosf)
+_JNI_FUNC_1(tan, jdouble, D, tan, jfloat, F, tanf)
+_JNI_FUNC_1(asin, jdouble, D, asin, jfloat, F, asinf)
+_JNI_FUNC_1(acos, jdouble, D, acos, jfloat, F, acosf)
+_JNI_FUNC_1(atan, jdouble, D, atan, jfloat, F, atanf)
+_JNI_FUNC_1(cbrt, jdouble, D, cbrt, jfloat, F, cbrtf)
+_JNI_FUNC_1(cosh, jdouble, D, cosh, jfloat, F, coshf)
+_JNI_FUNC_1(sinh, jdouble, D, sinh, jfloat, F, sinhf)
+_JNI_FUNC_1(tanh, jdouble, D, tanh, jfloat, F, tanhf)
+_JNI_FUNC_1(exp,  jdouble, D, exp,  jfloat, F, expf)
+_JNI_FUNC_1(log,  jdouble, D, log,  jfloat, F, logf)
+_JNI_FUNC_1(sqrt,  jdouble, D, sqrt,  jfloat, F, sqrtf)
+_JNI_FUNC_2(IEEEremainder,  jdouble, D, remainder,  jfloat, F, remainderf)
+_JNI_FUNC_1(log1p, jdouble, D, log1p, jfloat, F, log1pf)
+_JNI_FUNC_1(expm1, jdouble, D, expm1, jfloat, F, expm1f)
+_JNI_FUNC_2(hypot, jdouble, D, hypot, jfloat, F, hypotf)
+_JNI_FUNC_2(pow_native, jdouble, D, pow, jfloat, F, powf)
+_JNI_FUNC_1(round, jdouble, D, round, jfloat, F, roundf)
+_JNI_FUNC_1(ceil, jdouble, D, ceil, jfloat, F, ceilf)
+_JNI_FUNC_1(floor, jdouble, D, floor, jfloat, F, floorf)
+_JNI_FUNC_1(rint, jdouble, D, rint, jfloat, F, rintf)
+_JNI_FUNC_2(atan2, jdouble, D, atan2, jfloat, F, atan2f)
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_Math_hypot(JNIEnv *env, jclass unused, jdouble d1, jdouble d2)
-{
-    return (jdouble)hypot((double)d1, (double)d2);
+Java_java_lang_Math_scalb__DI(JNIEnv *env, jclass unused, jdouble v0, jint v1) {
+    return scalbn(v0, v1);
 }
-
 JNIEXPORT jfloat JNICALL
-Java_java_lang_Math_hypotf(JNIEnv *env, jclass unused, jfloat d1, jfloat d2)
-{
-    return (jfloat)hypotf((float)d1, (float)d2);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_Math_cosh(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble)cosh((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_Math_coshf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat)coshf((float)d);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_Math_sinh(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble)sinh((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_Math_sinhf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat)sinhf((float)d);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_Math_tanh(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble)tanh((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_Math_tanhf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat)tanhf((float)d);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_Math_log1p(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble)log1p((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_Math_log1pf(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat)log1pf((float)d);
-}
-
-JNIEXPORT jdouble JNICALL
-Java_java_lang_Math_expm1(JNIEnv *env, jclass unused, jdouble d)
-{
-    return (jdouble)expm1((double)d);
-}
-
-JNIEXPORT jfloat JNICALL
-Java_java_lang_Math_expm1f(JNIEnv *env, jclass unused, jfloat d)
-{
-    return (jfloat)expm1f((float)d);
+Java_java_lang_Math_scalb__FI(JNIEnv *env, jclass unused, jfloat v0, jint v1) {
+    return scalbnf(v0, v1);
 }

@@ -77,11 +77,11 @@
 module java.base {
 
     exports org.objectweb.asm;
-		exports org.objectweb.asm.commons;
-		exports org.objectweb.asm.signature;
-		exports org.objectweb.asm.tree;
-		exports org.objectweb.asm.tree.analysis;
-		exports org.objectweb.asm.util;
+    exports org.objectweb.asm.commons;
+    exports org.objectweb.asm.signature;
+    exports org.objectweb.asm.tree;
+    exports org.objectweb.asm.tree.analysis;
+    exports org.objectweb.asm.util;
 
     exports java.io;
     exports java.lang;
@@ -188,11 +188,8 @@ module java.base {
         jdk.jfr;
     exports jdk.internal.util.xml.impl to
         jdk.jfr;
-    exports sun.net to
-        java.net.http,
-        jdk.naming.dns;
-    exports sun.net.ext to
-        jdk.net;
+    exports sun.net;
+    exports sun.net.ext;
     exports sun.net.dns to
         java.security.jgss,
         jdk.naming.dns;

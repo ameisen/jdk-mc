@@ -169,7 +169,7 @@ extern double significand __P((double));
 extern double copysign __P((double, double));
 extern int ilogb __P((double));
 extern double rint __P((double));
-extern double scalbn __P((double, int));
+extern double fd_scalbn __P((double, int));
 
 /*
  * BSD math library entry points

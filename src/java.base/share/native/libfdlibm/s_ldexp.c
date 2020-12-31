@@ -34,7 +34,7 @@
 #endif
 {
         if _unlikely_if(!finite(value)||value==0.0) return value;
-        value = scalbn(value,exp);
+        value = fd_scalbn(value,exp);
         if _unlikely_if(!finite(value)||value==0.0) errno = ERANGE;
         return value;
 }
