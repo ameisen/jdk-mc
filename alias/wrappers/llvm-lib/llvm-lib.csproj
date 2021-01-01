@@ -7,7 +7,6 @@
 		<StartupObject>wrappers.LLVMLib</StartupObject>
     <Nullable>enable</Nullable>
 		<PublishSingleFile>true</PublishSingleFile>
-		<PublishTrimmed>true</PublishTrimmed>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 

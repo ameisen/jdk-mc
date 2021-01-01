@@ -193,7 +193,8 @@ final class Linker {
     private static Path getVC141AndNewerLinker() throws Exception {
         String programFilesX86 = System.getenv("ProgramFiles(x86)");
         if (programFilesX86 == null) {
-            throw new InternalError("Could not read the ProgramFiles(x86) environment variable");
+            // we might still be able to find older VS
+            return null;
         }
         Path vswhere = Paths.get(programFilesX86 + "\\Microsoft Visual Studio\\Installer\\vswhere.exe");
         if (!Files.exists(vswhere)) {
@@ -214,7 +215,11 @@ final class Linker {
             throw new InternalError(errorMessage);
         }
 
-        String installationPath = getLines(process.getInputStream()).findFirst().orElseThrow(() -> new InternalError("Unexpected empty output from vswhere"));
+        String installationPath = getLines(process.getInputStream()).findFirst().orElse(null);
+        if (installationPath == null) {
+            // we might still be able to find older VS
+            return null;
+        }
         Path vcToolsVersionFilePath = Paths.get(installationPath, "VC\\Auxiliary\\Build\\Microsoft.VCToolsVersion.default.txt");
         List<String> vcToolsVersionFileLines = Files.readAllLines(vcToolsVersionFilePath);
         if (vcToolsVersionFileLines.isEmpty()) {

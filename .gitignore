@@ -39,3 +39,5 @@ alias/wrappers/llvm-lib/obj/
 alias/wrappers/llvm-lib/Properties/
 alias/wrappers/WrapperLib/bin/
 alias/wrappers/WrapperLib/obj/
+alias/*.json
+alias/wrappers/LinkerCommon/obj/

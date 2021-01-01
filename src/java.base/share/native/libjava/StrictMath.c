@@ -30,21 +30,21 @@
 
 #define _JNI_FUNC_1(name, type_0, type_0_sig, type_0_call, type_1, type_1_sig, type_1_call) \
 JNIEXPORT type_0 JNICALL \
-Java_java_lang_StrictMath_ ## name ## __ ## type_0_sig ##(JNIEnv *env, jclass unused, type_0 v) { \
+Java_java_lang_StrictMath_ ## name ## __ ## type_0_sig (JNIEnv *env, jclass unused, type_0 v) { \
     return type_0_call(v); \
 } \
 JNIEXPORT type_1 JNICALL \
-Java_java_lang_StrictMath_ ## name ## __ ## type_1_sig ##(JNIEnv *env, jclass unused, type_1 v) { \
+Java_java_lang_StrictMath_ ## name ## __ ## type_1_sig (JNIEnv *env, jclass unused, type_1 v) { \
     return type_1_call(v); \
 }
 
 #define _JNI_FUNC_2(name, type_0, type_0_sig, type_0_call, type_1, type_1_sig, type_1_call) \
 JNIEXPORT type_0 JNICALL \
-Java_java_lang_StrictMath_ ## name ## __ ## type_0_sig ##(JNIEnv *env, jclass unused, type_0 v0, type_0 v1) { \
+Java_java_lang_StrictMath_ ## name ## __ ## type_0_sig (JNIEnv *env, jclass unused, type_0 v0, type_0 v1) { \
     return type_0_call(v0, v1); \
 } \
 JNIEXPORT type_1 JNICALL \
-Java_java_lang_StrictMath_ ## name ## __ ## type_1_sig ##(JNIEnv *env, jclass unused, type_1 v0, type_1 v1) { \
+Java_java_lang_StrictMath_ ## name ## __ ## type_1_sig (JNIEnv *env, jclass unused, type_1 v0, type_1 v1) { \
     return type_1_call(v0, v1); \
 }
 

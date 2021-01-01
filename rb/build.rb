@@ -1047,20 +1047,28 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 
 		build_date = DateTime.now.strftime("%y.%m.%d.%H.%M")
 
+		java_revision = JDK_VERSION_HASH["DEFAULT_VERSION_REVISION"].to_s
+		java_revision = "" if (java_revision.blank? || java_revision == "0")
+
 		with_flags = [
 			"target-bits=64",
 			"debug-level=#{CONFIG_TYPE}",
 			"jvm-variants=#{CONFIG_NAME}",
 			"vendor-name=Digital Carbide",
-			"vendor-url=https://www.digitalcarbide.com/",
-			"version-build=#{JDK_VERSION_HASH["DEFAULT_VERSION_REVISION"]}",
-			"version-opt=mc-#{JDK_BUILD}",
+			"vendor-url=https://github.com/ameisen/jdk-mc/",
+			"version-build=#{java_revision}",
 			"version-pre=mc#{(Options::debug ? "-debug" : "")}",
-			"native-debug-symbols=#{(Options::debug ? "internal" : "none")}"
+			"version-opt=#{JDK_BUILD}",
+			"native-debug-symbols=#{(Options::debug ? "zipped" : "none")}"
+		]
+
+		without_flags = [
+			"version-opt",
+			"devkit",
 		]
 
 		#if Options::debug || TARGET_PLATFORM.is?(System::Platforms::WINDOWS)
-			disable_flags << "static_build"
+	#	enable_flags << "static_build"
 		#else
 		#	enable_flags << "static_build"
 		#end
@@ -1076,10 +1084,6 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 		with_flags << "boot-jdk=#{Directory::java}" unless Directory::java.blank?
 		with_flags << "jmh=#{Directory::jmh}" unless Directory::jmh.blank?
 		with_flags << "jtreg=#{Directory::jtreg}" unless Directory::jtreg.blank?
-
-		without_flags = [
-			"devkit",
-		]
 
 		configure_flags = [
 			"--cache-file=#{FULL_CONFIG_NAME}.config.cache",
