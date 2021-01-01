@@ -34,7 +34,7 @@
 // array for an instance of the superklass.  Set a hidden internal cache on a
 // hit (cache is checked with exposed code in gen_subtype_check()).  Return
 // not zero for a miss or zero for a hit.
-class PartialSubtypeCheckNode : public Node {
+class PartialSubtypeCheckNode final : public Node {
  public:
   PartialSubtypeCheckNode(Node* c, Node* sub, Node* super) : Node(c,sub,super) {}
   virtual int Opcode() const;
@@ -82,7 +82,7 @@ class StrIntrinsicNode: public Node {
 };
 
 //------------------------------StrComp-------------------------------------
-class StrCompNode: public StrIntrinsicNode {
+class StrCompNode final : public StrIntrinsicNode {
  public:
   StrCompNode(Node* control, Node* char_array_mem,
               Node* s1, Node* c1, Node* s2, Node* c2, ArgEncoding encoding):
@@ -92,7 +92,7 @@ class StrCompNode: public StrIntrinsicNode {
 };
 
 //------------------------------StrEquals-------------------------------------
-class StrEqualsNode: public StrIntrinsicNode {
+class StrEqualsNode final : public StrIntrinsicNode {
  public:
   StrEqualsNode(Node* control, Node* char_array_mem,
                 Node* s1, Node* s2, Node* c, ArgEncoding encoding):
@@ -102,7 +102,7 @@ class StrEqualsNode: public StrIntrinsicNode {
 };
 
 //------------------------------StrIndexOf-------------------------------------
-class StrIndexOfNode: public StrIntrinsicNode {
+class StrIndexOfNode final : public StrIntrinsicNode {
  public:
   StrIndexOfNode(Node* control, Node* char_array_mem,
                  Node* s1, Node* c1, Node* s2, Node* c2, ArgEncoding encoding):
@@ -112,7 +112,7 @@ class StrIndexOfNode: public StrIntrinsicNode {
 };
 
 //------------------------------StrIndexOfChar-------------------------------------
-class StrIndexOfCharNode: public StrIntrinsicNode {
+class StrIndexOfCharNode final : public StrIntrinsicNode {
  public:
   StrIndexOfCharNode(Node* control, Node* char_array_mem,
                      Node* s1, Node* c1, Node* c, ArgEncoding encoding):
@@ -122,7 +122,7 @@ class StrIndexOfCharNode: public StrIntrinsicNode {
 };
 
 //--------------------------StrCompressedCopy-------------------------------
-class StrCompressedCopyNode: public StrIntrinsicNode {
+class StrCompressedCopyNode final : public StrIntrinsicNode {
  public:
   StrCompressedCopyNode(Node* control, Node* arymem,
                         Node* s1, Node* s2, Node* c):
@@ -134,7 +134,7 @@ class StrCompressedCopyNode: public StrIntrinsicNode {
 };
 
 //--------------------------StrInflatedCopy---------------------------------
-class StrInflatedCopyNode: public StrIntrinsicNode {
+class StrInflatedCopyNode final : public StrIntrinsicNode {
  public:
   StrInflatedCopyNode(Node* control, Node* arymem,
                       Node* s1, Node* s2, Node* c):
@@ -146,7 +146,7 @@ class StrInflatedCopyNode: public StrIntrinsicNode {
 };
 
 //------------------------------AryEq---------------------------------------
-class AryEqNode: public StrIntrinsicNode {
+class AryEqNode final : public StrIntrinsicNode {
  public:
   AryEqNode(Node* control, Node* char_array_mem,
             Node* s1, Node* s2, ArgEncoding encoding):
@@ -156,7 +156,7 @@ class AryEqNode: public StrIntrinsicNode {
 };
 
 //------------------------------HasNegatives---------------------------------
-class HasNegativesNode: public StrIntrinsicNode {
+class HasNegativesNode final : public StrIntrinsicNode {
  public:
   HasNegativesNode(Node* control, Node* char_array_mem, Node* s1, Node* c1):
   StrIntrinsicNode(control, char_array_mem, s1, c1, none) {};

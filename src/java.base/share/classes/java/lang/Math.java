@@ -466,9 +466,7 @@ public final class Math {
     @HotSpotIntrinsicCandidate
     public static native double ceil(double a);
     @HotSpotIntrinsicCandidate
-    public static float ceil(float a) {
-        return (float)ceil((double)a);
-    }
+    public static native float ceil(float a);
 
     /**
      * Returns the largest (closest to positive infinity)
@@ -488,9 +486,7 @@ public final class Math {
     @HotSpotIntrinsicCandidate
     public static native double floor(double a);
     @HotSpotIntrinsicCandidate
-    public static float floor(float a) {
-        return (float)floor((double)a);
-    }
+    public static native float floor(float a);
 
     /**
      * Returns the {@code double} value that is closest in value
@@ -510,9 +506,7 @@ public final class Math {
     @HotSpotIntrinsicCandidate
     public static native double rint(double a);
     @HotSpotIntrinsicCandidate
-    public static float rint(float a) {
-        return (float)rint((double)a);
-    }
+    public static native float rint(float a);
 
     /**
      * Returns the angle <i>theta</i> from the conversion of rectangular
@@ -758,32 +752,7 @@ public final class Math {
      */
     @HotSpotIntrinsicCandidate
     public static int round(float a) {
-        int intBits = Float.floatToRawIntBits(a);
-        int biasedExp = (intBits & FloatConsts.EXP_BIT_MASK)
-                >> (FloatConsts.SIGNIFICAND_WIDTH - 1);
-        int shift = (FloatConsts.SIGNIFICAND_WIDTH - 2
-                + FloatConsts.EXP_BIAS) - biasedExp;
-        if ((shift & -32) == 0) { // shift >= 0 && shift < 32
-            // a is a finite number such that pow(2,-32) <= ulp(a) < 1
-            int r = ((intBits & FloatConsts.SIGNIF_BIT_MASK)
-                    | (FloatConsts.SIGNIF_BIT_MASK + 1));
-            if (intBits < 0) {
-                r = -r;
-            }
-            // In the comments below each Java expression evaluates to the value
-            // the corresponding mathematical expression:
-            // (r) evaluates to a / ulp(a)
-            // (r >> shift) evaluates to floor(a * 2)
-            // ((r >> shift) + 1) evaluates to floor((a + 1/2) * 2)
-            // (((r >> shift) + 1) >> 1) evaluates to floor(a + 1/2)
-            return ((r >> shift) + 1) >> 1;
-        } else {
-            // a is either
-            // - a finite number with abs(a) < exp(2,FloatConsts.SIGNIFICAND_WIDTH-32) < 1/2
-            // - a finite number with ulp(a) >= 1 and hence a is a mathematical integer
-            // - an infinity or NaN
-            return (int) a;
-        }
+        return (int)rint(a);
     }
 
     /**
@@ -808,32 +777,7 @@ public final class Math {
      */
     @HotSpotIntrinsicCandidate
     public static long round(double a) {
-        long longBits = Double.doubleToRawLongBits(a);
-        long biasedExp = (longBits & DoubleConsts.EXP_BIT_MASK)
-                >> (DoubleConsts.SIGNIFICAND_WIDTH - 1);
-        long shift = (DoubleConsts.SIGNIFICAND_WIDTH - 2
-                + DoubleConsts.EXP_BIAS) - biasedExp;
-        if ((shift & -64) == 0) { // shift >= 0 && shift < 64
-            // a is a finite number such that pow(2,-64) <= ulp(a) < 1
-            long r = ((longBits & DoubleConsts.SIGNIF_BIT_MASK)
-                    | (DoubleConsts.SIGNIF_BIT_MASK + 1));
-            if (longBits < 0) {
-                r = -r;
-            }
-            // In the comments below each Java expression evaluates to the value
-            // the corresponding mathematical expression:
-            // (r) evaluates to a / ulp(a)
-            // (r >> shift) evaluates to floor(a * 2)
-            // ((r >> shift) + 1) evaluates to floor((a + 1/2) * 2)
-            // (((r >> shift) + 1) >> 1) evaluates to floor(a + 1/2)
-            return ((r >> shift) + 1) >> 1;
-        } else {
-            // a is either
-            // - a finite number with abs(a) < exp(2,DoubleConsts.SIGNIFICAND_WIDTH-64) < 1/2
-            // - a finite number with ulp(a) >= 1 and hence a is a mathematical integer
-            // - an infinity or NaN
-            return (long) a;
-        }
+        return (long)rint(a);
     }
 
     private static final class RandomNumberGeneratorHolder {

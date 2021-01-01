@@ -1394,13 +1394,15 @@ const bool Matcher::match_rule_supported(int opcode) {
       }
       break;
     case Op_RoundDoubleMode:
+    case Op_RoundFloatMode:
       if (UseSSE < 4) {
         return false;
       }
       break;
     case Op_RoundDoubleModeV:
+    case Op_RoundFloatModeV:
       if (VM_Version::supports_avx() == false) {
-        return false; // 128bit vroundpd is not available
+        return false; // 128bit vroundpd/s is not available
       }
       break;
     case Op_MacroLogicV:
@@ -3180,6 +3182,87 @@ instruct vround8D_mem(vec dst, memory mem, immU8 rmode) %{
   ins_encode %{
     assert(UseAVX > 2, "required");
     __ vrndscalepd($dst$$XMMRegister, $mem$$Address, $rmode$$constant, Assembler::AVX_512bit);
+  %}
+  ins_pipe( pipe_slow );
+%}
+
+
+instruct roundF_reg(legRegF dst, legRegF src, immU8 rmode) %{
+  match(Set dst (RoundFloatMode src rmode));
+  format %{ "roundss $dst,$src" %}
+  ins_cost(150);
+  ins_encode %{
+    assert(UseSSE >= 4, "required");
+    __ roundss($dst$$XMMRegister, $src$$XMMRegister, $rmode$$constant);
+  %}
+  ins_pipe(pipe_slow);
+%}
+
+instruct roundF_mem(legRegF dst, memory src, immU8 rmode) %{
+  match(Set dst (RoundFloatMode (LoadD src) rmode));
+  format %{ "roundss $dst,$src" %}
+  ins_cost(150);
+  ins_encode %{
+    assert(UseSSE >= 4, "required");
+    __ roundss($dst$$XMMRegister, $src$$Address, $rmode$$constant);
+  %}
+  ins_pipe(pipe_slow);
+%}
+
+instruct roundF_imm(legRegF dst, immF con, immU8 rmode, rRegI scratch_reg) %{
+  match(Set dst (RoundFloatMode con rmode));
+  effect(TEMP scratch_reg);
+  format %{ "roundss $dst,[$constantaddress]\t# load from constant table: float=$con" %}
+  ins_cost(150);
+  ins_encode %{
+    assert(UseSSE >= 4, "required");
+    __ roundss($dst$$XMMRegister, $constantaddress($con), $rmode$$constant, $scratch_reg$$Register);
+  %}
+  ins_pipe(pipe_slow);
+%}
+
+instruct vroundF_reg(legVec dst, legVec src, immU8 rmode) %{
+  predicate(n->as_Vector()->length() < 16);
+  match(Set dst (RoundFloatModeV src rmode));
+  format %{ "vroundps $dst,$src,$rmode\t! round packedF" %}
+  ins_encode %{
+    assert(UseAVX > 0, "required");
+    int vector_len = vector_length_encoding(this);
+    __ vroundps($dst$$XMMRegister, $src$$XMMRegister, $rmode$$constant, vector_len);
+  %}
+  ins_pipe( pipe_slow );
+%}
+
+instruct vround16F_reg(vec dst, vec src, immU8 rmode) %{
+  predicate(n->as_Vector()->length() == 16);
+  match(Set dst (RoundFloatModeV src rmode));
+  format %{ "vrndscaleps $dst,$src,$rmode\t! round packed16F" %}
+  ins_encode %{
+    assert(UseAVX > 2, "required");
+    __ vrndscaleps($dst$$XMMRegister, $src$$XMMRegister, $rmode$$constant, Assembler::AVX_512bit);
+  %}
+  ins_pipe( pipe_slow );
+%}
+
+instruct vroundF_mem(legVec dst, memory mem, immU8 rmode) %{
+  predicate(n->as_Vector()->length() < 16);
+  match(Set dst (RoundFloatModeV (LoadVector mem) rmode));
+  format %{ "vroundps $dst, $mem, $rmode\t! round packedF" %}
+  ins_encode %{
+    assert(UseAVX > 0, "required");
+    int vector_len = vector_length_encoding(this);
+    __ vroundps($dst$$XMMRegister, $mem$$Address, $rmode$$constant, vector_len);
+  %}
+  ins_pipe( pipe_slow );
+%}
+
+instruct vround16F_mem(vec dst, memory mem, immU8 rmode) %{
+  predicate(n->as_Vector()->length() == 16);
+  match(Set dst (RoundFloatModeV (LoadVector mem) rmode));
+  format %{ "vrndscaleps $dst,$mem,$rmode\t! round packed16F" %}
+  ins_encode %{
+    assert(UseAVX > 2, "required");
+    __ vrndscaleps($dst$$XMMRegister, $mem$$Address, $rmode$$constant, Assembler::AVX_512bit);
   %}
   ins_pipe( pipe_slow );
 %}

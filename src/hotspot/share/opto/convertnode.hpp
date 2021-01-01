@@ -31,7 +31,7 @@
 
 //------------------------------Conv2BNode-------------------------------------
 // Convert int/pointer to a Boolean.  Map zero to zero, all else to 1.
-class Conv2BNode : public Node {
+class Conv2BNode final : public Node {
   public:
   Conv2BNode( Node *i ) : Node(0,i) {}
   virtual int Opcode() const;
@@ -44,7 +44,7 @@ class Conv2BNode : public Node {
 // The conversions operations are all Alpha sorted.  Please keep it that way!
 //------------------------------ConvD2FNode------------------------------------
 // Convert double to float
-class ConvD2FNode : public Node {
+class ConvD2FNode final : public Node {
   public:
   ConvD2FNode( Node *in1 ) : Node(0,in1) {}
   virtual int Opcode() const;
@@ -57,7 +57,7 @@ class ConvD2FNode : public Node {
 
 //------------------------------ConvD2INode------------------------------------
 // Convert Double to Integer
-class ConvD2INode : public Node {
+class ConvD2INode final : public Node {
   public:
   ConvD2INode( Node *in1 ) : Node(0,in1) {}
   virtual int Opcode() const;
@@ -70,7 +70,7 @@ class ConvD2INode : public Node {
 
 //------------------------------ConvD2LNode------------------------------------
 // Convert Double to Long
-class ConvD2LNode : public Node {
+class ConvD2LNode final : public Node {
   public:
   ConvD2LNode( Node *dbl ) : Node(0,dbl) {}
   virtual int Opcode() const;
@@ -83,7 +83,7 @@ class ConvD2LNode : public Node {
 
 //------------------------------ConvF2DNode------------------------------------
 // Convert Float to a Double.
-class ConvF2DNode : public Node {
+class ConvF2DNode final : public Node {
   public:
   ConvF2DNode( Node *in1 ) : Node(0,in1) {}
   virtual int Opcode() const;
@@ -94,7 +94,7 @@ class ConvF2DNode : public Node {
 
 //------------------------------ConvF2INode------------------------------------
 // Convert float to integer
-class ConvF2INode : public Node {
+class ConvF2INode final : public Node {
   public:
   ConvF2INode( Node *in1 ) : Node(0,in1) {}
   virtual int Opcode() const;
@@ -107,7 +107,7 @@ class ConvF2INode : public Node {
 
 //------------------------------ConvF2LNode------------------------------------
 // Convert float to long
-class ConvF2LNode : public Node {
+class ConvF2LNode final : public Node {
   public:
   ConvF2LNode( Node *in1 ) : Node(0,in1) {}
   virtual int Opcode() const;
@@ -120,7 +120,7 @@ class ConvF2LNode : public Node {
 
 //------------------------------ConvI2DNode------------------------------------
 // Convert Integer to Double
-class ConvI2DNode : public Node {
+class ConvI2DNode final : public Node {
   public:
   ConvI2DNode( Node *in1 ) : Node(0,in1) {}
   virtual int Opcode() const;
@@ -131,7 +131,7 @@ class ConvI2DNode : public Node {
 
 //------------------------------ConvI2FNode------------------------------------
 // Convert Integer to Float
-class ConvI2FNode : public Node {
+class ConvI2FNode final : public Node {
   public:
   ConvI2FNode( Node *in1 ) : Node(0,in1) {}
   virtual int Opcode() const;
@@ -143,7 +143,7 @@ class ConvI2FNode : public Node {
 
 //------------------------------ConvI2LNode------------------------------------
 // Convert integer to long
-class ConvI2LNode : public TypeNode {
+class ConvI2LNode final : public TypeNode {
   public:
   ConvI2LNode(Node *in1, const TypeLong* t = TypeLong::INT)
   : TypeNode(t, 2)
@@ -156,7 +156,7 @@ class ConvI2LNode : public TypeNode {
 
 //------------------------------ConvL2DNode------------------------------------
 // Convert Long to Double
-class ConvL2DNode : public Node {
+class ConvL2DNode final : public Node {
   public:
   ConvL2DNode( Node *in1 ) : Node(0,in1) {}
   virtual int Opcode() const;
@@ -167,7 +167,7 @@ class ConvL2DNode : public Node {
 
 //------------------------------ConvL2FNode------------------------------------
 // Convert Long to Float
-class ConvL2FNode : public Node {
+class ConvL2FNode final : public Node {
   public:
   ConvL2FNode( Node *in1 ) : Node(0,in1) {}
   virtual int Opcode() const;
@@ -178,7 +178,7 @@ class ConvL2FNode : public Node {
 
 //------------------------------ConvL2INode------------------------------------
 // Convert long to integer
-class ConvL2INode : public Node {
+class ConvL2INode final : public Node {
   public:
   ConvL2INode( Node *in1 ) : Node(0,in1) {}
   virtual int Opcode() const;
@@ -190,7 +190,7 @@ class ConvL2INode : public Node {
 };
 
 //-----------------------------RoundFloatNode----------------------------------
-class RoundFloatNode: public Node {
+class RoundFloatNode final : public Node {
   public:
   RoundFloatNode(Node* c, Node *in1): Node(c, in1) {}
   virtual int   Opcode() const;
@@ -200,9 +200,31 @@ class RoundFloatNode: public Node {
   virtual const Type* Value(PhaseGVN* phase) const;
 };
 
+//-----------------------------RoundModeNode-----------------------------
+class RoundModeNode: public Node {
+  public:
+  enum RoundingMode {
+    rmode_rint  = 0,
+    rmode_floor = 1,
+    rmode_ceil  = 2
+  };
+  RoundModeNode(Node *in1, Node * rmode): Node(0, in1, rmode) {};
+};
+
+//-----------------------------RoundFloatModeNode-----------------------------
+class RoundFloatModeNode final : public RoundModeNode {
+  public:
+  RoundFloatModeNode(Node *in1, Node * rmode): RoundModeNode(in1, rmode) {}
+  static RoundFloatModeNode* make(PhaseGVN& gvn, Node* arg, RoundModeNode::RoundingMode rmode);
+  virtual int   Opcode() const;
+  virtual const Type *bottom_type() const { return Type::FLOAT; }
+  virtual uint  ideal_reg() const { return Op_RegD; }
+  virtual Node* Identity(PhaseGVN* phase);
+  virtual const Type* Value(PhaseGVN* phase) const;
+};
 
 //-----------------------------RoundDoubleNode---------------------------------
-class RoundDoubleNode: public Node {
+class RoundDoubleNode final: public Node {
   public:
   RoundDoubleNode(Node* c, Node *in1): Node(c, in1) {}
   virtual int   Opcode() const;
@@ -213,15 +235,10 @@ class RoundDoubleNode: public Node {
 };
 
 //-----------------------------RoundDoubleModeNode-----------------------------
-class RoundDoubleModeNode: public Node {
+class RoundDoubleModeNode final : public RoundModeNode {
   public:
-  enum RoundingMode {
-    rmode_rint  = 0,
-    rmode_floor = 1,
-    rmode_ceil  = 2
-  };
-  RoundDoubleModeNode(Node *in1, Node * rmode): Node(0, in1, rmode) {}
-  static RoundDoubleModeNode* make(PhaseGVN& gvn, Node* arg, RoundDoubleModeNode::RoundingMode rmode);
+  RoundDoubleModeNode(Node *in1, Node * rmode): RoundModeNode(in1, rmode) {}
+  static RoundDoubleModeNode* make(PhaseGVN& gvn, Node* arg, RoundModeNode::RoundingMode rmode);
   virtual int   Opcode() const;
   virtual const Type *bottom_type() const { return Type::DOUBLE; }
   virtual uint  ideal_reg() const { return Op_RegD; }

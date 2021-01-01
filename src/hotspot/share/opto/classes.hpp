@@ -268,6 +268,8 @@ macro(RoundDouble)
 macro(RoundDoubleMode)
 macro(RoundDoubleModeV)
 macro(RoundFloat)
+macro(RoundFloatMode)
+macro(RoundFloatModeV)
 macro(SafePoint)
 macro(SafePointScalarObject)
 #if INCLUDE_SHENANDOAHGC

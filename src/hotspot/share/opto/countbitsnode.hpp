@@ -40,7 +40,7 @@ class CountBitsNode : public Node {
 
 //---------- CountLeadingZerosINode --------------------------------------------
 // Count leading zeros (0-bit count starting from MSB) of an integer.
-class CountLeadingZerosINode : public CountBitsNode {
+class CountLeadingZerosINode final : public CountBitsNode {
   public:
   CountLeadingZerosINode(Node* in1) : CountBitsNode(in1) {}
   virtual int Opcode() const;
@@ -49,7 +49,7 @@ class CountLeadingZerosINode : public CountBitsNode {
 
 //---------- CountLeadingZerosLNode --------------------------------------------
 // Count leading zeros (0-bit count starting from MSB) of a long.
-class CountLeadingZerosLNode : public CountBitsNode {
+class CountLeadingZerosLNode final : public CountBitsNode {
   public:
   CountLeadingZerosLNode(Node* in1) : CountBitsNode(in1) {}
   virtual int Opcode() const;
@@ -58,7 +58,7 @@ class CountLeadingZerosLNode : public CountBitsNode {
 
 //---------- CountTrailingZerosINode -------------------------------------------
 // Count trailing zeros (0-bit count starting from LSB) of an integer.
-class CountTrailingZerosINode : public CountBitsNode {
+class CountTrailingZerosINode final : public CountBitsNode {
   public:
   CountTrailingZerosINode(Node* in1) : CountBitsNode(in1) {}
   virtual int Opcode() const;
@@ -67,7 +67,7 @@ class CountTrailingZerosINode : public CountBitsNode {
 
 //---------- CountTrailingZerosLNode -------------------------------------------
 // Count trailing zeros (0-bit count starting from LSB) of a long.
-class CountTrailingZerosLNode : public CountBitsNode {
+class CountTrailingZerosLNode final : public CountBitsNode {
   public:
   CountTrailingZerosLNode(Node* in1) : CountBitsNode(in1) {}
   virtual int Opcode() const;
@@ -76,7 +76,7 @@ class CountTrailingZerosLNode : public CountBitsNode {
 
 //---------- PopCountINode -----------------------------------------------------
 // Population count (bit count) of an integer.
-class PopCountINode : public CountBitsNode {
+class PopCountINode final : public CountBitsNode {
   public:
   PopCountINode(Node* in1) : CountBitsNode(in1) {}
   virtual int Opcode() const;
@@ -84,7 +84,7 @@ class PopCountINode : public CountBitsNode {
 
 //---------- PopCountLNode -----------------------------------------------------
 // Population count (bit count) of a long.
-class PopCountLNode : public CountBitsNode {
+class PopCountLNode final : public CountBitsNode {
   public:
   PopCountLNode(Node* in1) : CountBitsNode(in1) {}
   virtual int Opcode() const;

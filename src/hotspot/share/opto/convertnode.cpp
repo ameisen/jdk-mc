@@ -516,6 +516,26 @@ const Type* RoundFloatNode::Value(PhaseGVN* phase) const {
 }
 
 //=============================================================================
+RoundFloatModeNode* RoundFloatModeNode::make(PhaseGVN& gvn, Node* arg, RoundModeNode::RoundingMode rmode) {
+  ConINode* rm = gvn.intcon(rmode);
+  return new RoundFloatModeNode(arg, (Node *)rm);
+}
+
+//------------------------------Identity---------------------------------------
+// Remove redundant roundings.
+Node* RoundFloatModeNode::Identity(PhaseGVN* phase) {
+  int op = in(1)->Opcode();
+  // Redundant rounding e.g. floor(ceil(n)) -> ceil(n)
+  if(op == Op_RoundFloatMode) return in(1);
+  return this;
+}
+const Type* RoundFloatModeNode::Value(PhaseGVN* phase) const {
+  return Type::DOUBLE;
+}
+//=============================================================================
+
+
+//=============================================================================
 //------------------------------Identity---------------------------------------
 // Remove redundant roundings.  Incoming arguments are already rounded.
 Node* RoundDoubleNode::Identity(PhaseGVN* phase) {
@@ -539,7 +559,7 @@ const Type* RoundDoubleNode::Value(PhaseGVN* phase) const {
 }
 
 //=============================================================================
-RoundDoubleModeNode* RoundDoubleModeNode::make(PhaseGVN& gvn, Node* arg, RoundDoubleModeNode::RoundingMode rmode) {
+RoundDoubleModeNode* RoundDoubleModeNode::make(PhaseGVN& gvn, Node* arg, RoundModeNode::RoundingMode rmode) {
   ConINode* rm = gvn.intcon(rmode);
   return new RoundDoubleModeNode(arg, (Node *)rm);
 }

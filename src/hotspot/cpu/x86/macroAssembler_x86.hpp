@@ -1142,6 +1142,10 @@ public:
   void roundsd(XMMRegister dst, Address src, int32_t rmode)        { Assembler::roundsd(dst, src, rmode); }
   void roundsd(XMMRegister dst, AddressLiteral src, int32_t rmode, Register scratch_reg);
 
+  void roundss(XMMRegister dst, XMMRegister src, int32_t rmode)    { Assembler::roundss(dst, src, rmode); }
+  void roundss(XMMRegister dst, Address src, int32_t rmode)        { Assembler::roundss(dst, src, rmode); }
+  void roundss(XMMRegister dst, AddressLiteral src, int32_t rmode, Register scratch_reg);
+
   void sqrtss(XMMRegister dst, XMMRegister src)    { Assembler::sqrtss(dst, src); }
   void sqrtss(XMMRegister dst, Address src)        { Assembler::sqrtss(dst, src); }
   void sqrtss(XMMRegister dst, AddressLiteral src);

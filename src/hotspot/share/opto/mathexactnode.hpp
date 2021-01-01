@@ -67,7 +67,7 @@ public:
   virtual bool can_overflow(const Type* t1, const Type* t2) const = 0;
 };
 
-class OverflowAddINode : public OverflowINode {
+class OverflowAddINode final : public OverflowINode {
 public:
   typedef AddINode MathOp;
 
@@ -78,7 +78,7 @@ public:
   virtual bool can_overflow(const Type* t1, const Type* t2) const;
 };
 
-class OverflowSubINode : public OverflowINode {
+class OverflowSubINode final : public OverflowINode {
 public:
   typedef SubINode MathOp;
 
@@ -89,7 +89,7 @@ public:
   virtual bool can_overflow(const Type* t1, const Type* t2) const;
 };
 
-class OverflowMulINode : public OverflowINode {
+class OverflowMulINode final : public OverflowINode {
 public:
   typedef MulINode MathOp;
 
@@ -100,7 +100,7 @@ public:
   virtual bool can_overflow(const Type* t1, const Type* t2) const;
 };
 
-class OverflowAddLNode : public OverflowLNode {
+class OverflowAddLNode final : public OverflowLNode {
 public:
   typedef AddLNode MathOp;
 
@@ -111,7 +111,7 @@ public:
   virtual bool can_overflow(const Type* t1, const Type* t2) const;
 };
 
-class OverflowSubLNode : public OverflowLNode {
+class OverflowSubLNode final : public OverflowLNode {
 public:
   typedef SubLNode MathOp;
 
@@ -122,7 +122,7 @@ public:
   virtual bool can_overflow(const Type* t1, const Type* t2) const;
 };
 
-class OverflowMulLNode : public OverflowLNode {
+class OverflowMulLNode final : public OverflowLNode {
 public:
   typedef MulLNode MathOp;
 

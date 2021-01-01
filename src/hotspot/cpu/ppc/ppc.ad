@@ -2289,6 +2289,7 @@ const bool Matcher::match_rule_supported(int opcode) {
   case Op_SubVL:
   case Op_MulVI:
   case Op_RoundDoubleModeV:
+  case Op_RoundFloatModeV:
     return SuperwordUseVSX;
   case Op_PopCountVI:
     return (SuperwordUseVSX && UsePopCountInstruction);

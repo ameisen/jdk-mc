@@ -79,6 +79,7 @@ class VectorNode : public TypeNode {
   static bool is_type_transition_to_int(Node* n);
   static bool is_muladds2i(Node* n);
   static bool is_roundopD(Node * n);
+  static bool is_roundopF(Node * n);
   static bool is_invariant_vector(Node* n);
   static bool is_all_ones_vector(Node* n);
   static bool is_vector_bitwise_not_pattern(Node* n);
@@ -483,6 +484,14 @@ class SqrtVFNode : public VectorNode {
 class RoundDoubleModeVNode : public VectorNode {
  public:
   RoundDoubleModeVNode(Node* in1, Node* in2, const TypeVect* vt) : VectorNode(in1, in2, vt) {}
+  virtual int Opcode() const;
+};
+
+//------------------------------RoundDoubleVNode--------------------------------
+// Vector round double
+class RoundFloatModeVNode : public VectorNode {
+ public:
+  RoundFloatModeVNode(Node* in1, Node* in2, const TypeVect* vt) : VectorNode(in1, in2, vt) {}
   virtual int Opcode() const;
 };
 

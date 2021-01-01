@@ -132,6 +132,9 @@ int VectorNode::opcode(int sopc, BasicType bt) {
   case Op_RoundDoubleMode:
     assert(bt == T_DOUBLE, "must be");
     return Op_RoundDoubleModeV;
+  case Op_RoundFloatMode:
+    assert(bt == T_FLOAT, "must be");
+    return Op_RoundFloatModeV;
   case Op_SqrtF:
     assert(bt == T_FLOAT, "must be");
     return Op_SqrtVF;
@@ -265,6 +268,13 @@ bool VectorNode::is_muladds2i(Node* n) {
 
 bool VectorNode::is_roundopD(Node *n) {
   if (n->Opcode() == Op_RoundDoubleMode) {
+    return true;
+  }
+  return false;
+}
+
+bool VectorNode::is_roundopF(Node *n) {
+  if (n->Opcode() == Op_RoundFloatMode) {
     return true;
   }
   return false;
@@ -419,6 +429,7 @@ VectorNode* VectorNode::make(int opc, Node* n1, Node* n2, uint vlen, BasicType b
   case Op_MaxV: return new MaxVNode(n1, n2, vt);
 
   case Op_RoundDoubleModeV: return new RoundDoubleModeVNode(n1, n2, vt);
+  case Op_RoundFloatModeV: return new RoundFloatModeVNode(n1, n2, vt);
 
   case Op_MulAddVS2VI: return new MulAddVS2VINode(n1, n2, vt);
   default:

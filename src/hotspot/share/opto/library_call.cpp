@@ -536,9 +536,12 @@ bool LibraryCallKit::try_to_inline(int predicate) {
   case vmIntrinsics::_identityHashCode:         return inline_native_hashcode(/*!virtual*/ false,         is_static);
   case vmIntrinsics::_getClass:                 return inline_native_getClass();
 
-  case vmIntrinsics::_ceil:
-  case vmIntrinsics::_floor:
-  case vmIntrinsics::_rint:
+  case vmIntrinsics::_dceil:
+  case vmIntrinsics::_dfloor:
+  case vmIntrinsics::_drint:
+  case vmIntrinsics::_fceil:
+  case vmIntrinsics::_ffloor:
+  case vmIntrinsics::_frint:
   case vmIntrinsics::_dsin:
   case vmIntrinsics::_dcos:
   case vmIntrinsics::_dtan:
@@ -1811,9 +1814,9 @@ bool LibraryCallKit::inline_double_math(vmIntrinsics::ID id) {
   switch (id) {
   case vmIntrinsics::_dabs:   n = new AbsDNode(                arg);  break;
   case vmIntrinsics::_dsqrt:  n = new SqrtDNode(C, control(),  arg);  break;
-  case vmIntrinsics::_ceil:   n = RoundDoubleModeNode::make(_gvn, arg, RoundDoubleModeNode::rmode_ceil); break;
-  case vmIntrinsics::_floor:  n = RoundDoubleModeNode::make(_gvn, arg, RoundDoubleModeNode::rmode_floor); break;
-  case vmIntrinsics::_rint:   n = RoundDoubleModeNode::make(_gvn, arg, RoundDoubleModeNode::rmode_rint); break;
+  case vmIntrinsics::_dceil:   n = RoundDoubleModeNode::make(_gvn, arg, RoundModeNode::rmode_ceil); break;
+  case vmIntrinsics::_dfloor:  n = RoundDoubleModeNode::make(_gvn, arg, RoundModeNode::rmode_floor); break;
+  case vmIntrinsics::_drint:   n = RoundDoubleModeNode::make(_gvn, arg, RoundModeNode::rmode_rint); break;
   default:  fatal_unexpected_iid(id);  break;
   }
   set_result(_gvn.transform(n));
@@ -1832,6 +1835,9 @@ bool LibraryCallKit::inline_math(vmIntrinsics::ID id) {
   case vmIntrinsics::_iabs:   n = new AbsINode(                arg);  break;
   case vmIntrinsics::_labs:   n = new AbsLNode(                arg);  break;
   case vmIntrinsics::_fsqrt:  n = new SqrtFNode(C, control(),  arg);  break;
+  case vmIntrinsics::_fceil:   n = RoundFloatModeNode::make(_gvn, arg, RoundModeNode::rmode_ceil); break;
+  case vmIntrinsics::_ffloor:  n = RoundFloatModeNode::make(_gvn, arg, RoundModeNode::rmode_floor); break;
+  case vmIntrinsics::_frint:   n = RoundFloatModeNode::make(_gvn, arg, RoundModeNode::rmode_rint); break;
   default:  fatal_unexpected_iid(id);  break;
   }
   set_result(_gvn.transform(n));
@@ -1888,9 +1894,12 @@ bool LibraryCallKit::inline_math_native(vmIntrinsics::ID id) {
       runtime_math(OptoRuntime::Math_D_D_Type(), FN_PTR(SharedRuntime::dlog10), "LOG10");
 
     // These intrinsics are supported on all hardware
-  case vmIntrinsics::_ceil:
-  case vmIntrinsics::_floor:
-  case vmIntrinsics::_rint:   return Matcher::match_rule_supported(Op_RoundDoubleMode) ? inline_double_math(id) : false;
+  case vmIntrinsics::_dceil:
+  case vmIntrinsics::_dfloor:
+  case vmIntrinsics::_drint:  return Matcher::match_rule_supported(Op_RoundDoubleMode) ? inline_double_math(id) : false;
+  case vmIntrinsics::_fceil:
+  case vmIntrinsics::_ffloor:
+  case vmIntrinsics::_frint:  return Matcher::match_rule_supported(Op_RoundFloatMode) ? inline_math(id) : false;
   case vmIntrinsics::_dsqrt:  return Matcher::match_rule_supported(Op_SqrtD) ? inline_double_math(id) : false;
   case vmIntrinsics::_fsqrt:  return Matcher::match_rule_supported(Op_SqrtF) ? inline_math(id) : false;
   case vmIntrinsics::_dabs:   return Matcher::has_match_rule(Op_AbsD)   ? inline_double_math(id) : false;

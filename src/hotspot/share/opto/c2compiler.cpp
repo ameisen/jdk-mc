@@ -482,10 +482,15 @@ bool C2Compiler::is_intrinsic_supported(const methodHandle& method, bool is_virt
   case vmIntrinsics::_writebackPostSync0:
     if (!Matcher::match_rule_supported(Op_CacheWBPostSync)) return false;
     break;
-  case vmIntrinsics::_rint:
-  case vmIntrinsics::_ceil:
-  case vmIntrinsics::_floor:
+  case vmIntrinsics::_drint:
+  case vmIntrinsics::_dceil:
+  case vmIntrinsics::_dfloor:
     if (!Matcher::match_rule_supported(Op_RoundDoubleMode)) return false;
+    break;
+  case vmIntrinsics::_frint:
+  case vmIntrinsics::_fceil:
+  case vmIntrinsics::_ffloor:
+    if (!Matcher::match_rule_supported(Op_RoundFloatMode)) return false;
     break;
   case vmIntrinsics::_hashCode:
   case vmIntrinsics::_identityHashCode:

@@ -1902,6 +1902,9 @@ private:
   void sqrtss(XMMRegister dst, Address src);
   void sqrtss(XMMRegister dst, XMMRegister src);
 
+  void roundss(XMMRegister dst, Address src, int32_t rmode);
+  void roundss(XMMRegister dst, XMMRegister src, int32_t rmode);
+
   void std();
 
   void stmxcsr( Address dst );
@@ -2067,6 +2070,11 @@ private:
   void vroundpd(XMMRegister dst, Address src, int32_t rmode, int vector_len);
   void vrndscalepd(XMMRegister dst,  XMMRegister src,  int32_t rmode, int vector_len);
   void vrndscalepd(XMMRegister dst, Address src, int32_t rmode, int vector_len);
+
+  void vroundps(XMMRegister dst, XMMRegister src, int32_t rmode, int vector_len);
+  void vroundps(XMMRegister dst, Address src, int32_t rmode, int vector_len);
+  void vrndscaleps(XMMRegister dst,  XMMRegister src,  int32_t rmode, int vector_len);
+  void vrndscaleps(XMMRegister dst, Address src, int32_t rmode, int vector_len);
 
   // Bitwise Logical AND of Packed Floating-Point Values
   void andpd(XMMRegister dst, XMMRegister src);
