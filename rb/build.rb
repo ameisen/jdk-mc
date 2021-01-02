@@ -1063,12 +1063,11 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 		]
 
 		without_flags = [
-			"version-opt",
 			"devkit",
 		]
 
 		#if Options::debug || TARGET_PLATFORM.is?(System::Platforms::WINDOWS)
-	#	enable_flags << "static_build"
+		# enable_flags << "static_build"
 		#else
 		#	enable_flags << "static_build"
 		#end
