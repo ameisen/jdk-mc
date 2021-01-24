@@ -101,7 +101,7 @@ void G1Arguments::parse_verification_type(const char* type) {
 // phase based on the number of GC workers being used in a STW
 // phase.
 static uint scale_concurrent_worker_threads(uint num_gc_workers) {
-  return MAX2((num_gc_workers + 2) / 4, 1U);
+  return MAX2(num_gc_workers - 1U, 1U);
 }
 
 void G1Arguments::initialize_mark_stack_size() {

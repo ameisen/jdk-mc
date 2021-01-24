@@ -385,7 +385,7 @@ public class DepsAnalyzer {
             info = Info.MODULE_PRIVATE;
         } else if (!targetModule.isNamed()) {
             info = Info.EXPORTED_API;
-        } else if (targetModule.isExported(pn) && !targetModule.isJDKUnsupported()) {
+        } else if (targetModule.isExported(pn)) {
             info = Info.EXPORTED_API;
         } else {
             Module module = target.getModule();

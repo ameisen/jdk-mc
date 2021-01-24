@@ -247,7 +247,8 @@ void TieredThresholdPolicy::initialize() {
 #ifdef _LP64
   // Turn on ergonomic compiler count selection
   if (FLAG_IS_DEFAULT(CICompilerCountPerCPU) && FLAG_IS_DEFAULT(CICompilerCount)) {
-    FLAG_SET_DEFAULT(CICompilerCountPerCPU, true);
+    //FLAG_SET_DEFAULT(CICompilerCountPerCPU, true);
+    FLAG_SET_ERGO(CICompilerCount, MAX2(os::active_processor_count() - 1, 1));
   }
   if (CICompilerCountPerCPU) {
     // Simple log n seems to grow too slowly for tiered, try something faster: log n * log log n

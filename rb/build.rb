@@ -1014,6 +1014,7 @@ ExecutePass("Configure Pass", Error::Flag::CONFIGURE) {
 			"serialgc",
 			"epsilongc",
 			"jni-check",
+			"cds",
 		].sort
 
 		enabled_features = all_features.filter_map { |f| f unless disabled_features.include?(f) }.sort

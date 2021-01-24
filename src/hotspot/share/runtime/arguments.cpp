@@ -87,7 +87,7 @@ intx   Arguments::_Tier3InvokeNotifyFreqLog     = Tier3InvokeNotifyFreqLog;
 intx   Arguments::_Tier4InvocationThreshold     = Tier4InvocationThreshold;
 size_t Arguments::_default_SharedBaseAddress    = SharedBaseAddress;
 
-bool   Arguments::_enable_preview               = false;
+bool   Arguments::_enable_preview               = true;
 
 char*  Arguments::SharedArchivePath             = NULL;
 char*  Arguments::SharedDynamicArchivePath      = NULL;
@@ -145,6 +145,54 @@ void PathString::append_value(const char *value) {
       if (_value != NULL) {
         strcpy(sp, _value);
         strcat(sp, os::path_separator());
+        strcat(sp, value);
+        FreeHeap(_value);
+      } else {
+        strcpy(sp, value);
+      }
+      _value = sp;
+    }
+  }
+}
+
+void PathString::prepend_value(const char *value) {
+  char *sp;
+  size_t len = 0;
+  if (value != NULL) {
+    len = strlen(value);
+    if (_value != NULL) {
+      len += strlen(_value);
+    }
+    sp = AllocateHeap(len+2, mtArguments);
+    assert(sp != NULL, "Unable to allocate space for new append path value");
+    if (sp != NULL) {
+      if (_value != NULL) {
+        strcpy(sp, value);
+        strcat(sp, os::path_separator());
+        strcat(sp, _value);
+        FreeHeap(_value);
+      } else {
+        strcpy(sp, value);
+      }
+      _value = sp;
+    }
+  }
+}
+
+void PathString::append_file(const char *value) {
+  char *sp;
+  size_t len = 0;
+  if (value != NULL) {
+    len = strlen(value);
+    if (_value != NULL) {
+      len += strlen(_value);
+    }
+    sp = AllocateHeap(len+2, mtArguments);
+    assert(sp != NULL, "Unable to allocate space for new append path value");
+    if (sp != NULL) {
+      if (_value != NULL) {
+        strcpy(sp, _value);
+        strcat(sp, os::file_separator());
         strcat(sp, value);
         FreeHeap(_value);
       } else {
@@ -375,6 +423,36 @@ void Arguments::process_sun_java_launcher_properties(JavaVMInitArgs* args) {
   }
 }
 
+#include <string>
+#include <cstdio>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
+void Arguments::add_override_class_paths() {
+  if (!_java_class_path) {
+    return;
+  }
+
+  fs::path overrideRoot = _java_home->value();
+  overrideRoot /= "override";
+  fs::directory_entry overrideDir{overrideRoot};
+  if (overrideDir.is_directory()) {
+    using iterator = fs::recursive_directory_iterator;
+    for (const auto & override : iterator{ overrideDir }) {
+      if (override.exists() && !override.is_directory()) {
+        std::string overridePath = override.path().string();
+        if (_java_class_path->has_value()) {
+          _java_class_path->prepend_value(overridePath.c_str());
+        }
+        else {
+          _java_class_path->set_value(overridePath.c_str());
+        }
+      }
+    }
+  }
+}
+
 // Initialize system properties key and value.
 void Arguments::init_system_properties() {
 
@@ -415,6 +493,8 @@ void Arguments::init_system_properties() {
 
   // Set OS specific system properties values
   os::init_system_properties_values();
+
+  add_override_class_paths();
 }
 
 // Update/Initialize System properties after JDK version number is known
@@ -1291,7 +1371,7 @@ bool Arguments::process_argument(const char* arg,
    if (commented) {
      return true;
    }
-                                   
+
   JDK_Version since = JDK_Version();
 
   if (parse_argument(arg, origin)) {
@@ -4122,6 +4202,8 @@ jint Arguments::parse(const JavaVMInitArgs* initial_cmd_args) {
     warning("CompilationMode has no effect in non-tiered VMs");
   }
 #endif
+
+  add_override_class_paths();
 
   return JNI_OK;
 }

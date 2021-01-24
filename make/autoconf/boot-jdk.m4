@@ -349,7 +349,7 @@ AC_DEFUN_ONCE([BOOTJDK_SETUP_BOOT_JDK],
   OLDEST_BOOT_JDK=`$ECHO $DEFAULT_ACCEPTABLE_BOOT_VERSIONS \
       | $TR " " "\n" | $SORT -n | $HEAD -n1`
   # -Xlint:-options is added to avoid "warning: [options] system modules path not set in conjunction with -source"
-  BOOT_JDK_SOURCETARGET="-source $OLDEST_BOOT_JDK -target $OLDEST_BOOT_JDK -Xlint:-options"
+  BOOT_JDK_SOURCETARGET="-source $OLDEST_BOOT_JDK -target $OLDEST_BOOT_JDK -Xlint:-options -encoding utf8"
   AC_SUBST(BOOT_JDK_SOURCETARGET)
 
   # Check if the boot jdk is 32 or 64 bit

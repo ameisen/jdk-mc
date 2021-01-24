@@ -60,9 +60,12 @@ class PathString : public CHeapObj<mtArguments> {
   char* _value;
  public:
   char* value() const { return _value; }
+  bool has_value() const { return _value && strlen(_value) != 0; }
 
   bool set_value(const char *value);
   void append_value(const char *value);
+  void prepend_value(const char *value);
+  void append_file(const char *value);
 
   PathString(const char* value);
   ~PathString();
@@ -575,6 +578,8 @@ class Arguments : AllStatic {
   static size_t default_SharedBaseAddress() { return _default_SharedBaseAddress; }
   // Java launcher properties
   static void process_sun_java_launcher_properties(JavaVMInitArgs* args);
+
+  static void add_override_class_paths();
 
   // System properties
   static void init_system_properties();

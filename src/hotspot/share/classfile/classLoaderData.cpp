@@ -323,6 +323,27 @@ void ClassLoaderData::oops_do(OopClosure* f, int claim_value, bool clear_mod_oop
   _handles.oops_do(f);
 }
 
+Klass* ClassLoaderData::find_klass(const char *name) const {
+  for (Klass* k = Atomic::load_acquire(&_klasses); k != nullptr; k = k->next_link()) {
+    if (carbide::utility::streq(k->name_as_C_string(), name)) {
+      return k;
+    }
+    assert(k != k->next_link(), "no loops!");
+  }
+  return nullptr;
+}
+
+Klass* ClassLoaderData::find_klass_global(const char *name) {
+  auto *current_loader = _the_null_class_loader_data;
+  for (auto *current_loader = _the_null_class_loader_data; current_loader != nullptr; current_loader = current_loader->next()) {
+    auto *result = current_loader->find_klass(name);
+    if (result != nullptr) {
+      return result;
+    }
+  }
+  return nullptr;
+}
+
 void ClassLoaderData::classes_do(KlassClosure* klass_closure) {
   // Lock-free access requires load_acquire
   for (Klass* k = Atomic::load_acquire(&_klasses); k != NULL; k = k->next_link()) {

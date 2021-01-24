@@ -27,6 +27,7 @@
 #include "gc/shared/gcCause.hpp"
 #include "gc/shenandoah/shenandoahCollectionSet.inline.hpp"
 #include "gc/shenandoah/shenandoahCollectorPolicy.hpp"
+#include "gc/shenandoah/shenandoahFreeSet.hpp"
 #include "gc/shenandoah/shenandoahHeap.inline.hpp"
 #include "gc/shenandoah/shenandoahHeapRegion.inline.hpp"
 #include "gc/shenandoah/shenandoahMarkingContext.inline.hpp"
@@ -40,6 +41,20 @@ int ShenandoahHeuristics::compare_by_garbage(RegionData a, RegionData b) {
   else if (a._garbage < b._garbage)
     return 1;
   else return 0;
+}
+
+static constexpr const uint64_t TARGET_OLD_GENERATION_SIZE = 2'147'483'648ull;
+static constexpr const double MIN_FREE_RATIO = 0.2; // Otherwise it will stall during GC
+
+static uint32_t CalculateFreeThreshold(uint64_t targetSize) {
+  // TODO : move me to a header somewhere
+  uint64_t maxHeapSize = MaxHeapSize;
+  if (maxHeapSize > targetSize) {
+    double fraction = (double(targetSize) / maxHeapSize);
+    fraction = std::max(fraction, MIN_FREE_RATIO);
+    return uint32_t((fraction * 100.0) + 0.5);
+  }
+  return ShenandoahMinFreeThreshold;
 }
 
 ShenandoahHeuristics::ShenandoahHeuristics() :
@@ -65,18 +80,29 @@ ShenandoahHeuristics::ShenandoahHeuristics() :
   _region_data = NEW_C_HEAP_ARRAY(RegionData, num_regions, mtGC);
 
   if (FLAG_IS_DEFAULT(ShenandoahMinFreeThreshold)) {
-    // TODO : move me to a header somewhere
-    static const uint64_t targetOldGenerationSize = 2'147'483'648;
-    uint64_t maxHeapSize = MaxHeapSize;
-    if (maxHeapSize > targetOldGenerationSize) {
-      double fraction = 1.0 - double(targetOldGenerationSize) / maxHeapSize;
-      _min_free_threshold = uint32_t((fraction * 100) + 0.5);
-    }
+    _min_free_threshold = CalculateFreeThreshold(TARGET_OLD_GENERATION_SIZE);
   }
 }
 
 ShenandoahHeuristics::~ShenandoahHeuristics() {
   FREE_C_HEAP_ARRAY(RegionGarbage, _region_data);
+}
+
+void ShenandoahHeuristics::update_min_free_threshold() {
+  if (!FLAG_IS_DEFAULT(ShenandoahMinFreeThreshold)) {
+    return;
+  }
+
+  const ShenandoahHeap * const heap = ShenandoahHeap::heap();
+  // Calculate the remaining data after collection, which we will consider to be our old generation set
+  size_t capacity = heap->max_capacity();
+  size_t available = heap->free_set()->available();
+  size_t allocated = std::max(size_t(0), capacity - available);
+
+  // Over-allocate a little bit
+  allocated = (allocated + (allocated * 2)) / 2;
+
+  _min_free_threshold = CalculateFreeThreshold(allocated);
 }
 
 void ShenandoahHeuristics::choose_collection_set(ShenandoahCollectionSet* collection_set) {
@@ -197,7 +223,12 @@ bool ShenandoahHeuristics::should_start_gc() const {
   // Perform GC to cleanup metaspace
   if (has_metaspace_oom()) {
     // Some of vmTestbase/metaspace tests depend on following line to count GC cycles
-    log_info(gc)("Trigger: %s", GCCause::to_string(GCCause::_metadata_GC_threshold));
+    if (CarbideLog) {
+      log_warning(gc)("Trigger Metaspace OOM: %s", GCCause::to_string(GCCause::_metadata_GC_threshold));
+    }
+    else {
+      log_info(gc)("Trigger: %s", GCCause::to_string(GCCause::_metadata_GC_threshold));
+    }
     return true;
   }
 

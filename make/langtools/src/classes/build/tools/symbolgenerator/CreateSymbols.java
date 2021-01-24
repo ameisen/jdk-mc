@@ -1395,6 +1395,7 @@ public class CreateSymbols {
             }
         }
 
+        /*
         ModuleDescription unsupported =
                 currentVersionModules.get("jdk.unsupported");
 
@@ -1415,6 +1416,7 @@ public class CreateSymbols {
                 }
             }
         }
+        */
 
         Set<String> includedClasses = new HashSet<>();
         boolean modified;

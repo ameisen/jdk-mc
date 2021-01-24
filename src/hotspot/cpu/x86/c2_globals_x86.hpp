@@ -40,7 +40,7 @@ define_pd_global(bool, ProfileTraps,                 true);
 define_pd_global(bool, UseOnStackReplacement,        true);
 define_pd_global(bool, ProfileInterpreter,           true);
 define_pd_global(bool, TieredCompilation,            trueInTiered);
-define_pd_global(intx, CompileThreshold,             100);
+define_pd_global(intx, CompileThreshold,             16);
 
 define_pd_global(intx, OnStackReplacePercentage,     140);
 define_pd_global(intx, ConditionalMoveLimit,         3);
@@ -85,16 +85,16 @@ define_pd_global(bool, SuperWordLoopUnrollAnalysis,  true);
 define_pd_global(bool, IdealizeClearArrayNode,       true);
 
 define_pd_global(uintx, ReservedCodeCacheSize,       256*M);
-define_pd_global(uintx, NonProfiledCodeHeapSize,     128*M);
-define_pd_global(uintx, ProfiledCodeHeapSize,        96*M);
-define_pd_global(uintx, NonNMethodCodeHeapSize,      64*M );
+define_pd_global(uintx, NonProfiledCodeHeapSize,     256*M);
+define_pd_global(uintx, ProfiledCodeHeapSize,        256*M);
+define_pd_global(uintx, NonNMethodCodeHeapSize,      256*M);
 define_pd_global(uintx, CodeCacheMinBlockLength,     6);
 define_pd_global(uintx, CodeCacheMinimumUseSpace,    400*K);
 
 define_pd_global(bool,  TrapBasedRangeChecks,        false); // Not needed on x86.
 
 // Heap related flags
-define_pd_global(size_t, MetaspaceSize,              ScaleForWordSize(24*M));
+define_pd_global(size_t, MetaspaceSize,              ScaleForWordSize(48*M));
 
 // Ergonomics related flags
 define_pd_global(bool, NeverActAsServerClassMachine, false);

@@ -271,7 +271,6 @@ module Architectures
 				InstructionSets::SSE3,
 				InstructionSets::SSSE3,
 				InstructionSets::SSE4,
-				InstructionSets::SSE4A,
 				InstructionSets::AVX,
 				InstructionSets::AVX2,
 				InstructionSets::AVX512_ANY,
@@ -287,7 +286,6 @@ module Architectures
 				InstructionSets::SSE3,
 				InstructionSets::SSSE3,
 				InstructionSets::SSE4,
-				InstructionSets::SSE4A,
 				InstructionSets::AVX,
 				InstructionSets::AVX2,
 				InstructionSets::ABM,
@@ -300,7 +298,6 @@ module Architectures
 				InstructionSets::SSE3,
 				InstructionSets::SSSE3,
 				InstructionSets::SSE4,
-				InstructionSets::SSE4A,
 				InstructionSets::AVX,
 				InstructionSets::AVX2,
 				InstructionSets::ABM,
@@ -313,13 +310,23 @@ module Architectures
 				InstructionSets::SSE3,
 				InstructionSets::SSSE3,
 				InstructionSets::SSE4,
-				InstructionSets::SSE4A,
 				InstructionSets::AVX,
 				InstructionSets::AVX2,
 				InstructionSets::ABM,
 			],
 			slow_avx: true, # Haswell downclocks _all_ cores
 			gcc_flags: ["-march=haswell"]
+		)
+		Architectures::list << IVY_BRIDGE = arch(
+			name: "IvyBridge",
+			sets: [
+				InstructionSets::SSE3,
+				InstructionSets::SSSE3,
+				InstructionSets::SSE4,
+				InstructionSets::AVX,
+			],
+			slow_avx: true, # Haswell downclocks _all_ cores
+			gcc_flags: ["-march=ivybridge"]
 		)
 		Architectures::list << GENERIC = arch(
 			name: "Intel",

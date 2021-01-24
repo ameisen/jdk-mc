@@ -1295,7 +1295,7 @@ public abstract class ClassLoader {
         // of the form "java.*"
         if ((name != null) && name.startsWith("java.")
                 && this != getBuiltinPlatformClassLoader()) {
-            throw new SecurityException
+                    System.err.println
                 ("Prohibited package name: " +
                  name.substring(0, name.lastIndexOf('.')));
         }
@@ -1562,7 +1562,7 @@ public abstract class ClassLoader {
         certs = certs == null ? nocerts : certs;
         Certificate[] pcerts = package2certs.putIfAbsent(pname, certs);
         if (pcerts != null && !compareCerts(pcerts, certs)) {
-            throw new SecurityException("class \"" + name
+            System.err.println("class \"" + name
                 + "\"'s signer information does not match signer information"
                 + " of other classes in the same package");
         }
@@ -2616,6 +2616,8 @@ public abstract class ClassLoader {
                                     String implVendor, URL sealBase)
     {
         Objects.requireNonNull(name);
+
+        sealBase = null;
 
         // definePackage is not final and may be overridden by custom class loader
         Package p = new Package(name, specTitle, specVersion, specVendor,

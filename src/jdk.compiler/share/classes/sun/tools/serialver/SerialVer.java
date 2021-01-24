@@ -152,13 +152,10 @@ public class SerialVer {
          * is not defined, and make a loader that can read from that path.
          */
         if (envcp == null) {
-            envcp = System.getProperty("env.class.path");
             /*
              * If environment variable not set, add current directory to path.
              */
-            if (envcp == null) {
-                envcp = ".";
-            }
+            envcp = System.getProperty("env.class.path", ".");
         }
 
         try {

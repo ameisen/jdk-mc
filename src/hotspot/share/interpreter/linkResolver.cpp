@@ -58,6 +58,8 @@
 #include "runtime/thread.inline.hpp"
 #include "runtime/vmThread.hpp"
 
+#include <cstring>
+
 //------------------------------------------------------------------------------------------------------------------------
 // Implementation of CallInfo
 
@@ -325,6 +327,17 @@ Method* LinkResolver::lookup_method_in_klasses(const LinkInfo& link_info,
 
   Klass* klass = link_info.resolved_klass();
   Symbol* name = link_info.name();
+
+  if (carbide::utility::streq(klass->name_as_C_string(), "com/google/common/base/Objects")) {
+    if (carbide::utility::streq(*name, "firstNonNull")) {
+      // Override the class.
+      Klass *newKlass = klass->class_loader_data()->find_klass("com/google/common/base/MoreObjects");
+      if (newKlass) {
+        klass = newKlass;
+      }
+    }
+  }
+
   Symbol* signature = link_info.signature();
 
   // Ignore overpasses so statics can be found during resolution
@@ -599,6 +612,16 @@ void LinkResolver::check_method_accessability(Klass* ref_klass,
 
     for (auto *name : force_allowed_methods) {
       if (strcmp(name, method_external_name) == 0) {
+        return;
+      }
+    }
+
+    static constexpr const char * const force_allowed_prefixes[] = {
+      "com.google.common"
+    };
+
+    for (auto *name : force_allowed_prefixes) {
+      if (strstr(method_external_name, name)) {
         return;
       }
     }

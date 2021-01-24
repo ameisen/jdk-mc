@@ -284,6 +284,9 @@ class ClassLoaderData : public CHeapObj<mtClass> {
   void classes_do(KlassClosure* klass_closure);
   Klass* klasses() { return _klasses; }
 
+  Klass* find_klass(const char *name) const;
+  static Klass* find_klass_global(const char *name);
+
   JNIMethodBlock* jmethod_ids() const              { return _jmethod_ids; }
   void set_jmethod_ids(JNIMethodBlock* new_block)  { _jmethod_ids = new_block; }
 

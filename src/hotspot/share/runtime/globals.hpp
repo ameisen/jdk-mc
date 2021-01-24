@@ -126,6 +126,9 @@ const size_t minimumSymbolTableSize = 1024;
                       range, \
                       constraint) \
                                                                             \
+  experimental(bool, CarbideLog, false,                                     \
+          "Dump log data")                                                  \
+                                                                            \
   lp64_product(bool, UseCompressedOops, true,                               \
           "Use 32-bit object references in 64-bit VM. "                     \
           "lp64_product means flag is always constant in 32 bit VM")        \
@@ -648,7 +651,7 @@ const size_t minimumSymbolTableSize = 1024;
   develop(bool, ProtectionDomainVerification, false,                        \
           "Verify protection domain before resolution in system dictionary")\
                                                                             \
-  product(bool, ClassUnloading, false,                                      \
+  product(bool, ClassUnloading, true,                                       \
           "Do unloading of classes")                                        \
                                                                             \
   product(bool, ClassUnloadingWithConcurrentMark, true,                     \
@@ -675,6 +678,9 @@ const size_t minimumSymbolTableSize = 1024;
   product(bool, AllowParallelDefineClass, true,                             \
           "Allow parallel defineClass requests for class loaders "          \
           "registering as parallel capable")                                \
+                                                                            \
+  product(bool, ForceParallelDefineClass, true,                             \
+          "Force parallel defineClass requests for all class loaders")      \
                                                                             \
   product_pd(bool, DontYieldALot,                                           \
           "Throw away obvious excess yield calls")                          \
@@ -835,7 +841,7 @@ const size_t minimumSymbolTableSize = 1024;
   product(bool, VerifyMergedCPBytecodes, false,                             \
           "Verify bytecodes after RedefineClasses constant pool merging")   \
                                                                             \
-  product(bool, AllowRedefinitionToAddDeleteMethods, false,                 \
+  product(bool, AllowRedefinitionToAddDeleteMethods, true,                  \
           "(Deprecated) Allow redefinition to add and delete private "      \
           "static or final methods for compatibility with old releases")    \
                                                                             \
@@ -896,7 +902,7 @@ const size_t minimumSymbolTableSize = 1024;
           "Ignore empty path elements in -classpath")                       \
                                                                             \
   product(size_t, InitialBootClassLoaderMetaspaceSize,                      \
-          NOT_LP64(2200*K) LP64_ONLY(4*M),                                  \
+          NOT_LP64(2200*K) LP64_ONLY(8*M),                                  \
           "(Deprecated) Initial size of the boot class loader data metaspace") \
           range(30*K, max_uintx/BytesPerWord)                               \
           constraint(InitialBootClassLoaderMetaspaceSizeConstraintFunc, AfterErgo)\
@@ -972,7 +978,7 @@ const size_t minimumSymbolTableSize = 1024;
           range(0, max_jint)                                                \
           constraint(CICompilerCountConstraintFunc, AfterErgo)              \
                                                                             \
-  product(bool, UseDynamicNumberOfCompilerThreads, true,                    \
+  product(bool, UseDynamicNumberOfCompilerThreads, false,                   \
           "Dynamically choose the number of parallel compiler threads")     \
                                                                             \
   experimental(bool, ReduceNumberOfCompilerThreads, false,                  \
@@ -986,7 +992,7 @@ const size_t minimumSymbolTableSize = 1024;
           "Inject thread creation failures for "                            \
           "UseDynamicNumberOfCompilerThreads")                              \
                                                                             \
-  develop(bool, UseStackBanging, false,                                     \
+  develop(bool, UseStackBanging, true,                                      \
           "use stack banging for stack overflow checks (required for "      \
           "proper StackOverflow handling; disable only to measure cost "    \
           "of stackbanging)")                                               \
@@ -1075,19 +1081,19 @@ const size_t minimumSymbolTableSize = 1024;
           "Generate extra debugging information for non-safepoints in "     \
           "nmethods")                                                       \
                                                                             \
-  product(bool, PrintVMOptions, false,                                      \
+  product(bool, PrintVMOptions, true,                                       \
           "Print flags that appeared on the command line")                  \
                                                                             \
   product(bool, IgnoreUnrecognizedVMOptions, true,                          \
           "Ignore unrecognized VM options")                                 \
                                                                             \
-  product(bool, PrintCommandLineFlags, false,                               \
+  product(bool, PrintCommandLineFlags, true,                                \
           "Print flags specified on command line or set by ergonomics")     \
                                                                             \
-  product(bool, PrintFlagsInitial, false,                                   \
+  product(bool, PrintFlagsInitial, true,                                    \
           "Print all VM flags before argument processing and exit VM")      \
                                                                             \
-  product(bool, PrintFlagsFinal, false,                                     \
+  product(bool, PrintFlagsFinal, true,                                      \
           "Print all VM flags after argument and ergonomic processing")     \
                                                                             \
   notproduct(bool, PrintFlagsWithComments, false,                           \
@@ -1184,7 +1190,7 @@ const size_t minimumSymbolTableSize = 1024;
   experimental(bool, UseLoopSafepoints, true,                               \
           "Generate Safepoint nodes in every loop")                         \
                                                                             \
-  develop(intx, FastAllocateSizeLimit, 128*K,                               \
+  develop(intx, FastAllocateSizeLimit, 256*K,                               \
           /* Note:  This value is zero mod 1<<13 for a cheap sparc set. */  \
           "Inline allocations larger than this in doublewords must go slow")\
                                                                             \
@@ -1198,11 +1204,11 @@ const size_t minimumSymbolTableSize = 1024;
           "X, Y and Z in 0=off ; 1=jsr292 only; 2=all methods")             \
           constraint(TypeProfileLevelConstraintFunc, AfterErgo)             \
                                                                             \
-  product(intx, TypeProfileArgsLimit,     2,                                \
+  product(intx, TypeProfileArgsLimit,     4,                                \
           "max number of call arguments to consider for type profiling")    \
           range(0, 16)                                                      \
                                                                             \
-  product(intx, TypeProfileParmsLimit,    2,                                \
+  product(intx, TypeProfileParmsLimit,    4,                                \
           "max number of incoming parameters to consider for type profiling"\
           ", -1 for all")                                                   \
           range(-1, 64)                                                     \
@@ -1362,7 +1368,7 @@ const size_t minimumSymbolTableSize = 1024;
           "Maximum number of nested calls that are analyzed by BC EA")      \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, MaxBCEAEstimateSize, 600,                                   \
+  product(intx, MaxBCEAEstimateSize, 800,                                   \
           "Maximum bytecode size of a method to be analyzed by BC EA")      \
           range(0, max_jint)                                                \
                                                                             \
@@ -1491,11 +1497,11 @@ const size_t minimumSymbolTableSize = 1024;
   develop(intx, BciProfileWidth,      2,                                    \
           "Number of return bci's to record in ret profile")                \
                                                                             \
-  product(intx, PerMethodRecompilationCutoff, 1000,                         \
+  product(intx, PerMethodRecompilationCutoff, 4000,                         \
           "After recompiling N times, stay in the interpreter (-1=>'Inf')") \
           range(-1, max_intx)                                               \
                                                                             \
-  product(intx, PerBytecodeRecompilationCutoff, 500,                        \
+  product(intx, PerBytecodeRecompilationCutoff, 2000,                       \
           "Per-BCI limit on repeated recompilation (-1=>'Inf')")            \
           range(-1, max_intx)                                               \
                                                                             \
@@ -1594,7 +1600,7 @@ const size_t minimumSymbolTableSize = 1024;
           range(0, 99)                                                      \
           constraint(MinMetaspaceFreeRatioConstraintFunc,AfterErgo)         \
                                                                             \
-  product(size_t, MaxMetaspaceExpansion, ScaleForWordSize(4*M),             \
+  product(size_t, MaxMetaspaceExpansion, ScaleForWordSize(16*M),            \
           "The maximum expansion of Metaspace without full GC (in bytes)")  \
           range(0, max_uintx)                                               \
                                                                             \
@@ -2331,7 +2337,7 @@ const size_t minimumSymbolTableSize = 1024;
           "Number of buckets in the JVM internal Symbol table")             \
           range(minimumSymbolTableSize, 16777216ul /* 2^24 */)              \
                                                                             \
-  product(bool, UseStringDeduplication, false,                              \
+  product(bool, UseStringDeduplication, true,                               \
           "Use string deduplication")                                       \
                                                                             \
   product(uintx, StringDeduplicationAgeThreshold, 3,                        \

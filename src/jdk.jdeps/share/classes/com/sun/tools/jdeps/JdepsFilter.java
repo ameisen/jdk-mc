@@ -169,11 +169,6 @@ public class JdepsFilter implements Dependency.Filter, Analyzer.Filter {
      * Tests if the package is an internal package of the given module.
      */
     public boolean isJDKInternalPackage(Module module, String pn) {
-        if (module.isJDKUnsupported()) {
-            // its exported APIs are unsupported
-            return true;
-        }
-
         return module.isJDK() && !module.isExported(pn);
     }
 

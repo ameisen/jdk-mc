@@ -5,8 +5,19 @@
 #endif
 
 #include <type_traits>
+#include <cstring>
+
+class Symbol;
 
 namespace carbide::utility {
+	static _forceinline bool streq (const char *a, const char *b) {
+		return std::strcmp(a, b) == 0;
+	}
+
+	static _forceinline bool strneq (const char *a, const char *b) {
+		return std::strcmp(a, b) != 0;
+	}
+
 	namespace detail {
 		template <typename T, bool is_enum = std::is_enum_v<T>>
 		struct underlying_type_s {

@@ -94,7 +94,7 @@ ENABLE_DEBUG_SYMBOLS := false
 JVM_VARIANTS := server mc
 JVM_VARIANT_MAIN := server
 JVM_FEATURES_server := cds compiler1 compiler2 g1gc serialgc link-time-opt
-JVM_FEATURES_mc := cds compiler1 compiler2 jvmti services shenandoahgc zgc vm-structs nmt management g1gc link-time-opt jvmci graal aot
+JVM_FEATURES_mc := compiler1 compiler2 jvmti services shenandoahgc zgc vm-structs nmt management g1gc link-time-opt jvmci graal aot
 
 # Some users still set EXTRA_*FLAGS on the make command line. Must
 # make sure to override that when building buildjdk.

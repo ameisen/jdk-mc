@@ -69,6 +69,8 @@ BOOT_MODULES += \
     jdk.sctp \
     jdk.unsupported \
     support.base \
+    support.sponge \
+    support.google \
     #
 
 # to be deprivileged
@@ -104,7 +106,10 @@ PLATFORM_MODULES += \
     java.sql \
     java.sql.rowset \
     java.transaction.xa \
+    java.xml.bind \
     java.xml.crypto \
+    java.xml.ws \
+    java.xml.ws.annotation \
     jdk.accessibility \
     jdk.charsets \
     jdk.crypto.cryptoki \
@@ -117,7 +122,9 @@ PLATFORM_MODULES += \
     jdk.scripting.nashorn \
     jdk.security.auth \
     jdk.security.jgss \
+    jdk.xml.bind \
     jdk.xml.dom \
+    jdk.xml.ws \
     jdk.zipfs \
     #
 
@@ -212,6 +219,8 @@ STATIC_LIBS_MODULES := \
     jdk.crypto.cryptoki \
     jdk.net \
     support.base \
+    support.sponge \
+    support.google \
     #
 
 ################################################################################

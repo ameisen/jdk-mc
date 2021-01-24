@@ -261,6 +261,8 @@ void ShenandoahControlThread::run_service() {
       // Print Metaspace change following GC (if logging is enabled).
       MetaspaceUtils::print_metaspace_change(meta_sizes);
 
+      heuristics->update_min_free_threshold();
+
       // GC is over, we are at idle now
       if (ShenandoahPacing) {
         heap->pacer()->setup_for_idle();

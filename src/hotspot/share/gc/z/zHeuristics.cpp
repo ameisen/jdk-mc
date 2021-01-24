@@ -92,7 +92,7 @@ uint ZHeuristics::nparallel_workers() {
   // close to the number of processors tends to lead to over-provisioning and
   // scheduling latency issues. Using 60% of the active processors appears to
   // be a fairly good balance.
-  return nworkers(60.0);
+  return nworkers(80.0);
 }
 
 uint ZHeuristics::nconcurrent_workers() {
@@ -102,5 +102,5 @@ uint ZHeuristics::nconcurrent_workers() {
   // throughput, while using too few threads will prolong the GC-cycle and
   // we then risk being out-run by the application. Using 12.5% of the active
   // processors appears to be a fairly good balance.
-  return nworkers(12.5);
+  return nworkers(80.0);
 }

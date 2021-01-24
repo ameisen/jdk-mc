@@ -51,58 +51,58 @@ public enum Source {
     // public static final Source JDK1_0 =              new Source("1.0");
 
     /** 1.1 did not have strictfp, and so could not pass the JCK. */
-    // public static final Source JDK1_1 =              new Source("1.1");
+    JDK1_1("1", Target.JDK1_1, SourceVersion.RELEASE_1),
 
     /** 1.2 introduced strictfp. */
-    JDK1_2("1.2"),
+    JDK1_2("2", Target.JDK1_2, SourceVersion.RELEASE_2),
 
     /** 1.3 is the same language as 1.2. */
-    JDK1_3("1.3"),
+    JDK1_3("3", Target.JDK1_3, SourceVersion.RELEASE_3),
 
     /** 1.4 introduced assert. */
-    JDK1_4("1.4"),
+    JDK1_4("4", Target.JDK1_4, SourceVersion.RELEASE_4),
 
     /** 1.5 introduced generics, attributes, foreach, boxing, static import,
      *  covariant return, enums, varargs, et al. */
-    JDK5("5"),
+    JDK5("5", Target.JDK1_5, SourceVersion.RELEASE_5),
 
     /** 1.6 reports encoding problems as errors instead of warnings. */
-    JDK6("6"),
+    JDK6("6", Target.JDK1_6, SourceVersion.RELEASE_6),
 
     /** 1.7 introduced try-with-resources, multi-catch, string switch, etc. */
-    JDK7("7"),
+    JDK7("7", Target.JDK1_7, SourceVersion.RELEASE_7),
 
     /** 1.8 lambda expressions and default methods. */
-    JDK8("8"),
+    JDK8("8", Target.JDK1_8, SourceVersion.RELEASE_8),
 
     /** 1.9 modularity. */
-    JDK9("9"),
+    JDK9("9", Target.JDK1_9, SourceVersion.RELEASE_9),
 
     /** 1.10 local-variable type inference (var). */
-    JDK10("10"),
+    JDK10("10", Target.JDK1_10, SourceVersion.RELEASE_10),
 
     /** 1.11 local-variable syntax for lambda parameters */
-    JDK11("11"),
+    JDK11("11", Target.JDK1_11, SourceVersion.RELEASE_11),
 
     /** 12, no language features; switch expression in preview */
-    JDK12("12"),
+    JDK12("12", Target.JDK1_12, SourceVersion.RELEASE_12),
 
     /**
      * 13, no language features; text blocks and revised switch
      * expressions in preview
      */
-    JDK13("13"),
+    JDK13("13", Target.JDK1_13, SourceVersion.RELEASE_13),
 
     /**
      * 14, switch expressions; pattern matching, records, and revised
      * text blocks in preview
      */
-    JDK14("14"),
+    JDK14("14", Target.JDK1_14, SourceVersion.RELEASE_14),
 
     /**
       * 15, tbd
       */
-    JDK15("15");
+    JDK15("15", Target.JDK1_15, SourceVersion.RELEASE_15);
 
     private static final Context.Key<Source> sourceKey = new Context.Key<>();
 
@@ -119,23 +119,22 @@ public enum Source {
     }
 
     public final String name;
+    public final Target target;
+    public final SourceVersion sourceVersion;
 
-    private static final Map<String,Source> tab = new HashMap<>();
+    private static final HashMap<String, Source> tab = new HashMap<>();
     static {
         for (Source s : values()) {
             tab.put(s.name, s);
+            // Make aliases for versions that are not 1.x to map to 1.x for odd libraries.
+            tab.put("1." + s.name, s);
         }
-        tab.put("1.5", JDK5); // Make 5 an alias for 1.5
-        tab.put("1.6", JDK6); // Make 6 an alias for 1.6
-        tab.put("1.7", JDK7); // Make 7 an alias for 1.7
-        tab.put("1.8", JDK8); // Make 8 an alias for 1.8
-        tab.put("1.9", JDK9); // Make 9 an alias for 1.9
-        tab.put("1.10", JDK10); // Make 10 an alias for 1.10
-        // Decline to make 1.11 an alias for 11.
     }
 
-    private Source(String name) {
+    private Source(String name, Target target, SourceVersion sourceVersion) {
         this.name = name;
+        this.target = target;
+        this.sourceVersion = sourceVersion;
     }
 
     public static final Source MIN = Source.JDK7;
@@ -153,19 +152,7 @@ public enum Source {
     }
 
     public Target requiredTarget() {
-        if (this.compareTo(JDK15) >= 0) return Target.JDK1_15;
-        if (this.compareTo(JDK14) >= 0) return Target.JDK1_14;
-        if (this.compareTo(JDK13) >= 0) return Target.JDK1_13;
-        if (this.compareTo(JDK12) >= 0) return Target.JDK1_12;
-        if (this.compareTo(JDK11) >= 0) return Target.JDK1_11;
-        if (this.compareTo(JDK10) >= 0) return Target.JDK1_10;
-        if (this.compareTo(JDK9) >= 0) return Target.JDK1_9;
-        if (this.compareTo(JDK8) >= 0) return Target.JDK1_8;
-        if (this.compareTo(JDK7) >= 0) return Target.JDK1_7;
-        if (this.compareTo(JDK6) >= 0) return Target.JDK1_6;
-        if (this.compareTo(JDK5) >= 0) return Target.JDK1_5;
-        if (this.compareTo(JDK1_4) >= 0) return Target.JDK1_4;
-        return Target.JDK1_1;
+        return target;
     }
 
     /**
@@ -272,37 +259,6 @@ public enum Source {
     }
 
     public static SourceVersion toSourceVersion(Source source) {
-        switch(source) {
-        case JDK1_2:
-            return RELEASE_2;
-        case JDK1_3:
-            return RELEASE_3;
-        case JDK1_4:
-            return RELEASE_4;
-        case JDK5:
-            return RELEASE_5;
-        case JDK6:
-            return RELEASE_6;
-        case JDK7:
-            return RELEASE_7;
-        case JDK8:
-            return RELEASE_8;
-        case JDK9:
-            return RELEASE_9;
-        case JDK10:
-            return RELEASE_10;
-        case JDK11:
-            return RELEASE_11;
-        case JDK12:
-            return RELEASE_12;
-        case JDK13:
-            return RELEASE_13;
-        case JDK14:
-            return RELEASE_14;
-        case JDK15:
-            return RELEASE_15;
-        default:
-            return null;
-        }
+        return source.sourceVersion;
     }
 }

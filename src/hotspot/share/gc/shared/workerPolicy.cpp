@@ -49,6 +49,7 @@ uint WorkerPolicy::nof_parallel_worker_threads(uint num,
     threads = (ncpus <= switch_pt) ?
               ncpus :
               (switch_pt + ((ncpus - switch_pt) * num) / den);
+    threads = std::max(1u, threads - 1);
 #ifndef _LP64
     // On 32-bit binaries the virtual address space available to the JVM
     // is usually limited to 2-3 GB (depends on the platform).

@@ -539,6 +539,8 @@ public class Package extends NamedPackage implements java.lang.reflect.Annotated
               loader != null ? loader.getUnnamedModule()
                              : BootLoader.getUnnamedModule());
 
+        sealbase = null;
+
         this.versionInfo = VersionInfo.getInstance(spectitle, specversion,
                                                    specvendor, impltitle,
                                                    implversion, implvendor,
@@ -569,6 +571,8 @@ public class Package extends NamedPackage implements java.lang.reflect.Annotated
                                        String specvendor, String impltitle,
                                        String implversion, String implvendor,
                                        URL sealbase) {
+            sealbase = null;
+
             if (spectitle == null && specversion == null &&
                     specvendor == null && impltitle == null &&
                     implversion == null && implvendor == null &&
@@ -585,6 +589,8 @@ public class Package extends NamedPackage implements java.lang.reflect.Annotated
                             String implversion, String implvendor,
                             URL sealbase)
         {
+            sealbase = null;
+
             this.implTitle = impltitle;
             this.implVersion = implversion;
             this.implVendor = implvendor;

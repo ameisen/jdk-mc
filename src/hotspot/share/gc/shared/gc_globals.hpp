@@ -155,7 +155,7 @@
   product(bool, UseSerialGC, false,                                         \
           "Use the Serial garbage collector")                               \
                                                                             \
-  product(bool, UseG1GC, true,                                              \
+  product(bool, UseG1GC, false,                                             \
           "Use the Garbage-First garbage collector")                        \
                                                                             \
   product(bool, UseParallelGC, false,                                       \
@@ -167,7 +167,7 @@
   product(bool, UseZGC, false,                                              \
           "Use the Z garbage collector")                                    \
                                                                             \
-  product(bool, UseShenandoahGC, false,                                     \
+  product(bool, UseShenandoahGC, true,                                      \
           "Use the Shenandoah garbage collector")                           \
                                                                             \
   product(uint, ParallelGCThreads, 0,                                       \
@@ -178,7 +178,7 @@
             "Use semaphore synchronization for the GC Threads, "            \
             "instead of synchronization based on mutexes")                  \
                                                                             \
-  product(bool, UseDynamicNumberOfGCThreads, true,                          \
+  product(bool, UseDynamicNumberOfGCThreads, false,                         \
           "Dynamically choose the number of threads up to a maximum of "    \
           "ParallelGCThreads parallel collectors will use for garbage "     \
           "collection work")                                                \

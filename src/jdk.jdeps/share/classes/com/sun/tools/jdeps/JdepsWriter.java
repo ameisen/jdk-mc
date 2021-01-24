@@ -324,7 +324,7 @@ public abstract class JdepsWriter {
         }
 
         // exported API
-        if (module.isExported(pn) && !module.isJDKUnsupported()) {
+        if (module.isExported(pn)) {
             return showProfileOrModule(module);
         }
 

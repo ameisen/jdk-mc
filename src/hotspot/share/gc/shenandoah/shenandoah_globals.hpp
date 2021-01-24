@@ -102,14 +102,14 @@
           "collector accepts. In percents of heap region size.")            \
           range(0,100)                                                      \
                                                                             \
-  experimental(uintx, ShenandoahInitFreeThreshold, 70,                      \
+  experimental(uintx, ShenandoahInitFreeThreshold, 30,                      \
           "How much heap should be free before some heuristics trigger the "\
           "initial (learning) cycles. Affects cycle frequency on startup "  \
           "and after drastic state changes, e.g. after degenerated/full "   \
           "GC cycles. In percents of total heap size.")                     \
           range(0,100)                                                      \
                                                                             \
-  experimental(uintx, ShenandoahMinFreeThreshold, 70,                       \
+  experimental(uintx, ShenandoahMinFreeThreshold, 30,                       \
           "How much heap should be free before most heuristics trigger the "\
           "collection, even without other triggers. Provides the safety "   \
           "margin for many heuristics. In percents of total heap size.")    \
@@ -191,7 +191,7 @@
           "adjustment. Lower values make adjustments faster, at the "       \
           "expense of higher perf overhead. Time is in milliseconds.")      \
                                                                             \
-  experimental(bool, ShenandoahCriticalControlThreadPriority, false,        \
+  experimental(bool, ShenandoahCriticalControlThreadPriority, true,         \
           "Run control thread runs at critical scheduling priority.")       \
                                                                             \
   diagnostic(bool, ShenandoahVerify, false,                                 \

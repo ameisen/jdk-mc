@@ -43,6 +43,7 @@ java.base_JAVAC_FLAGS += -XDstringConcat=inline
 java.base_COPY += .icu .dat .spp .nrm content-types.properties \
     hijrah-config-Hijrah-umalqura_islamic-umalqura.properties
 java.base_CLEAN += intrinsic.properties
+java.base_DISABLED_WARNINGS += exports
 
 java.base_EXCLUDE_FILES += \
   $(TOPDIR)/src/java.base/share/classes/jdk/internal/module/ModuleLoaderMap.java
@@ -563,6 +564,11 @@ jdk.jfr_COPY := .xsd .xml .dtd
 jdk.jfr_JAVAC_FLAGS := -XDstringConcat=inline
 
 ################################################################################
+
+support.google_DISABLED_WARNINGS += rawtypes deprecation unchecked serial try exports overloads cast
+
+################################################################################
+
 # If this is an imported module that has prebuilt classes, only compile
 # module-info.java.
 ifneq ($(IMPORT_MODULES_CLASSES), )
@@ -631,6 +637,7 @@ $(eval $(call SetupJavaCompilation, $(MODULE), \
     BIN := $(if $($(MODULE)_BIN), $($(MODULE)_BIN), $(JDK_OUTPUTDIR)/modules), \
     HEADERS := $(SUPPORT_OUTPUTDIR)/headers, \
     CREATE_API_DIGEST := true, \
+    CLASSPATH := $($(MODULE)_CLASSPATH), \
     JAVAC_FLAGS := \
         $($(MODULE)_DOCLINT) \
         $($(MODULE)_JAVAC_FLAGS) \

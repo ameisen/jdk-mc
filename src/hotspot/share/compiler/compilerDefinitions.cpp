@@ -178,7 +178,7 @@ void set_client_compilation_mode() {
     FLAG_SET_ERGO(OnStackReplacePercentage, 933);
   }
   if (FLAG_IS_DEFAULT(CICompilerCount)) {
-    FLAG_SET_ERGO(CICompilerCount, 1);
+    FLAG_SET_ERGO(CICompilerCount, MAX2(os::active_processor_count() - 1, 1));
   }
 #endif
 }

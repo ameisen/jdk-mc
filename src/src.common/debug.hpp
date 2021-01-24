@@ -9,6 +9,24 @@
 namespace carbide::debug {
 	static constexpr const bool enable_print = true;
 
+
+	template <std::uint64_t filename_hash, size_t N, typename... Args>
+	void dumpf_from_hash(const char *filename, const char (&format)[N], Args... args) {
+		static FILE *fp = nullptr;
+		if (!fp) {
+			fp = fopen(filename, "w");
+			if (!fp) {
+				return;
+			}
+		}
+		fprintf(fp, format, args...);
+	}
+
+	template <size_t N, typename... Args>
+	void dumpf(const char *filename, const char (&format)[N], Args... args) {
+		//dumpf_from_hash<carbide::hashing::get(filename), N, Args...>(filename, format, std::forward<Args>(args)...);
+	}
+
 	namespace detail {
 		template <typename T>
 		concept CharType =

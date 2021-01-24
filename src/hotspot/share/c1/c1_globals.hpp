@@ -128,11 +128,11 @@
   develop(bool, PrintValueNumbering, false,                                 \
           "Print Value Numbering")                                          \
                                                                             \
-  product(intx, ValueMapInitialSize, 11,                                    \
+  product(intx, ValueMapInitialSize, 1024,                                  \
           "Initial size of a value map")                                    \
           range(1, NOT_LP64(1*K) LP64_ONLY(32*K))                           \
                                                                             \
-  product(intx, ValueMapMaxLoopSize, 8,                                     \
+  product(intx, ValueMapMaxLoopSize, 16,                                    \
           "maximum size of a loop optimized by global value numbering")     \
           range(0, 128)                                                     \
                                                                             \
@@ -170,11 +170,11 @@
   develop(bool, UseTableRanges, true,                                       \
           "Faster versions of lookup table using ranges")                   \
                                                                             \
-  product(intx, C1MaxInlineSize, 35,                                        \
+  product(intx, C1MaxInlineSize, 48,                                        \
           "The maximum bytecode size of a method to be inlined by C1")      \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, C1MaxTrivialSize, 8,                                        \
+  product(intx, C1MaxTrivialSize, 10,                                       \
           "The maximum bytecode size of a trivial method to be inlined by " \
           "C1")                                                             \
           range(0, max_jint)                                                \
@@ -183,7 +183,7 @@
           "The maximum number of nested calls that are inlined by C1")      \
           range(0, max_jint)                                                \
                                                                             \
-  product(intx, C1MaxRecursiveInlineLevel, 1,                               \
+  product(intx, C1MaxRecursiveInlineLevel, 2,                               \
           "maximum number of nested recursive calls that are inlined by C1")\
           range(0, max_jint)                                                \
                                                                             \
@@ -292,7 +292,7 @@
   develop(bool, InstallMethods, true,                                       \
           "Install methods at the end of successful compilations")          \
                                                                             \
-  develop(intx, NMethodSizeLimit, (64*K)*wordSize,                          \
+  develop(intx, NMethodSizeLimit, (1024*K)*wordSize,                        \
           "Maximum size of a compiled method.")                             \
           range(0, max_jint)                                                \
                                                                             \
@@ -308,7 +308,7 @@
   develop(bool, PrintUnsafeOptimization, false,                             \
           "Print optimization of raw unsafe ops")                           \
                                                                             \
-  develop(intx, InstructionCountCutoff, 37000,                              \
+  develop(intx, InstructionCountCutoff, 74000,                              \
           "If GraphBuilder adds this many instructions, bails out")         \
           range(0, max_jint)                                                \
                                                                             \

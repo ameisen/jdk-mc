@@ -73,20 +73,33 @@ ifeq ($(SRC_GENERATED), true)
     ) \
   )
 
-  $(eval $(call SetupZipArchive, BUILD_SRC_ZIP, \
-      SRC := $(dir $(SRC_ZIP_SRCS)), \
-      INCLUDES := $(SRC_ZIP_INCLUDES), \
-      INCLUDE_FILES := $(SRC_ZIP_INCLUDE_FILES), \
-      EXCLUDES := $(SRC_ZIP_EXCLUDES), \
-      EXCLUDE_FILES := $(SRC_ZIP_EXCLUDE_FILES), \
-      SUFFIXES := .java, \
-      ZIP := $(SUPPORT_OUTPUTDIR)/src.zip, \
-      FOLLOW_SYMLINKS := true, \
-  ))
+ifeq ($(SRC_ZIP_ENABLED), true)
+    $(eval $(call SetupZipArchive, BUILD_SRC_ZIP, \
+        SRC := $(dir $(SRC_ZIP_SRCS)), \
+        INCLUDES := $(SRC_ZIP_INCLUDES), \
+        INCLUDE_FILES := $(SRC_ZIP_INCLUDE_FILES), \
+        EXCLUDES := $(SRC_ZIP_EXCLUDES), \
+        EXCLUDE_FILES := $(SRC_ZIP_EXCLUDE_FILES), \
+        SUFFIXES := .java, \
+        FOLLOW_SYMLINKS := true, \
+    ))
+else
+    $(eval $(call SetupZipArchive, BUILD_SRC_ZIP, \
+        SRC := $(dir $(SRC_ZIP_SRCS)), \
+        INCLUDES := $(SRC_ZIP_INCLUDES), \
+        INCLUDE_FILES := $(SRC_ZIP_INCLUDE_FILES), \
+        EXCLUDES := $(SRC_ZIP_EXCLUDES), \
+        EXCLUDE_FILES := $(SRC_ZIP_EXCLUDE_FILES), \
+        SUFFIXES := .java, \
+        ZIP := $(SUPPORT_OUTPUTDIR)/src.zip, \
+        FOLLOW_SYMLINKS := true, \
+    ))
+endif
 
   do-zip: $(BUILD_SRC_ZIP)
 
-  .PHONY: do-zip
+  .PHONY:
+  #do-zip
 endif
 
 zip: $(SRC_ZIP_SRCS)

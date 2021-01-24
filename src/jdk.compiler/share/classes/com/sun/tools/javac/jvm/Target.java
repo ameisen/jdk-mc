@@ -41,12 +41,12 @@ import static com.sun.tools.javac.main.Option.TARGET;
  *  deletion without notice.</b>
  */
 public enum Target {
-    JDK1_1("1.1", 45, 3),
-    JDK1_2("1.2", 46, 0),
-    JDK1_3("1.3", 47, 0),
+    JDK1_1("1", 45, 3),
+    JDK1_2("2", 46, 0),
+    JDK1_3("3", 47, 0),
 
     /** J2SE1.4 = Merlin. */
-    JDK1_4("1.4", 48, 0),
+    JDK1_4("4", 48, 0),
 
     /** JDK 5, codename Tiger. */
     JDK1_5("5", 49, 0),
@@ -103,13 +103,8 @@ public enum Target {
     static {
         for (Target t : values()) {
             tab.put(t.name, t);
+            tab.put("1." + t.name, t);
         }
-        tab.put("1.5", JDK1_5);
-        tab.put("1.6", JDK1_6);
-        tab.put("1.7", JDK1_7);
-        tab.put("1.8", JDK1_8);
-        tab.put("1.9", JDK1_9);
-        tab.put("1.10", JDK1_10);
     }
 
     public final String name;

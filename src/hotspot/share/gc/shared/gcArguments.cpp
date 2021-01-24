@@ -42,7 +42,7 @@ void GCArguments::initialize() {
   }
 
   if (!UseParallelGC && FLAG_IS_DEFAULT(ScavengeBeforeFullGC)) {
-    FLAG_SET_DEFAULT(ScavengeBeforeFullGC, false);
+    FLAG_SET_DEFAULT(ScavengeBeforeFullGC, true);
   }
 
   if (GCTimeLimit == 100) {

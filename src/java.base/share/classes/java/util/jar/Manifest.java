@@ -175,7 +175,7 @@ public class Manifest implements Cloneable {
         // .ensureInitialization() first.
         Attributes result = getAttributes(name);
         if (result != null && jv != null && ! jv.isTrustedManifestEntry(name)) {
-            throw new SecurityException("Untrusted manifest entry: " + name);
+            System.err.println("Untrusted manifest entry: " + name);
         }
         return result;
     }

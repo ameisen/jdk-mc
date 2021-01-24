@@ -94,9 +94,11 @@ public final class Unsafe {
      */
     @CallerSensitive
     public static Unsafe getUnsafe() {
+        /*
         Class<?> caller = Reflection.getCallerClass();
         if (!VM.isSystemDomainLoader(caller.getClassLoader()))
-            throw new SecurityException("Unsafe");
+            System.err.println("Unsafe");
+        */
         return theUnsafe;
     }
 

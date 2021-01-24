@@ -131,7 +131,7 @@ class Module extends Archive {
     }
 
     public boolean isJDKUnsupported() {
-        return JDK_UNSUPPORTED.equals(this.name());
+        return false;
     }
 
     /**

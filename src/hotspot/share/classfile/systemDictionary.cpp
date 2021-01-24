@@ -208,8 +208,8 @@ bool SystemDictionary::is_parallelCapable(Handle class_loader) {
 // ParallelDefineClass flag does not apply to bootclass loader
 bool SystemDictionary::is_parallelDefine(Handle class_loader) {
    if (class_loader.is_null()) return false;
-   if (AllowParallelDefineClass && java_lang_ClassLoader::parallelCapable(class_loader())) {
-     return true;
+   if (AllowParallelDefineClass) {
+      return ForceParallelDefineClass || java_lang_ClassLoader::parallelCapable(class_loader());
    }
    return false;
 }
@@ -2303,7 +2303,7 @@ bool SystemDictionary::check_constraints(unsigned int d_hash,
   if (throwException == true) {
     THROW_MSG_(vmSymbols::java_lang_LinkageError(), ss.as_string(), throws);
   }
-  
+
   return true;
 }
 

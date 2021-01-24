@@ -242,6 +242,8 @@ class Symbol : public MetaspaceObj {
   char* as_C_string() const;
   char* as_C_string(char* buf, int size) const;
 
+  operator const char *() const { return as_C_string(); }
+
   // Returns an escaped form of a Java string.
   char* as_quoted_ascii() const;
 

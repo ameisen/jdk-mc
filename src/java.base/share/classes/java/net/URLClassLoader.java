@@ -297,32 +297,87 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
      *
      * @since  1.7
      */
-    public InputStream getResourceAsStream(String name) {
-        Objects.requireNonNull(name);
-        URL url = getResource(name);
+
+    private Class<?> tryGetClass(String name) {
         try {
-            if (url == null) {
-                return null;
+            Class<?> clazz = Class.forName(name);
+            if (clazz != null) {
+                return clazz;
             }
-            URLConnection urlc = url.openConnection();
-            InputStream is = urlc.getInputStream();
-            if (urlc instanceof JarURLConnection) {
-                JarURLConnection juc = (JarURLConnection)urlc;
-                JarFile jar = juc.getJarFile();
-                synchronized (closeables) {
-                    if (!closeables.containsKey(jar)) {
-                        closeables.put(jar, null);
+        }
+        catch (Exception ex) {}
+        try {
+            Class<?> clazz = ClassLoader.getSystemClassLoader().loadClass(name);
+            if (clazz != null) {
+                return clazz;
+            }
+        }
+        catch (Exception ex) {}
+        try {
+            Class<?> clazz = ClassLoader.getPlatformClassLoader().loadClass(name);
+            if (clazz != null) {
+                return clazz;
+            }
+        }
+        catch (Exception ex) {}
+        return null;
+    }
+
+    private InputStream getResourceAsStreamDeep(String name) {
+        try {
+            if (name.endsWith(".class")) {
+                String className = name.substring(0, name.length() - ".class".length()).replace("/", ".");
+
+                Class<?> klass = Class.forName(className);
+                if (klass != null) {
+                    Module module = klass.getModule();
+                    if (module != null) {
+                        return module.getResourceAsStream(name);
                     }
                 }
-            } else if (urlc instanceof sun.net.www.protocol.file.FileURLConnection) {
-                synchronized (closeables) {
-                    closeables.put(is, null);
-                }
             }
-            return is;
-        } catch (IOException e) {
-            return null;
         }
+        catch (Exception ex) { }
+        return null;
+    }
+
+    public InputStream getResourceAsStream(String name) {
+        Objects.requireNonNull(name);
+
+        InputStream result = null;
+
+        try {
+            URL url = getResource(name);
+            if (url == null) {
+                result = null;
+            }
+            else {
+                URLConnection urlc = url.openConnection();
+                InputStream is = urlc.getInputStream();
+                if (urlc instanceof JarURLConnection) {
+                    JarURLConnection juc = (JarURLConnection)urlc;
+                    JarFile jar = juc.getJarFile();
+                    synchronized (closeables) {
+                        if (!closeables.containsKey(jar)) {
+                            closeables.put(jar, null);
+                        }
+                    }
+                } else if (urlc instanceof sun.net.www.protocol.file.FileURLConnection) {
+                    synchronized (closeables) {
+                        closeables.put(is, null);
+                    }
+                }
+                return is;
+            }
+        } catch (Exception e) {
+            result = null;
+        }
+
+        if (result == null) {
+            result = getResourceAsStreamDeep(name);
+        }
+
+        return result;
     }
 
    /**
@@ -479,6 +534,10 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
         return result;
     }
 
+    private static void emitSecurityWarning(String message) {
+        System.err.println(message);
+    }
+
     /*
      * Retrieve the package using the specified package name.
      * If non-null, verify the package using the specified code
@@ -492,14 +551,14 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
             if (pkg.isSealed()) {
                 // Verify that code source URL is the same.
                 if (!pkg.isSealed(url)) {
-                    throw new SecurityException(
+                    emitSecurityWarning(
                         "sealing violation: package " + pkgname + " is sealed");
                 }
             } else {
                 // Make sure we are not attempting to seal the package
                 // at this code source URL.
                 if ((man != null) && isSealed(pkgname, man)) {
-                    throw new SecurityException(
+                    emitSecurityWarning(
                         "sealing violation: can't seal package " + pkgname +
                         ": already loaded");
                 }
@@ -629,9 +688,12 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
                     sealed = attr.getValue(Name.SEALED);
                 }
             }
+            // No sealed packages. Breaks stuff.
+            /*
             if ("true".equalsIgnoreCase(sealed)) {
                 sealBase = url;
             }
+            */
         }
         return definePackage(name, specTitle, specVersion, specVendor,
                              implTitle, implVersion, implVendor, sealBase);

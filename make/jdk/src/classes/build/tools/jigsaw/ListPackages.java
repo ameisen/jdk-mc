@@ -99,7 +99,6 @@ public class ListPackages {
         ModuleFinder.ofSystem().findAll()
             .stream()
             .map(ModuleReference::descriptor)
-            .filter(md -> !md.name().equals("jdk.unsupported"))
             .flatMap(md -> md.exports().stream())
             .filter(exp -> !exp.isQualified())
             .map(ModuleDescriptor.Exports::source)

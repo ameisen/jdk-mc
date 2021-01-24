@@ -29,6 +29,14 @@
  * Class name checking methods
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 jboolean verifyClassname(char *name, jboolean allowArrayClass);
 jboolean verifyFixClassname(char *name);
 void fixClassname(char *name);
+
+#ifdef __cplusplus
+}
+#endif

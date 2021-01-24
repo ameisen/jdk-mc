@@ -189,7 +189,7 @@ public final class Constructor<T> extends Executable {
         checkCanSetAccessible(caller, clazz);
         if (clazz == Class.class) {
             // can we change this to InaccessibleObjectException?
-            throw new SecurityException("Cannot make a java.lang.Class"
+            System.err.println("Cannot make a java.lang.Class"
                                         + " constructor accessible");
         }
     }

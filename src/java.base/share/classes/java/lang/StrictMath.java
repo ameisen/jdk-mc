@@ -27,7 +27,6 @@ package java.lang;
 
 import java.util.Random;
 import jdk.internal.math.DoubleConsts;
-import jdk.internal.math.FloatConsts;
 import jdk.internal.HotSpotIntrinsicCandidate;
 
 /**
@@ -91,33 +90,27 @@ public final class StrictMath {
      * The {@code double} value that is closer than any other to
      * <i>e</i>, the base of the natural logarithms.
      */
-    public static final double E = 0x1.5bf0a8b145769p1;
-    public static final float E_F = 0x1.5bf0a8p1f;
+    public static final double E = 2.7182818284590452354;
 
     /**
      * The {@code double} value that is closer than any other to
      * <i>pi</i>, the ratio of the circumference of a circle to its
      * diameter.
      */
-    // exponent: 2540BE400
-    // significand: 921fb54442d18
-    public static final double PI = 0x1.921fb54442d18p1;
-    public static final float PI_F = 0x1.921fb6p1f;
+    public static final double PI = 3.14159265358979323846;
 
     /**
      * Constant by which to multiply an angular value in degrees to obtain an
      * angular value in radians.
      */
-    private static final double DEGREES_TO_RADIANS = 0x1.1df46a2529d39p-6;
-    private static final float DEGREES_TO_RADIANS_F = 0x1.1df46ap-6f;
+    private static final double DEGREES_TO_RADIANS = 0.017453292519943295;
 
     /**
      * Constant by which to multiply an angular value in radians to obtain an
      * angular value in degrees.
      */
 
-    private static final double RADIANS_TO_DEGREES = 0x1.ca5dc1a63c1f8p5;
-    private static final float RADIANS_TO_DEGREES_F = 0x1.ca5dc2p5f;
+    private static final double RADIANS_TO_DEGREES = 57.29577951308232;
 
     /**
      * Returns the trigonometric sine of an angle. Special cases:
@@ -130,7 +123,6 @@ public final class StrictMath {
      * @return  the sine of the argument.
      */
     public static native double sin(double a);
-    public static native float sin(float a);
 
     /**
      * Returns the trigonometric cosine of an angle. Special cases:
@@ -141,7 +133,6 @@ public final class StrictMath {
      * @return  the cosine of the argument.
      */
     public static native double cos(double a);
-    public static native float cos(float a);
 
     /**
      * Returns the trigonometric tangent of an angle. Special cases:
@@ -154,7 +145,6 @@ public final class StrictMath {
      * @return  the tangent of the argument.
      */
     public static native double tan(double a);
-    public static native float tan(float a);
 
     /**
      * Returns the arc sine of a value; the returned angle is in the
@@ -168,7 +158,6 @@ public final class StrictMath {
      * @return  the arc sine of the argument.
      */
     public static native double asin(double a);
-    public static native float asin(float a);
 
     /**
      * Returns the arc cosine of a value; the returned angle is in the
@@ -180,7 +169,6 @@ public final class StrictMath {
      * @return  the arc cosine of the argument.
      */
     public static native double acos(double a);
-    public static native float acos(float a);
 
     /**
      * Returns the arc tangent of a value; the returned angle is in the
@@ -193,7 +181,6 @@ public final class StrictMath {
      * @return  the arc tangent of the argument.
      */
     public static native double atan(double a);
-    public static native float atan(float a);
 
     /**
      * Converts an angle measured in degrees to an approximately
@@ -208,11 +195,6 @@ public final class StrictMath {
         // Do not delegate to Math.toRadians(angdeg) because
         // this method has the strictfp modifier.
         return angdeg * DEGREES_TO_RADIANS;
-    }
-    public static strictfp float toRadians(float angdeg) {
-        // Do not delegate to Math.toRadians(angdeg) because
-        // this method has the strictfp modifier.
-        return angdeg * DEGREES_TO_RADIANS_F;
     }
 
     /**
@@ -231,11 +213,6 @@ public final class StrictMath {
         // this method has the strictfp modifier.
         return angrad * RADIANS_TO_DEGREES;
     }
-    public static strictfp float toDegrees(float angrad) {
-        // Do not delegate to Math.toDegrees(angrad) because
-        // this method has the strictfp modifier.
-        return angrad * RADIANS_TO_DEGREES_F;
-    }
 
     /**
      * Returns Euler's number <i>e</i> raised to the power of a
@@ -253,10 +230,6 @@ public final class StrictMath {
     public static double exp(double a) {
         return FdLibm.Exp.compute(a);
     }
-    public static float exp(float a) {
-        return FdLibm.Exp.compute(a);
-    }
-
 
     /**
      * Returns the natural logarithm (base <i>e</i>) of a {@code double}
@@ -273,7 +246,6 @@ public final class StrictMath {
      *          {@code a}.
      */
     public static native double log(double a);
-    public static native float log(float a);
 
     /**
      * Returns the base 10 logarithm of a {@code double} value.
@@ -294,7 +266,6 @@ public final class StrictMath {
      * @since 1.5
      */
     public static native double log10(double a);
-    public static native float log10(float a);
 
     /**
      * Returns the correctly rounded positive square root of a
@@ -314,8 +285,6 @@ public final class StrictMath {
      */
     @HotSpotIntrinsicCandidate
     public static native double sqrt(double a);
-    @HotSpotIntrinsicCandidate
-    public static native float sqrt(float a);
 
     /**
      * Returns the cube root of a {@code double} value.  For
@@ -343,9 +312,6 @@ public final class StrictMath {
     public static double cbrt(double a) {
         return FdLibm.Cbrt.compute(a);
     }
-    public static float cbrt(float a) {
-        return FdLibm.Cbrt.compute(a);
-    }
 
     /**
      * Computes the remainder operation on two arguments as prescribed
@@ -370,7 +336,6 @@ public final class StrictMath {
      *          {@code f2}.
      */
     public static native double IEEEremainder(double f1, double f2);
-    public static native float IEEEremainder(float f1, float f2);
 
     /**
      * Returns the smallest (closest to negative infinity)
@@ -393,9 +358,6 @@ public final class StrictMath {
     public static double ceil(double a) {
         return floorOrCeil(a, -0.0, 1.0, 1.0);
     }
-    public static float ceil(float a) {
-        return floorOrCeil(a, -0.0f, 1.0f, 1.0f);
-    }
 
     /**
      * Returns the largest (closest to positive infinity)
@@ -414,9 +376,6 @@ public final class StrictMath {
      */
     public static double floor(double a) {
         return floorOrCeil(a, -1.0, 0.0, -1.0);
-    }
-    public static float floor(float a) {
-        return floorOrCeil(a, -1.0f, 0.0f, -1.0f);
     }
 
     /**
@@ -459,42 +418,6 @@ public final class StrictMath {
         else {
             double result = Double.longBitsToDouble(doppel & (~mask));
             if (sign*a > 0.0)
-                result = result + sign;
-            return result;
-        }
-    }
-    private static float floorOrCeil(float a,
-                                      float negativeBoundary,
-                                      float positiveBoundary,
-                                      float sign) {
-        int exponent = Math.getExponent(a);
-
-        if (exponent < 0) {
-            /*
-             * Absolute value of argument is less than 1.
-             * floorOrceil(-0.0) => -0.0
-             * floorOrceil(+0.0) => +0.0
-             */
-            return ((a == 0.0f) ? a :
-                    ( (a < 0.0f) ?  negativeBoundary : positiveBoundary) );
-        } else if (exponent >= 23) {
-            /*
-             * Infinity, NaN, or a value so large it must be integral.
-             */
-            return a;
-        }
-        // Else the argument is either an integral value already XOR it
-        // has to be rounded to one.
-        assert exponent >= 0 && exponent <= 22;
-
-        int doppel = Float.floatToRawIntBits(a);
-        int mask   = FloatConsts.SIGNIF_BIT_MASK >> exponent;
-
-        if ( (mask & doppel) == 0 )
-            return a; // integral value
-        else {
-            float result = Float.intBitsToFloat(doppel & (~mask));
-            if (sign*a > 0.0f)
                 result = result + sign;
             return result;
         }
@@ -552,17 +475,6 @@ public final class StrictMath {
 
         return sign * a; // restore original sign
     }
-    public static float rint(float a) {
-        float twoToThe23 = (float)(1 << 23); // 2^23
-        float sign = Math.copySign(1.0f, a); // preserve sign info
-        a = Math.abs(a);
-
-        if (a < twoToThe23) { // E_min <= ilogb(a) <= 22
-            a = ((twoToThe23 + a ) - twoToThe23);
-        }
-
-        return sign * a; // restore original sign
-    }
 
     /**
      * Returns the angle <i>theta</i> from the conversion of rectangular
@@ -614,7 +526,6 @@ public final class StrictMath {
      *          (<i>x</i>,&nbsp;<i>y</i>) in Cartesian coordinates.
      */
     public static native double atan2(double y, double x);
-    public static native float atan2(float y, float x);
 
     /**
      * Returns the value of the first argument raised to the power of the
@@ -739,15 +650,6 @@ public final class StrictMath {
     public static double pow(double a, double b) {
         return FdLibm.Pow.compute(a, b);
     }
-    public static double pow(double a, int b) {
-        return FdLibm.Pow.compute(a, b);
-    }
-    public static float pow(float a, float b) {
-        return FdLibm.Pow.compute(a, b);
-    }
-    public static float pow(float a, int b) {
-        return FdLibm.Pow.compute(a, b);
-    }
 
     /**
      * Returns the closest {@code int} to the argument, with ties
@@ -825,9 +727,6 @@ public final class StrictMath {
      */
     public static double random() {
         return RandomNumberGeneratorHolder.randomNumberGenerator.nextDouble();
-    }
-    public static float randomFloat() {
-        return RandomNumberGeneratorHolder.randomNumberGenerator.nextFloat();
     }
 
     /**
@@ -1714,7 +1613,6 @@ public final class StrictMath {
      * @since 1.5
      */
     public static native double sinh(double x);
-    public static native float sinh(float x);
 
     /**
      * Returns the hyperbolic cosine of a {@code double} value.
@@ -1739,7 +1637,6 @@ public final class StrictMath {
      * @since 1.5
      */
     public static native double cosh(double x);
-    public static native float cosh(float x);
 
     /**
      * Returns the hyperbolic tangent of a {@code double} value.
@@ -1771,7 +1668,6 @@ public final class StrictMath {
      * @since 1.5
      */
     public static native double tanh(double x);
-    public static native float tanh(float x);
 
     /**
      * Returns sqrt(<i>x</i><sup>2</sup>&nbsp;+<i>y</i><sup>2</sup>)
@@ -1795,9 +1691,6 @@ public final class StrictMath {
      * @since 1.5
      */
     public static double hypot(double x, double y) {
-        return FdLibm.Hypot.compute(x, y);
-    }
-    public static float hypot(float x, float y) {
         return FdLibm.Hypot.compute(x, y);
     }
 
@@ -1828,7 +1721,6 @@ public final class StrictMath {
      * @since 1.5
      */
     public static native double expm1(double x);
-    public static native float expm1(float x);
 
     /**
      * Returns the natural logarithm of the sum of the argument and 1.
@@ -1860,7 +1752,6 @@ public final class StrictMath {
      * @since 1.5
      */
     public static native double log1p(double x);
-    public static native float log1p(float x);
 
     /**
      * Returns the first floating-point argument with the sign of the

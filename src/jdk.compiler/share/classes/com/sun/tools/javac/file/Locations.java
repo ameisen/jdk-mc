@@ -381,6 +381,7 @@ public class Locations {
             if (fsInfo.isFile(file)) {
                 /* File is an ordinary file. */
                 if (   !file.getFileName().toString().endsWith(".jmod")
+                       && !file.getFileName().toString().endsWith(".jar")
                     && !file.endsWith("modules")) {
                     if (!isArchive(file)) {
                         /* Not a recognized extension; open it to see if

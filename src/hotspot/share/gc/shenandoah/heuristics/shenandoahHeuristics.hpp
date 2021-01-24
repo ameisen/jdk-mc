@@ -101,6 +101,8 @@ public:
   void clear_metaspace_oom()      { _metaspace_oom.unset(); }
   bool has_metaspace_oom() const  { return _metaspace_oom.is_set(); }
 
+  void update_min_free_threshold();
+
   virtual void record_cycle_start();
 
   virtual void record_cycle_end();

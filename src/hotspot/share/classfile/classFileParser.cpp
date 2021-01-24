@@ -325,7 +325,7 @@ void ClassFileParser::parse_constant_pool_entries(const ClassFileStream* const s
           utf8_buffer = (const u1*) str;
           utf8_length = (u2) strlen(str);
         }
-        
+
         using c_string = const char *;
         using u_string = const u1 *;
 

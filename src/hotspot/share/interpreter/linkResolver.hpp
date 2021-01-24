@@ -175,7 +175,9 @@ class LinkInfo : public StackObj {
 
   // accessors
   Symbol* name() const               { return _name; }
+  const char * name_as_C_string() const { return (_name == nullptr) ? nullptr : _name->as_C_string(); }
   Symbol* signature() const          { return _signature; }
+  const char * signature_as_C_string() const { return (_signature == nullptr) ? nullptr : _signature->as_C_string(); }
   Klass* resolved_klass() const      { return _resolved_klass; }
   Klass* current_klass() const       { return _current_klass; }
   Method* current_method() const     { return _current_method(); }

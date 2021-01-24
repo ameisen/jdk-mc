@@ -115,30 +115,26 @@ public final class Math {
      * The {@code double} value that is closer than any other to
      * <i>e</i>, the base of the natural logarithms.
      */
-    public static final double E = 0x1.5bf0a8b145769p1;
-    public static final float E_F = 0x1.5bf0a8p1f;
+    public static final double E = 2.7182818284590452354;
 
     /**
      * The {@code double} value that is closer than any other to
      * <i>pi</i>, the ratio of the circumference of a circle to its
      * diameter.
      */
-    public static final double PI = 0x1.921fb54442d18p1;
-    public static final float PI_F = 0x1.921fb6p1f;
+    public static final double PI = 3.14159265358979323846;
 
     /**
      * Constant by which to multiply an angular value in degrees to obtain an
      * angular value in radians.
      */
-    private static final double DEGREES_TO_RADIANS = 0x1.1df46a2529d39p-6;
-    private static final float DEGREES_TO_RADIANS_F = 0x1.1df46ap-6f;
+    private static final double DEGREES_TO_RADIANS = 0.017453292519943295;
 
     /**
      * Constant by which to multiply an angular value in radians to obtain an
      * angular value in degrees.
      */
-    private static final double RADIANS_TO_DEGREES = 0x1.ca5dc1a63c1f8p5;
-    private static final float RADIANS_TO_DEGREES_F = 0x1.ca5dc2p5f;
+    private static final double RADIANS_TO_DEGREES = 57.29577951308232;
 
     /**
      * Returns the trigonometric sine of an angle.  Special cases:
@@ -154,10 +150,8 @@ public final class Math {
      * @return  the sine of the argument.
      */
     @HotSpotIntrinsicCandidate
-    public static native double sin(double a);
-    @HotSpotIntrinsicCandidate
-    public static float sin(float a) {
-        return (float)sin((double)a);
+    public static double sin(double a) {
+        return StrictMath.sin(a); // default impl. delegates to StrictMath
     }
 
     /**
@@ -172,10 +166,8 @@ public final class Math {
      * @return  the cosine of the argument.
      */
     @HotSpotIntrinsicCandidate
-    public static native double cos(double a);
-    @HotSpotIntrinsicCandidate
-    public static float cos(float a) {
-        return (float)cos((double)a);
+    public static double cos(double a) {
+        return StrictMath.cos(a); // default impl. delegates to StrictMath
     }
 
     /**
@@ -192,10 +184,8 @@ public final class Math {
      * @return  the tangent of the argument.
      */
     @HotSpotIntrinsicCandidate
-    public static native double tan(double a);
-    @HotSpotIntrinsicCandidate
-    public static float tan(float a) {
-        return (float)tan((double)a);
+    public static double tan(double a) {
+        return StrictMath.tan(a); // default impl. delegates to StrictMath
     }
 
     /**
@@ -212,8 +202,9 @@ public final class Math {
      * @param   a   the value whose arc sine is to be returned.
      * @return  the arc sine of the argument.
      */
-    public static native double asin(double a);
-    public static native float asin(float a);
+    public static double asin(double a) {
+        return StrictMath.asin(a); // default impl. delegates to StrictMath
+    }
 
     /**
      * Returns the arc cosine of a value; the returned angle is in the
@@ -227,8 +218,9 @@ public final class Math {
      * @param   a   the value whose arc cosine is to be returned.
      * @return  the arc cosine of the argument.
      */
-    public static native double acos(double a);
-    public static native float acos(float a);
+    public static double acos(double a) {
+        return StrictMath.acos(a); // default impl. delegates to StrictMath
+    }
 
     /**
      * Returns the arc tangent of a value; the returned angle is in the
@@ -243,8 +235,9 @@ public final class Math {
      * @param   a   the value whose arc tangent is to be returned.
      * @return  the arc tangent of the argument.
      */
-    public static native double atan(double a);
-    public static native float atan(float a);
+    public static double atan(double a) {
+        return StrictMath.atan(a); // default impl. delegates to StrictMath
+    }
 
     /**
      * Converts an angle measured in degrees to an approximately
@@ -258,9 +251,6 @@ public final class Math {
      */
     public static double toRadians(double angdeg) {
         return angdeg * DEGREES_TO_RADIANS;
-    }
-    public static float toRadians(float angdeg) {
-        return angdeg * DEGREES_TO_RADIANS_F;
     }
 
     /**
@@ -277,9 +267,6 @@ public final class Math {
      */
     public static double toDegrees(double angrad) {
         return angrad * RADIANS_TO_DEGREES;
-    }
-    public static float toDegrees(float angrad) {
-        return angrad * RADIANS_TO_DEGREES_F;
     }
 
     /**
@@ -299,10 +286,8 @@ public final class Math {
      *          where <i>e</i> is the base of the natural logarithms.
      */
     @HotSpotIntrinsicCandidate
-    public static native double exp(double a);
-    @HotSpotIntrinsicCandidate
-    public static float exp(float a) {
-        return (float)exp((double)a);
+    public static double exp(double a) {
+        return StrictMath.exp(a); // default impl. delegates to StrictMath
     }
 
     /**
@@ -323,10 +308,8 @@ public final class Math {
      *          {@code a}.
      */
     @HotSpotIntrinsicCandidate
-    public static native double log(double a);
-    @HotSpotIntrinsicCandidate
-    public static float log(float a) {
-        return (float)log((double)a);
+    public static double log(double a) {
+        return StrictMath.log(a); // default impl. delegates to StrictMath
     }
 
     /**
@@ -351,10 +334,8 @@ public final class Math {
      * @since 1.5
      */
     @HotSpotIntrinsicCandidate
-    public static native double log10(double a);
-    @HotSpotIntrinsicCandidate
-    public static float log10(float a) {
-        return (float)log10((double)a);
+    public static double log10(double a) {
+        return StrictMath.log10(a); // default impl. delegates to StrictMath
     }
 
     /**
@@ -374,17 +355,13 @@ public final class Math {
      * @return  the positive square root of {@code a}.
      *          If the argument is NaN or less than zero, the result is NaN.
      */
-    // default impl. delegates to StrictMath
-    // Note that hardware sqrt instructions
-    // frequently can be directly used by JITs
-    // and should be much faster than doing
-    // Math.sqrt in software.
-
     @HotSpotIntrinsicCandidate
-    public static native double sqrt(double a);
-    @HotSpotIntrinsicCandidate
-    public static float sqrt(float a) {
-        return StrictMath.sqrt(a);
+    public static double sqrt(double a) {
+        return StrictMath.sqrt(a); // default impl. delegates to StrictMath
+                                   // Note that hardware sqrt instructions
+                                   // frequently can be directly used by JITs
+                                   // and should be much faster than doing
+                                   // Math.sqrt in software.
     }
 
 
@@ -414,8 +391,9 @@ public final class Math {
      * @return  the cube root of {@code a}.
      * @since 1.5
      */
-    public static native double cbrt(double a);
-    public static native float cbrt(float a);
+    public static double cbrt(double a) {
+        return StrictMath.cbrt(a);
+    }
 
     /**
      * Computes the remainder operation on two arguments as prescribed
@@ -439,9 +417,8 @@ public final class Math {
      * @return  the remainder when {@code f1} is divided by
      *          {@code f2}.
      */
-    public static native double IEEEremainder(double f1, double f2);
-    public static float IEEEremainder(float f1, float f2) {
-        return (float)IEEEremainder((double)f1, (double)f2);
+    public static double IEEEremainder(double f1, double f2) {
+        return StrictMath.IEEEremainder(f1, f2); // delegate to StrictMath
     }
 
     /**
@@ -464,9 +441,9 @@ public final class Math {
      *          the argument and is equal to a mathematical integer.
      */
     @HotSpotIntrinsicCandidate
-    public static native double ceil(double a);
-    @HotSpotIntrinsicCandidate
-    public static native float ceil(float a);
+    public static double ceil(double a) {
+        return StrictMath.ceil(a); // default impl. delegates to StrictMath
+    }
 
     /**
      * Returns the largest (closest to positive infinity)
@@ -484,9 +461,9 @@ public final class Math {
      *          and is equal to a mathematical integer.
      */
     @HotSpotIntrinsicCandidate
-    public static native double floor(double a);
-    @HotSpotIntrinsicCandidate
-    public static native float floor(float a);
+    public static double floor(double a) {
+        return StrictMath.floor(a); // default impl. delegates to StrictMath
+    }
 
     /**
      * Returns the {@code double} value that is closest in value
@@ -504,9 +481,9 @@ public final class Math {
      *          equal to a mathematical integer.
      */
     @HotSpotIntrinsicCandidate
-    public static native double rint(double a);
-    @HotSpotIntrinsicCandidate
-    public static native float rint(float a);
+    public static double rint(double a) {
+        return StrictMath.rint(a); // default impl. delegates to StrictMath
+    }
 
     /**
      * Returns the angle <i>theta</i> from the conversion of rectangular
@@ -561,10 +538,8 @@ public final class Math {
      *          (<i>x</i>,&nbsp;<i>y</i>) in Cartesian coordinates.
      */
     @HotSpotIntrinsicCandidate
-    public static native double atan2(double y, double x);
-    @HotSpotIntrinsicCandidate
-    public static float atan2(float y, float x) {
-        return (float)atan2((double)x, (double)y);
+    public static double atan2(double y, double x) {
+        return StrictMath.atan2(y, x); // default impl. delegates to StrictMath
     }
 
     /**
@@ -690,45 +665,10 @@ public final class Math {
      * @param   b   the exponent.
      * @return  the value {@code a}<sup>{@code b}</sup>.
      */
-    private static native double pow_native(double a, double b);
-
     @HotSpotIntrinsicCandidate
     public static double pow(double a, double b) {
-        if (b >= 1.0 && b <= 3.0) {
-            if (b == 1.0) {
-                return a;
-            }
-            else if (b == 2.0) {
-                return a * a;
-            }
-            else if (b == 3.0) {
-                return a * a * a;
-            }
-        }
-
-        return pow_native(a, b);
+        return StrictMath.pow(a, b); // default impl. delegates to StrictMath
     }
-    @HotSpotIntrinsicCandidate
-    public static double pow(double a, int b) {
-        return pow(a, (double)b);
-    }
-    @HotSpotIntrinsicCandidate
-    public static double pow(double a, long b) {
-        return pow(a, (double)b);
-    }
-    @HotSpotIntrinsicCandidate
-    public static float pow(float a, float b) {
-        return (float)pow((double)a, (double)b);
-    }
-    @HotSpotIntrinsicCandidate
-    public static float pow(float a, int b) {
-        return (float)pow((double)a, b);
-    }
-    @HotSpotIntrinsicCandidate
-    public static float pow(float a, long b) {
-        return (float)pow((double)a, b);
-    }
-
 
     /**
      * Returns the closest {@code int} to the argument, with ties
@@ -750,9 +690,33 @@ public final class Math {
      * @see     java.lang.Integer#MAX_VALUE
      * @see     java.lang.Integer#MIN_VALUE
      */
-    @HotSpotIntrinsicCandidate
     public static int round(float a) {
-        return (int)rint(a);
+        int intBits = Float.floatToRawIntBits(a);
+        int biasedExp = (intBits & FloatConsts.EXP_BIT_MASK)
+                >> (FloatConsts.SIGNIFICAND_WIDTH - 1);
+        int shift = (FloatConsts.SIGNIFICAND_WIDTH - 2
+                + FloatConsts.EXP_BIAS) - biasedExp;
+        if ((shift & -32) == 0) { // shift >= 0 && shift < 32
+            // a is a finite number such that pow(2,-32) <= ulp(a) < 1
+            int r = ((intBits & FloatConsts.SIGNIF_BIT_MASK)
+                    | (FloatConsts.SIGNIF_BIT_MASK + 1));
+            if (intBits < 0) {
+                r = -r;
+            }
+            // In the comments below each Java expression evaluates to the value
+            // the corresponding mathematical expression:
+            // (r) evaluates to a / ulp(a)
+            // (r >> shift) evaluates to floor(a * 2)
+            // ((r >> shift) + 1) evaluates to floor((a + 1/2) * 2)
+            // (((r >> shift) + 1) >> 1) evaluates to floor(a + 1/2)
+            return ((r >> shift) + 1) >> 1;
+        } else {
+            // a is either
+            // - a finite number with abs(a) < exp(2,FloatConsts.SIGNIFICAND_WIDTH-32) < 1/2
+            // - a finite number with ulp(a) >= 1 and hence a is a mathematical integer
+            // - an infinity or NaN
+            return (int) a;
+        }
     }
 
     /**
@@ -775,9 +739,33 @@ public final class Math {
      * @see     java.lang.Long#MAX_VALUE
      * @see     java.lang.Long#MIN_VALUE
      */
-    @HotSpotIntrinsicCandidate
     public static long round(double a) {
-        return (long)rint(a);
+        long longBits = Double.doubleToRawLongBits(a);
+        long biasedExp = (longBits & DoubleConsts.EXP_BIT_MASK)
+                >> (DoubleConsts.SIGNIFICAND_WIDTH - 1);
+        long shift = (DoubleConsts.SIGNIFICAND_WIDTH - 2
+                + DoubleConsts.EXP_BIAS) - biasedExp;
+        if ((shift & -64) == 0) { // shift >= 0 && shift < 64
+            // a is a finite number such that pow(2,-64) <= ulp(a) < 1
+            long r = ((longBits & DoubleConsts.SIGNIF_BIT_MASK)
+                    | (DoubleConsts.SIGNIF_BIT_MASK + 1));
+            if (longBits < 0) {
+                r = -r;
+            }
+            // In the comments below each Java expression evaluates to the value
+            // the corresponding mathematical expression:
+            // (r) evaluates to a / ulp(a)
+            // (r >> shift) evaluates to floor(a * 2)
+            // ((r >> shift) + 1) evaluates to floor((a + 1/2) * 2)
+            // (((r >> shift) + 1) >> 1) evaluates to floor(a + 1/2)
+            return ((r >> shift) + 1) >> 1;
+        } else {
+            // a is either
+            // - a finite number with abs(a) < exp(2,DoubleConsts.SIGNIFICAND_WIDTH-64) < 1/2
+            // - a finite number with ulp(a) >= 1 and hence a is a mathematical integer
+            // - an infinity or NaN
+            return (long) a;
+        }
     }
 
     private static final class RandomNumberGeneratorHolder {
@@ -820,9 +808,6 @@ public final class Math {
      */
     public static double random() {
         return RandomNumberGeneratorHolder.randomNumberGenerator.nextDouble();
-    }
-    public static float randomFloat() {
-        return RandomNumberGeneratorHolder.randomNumberGenerator.nextFloat();
     }
 
     /**
@@ -1532,7 +1517,6 @@ public final class Math {
      * @param   b   another argument.
      * @return  the larger of {@code a} and {@code b}.
      */
-    @HotSpotIntrinsicCandidate
     public static long max(long a, long b) {
         return (a >= b) ? a : b;
     }
@@ -1557,17 +1541,15 @@ public final class Math {
      */
     @HotSpotIntrinsicCandidate
     public static float max(float a, float b) {
-        //if (a != a)
-        //    return a;   // a is NaN
-
-        // is necessary?
-        //if ((a == 0.0f) &&
-        //    (b == 0.0f) &&
-        //    (Float.floatToRawIntBits(a) == negativeZeroFloatBits)) {
-        //    // Raw conversion ok since NaN can't map to -0.0.
-        //    return b;
-        //}
-        return (a <= b) ? b : a;
+        if (a != a)
+            return a;   // a is NaN
+        if ((a == 0.0f) &&
+            (b == 0.0f) &&
+            (Float.floatToRawIntBits(a) == negativeZeroFloatBits)) {
+            // Raw conversion ok since NaN can't map to -0.0.
+            return b;
+        }
+        return (a >= b) ? a : b;
     }
 
     /**
@@ -1586,16 +1568,15 @@ public final class Math {
      */
     @HotSpotIntrinsicCandidate
     public static double max(double a, double b) {
-        //if (a != a)
-        //    return a;   // a is NaN
-
-        //if ((a == 0.0d) &&
-        //    (b == 0.0d) &&
-        //    (Double.doubleToRawLongBits(a) == negativeZeroDoubleBits)) {
-        //    // Raw conversion ok since NaN can't map to -0.0.
-        //    return b;
-        //}
-        return (a <= b) ? b : a;
+        if (a != a)
+            return a;   // a is NaN
+        if ((a == 0.0d) &&
+            (b == 0.0d) &&
+            (Double.doubleToRawLongBits(a) == negativeZeroDoubleBits)) {
+            // Raw conversion ok since NaN can't map to -0.0.
+            return b;
+        }
+        return (a >= b) ? a : b;
     }
 
     /**
@@ -1623,7 +1604,6 @@ public final class Math {
      * @param   b   another argument.
      * @return  the smaller of {@code a} and {@code b}.
      */
-    @HotSpotIntrinsicCandidate
     public static long min(long a, long b) {
         return (a <= b) ? a : b;
     }
@@ -1644,16 +1624,15 @@ public final class Math {
      */
     @HotSpotIntrinsicCandidate
     public static float min(float a, float b) {
-        //if (a != a)
-        //    return a;   // a is NaN
-
-        //if ((a == 0.0f) &&
-        //    (b == 0.0f) &&
-        //    (Float.floatToRawIntBits(b) == negativeZeroFloatBits)) {
+        if (a != a)
+            return a;   // a is NaN
+        if ((a == 0.0f) &&
+            (b == 0.0f) &&
+            (Float.floatToRawIntBits(b) == negativeZeroFloatBits)) {
             // Raw conversion ok since NaN can't map to -0.0.
-        //    return b;
-        //}
-        return (a >= b) ? b : a;
+            return b;
+        }
+        return (a <= b) ? a : b;
     }
 
     /**
@@ -1672,15 +1651,15 @@ public final class Math {
      */
     @HotSpotIntrinsicCandidate
     public static double min(double a, double b) {
-        //if (a != a)
-        //    return a;   // a is NaN
-        //if ((a == 0.0d) &&
-        //    (b == 0.0d) &&
-        //    (Double.doubleToRawLongBits(b) == negativeZeroDoubleBits)) {
+        if (a != a)
+            return a;   // a is NaN
+        if ((a == 0.0d) &&
+            (b == 0.0d) &&
+            (Double.doubleToRawLongBits(b) == negativeZeroDoubleBits)) {
             // Raw conversion ok since NaN can't map to -0.0.
-        //    return b;
-        //}
-        return (a >= b) ? b : a;
+            return b;
+        }
+        return (a <= b) ? a : b;
     }
 
     /**
@@ -2048,8 +2027,9 @@ public final class Math {
      * @return  The hyperbolic sine of {@code x}.
      * @since 1.5
      */
-    public static native double sinh(double x);
-    public static native float sinh(float x);
+    public static double sinh(double x) {
+        return StrictMath.sinh(x);
+    }
 
     /**
      * Returns the hyperbolic cosine of a {@code double} value.
@@ -2075,8 +2055,9 @@ public final class Math {
      * @return  The hyperbolic cosine of {@code x}.
      * @since 1.5
      */
-    public static native double cosh(double x);
-    public static native float cosh(float x);
+    public static double cosh(double x) {
+        return StrictMath.cosh(x);
+    }
 
     /**
      * Returns the hyperbolic tangent of a {@code double} value.
@@ -2114,8 +2095,10 @@ public final class Math {
      * @return  The hyperbolic tangent of {@code x}.
      * @since 1.5
      */
-    public static native double tanh(double x);
-    public static native float tanh(float x);
+    public static double tanh(double x) {
+        return StrictMath.tanh(x);
+    }
+
     /**
      * Returns sqrt(<i>x</i><sup>2</sup>&nbsp;+<i>y</i><sup>2</sup>)
      * without intermediate overflow or underflow.
@@ -2141,8 +2124,9 @@ public final class Math {
      * without intermediate overflow or underflow
      * @since 1.5
      */
-    public static native double hypot(double x, double y);
-    public static native float hypot(float x, float y);
+    public static double hypot(double x, double y) {
+        return StrictMath.hypot(x, y);
+    }
 
     /**
      * Returns <i>e</i><sup>x</sup>&nbsp;-1.  Note that for values of
@@ -2178,8 +2162,9 @@ public final class Math {
      * @return  the value <i>e</i><sup>{@code x}</sup>&nbsp;-&nbsp;1.
      * @since 1.5
      */
-    public static native double expm1(double x);
-    public static native float expm1(float x);
+    public static double expm1(double x) {
+        return StrictMath.expm1(x);
+    }
 
     /**
      * Returns the natural logarithm of the sum of the argument and 1.
@@ -2214,8 +2199,9 @@ public final class Math {
      * log of {@code x}&nbsp;+&nbsp;1
      * @since 1.5
      */
-    public static native double log1p(double x);
-    public static native float log1p(float x);
+    public static double log1p(double x) {
+        return StrictMath.log1p(x);
+    }
 
     /**
      * Returns the first floating-point argument with the sign of the
@@ -2656,7 +2642,82 @@ public final class Math {
      * @return {@code d} &times; 2<sup>{@code scaleFactor}</sup>
      * @since 1.6
      */
-    public static native double scalb(double d, int scaleFactor);
+    public static double scalb(double d, int scaleFactor) {
+        /*
+         * This method does not need to be declared strictfp to
+         * compute the same correct result on all platforms.  When
+         * scaling up, it does not matter what order the
+         * multiply-store operations are done; the result will be
+         * finite or overflow regardless of the operation ordering.
+         * However, to get the correct result when scaling down, a
+         * particular ordering must be used.
+         *
+         * When scaling down, the multiply-store operations are
+         * sequenced so that it is not possible for two consecutive
+         * multiply-stores to return subnormal results.  If one
+         * multiply-store result is subnormal, the next multiply will
+         * round it away to zero.  This is done by first multiplying
+         * by 2 ^ (scaleFactor % n) and then multiplying several
+         * times by 2^n as needed where n is the exponent of number
+         * that is a convenient power of two.  In this way, at most one
+         * real rounding error occurs.  If the double value set is
+         * being used exclusively, the rounding will occur on a
+         * multiply.  If the double-extended-exponent value set is
+         * being used, the products will (perhaps) be exact but the
+         * stores to d are guaranteed to round to the double value
+         * set.
+         *
+         * It is _not_ a valid implementation to first multiply d by
+         * 2^MIN_EXPONENT and then by 2 ^ (scaleFactor %
+         * MIN_EXPONENT) since even in a strictfp program double
+         * rounding on underflow could occur; e.g. if the scaleFactor
+         * argument was (MIN_EXPONENT - n) and the exponent of d was a
+         * little less than -(MIN_EXPONENT - n), meaning the final
+         * result would be subnormal.
+         *
+         * Since exact reproducibility of this method can be achieved
+         * without any undue performance burden, there is no
+         * compelling reason to allow double rounding on underflow in
+         * scalb.
+         */
+
+        // magnitude of a power of two so large that scaling a finite
+        // nonzero value by it would be guaranteed to over or
+        // underflow; due to rounding, scaling down takes an
+        // additional power of two which is reflected here
+        final int MAX_SCALE = Double.MAX_EXPONENT + -Double.MIN_EXPONENT +
+                              DoubleConsts.SIGNIFICAND_WIDTH + 1;
+        int exp_adjust = 0;
+        int scale_increment = 0;
+        double exp_delta = Double.NaN;
+
+        // Make sure scaling factor is in a reasonable range
+
+        if(scaleFactor < 0) {
+            scaleFactor = Math.max(scaleFactor, -MAX_SCALE);
+            scale_increment = -512;
+            exp_delta = twoToTheDoubleScaleDown;
+        }
+        else {
+            scaleFactor = Math.min(scaleFactor, MAX_SCALE);
+            scale_increment = 512;
+            exp_delta = twoToTheDoubleScaleUp;
+        }
+
+        // Calculate (scaleFactor % +/-512), 512 = 2^9, using
+        // technique from "Hacker's Delight" section 10-2.
+        int t = (scaleFactor >> 9-1) >>> 32 - 9;
+        exp_adjust = ((scaleFactor + t) & (512 -1)) - t;
+
+        d *= powerOfTwoD(exp_adjust);
+        scaleFactor -= exp_adjust;
+
+        while(scaleFactor != 0) {
+            d *= exp_delta;
+            scaleFactor -= scale_increment;
+        }
+        return d;
+    }
 
     /**
      * Returns {@code f} &times;
@@ -2688,7 +2749,28 @@ public final class Math {
      * @return {@code f} &times; 2<sup>{@code scaleFactor}</sup>
      * @since 1.6
      */
-    public static native float scalb(float f, int scaleFactor);
+    public static float scalb(float f, int scaleFactor) {
+        // magnitude of a power of two so large that scaling a finite
+        // nonzero value by it would be guaranteed to over or
+        // underflow; due to rounding, scaling down takes an
+        // additional power of two which is reflected here
+        final int MAX_SCALE = Float.MAX_EXPONENT + -Float.MIN_EXPONENT +
+                              FloatConsts.SIGNIFICAND_WIDTH + 1;
+
+        // Make sure scaling factor is in a reasonable range
+        scaleFactor = Math.max(Math.min(scaleFactor, MAX_SCALE), -MAX_SCALE);
+
+        /*
+         * Since + MAX_SCALE for float fits well within the double
+         * exponent range and + float -> double conversion is exact
+         * the multiplication below will be exact. Therefore, the
+         * rounding that occurs when the double product is cast to
+         * float will be the correctly rounded float result.  Since
+         * all operations other than the final multiply will be exact,
+         * it is not necessary to declare this method strictfp.
+         */
+        return (float)((double)f*powerOfTwoD(scaleFactor));
+    }
 
     // Constants used in scalb
     static double twoToTheDoubleScaleUp = powerOfTwoD(512);

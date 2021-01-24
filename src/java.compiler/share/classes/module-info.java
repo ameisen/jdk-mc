@@ -45,5 +45,11 @@ module java.compiler {
 
     uses javax.tools.DocumentationTool;
     uses javax.tools.JavaCompiler;
-}
 
+    opens javax.annotation.processing;
+    opens javax.lang.model;
+    opens javax.lang.model.element;
+    opens javax.lang.model.type;
+    opens javax.lang.model.util;
+    opens javax.tools;
+}

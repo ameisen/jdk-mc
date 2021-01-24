@@ -118,6 +118,9 @@ bool Dictionary::does_any_dictionary_needs_resizing() {
 void Dictionary::check_if_needs_resize() {
   if (_resizable == true) {
     if (number_of_entries() > (_resize_load_trigger*table_size())) {
+      if (CarbideLog) {
+        log_warning(os)("Dictionary required resizing");
+      }
       _needs_resizing = true;
       Dictionary::_some_dictionary_needs_resizing = true;
     }
@@ -131,11 +134,17 @@ bool Dictionary::resize_if_needed() {
     if (desired_size >= _resize_max_size) {
       desired_size = _resize_max_size;
       // We have reached the limit, turn resizing off
+      if (CarbideLog) {
+        log_warning(os)("Dictionary resizing disabled");
+      }
       _resizable = false;
     }
     if ((desired_size != 0) && (desired_size != table_size())) {
       if (!resize(desired_size)) {
         // Something went wrong, turn resizing off
+        if (CarbideLog) {
+          log_warning(os)("Dictionary resizing disabled");
+        }
         _resizable = false;
       }
     }

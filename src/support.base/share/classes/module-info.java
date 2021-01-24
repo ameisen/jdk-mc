@@ -31,5 +31,13 @@
  * @moduleGraph
  * @since 9
  */
-module support.base {
+open module support.base {
+	requires java.base;
+	requires transitive java.compiler;
+	requires transitive jdk.unsupported;
+
+	exports org.checkerframework.checker.nullness.qual;
+	exports com.google.j2objc.annotations;
+	exports com.google.errorprone.annotations;
+	exports com.google.errorprone.annotations.concurrent;
 }

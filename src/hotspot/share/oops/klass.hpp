@@ -685,6 +685,7 @@ protected:
 
   // klass name
   Symbol* name() const                   { return _name; }
+  const char * name_as_C_string() const { return (_name == nullptr) ? nullptr : _name->as_C_string(); }
   void set_name(Symbol* n);
 
   virtual void release_C_heap_structures();

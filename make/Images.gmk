@@ -186,7 +186,9 @@ $(JDK_IMAGE_DIR)/lib/src.zip: $(SUPPORT_OUTPUTDIR)/src.zip
 	$(call LogInfo, Copying $(patsubst $(OUTPUTDIR)/%,%,$@))
 	$(install-file)
 
-JDK_TARGETS += $(JDK_IMAGE_DIR)/lib/src.zip
+ifeq ($(SRC_ZIP_ENABLED), true)
+  JDK_TARGETS += $(JDK_IMAGE_DIR)/lib/src.zip
+endif
 
 ################################################################################
 # /demo dir

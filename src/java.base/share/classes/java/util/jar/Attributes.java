@@ -101,7 +101,10 @@ public class Attributes implements Map<Object,Object>, Cloneable {
      *         not found.
      */
     public Object get(Object name) {
-        return map.get(name);
+        if (Name.SEALED.equals(name)) {
+            return null;
+        }
+        return map.get((Name)name);
     }
 
     /**
@@ -152,6 +155,9 @@ public class Attributes implements Map<Object,Object>, Cloneable {
      *            or the value is not a String
      */
     public Object put(Object name, Object value) {
+        if (Name.SEALED.equals(name)) {
+            return null;
+        }
         return map.put((Attributes.Name)name, (String)value);
     }
 
@@ -172,6 +178,9 @@ public class Attributes implements Map<Object,Object>, Cloneable {
      * @throws    IllegalArgumentException if the attribute name is invalid
      */
     public String putValue(String name, String value) {
+        if (Name.SEALED.equals(Name.of(name))) {
+            return null;
+        }
         return (String)put(Name.of(name), value);
     }
 
@@ -183,7 +192,7 @@ public class Attributes implements Map<Object,Object>, Cloneable {
      * @return the previous value of the attribute, or null if none
      */
     public Object remove(Object name) {
-        return map.remove(name);
+        return map.remove((Name)name);
     }
 
     /**
@@ -205,7 +214,10 @@ public class Attributes implements Map<Object,Object>, Cloneable {
      * @return true if this Map contains the specified attribute name
      */
     public boolean containsKey(Object name) {
-        return map.containsKey(name);
+        if (Name.SEALED.equals(name)) {
+            return false;
+        }
+        return map.containsKey((Name)name);
     }
 
     /**
