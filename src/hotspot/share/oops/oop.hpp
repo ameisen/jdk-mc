@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,7 +27,7 @@
 
 #include "memory/iterator.hpp"
 #include "memory/memRegion.hpp"
-#include "oops/access.hpp"
+#include "oops/accessDecorators.hpp"
 #include "oops/markWord.hpp"
 #include "oops/metadata.hpp"
 #include "runtime/atomic.hpp"
@@ -76,6 +76,7 @@ class oopDesc {
   inline Klass* klass_or_null() const;
   inline Klass* klass_or_null_acquire() const;
 
+  void set_narrow_klass(narrowKlass nk) NOT_CDS_JAVA_HEAP_RETURN;
   inline void set_klass(Klass* k);
   static inline void release_set_klass(HeapWord* mem, Klass* k);
 
@@ -232,7 +233,6 @@ class oopDesc {
   // locking operations
   inline bool is_locked()   const;
   inline bool is_unlocked() const;
-  inline bool has_bias_pattern() const;
 
   // asserts and guarantees
   static bool is_oop(oop obj, bool ignore_mark_word = false);
@@ -256,7 +256,6 @@ class oopDesc {
   inline oop forward_to_atomic(oop p, markWord compare, atomic_memory_order order = memory_order_conservative);
 
   inline oop forwardee() const;
-  inline oop forwardee_acquire() const;
 
   // Age of object during scavenge
   inline uint age() const;
@@ -283,8 +282,6 @@ class oopDesc {
   inline static bool is_instanceof_or_null(oop obj, Klass* klass);
 
   // identity hash; returns the identity hash key (computes it if necessary)
-  // NOTE with the introduction of UseBiasedLocking that identity_hash() might reach a
-  // safepoint if called on a biased object. Calling code must be aware of that.
   inline intptr_t identity_hash();
   intptr_t slow_identity_hash();
 
@@ -311,6 +308,10 @@ class oopDesc {
   // for error reporting
   static void* load_klass_raw(oop obj);
   static void* load_oop_raw(oop obj, int offset);
+
+  // Avoid include gc_globals.hpp in oop.inline.hpp
+  DEBUG_ONLY(bool get_UseParallelGC();)
+  DEBUG_ONLY(bool get_UseG1GC();)
 };
 
 #endif // SHARE_OOPS_OOP_HPP

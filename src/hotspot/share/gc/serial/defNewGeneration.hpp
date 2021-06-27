@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2001, 2021, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -31,6 +31,7 @@
 #include "gc/shared/generation.hpp"
 #include "gc/shared/generationCounters.hpp"
 #include "gc/shared/preservedMarks.hpp"
+#include "gc/shared/tlab_globals.hpp"
 #include "utilities/align.hpp"
 #include "utilities/stack.hpp"
 
@@ -307,9 +308,8 @@ protected:
                        bool   clear_all_soft_refs,
                        size_t size,
                        bool   is_tlab);
-  HeapWord* expand_and_allocate(size_t size,
-                                bool is_tlab,
-                                bool parallel = false);
+
+  HeapWord* expand_and_allocate(size_t size, bool is_tlab);
 
   oop copy_to_survivor_space(oop old);
   uint tenuring_threshold() { return _tenuring_threshold; }

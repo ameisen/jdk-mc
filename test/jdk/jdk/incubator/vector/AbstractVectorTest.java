@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2021, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -108,20 +108,6 @@ public class AbstractVectorTest {
                             i -> ((i % 5) == 0));
             })
     );
-    static final List<IntFunction<int[]>> INDEX_GENERATORS = List.of(
-            withToString("index[i -> i]", (int s) -> {
-                return fillInts(s,
-                                i -> i);
-            }),
-            withToString("index[i -> size - i - 1]", (int s) -> {
-                return fillInts(s,
-                                i -> s - i - 1);
-            }),
-            withToString("index[i -> (i % 2) == 0 ? i : s - i - 1]", (int s) -> {
-                return fillInts(s,
-                                i -> (i % 2) == 0 ? i : s - i - 1);
-            })
-    );
 
     interface IntOp {
         int apply(int i);
@@ -161,9 +147,8 @@ public class AbstractVectorTest {
                                       fb -> List.of(fa, fb))).collect(Collectors.toList());
 
     static final List<BiFunction<Integer,Integer,int[]>> INT_SHUFFLE_GENERATORS = List.of(
-            withToStringBi("shuffle[random]", (Integer l, Integer m) -> {
-                return RAND.ints(l, 0, m).toArray();
-            })
+            withToStringBi("shuffle[random]",
+                    (Integer l, Integer m) -> RAND.ints(l, 0, m).toArray())
     );
 
     interface RangeIntOp {
@@ -202,16 +187,9 @@ public class AbstractVectorTest {
     );
 
     static final List<BiFunction<Integer,Integer,int[]>> INT_INDEX_GENERATORS = List.of(
-            withToStringBi("index[random]", (Integer l, Integer m) -> {
-                return RAND.ints(l, 0, m).toArray();
-            })
+            withToStringBi("index[random]",
+                    (Integer l, Integer m) -> RAND.ints(l, 0, m).toArray())
     );
-
-    static int countTrailingFalse(boolean[] m) {
-        int i;
-        for (i = m.length - 1; i >= 0 && !m[i]; i--);
-        return m.length - 1 - i;
-    }
 
     static boolean isIndexOutOfBoundsForMask(boolean[] mask, int offset, int length) {
         return isIndexOutOfBoundsForMask(mask, offset, length, 1);
@@ -251,7 +229,7 @@ public class AbstractVectorTest {
         boolean apply(boolean a, boolean b);
     }
 
-    static void assertArraysEquals(boolean[] a, boolean[] b, boolean[] r, FBooleanBinOp f) {
+    static void assertArraysEquals(boolean[] r, boolean[] a, boolean[] b, FBooleanBinOp f) {
         int i = 0;
         try {
             for (; i < a.length; i++) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2021, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -202,6 +202,7 @@ import sun.util.logging.PlatformLogger;
  *
  * @since 1.8
  */
+@SuppressWarnings("removal")
 public final class HijrahChronology extends AbstractChronology implements Serializable {
 
     /**
@@ -498,7 +499,7 @@ public final class HijrahChronology extends AbstractChronology implements Serial
 
     @Override
     public int prolepticYear(Era era, int yearOfEra) {
-        if (era instanceof HijrahEra == false) {
+        if (!(era instanceof HijrahEra)) {
             throw new ClassCastException("Era must be HijrahEra");
         }
         return yearOfEra;
@@ -535,21 +536,14 @@ public final class HijrahChronology extends AbstractChronology implements Serial
         checkCalendarInit();
         if (field instanceof ChronoField) {
             ChronoField f = field;
-            switch (f) {
-                case DAY_OF_MONTH:
-                    return ValueRange.of(1, 1, getMinimumMonthLength(), getMaximumMonthLength());
-                case DAY_OF_YEAR:
-                    return ValueRange.of(1, getMaximumDayOfYear());
-                case ALIGNED_WEEK_OF_MONTH:
-                    return ValueRange.of(1, 5);
-                case YEAR:
-                case YEAR_OF_ERA:
-                    return ValueRange.of(getMinimumYear(), getMaximumYear());
-                case ERA:
-                    return ValueRange.of(1, 1);
-                default:
-                    return field.range();
-            }
+            return switch (f) {
+                case DAY_OF_MONTH -> ValueRange.of(1, 1, getMinimumMonthLength(), getMaximumMonthLength());
+                case DAY_OF_YEAR -> ValueRange.of(1, getMaximumDayOfYear());
+                case ALIGNED_WEEK_OF_MONTH -> ValueRange.of(1, 5);
+                case YEAR, YEAR_OF_ERA -> ValueRange.of(getMinimumYear(), getMaximumYear());
+                case ERA -> ValueRange.of(1, 1);
+                default -> field.range();
+            };
         }
         return field.range();
     }

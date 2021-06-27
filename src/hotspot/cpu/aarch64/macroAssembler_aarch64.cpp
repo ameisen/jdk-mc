@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 1997, 2020, Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2014, 2020, Red Hat Inc. All rights reserved.
+ * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2021, Red Hat Inc. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -30,9 +30,12 @@
 #include "asm/assembler.hpp"
 #include "asm/assembler.inline.hpp"
 #include "gc/shared/barrierSet.hpp"
-#include "gc/shared/cardTable.hpp"
 #include "gc/shared/barrierSetAssembler.hpp"
 #include "gc/shared/cardTableBarrierSet.hpp"
+#include "gc/shared/cardTable.hpp"
+#include "gc/shared/collectedHeap.hpp"
+#include "gc/shared/tlab_globals.hpp"
+#include "interpreter/bytecodeHistogram.hpp"
 #include "interpreter/interpreter.hpp"
 #include "compiler/disassembler.hpp"
 #include "memory/resourceArea.hpp"
@@ -41,7 +44,6 @@
 #include "oops/accessDecorators.hpp"
 #include "oops/compressedOops.inline.hpp"
 #include "oops/klass.inline.hpp"
-#include "runtime/biasedLocking.hpp"
 #include "runtime/icache.hpp"
 #include "runtime/interfaceSupport.inline.hpp"
 #include "runtime/jniHandles.inline.hpp"
@@ -176,7 +178,7 @@ int MacroAssembler::patch_oop(address insn_addr, address o) {
   // instruction.
   if (Instruction_aarch64::extract(insn, 31, 21) == 0b11010010101) {
     // Move narrow OOP
-    uint32_t n = CompressedOops::narrow_oop_value((oop)o);
+    uint32_t n = CompressedOops::narrow_oop_value(cast_to_oop(o));
     Instruction_aarch64::patch(insn_addr, 20, 5, n >> 16);
     Instruction_aarch64::patch(insn_addr+4, 20, 5, n & 0xffff);
     instructions = 2;
@@ -291,10 +293,10 @@ address MacroAssembler::target_addr_for_insn(address insn_addr, unsigned insn) {
 
 void MacroAssembler::safepoint_poll(Label& slow_path, bool at_return, bool acquire, bool in_nmethod) {
   if (acquire) {
-    lea(rscratch1, Address(rthread, Thread::polling_word_offset()));
+    lea(rscratch1, Address(rthread, JavaThread::polling_word_offset()));
     ldar(rscratch1, rscratch1);
   } else {
-    ldr(rscratch1, Address(rthread, Thread::polling_word_offset()));
+    ldr(rscratch1, Address(rthread, JavaThread::polling_word_offset()));
   }
   if (at_return) {
     // Note that when in_nmethod is set, the stack pointer is incremented before the poll. Therefore,
@@ -302,7 +304,7 @@ void MacroAssembler::safepoint_poll(Label& slow_path, bool at_return, bool acqui
     cmp(in_nmethod ? sp : rfp, rscratch1);
     br(Assembler::HI, slow_path);
   } else {
-    tbnz(rscratch1, exact_log2(SafepointMechanism::poll_bit()), slow_path);
+    tbnz(rscratch1, log2i_exact(SafepointMechanism::poll_bit()), slow_path);
   }
 }
 
@@ -318,8 +320,6 @@ void MacroAssembler::reset_last_Java_frame(bool clear_fp) {
 
   // Always clear the pc because it could have been set by make_walkable()
   str(zr, Address(rthread, JavaThread::last_Java_pc_offset()));
-
-  str(zr, Address(rthread, JavaThread::saved_fp_address_offset()));
 }
 
 // Calls to C land
@@ -441,178 +441,6 @@ void MacroAssembler::reserved_stack_check() {
     bind(no_reserved_zone_enabling);
 }
 
-void MacroAssembler::biased_locking_enter(Register lock_reg,
-                                          Register obj_reg,
-                                          Register swap_reg,
-                                          Register tmp_reg,
-                                          bool swap_reg_contains_mark,
-                                          Label& done,
-                                          Label* slow_case,
-                                          BiasedLockingCounters* counters) {
-  assert(UseBiasedLocking, "why call this otherwise?");
-  assert_different_registers(lock_reg, obj_reg, swap_reg);
-
-  if (PrintBiasedLockingStatistics && counters == NULL)
-    counters = BiasedLocking::counters();
-
-  assert_different_registers(lock_reg, obj_reg, swap_reg, tmp_reg, rscratch1, rscratch2, noreg);
-  assert(markWord::age_shift == markWord::lock_bits + markWord::biased_lock_bits, "biased locking makes assumptions about bit layout");
-  Address mark_addr      (obj_reg, oopDesc::mark_offset_in_bytes());
-  Address klass_addr     (obj_reg, oopDesc::klass_offset_in_bytes());
-  Address saved_mark_addr(lock_reg, 0);
-
-  // Biased locking
-  // See whether the lock is currently biased toward our thread and
-  // whether the epoch is still valid
-  // Note that the runtime guarantees sufficient alignment of JavaThread
-  // pointers to allow age to be placed into low bits
-  // First check to see whether biasing is even enabled for this object
-  Label cas_label;
-  if (!swap_reg_contains_mark) {
-    ldr(swap_reg, mark_addr);
-  }
-  andr(tmp_reg, swap_reg, markWord::biased_lock_mask_in_place);
-  cmp(tmp_reg, (u1)markWord::biased_lock_pattern);
-  br(Assembler::NE, cas_label);
-  // The bias pattern is present in the object's header. Need to check
-  // whether the bias owner and the epoch are both still current.
-  load_prototype_header(tmp_reg, obj_reg);
-  orr(tmp_reg, tmp_reg, rthread);
-  eor(tmp_reg, swap_reg, tmp_reg);
-  andr(tmp_reg, tmp_reg, ~((int) markWord::age_mask_in_place));
-  if (counters != NULL) {
-    Label around;
-    cbnz(tmp_reg, around);
-    atomic_incw(Address((address)counters->biased_lock_entry_count_addr()), tmp_reg, rscratch1, rscratch2);
-    b(done);
-    bind(around);
-  } else {
-    cbz(tmp_reg, done);
-  }
-
-  Label try_revoke_bias;
-  Label try_rebias;
-
-  // At this point we know that the header has the bias pattern and
-  // that we are not the bias owner in the current epoch. We need to
-  // figure out more details about the state of the header in order to
-  // know what operations can be legally performed on the object's
-  // header.
-
-  // If the low three bits in the xor result aren't clear, that means
-  // the prototype header is no longer biased and we have to revoke
-  // the bias on this object.
-  andr(rscratch1, tmp_reg, markWord::biased_lock_mask_in_place);
-  cbnz(rscratch1, try_revoke_bias);
-
-  // Biasing is still enabled for this data type. See whether the
-  // epoch of the current bias is still valid, meaning that the epoch
-  // bits of the mark word are equal to the epoch bits of the
-  // prototype header. (Note that the prototype header's epoch bits
-  // only change at a safepoint.) If not, attempt to rebias the object
-  // toward the current thread. Note that we must be absolutely sure
-  // that the current epoch is invalid in order to do this because
-  // otherwise the manipulations it performs on the mark word are
-  // illegal.
-  andr(rscratch1, tmp_reg, markWord::epoch_mask_in_place);
-  cbnz(rscratch1, try_rebias);
-
-  // The epoch of the current bias is still valid but we know nothing
-  // about the owner; it might be set or it might be clear. Try to
-  // acquire the bias of the object using an atomic operation. If this
-  // fails we will go in to the runtime to revoke the object's bias.
-  // Note that we first construct the presumed unbiased header so we
-  // don't accidentally blow away another thread's valid bias.
-  {
-    Label here;
-    mov(rscratch1, markWord::biased_lock_mask_in_place | markWord::age_mask_in_place | markWord::epoch_mask_in_place);
-    andr(swap_reg, swap_reg, rscratch1);
-    orr(tmp_reg, swap_reg, rthread);
-    cmpxchg_obj_header(swap_reg, tmp_reg, obj_reg, rscratch1, here, slow_case);
-    // If the biasing toward our thread failed, this means that
-    // another thread succeeded in biasing it toward itself and we
-    // need to revoke that bias. The revocation will occur in the
-    // interpreter runtime in the slow case.
-    bind(here);
-    if (counters != NULL) {
-      atomic_incw(Address((address)counters->anonymously_biased_lock_entry_count_addr()),
-                  tmp_reg, rscratch1, rscratch2);
-    }
-  }
-  b(done);
-
-  bind(try_rebias);
-  // At this point we know the epoch has expired, meaning that the
-  // current "bias owner", if any, is actually invalid. Under these
-  // circumstances _only_, we are allowed to use the current header's
-  // value as the comparison value when doing the cas to acquire the
-  // bias in the current epoch. In other words, we allow transfer of
-  // the bias from one thread to another directly in this situation.
-  //
-  // FIXME: due to a lack of registers we currently blow away the age
-  // bits in this situation. Should attempt to preserve them.
-  {
-    Label here;
-    load_prototype_header(tmp_reg, obj_reg);
-    orr(tmp_reg, rthread, tmp_reg);
-    cmpxchg_obj_header(swap_reg, tmp_reg, obj_reg, rscratch1, here, slow_case);
-    // If the biasing toward our thread failed, then another thread
-    // succeeded in biasing it toward itself and we need to revoke that
-    // bias. The revocation will occur in the runtime in the slow case.
-    bind(here);
-    if (counters != NULL) {
-      atomic_incw(Address((address)counters->rebiased_lock_entry_count_addr()),
-                  tmp_reg, rscratch1, rscratch2);
-    }
-  }
-  b(done);
-
-  bind(try_revoke_bias);
-  // The prototype mark in the klass doesn't have the bias bit set any
-  // more, indicating that objects of this data type are not supposed
-  // to be biased any more. We are going to try to reset the mark of
-  // this object to the prototype value and fall through to the
-  // CAS-based locking scheme. Note that if our CAS fails, it means
-  // that another thread raced us for the privilege of revoking the
-  // bias of this particular object, so it's okay to continue in the
-  // normal locking code.
-  //
-  // FIXME: due to a lack of registers we currently blow away the age
-  // bits in this situation. Should attempt to preserve them.
-  {
-    Label here, nope;
-    load_prototype_header(tmp_reg, obj_reg);
-    cmpxchg_obj_header(swap_reg, tmp_reg, obj_reg, rscratch1, here, &nope);
-    bind(here);
-
-    // Fall through to the normal CAS-based lock, because no matter what
-    // the result of the above CAS, some thread must have succeeded in
-    // removing the bias bit from the object's header.
-    if (counters != NULL) {
-      atomic_incw(Address((address)counters->revoked_lock_entry_count_addr()), tmp_reg,
-                  rscratch1, rscratch2);
-    }
-    bind(nope);
-  }
-
-  bind(cas_label);
-}
-
-void MacroAssembler::biased_locking_exit(Register obj_reg, Register temp_reg, Label& done) {
-  assert(UseBiasedLocking, "why call this otherwise?");
-
-  // Check for biased locking unlock case, which is a no-op
-  // Note: we do not have to check the thread ID for two reasons.
-  // First, the interpreter checks for IllegalMonitorStateException at
-  // a higher level. Second, if the bias was revoked while we held the
-  // lock, the object could not be rebiased toward another thread, so
-  // the bias bit would be clear.
-  ldr(temp_reg, Address(obj_reg, oopDesc::mark_offset_in_bytes()));
-  andr(temp_reg, temp_reg, markWord::biased_lock_mask_in_place);
-  cmp(temp_reg, (u1)markWord::biased_lock_pattern);
-  br(Assembler::EQ, done);
-}
-
 static void pass_arg0(MacroAssembler* masm, Register arg) {
   if (c_rarg0 != arg ) {
     masm->mov(c_rarg0, arg);
@@ -676,6 +504,11 @@ void MacroAssembler::call_VM_base(Register oop_result,
 
   // do the call, remove parameters
   MacroAssembler::call_VM_leaf_base(entry_point, number_of_arguments, &l);
+
+  // lr could be poisoned with PAC signature during throw_pending_exception
+  // if it was tail-call optimized by compiler, since lr is not callee-saved
+  // reload it with proper value
+  adr(lr, l);
 
   // reset last Java frame
   // Only interpreter should have to clear fp
@@ -2565,6 +2398,8 @@ void MacroAssembler::atomic_##OP(Register prev, Register newv, Register addr) { 
 
 ATOMIC_XCHG(xchg, swp, ldxr, stxr, Assembler::xword)
 ATOMIC_XCHG(xchgw, swp, ldxrw, stxrw, Assembler::word)
+ATOMIC_XCHG(xchgl, swpl, ldxr, stlxr, Assembler::xword)
+ATOMIC_XCHG(xchglw, swpl, ldxrw, stlxrw, Assembler::word)
 ATOMIC_XCHG(xchgal, swpal, ldaxr, stlxr, Assembler::xword)
 ATOMIC_XCHG(xchgalw, swpal, ldaxrw, stlxrw, Assembler::word)
 
@@ -2662,6 +2497,8 @@ void MacroAssembler::pop_call_clobbered_registers_except(RegSet exclude) {
           as_FloatRegister(i+3), T1D, Address(post(sp, 4 * wordSize)));
   }
 
+  reinitialize_ptrue();
+
   pop(call_clobbered_registers() - exclude, sp);
 }
 
@@ -2698,6 +2535,11 @@ void MacroAssembler::pop_CPU_state(bool restore_vectors, bool use_sve,
       ld1(as_FloatRegister(i), as_FloatRegister(i+1), as_FloatRegister(i+2),
           as_FloatRegister(i+3), restore_vectors ? T2D : T1D, Address(post(sp, step)));
   }
+
+  if (restore_vectors) {
+    reinitialize_ptrue();
+  }
+
   pop(0x3fffffff, sp);         // integer registers except lr & sp
 }
 
@@ -3747,8 +3589,7 @@ void MacroAssembler::cmpptr(Register src1, Address src2) {
 }
 
 void MacroAssembler::cmpoop(Register obj1, Register obj2) {
-  BarrierSetAssembler* bs = BarrierSet::barrier_set()->barrier_set_assembler();
-  bs->obj_equals(this, obj1, obj2);
+  cmp(obj1, obj2);
 }
 
 void MacroAssembler::load_method_holder_cld(Register rresult, Register rmethod) {
@@ -3819,11 +3660,6 @@ void MacroAssembler::cmp_klass(Register oop, Register trial_klass, Register tmp)
     ldr(tmp, Address(oop, oopDesc::klass_offset_in_bytes()));
   }
   cmp(trial_klass, tmp);
-}
-
-void MacroAssembler::load_prototype_header(Register dst, Register src) {
-  load_klass(dst, src);
-  ldr(dst, Address(dst, Klass::prototype_header_offset()));
 }
 
 void MacroAssembler::store_klass(Register dst, Register src) {
@@ -3996,7 +3832,7 @@ MacroAssembler::KlassDecodeMode MacroAssembler::klass_decode_mode() {
   if (operand_valid_for_logical_immediate(
         /*is32*/false, (uint64_t)CompressedKlassPointers::base())) {
     const uint64_t range_mask =
-      (1ULL << log2_intptr(CompressedKlassPointers::range())) - 1;
+      (1ULL << log2i(CompressedKlassPointers::range())) - 1;
     if (((uint64_t)CompressedKlassPointers::base() & range_mask) == 0) {
       return (_klass_decode_mode = KlassDecodeXor);
     }
@@ -4148,15 +3984,6 @@ void MacroAssembler::access_store_at(BasicType type, DecoratorSet decorators,
   } else {
     bs->store_at(this, decorators, type, dst, src, tmp1, thread_tmp);
   }
-}
-
-void MacroAssembler::resolve(DecoratorSet decorators, Register obj) {
-  // Use stronger ACCESS_WRITE|ACCESS_READ by default.
-  if ((decorators & (ACCESS_READ | ACCESS_WRITE)) == 0) {
-    decorators |= ACCESS_READ | ACCESS_WRITE;
-  }
-  BarrierSetAssembler* bs = BarrierSet::barrier_set()->barrier_set_assembler();
-  return bs->resolve(this, decorators, obj);
 }
 
 void MacroAssembler::load_heap_oop(Register dst, Address src, Register tmp1,
@@ -4383,7 +4210,7 @@ void MacroAssembler::bang_stack_size(Register size, Register tmp) {
 
 // Move the address of the polling page into dest.
 void MacroAssembler::get_polling_page(Register dest, relocInfo::relocType rtype) {
-  ldr(dest, Address(rthread, Thread::polling_page_offset()));
+  ldr(dest, Address(rthread, JavaThread::polling_page_offset()));
 }
 
 // Read the polling page.  The address of the polling page must
@@ -4438,7 +4265,8 @@ void MacroAssembler::load_byte_map_base(Register reg) {
 }
 
 void MacroAssembler::build_frame(int framesize) {
-  assert(framesize > 0, "framesize must be > 0");
+  assert(framesize >= 2 * wordSize, "framesize must include space for FP/LR");
+  assert(framesize % (2*wordSize) == 0, "must preserve 2*wordSize alignment");
   if (framesize < ((1 << 9) + 2 * wordSize)) {
     sub(sp, sp, framesize);
     stp(rfp, lr, Address(sp, framesize - 2 * wordSize));
@@ -4457,7 +4285,8 @@ void MacroAssembler::build_frame(int framesize) {
 }
 
 void MacroAssembler::remove_frame(int framesize) {
-  assert(framesize > 0, "framesize must be > 0");
+  assert(framesize >= 2 * wordSize, "framesize must include space for FP/LR");
+  assert(framesize % (2*wordSize) == 0, "must preserve 2*wordSize alignment");
   if (framesize < ((1 << 9) + 2 * wordSize)) {
     ldp(rfp, lr, Address(sp, framesize - 2 * wordSize));
     add(sp, sp, framesize);
@@ -5144,7 +4973,7 @@ address MacroAssembler::byte_array_inflate(Register src, Register dst, Register 
 
   assert_different_registers(src, dst, len, tmp4, rscratch1);
 
-  fmovd(vtmp1, zr);
+  fmovd(vtmp1, 0.0);
   lsrw(tmp4, len, 3);
   bind(after_init);
   cbnzw(tmp4, big);
@@ -5257,10 +5086,14 @@ void MacroAssembler::char_array_compress(Register src, Register dst, Register le
 // by the call to JavaThread::aarch64_get_thread_helper() or, indeed,
 // the call setup code.
 //
-// aarch64_get_thread_helper() clobbers only r0, r1, and flags.
+// On Linux, aarch64_get_thread_helper() clobbers only r0, r1, and flags.
+// On other systems, the helper is a usual C function.
 //
 void MacroAssembler::get_thread(Register dst) {
-  RegSet saved_regs = RegSet::range(r0, r1) + lr - dst;
+  RegSet saved_regs =
+    LINUX_ONLY(RegSet::range(r0, r1)  + lr - dst)
+    NOT_LINUX (RegSet::range(r0, r17) + lr - dst);
+
   push(saved_regs, sp);
 
   mov(lr, CAST_FROM_FN_PTR(address, JavaThread::aarch64_get_thread_helper));
@@ -5308,7 +5141,9 @@ void MacroAssembler::verify_sve_vector_length() {
 
 void MacroAssembler::verify_ptrue() {
   Label verify_ok;
-  assert(UseSVE > 0, "should only be used for SVE");
+  if (!UseSVE) {
+    return;
+  }
   sve_cntp(rscratch1, B, ptrue, ptrue); // get true elements count.
   sve_dec(rscratch1, B);
   cbz(rscratch1, verify_ok);

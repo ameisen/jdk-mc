@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2021, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -124,7 +124,10 @@ void IdealLoopTree::compute_trip_count(PhaseIdealLoop* phase) {
     jlong limit_con = (stride_con > 0) ? limit_type->_hi : limit_type->_lo;
     int stride_m = stride_con - (stride_con > 0 ? 1 : -1);
     jlong trip_count = (limit_con - init_con + stride_m)/stride_con;
-    if (trip_count > 0 && (julong)trip_count < (julong)max_juint) {
+    // The loop body is always executed at least once even if init >= limit (for stride_con > 0) or
+    // init <= limit (for stride_con < 0).
+    trip_count = MAX2(trip_count, (jlong)1);
+    if (trip_count < (jlong)max_juint) {
       if (init_n->is_Con() && limit_n->is_Con()) {
         // Set exact trip count.
         cl->set_exact_trip_count((uint)trip_count);
@@ -912,12 +915,12 @@ bool IdealLoopTree::policy_unroll(PhaseIdealLoop *phase) {
       const TypeInt* iv_type = phase->_igvn.type(phi)->is_int();
       int next_stride = stride_con * 2; // stride after this unroll
       if (next_stride > 0) {
-        if (iv_type->_lo + next_stride <= iv_type->_lo || // overflow
+        if (iv_type->_lo > max_jint - next_stride || // overflow
             iv_type->_lo + next_stride >  iv_type->_hi) {
           return false;  // over-unrolling
         }
       } else if (next_stride < 0) {
-        if (iv_type->_hi + next_stride >= iv_type->_hi || // overflow
+        if (iv_type->_hi < min_jint - next_stride || // overflow
             iv_type->_hi + next_stride <  iv_type->_lo) {
           return false;  // over-unrolling
         }
@@ -928,8 +931,8 @@ bool IdealLoopTree::policy_unroll(PhaseIdealLoop *phase) {
   // After unroll limit will be adjusted: new_limit = limit-stride.
   // Bailout if adjustment overflow.
   const TypeInt* limit_type = phase->_igvn.type(limit_n)->is_int();
-  if ((stride_con > 0 && ((limit_type->_hi - stride_con) >= limit_type->_hi)) ||
-      (stride_con < 0 && ((limit_type->_lo - stride_con) <= limit_type->_lo)))
+  if ((stride_con > 0 && ((min_jint + stride_con) > limit_type->_hi)) ||
+      (stride_con < 0 && ((max_jint + stride_con) < limit_type->_lo)))
     return false;  // overflow
 
   // Adjust body_size to determine if we unroll or not
@@ -1190,13 +1193,13 @@ Node *PhaseIdealLoop::clone_up_backedge_goo(Node *back_ctrl, Node *preheader_ctr
 }
 
 Node* PhaseIdealLoop::cast_incr_before_loop(Node* incr, Node* ctrl, Node* loop) {
-  Node* castii = new CastIINode(incr, TypeInt::INT, true);
+  Node* castii = new CastIINode(incr, TypeInt::INT, ConstraintCastNode::StrongDependency);
   castii->set_req(0, ctrl);
   register_new_node(castii, ctrl);
   for (DUIterator_Fast imax, i = incr->fast_outs(imax); i < imax; i++) {
     Node* n = incr->fast_out(i);
     if (n->is_Phi() && n->in(0) == loop) {
-      int nrep = n->replace_edge(incr, castii);
+      int nrep = n->replace_edge(incr, castii, &_igvn);
       return castii;
     }
   }
@@ -2848,6 +2851,16 @@ int PhaseIdealLoop::do_range_check(IdealLoopTree *loop, Node_List &old_new) {
     register_new_node(main_cmp, main_cle->in(0));
     _igvn.replace_input_of(main_bol, 1, main_cmp);
   }
+  assert(main_limit == cl->limit() || get_ctrl(main_limit) == pre_ctrl, "wrong control for added limit");
+  const TypeInt* orig_limit_t = _igvn.type(orig_limit)->is_int();
+  bool upward = cl->stride_con() > 0;
+  // The new loop limit is <= (for an upward loop) >= (for a downward loop) than the orig limit.
+  // The expression that computes the new limit may be too complicated and the computed type of the new limit
+  // may be too pessimistic. A CastII here guarantees it's not lost.
+  main_limit = new CastIINode(main_limit, TypeInt::make(upward ? min_jint : orig_limit_t->_lo,
+                                                        upward ? orig_limit_t->_hi : max_jint, Type::WidenMax));
+  main_limit->init_req(0, pre_ctrl);
+  register_new_node(main_limit, pre_ctrl);
   // Hack the now-private loop bounds
   _igvn.replace_input_of(main_cmp, 2, main_limit);
   // The OpaqueNode is unshared by design
@@ -3698,21 +3711,9 @@ bool PhaseIdealLoop::match_fill_loop(IdealLoopTree* lpt, Node*& store, Node*& st
     for (SimpleDUIterator iter(n); iter.has_next(); iter.next()) {
       Node* use = iter.get();
       if (!lpt->_body.contains(use)) {
-        if (n->is_CountedLoop() && n->as_CountedLoop()->is_strip_mined()) {
-          // In strip-mined counted loops, the CountedLoopNode may be
-          // used by the address polling node of the outer safepoint.
-          // Skip this use because it's safe.
-#ifdef ASSERT
-          Node* sfpt = n->as_CountedLoop()->outer_safepoint();
-          Node* polladr = sfpt->in(TypeFunc::Parms+0);
-          assert(use == polladr, "the use should be a safepoint polling");
-#endif
-          continue;
-        } else {
-          msg = "node is used outside loop";
-          msg_node = n;
-          break;
-        }
+        msg = "node is used outside loop";
+        msg_node = n;
+        break;
       }
     }
   }
